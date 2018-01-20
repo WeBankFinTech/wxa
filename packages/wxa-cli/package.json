@@ -1,5 +1,5 @@
 {
-  "name": "wxa",
+  "name": "@wxa/cli",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -8,10 +8,11 @@
     "dev": "babel --watch src --out-dir dist"
   },
   "author": "iveswen",
-  "license": "UNLICENCED",
+  "license": "MIT",
   "bin": {
     "wxa": "bin/wxa.js"
   },
+  "repository": "https://github.com/Genuifx/wxa-cli.git",
   "devDependencies": {
     "babel": "^6.23.0",
     "babel-cli": "^6.26.0",
