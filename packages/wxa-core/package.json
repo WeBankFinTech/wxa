@@ -1,0 +1,25 @@
+{
+  "name": "@wxa/core",
+  "version": "1.0.0",
+  "description": "dist/wxa.js",
+  "main": "index.js",
+  "scripts": {
+    "build": "babel src --out-dir dist/dist",
+    "dev": "babel --watch src --out-dir dist"
+  },
+  "author": "iveswen",
+  "license": "MIT",
+  "repository": "https://github.com/Genuifx/wxa.git",
+  "devDependencies": {
+    "babel": "^6.23.0",
+    "babel-cli": "^6.26.0",
+    "babel-eslint": "^8.2.1",
+    "babel-plugin-syntax-dynamic-import": "^6.18.0",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "eslint": "^4.15.0",
+    "eslint-config-google": "^0.9.1"
+  },
+  "dependencies": {}
+}
