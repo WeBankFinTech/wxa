@@ -2,6 +2,7 @@ import path from 'path';
 import {readFile, getDistPath, error, writeFile, isFile, isDir, getConfig, amazingCache} from './utils';
 import {transform} from 'babel-core';
 import {Base64} from 'js-base64';
+import {Tapable, AsyncSeriesHook} from 'tapable';
 const pkg = require('../package.json');
 
 function compileWithBabel(content, config) {
@@ -16,10 +17,15 @@ function compileWithBabel(content, config) {
 
 export default class CScript {
     constructor(src, dist, ext) {
+        // super();
+        this.hooks = {
+            optimizeAssets: new AsyncSeriesHook(['code', 'compilation']),
+        };
         this.current = process.cwd();
         this.src = src;
         this.dist = dist;
         this.ext = ext;
+        this.code = '';
         this.modulesPath = path.join(this.current, 'node_modules', path.sep);
         this.npmPath = path.join(this.current, dist, 'npm', path.sep);
     }
@@ -156,8 +162,12 @@ export default class CScript {
                 code += `\r\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,${Base64.encode(JSON.stringify(sourcemap))}`;
             }
 
-            writeFile(target, code);
-            return code;
+            this.code = code;
+            // writeFile(target, code);
+            return this.hooks.optimizeAssets.promise(code, this).then((err)=>{
+                if (err) return Promise.reject(err);
+                writeFile(target, this.code);
+            });
         }).catch((e)=>error(e));
     }
 }

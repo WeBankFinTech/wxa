@@ -32,6 +32,16 @@ export function getConfig() {
     return config;
 }
 
+export function applyPlugins(compiler) {
+    let plugins = getConfig().plugins;
+    if (plugins == null) return;
+    // console.log(compiler);
+    if (typeof plugins !== 'object') throw new Error('wxa配置文件有误，plugins');
+    if (!Array.isArray(plugins)) plugins = [plugins];
+
+    plugins.forEach((plugin)=>plugin.apply(compiler));
+}
+
 export function readFile(p) {
     let rst = '';
     p = (typeof p === 'object') ? path.join(p.dir, p.base) : p;

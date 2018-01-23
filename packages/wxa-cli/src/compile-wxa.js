@@ -1,5 +1,5 @@
 import path from 'path';
-import {readFile, error, encode, warn, isFile, decode} from './utils';
+import {readFile, error, encode, warn, isFile, decode, applyPlugins} from './utils';
 import {DOMParser} from 'xmldom';
 import CStyle from './compile-style';
 import CTemplate from './compile-template';
@@ -28,7 +28,11 @@ class CompileWxa {
 
         if (wxa.template && wxa.template.code) new CTemplate(this.src, this.dist, this.ext).compile(wxa.template);
 
-        if (wxa.script.code) new CScript(this.src, this.dist, this.ext).compile(wxa.script.type, wxa.script.code, type, opath);
+        if (wxa.script.code) {
+            let compiler = new CScript(this.src, this.dist, this.ext);
+            applyPlugins(compiler);
+            compiler.compile(wxa.script.type, wxa.script.code, type, opath);
+        }
 
         if (wxa.config.code) new CConfig(this.src, this.dist).compile(wxa.config.code, opath);
     }
@@ -80,7 +84,7 @@ class CompileWxa {
             script: {
                 code: '',
                 src: '',
-                type: 'babel',
+                type: 'js',
             },
             config: {
                 code: '',
@@ -101,7 +105,7 @@ class CompileWxa {
                     rstTypeObject = rst[nodeName];
                 }
                 rstTypeObject.src = child.getAttribute('src');
-                rstTypeObject.type = child.getAttribute('lang') || child.getAttribute('type');
+                rstTypeObject.type = child.getAttribute('lang') || child.getAttribute('type') || 'js';
 
                 if (rstTypeObject.src) rstTypeObject.src = path.resolve(opath.dir, rstTypeObject.src);
 

@@ -2,7 +2,7 @@
   "name": "@wxa/cli",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/wxa.js",
   "scripts": {
     "build": "babel src --out-dir dist/dist",
     "dev": "babel --watch src --out-dir dist"
@@ -32,6 +32,7 @@
     "js-base64": "^2.4.0",
     "mkdirp": "^0.5.1",
     "node-sass": "^4.7.2",
+    "tapable": "^1.0.0-beta.5",
     "xmldom": "^0.1.27"
   }
 }
