@@ -13,7 +13,7 @@ module.exports.launch = function(instance) {
             let category = 'push';
             if (type) category = type;
             this.router[category](path);
-        }, 220);
+        }, 250);
     })();
     vm.onShareAppMessage = vm.onShareAppMessage || function() {
         let pages = getCurrentPages();
