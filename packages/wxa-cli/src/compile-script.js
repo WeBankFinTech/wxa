@@ -26,6 +26,8 @@ export default class CScript {
         this.dist = dist;
         this.ext = ext;
         this.code = '';
+        let configs = getConfig();
+        this.alias = configs.resolve && configs.resolve.alias || {};
         this.modulesPath = path.join(this.current, 'node_modules', path.sep);
         this.npmPath = path.join(this.current, dist, 'npm', path.sep);
     }
@@ -45,6 +47,21 @@ export default class CScript {
         return code.replace(/require\(['"]([\w\d_\-\.\/@]+)['"]\)/ig, (match, lib)=>{
             let resolved = lib;
             let target = '', source = '', ext = '', needCopy = false;
+
+            // resolve alias;
+            if (this.alias && type !== 'npm') {
+                Object.keys(this.alias).forEach((key)=>{
+                    let value = this.alias[key];
+                    let aliasReg = new RegExp(`(^${key}$)|(^${key}\/.*$)`, 'gm');
+                    if (aliasReg.test(lib)) {
+                        console.log('find alias');
+                        let tar = lib.replace(new RegExp(key, 'g'), value);
+                        let otar = path.parse(tar);
+                        tar = path.join(path.relative(tar, opath.dir), otar.base);
+                        lib = tar.replace(/\\/g, '/').replace(/\.\.\//, './');
+                    }
+                });
+            }
 
             if (lib[0] === '.') { // require('./a/b/c)' require('..')
                 source = path.join(opath.dir, lib);
@@ -77,7 +94,7 @@ export default class CScript {
                 ext = '';
                 needCopy = true;
             }
-            // console.log('target', target);
+            console.log('target', target);
 
             if (isFile(path.join(source+this.ext))) {
                 ext = '.js';
@@ -92,14 +109,16 @@ export default class CScript {
             }
 
             source += ext;
-            target += ext;
+            target = !path.extname(target) ? target + ext : target;
             lib += ext;
             resolved = lib;
 
+            // 递归处理依赖
             if (needCopy) {
                 this.compile('js', null, 'npm', path.parse(source));
             }
 
+            // 路径修正
             if (type === 'npm') {
                 if (lib[0] !== '.') {
                     // 依赖第三方包
@@ -110,7 +129,8 @@ export default class CScript {
                     if (lib[0] === '.' && lib[1] === '.') resolved = './'+resolved;
                 }
             } else {
-                resolved = path.relative(getDistPath(opath, opath.ext, this.src, this.dist), target);
+                console.log('resolved', ext, getDistPath(opath, ext, this.src, this.dist), target, resolved);
+                resolved = path.relative(getDistPath(opath, ext, this.src, this.dist), target);
             }
             // 转化windowd的\\，修复path,relative需要向上一级目录的缺陷
             resolved = resolved.replace(/\\/g, '/').replace(/^\.\.\//, './');
