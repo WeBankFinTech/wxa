@@ -16,7 +16,7 @@ function compileWithBabel(content, config) {
     }
 }
 
-const orgPkgReg = /^@([\w\-\_\d]*\/?)+$/;
+const pkgReg = /^([\w\-\_\d@]*\/?)+$/;
 
 export default class CScript {
     constructor(src, dist, ext) {
@@ -76,10 +76,7 @@ export default class CScript {
                 } else {
                     target = getDistPath(source, '.js', this.src, this.dist);
                 }
-            } else if (lib.indexOf('/') === -1 || // require('asset');
-                lib.indexOf('/') === lib.length - 1 || // require('a/b/something/') require('vue/dist/runtime.common')
-                (orgPkgReg.test(lib)) // require('@abc/something/cd')
-            ) {
+            } else if ((pkgReg.test(lib))) { // require('@abc/something/cd') require('vue')
                 let pkg = this.getPkgConfig(lib);
                 if (!pkg) {
                     throw new Error('找不到模块'+lib);
@@ -94,27 +91,20 @@ export default class CScript {
                 ext = '';
                 needCopy = true;
             } else {
-                source = path.join(this.modulesPath, lib);
-                target = path.join(this.npmPath, lib);
-                ext = '';
-                needCopy = true;
+                throw new Error('无法解析的路径类型 '+lib);
             }
 
-            if (isFile(path.join(source+this.ext))) {
-                ext = '.js';
-            } else if (isFile(path.join(source+'.js'))) {
-                ext = '.js';
-            } else if (isDir(source) && isFile(source+path.sep+'index.js')) {
-                ext = path.sep+'index.js';
-            } else if (isFile(source)) {
-                ext = '';
-            } else {
-                throw new Error('找不到文件'+lib);
+            // 处理无后缀情况
+            ext = path.extname(source);
+            if (!isFile(source)) {
+                // 非完整后缀的路径
+                if (isFile(source+this.ext)) ext = '.js'; // .wxa的文件转js
+                else if (isDir(source) && isFile(source+path.sep+'index.js')) ext = path.sep+'index.js';
+                else throw new Error('找不到文件 '+lib);
             }
-
-            source += ext;
+            source = !path.extname(source) ? source+ext : source;
             target = !path.extname(target) ? target + ext : target;
-            lib += ext;
+            lib = !path.extname(lib) ? lib + ext : lib;
             resolved = lib;
 
             // 递归处理依赖
