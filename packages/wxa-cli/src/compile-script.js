@@ -16,7 +16,7 @@ function compileWithBabel(content, config) {
     }
 }
 
-const pkgReg = /^([\w\-\_\d@]*\/?)+$/;
+const pkgReg = /^([\w\-\_\d@\.]*\/?)+$/;
 
 export default class CScript {
     constructor(src, dist, ext) {
@@ -60,7 +60,7 @@ export default class CScript {
                     let value = this.alias[key];
                     let aliasReg = new RegExp(`(^${key}$)|(^${key}\/.*$)`, 'gm');
                     if (aliasReg.test(lib)) {
-                        console.log('find alias');
+                        // console.log('find alias');
                         let tar = lib.replace(new RegExp(key, 'g'), value);
                         let otar = path.parse(tar);
                         tar = path.join(path.relative(tar, opath.dir), otar.base);
@@ -75,20 +75,12 @@ export default class CScript {
                     target = path.join(this.npmPath, path.relative(this.modulesPath, source));
                     needCopy = true;
                 } else {
-                    target = getDistPath(source, '.js', this.src, this.dist);
+                    let otarget = path.parse(getDistPath(source, '.js', this.src, this.dist));
+                    target = otarget.dir+path.sep+otarget.name;
                 }
             } else if ((pkgReg.test(lib))) { // require('@abc/something/cd') require('vue')
-                let pkg = this.getPkgConfig(lib);
-                if (!pkg) {
-                    throw new Error('找不到模块'+lib);
-                }
-                let main = pkg.main || 'index.js';
-                if (pkg.browser && typeof pkg.browser === 'string') {
-                    main = pkg.browser;
-                }
-                source = path.join(this.modulesPath, lib, main);
-                target = path.join(this.npmPath, lib, main);
-                lib += path.sep + main;
+                source = path.join(this.modulesPath, lib);
+                target = path.join(this.npmPath, lib);
                 ext = '';
                 needCopy = true;
             } else {
@@ -96,22 +88,42 @@ export default class CScript {
             }
 
             // 处理无后缀情况
-            ext = path.extname(source);
+            // ext = path.extname(source);
             if (!isFile(source)) {
+                // 解析拓展
+                let pext = this.extensions.find((ext)=>isFile(source+ext));
                 // 非完整后缀的路径
                 if (isFile(source+this.ext)) ext = '.js'; // .wxa的文件转js
+                else if (pext) ext = pext;
                 else if (isDir(source) && isFile(source+path.sep+'index.js')) ext = path.sep+'index.js';
                 else {
-                    // 解析拓展
-                    let pext = this.extensions.find((ext)=>isFile(source+ext));
-                    if (pext == null) throw new Error('找不到文件 '+lib);
-
-                    ext = pext;
+                    // 非指定文件的node_modules路径依赖
+                    let pkg = this.getPkgConfig(lib);
+                    if (!pkg) {
+                        throw new Error('找不到模块'+lib);
+                    }
+                    let main = pkg.main || 'index.js';
+                    if (pkg.browser && typeof pkg.browser === 'string') {
+                        main = pkg.browser;
+                    }
+                    if (isFile(path.join(source, main))) {
+                        // source = path.join(source, main);
+                        // target = path.join(target, main);
+                        // console.log(lib, '\n', target);
+                        ext = path.sep+main;
+                    } else {
+                        throw new Error('找不到文件 '+lib);
+                    }
                 }
+            } else {
+                ext = '';
             }
-            source = !path.extname(source) ? source+ext : source;
-            target = !path.extname(target) ? target + ext : target;
-            lib = !path.extname(lib) ? lib + ext : lib;
+            // source = !path.extname(source) ? source+ext : source;
+            // target = !path.extname(target) ? target + ext : target;
+            // lib = !path.extname(lib) ? lib + ext : lib;
+            source += ext;
+            target += ext;
+            lib += ext;
             resolved = lib;
 
             // 递归处理依赖
@@ -131,7 +143,7 @@ export default class CScript {
                 }
             } else {
                 // console.log('resolved', ext, getDistPath(opath, ext, this.src, this.dist), target, resolved);
-                resolved = path.relative(getDistPath(opath, ext, this.src, this.dist), target);
+                resolved = path.relative(getDistPath(opath, 'js', this.src, this.dist), target);
             }
             // 转化windowd的\\，修复path,relative需要向上一级目录的缺陷
             resolved = resolved.replace(/\\/g, '/').replace(/^\.\.\//, './');
