@@ -3,6 +3,7 @@ import {readFile, getDistPath, error, writeFile, isFile, isDir, getConfig, amazi
 import {transform} from 'babel-core';
 import {Base64} from 'js-base64';
 import {Tapable, AsyncSeriesHook} from 'tapable';
+import findRoot from 'find-root';
 const pkg = require('../package.json');
 
 function compileWithBabel(content, config) {
@@ -14,6 +15,8 @@ function compileWithBabel(content, config) {
         return Promise.reject(e);
     }
 }
+
+const orgPkgReg = /^@([\w\-\_\d]*\/?)+$/;
 
 export default class CScript {
     constructor(src, dist, ext) {
@@ -33,7 +36,9 @@ export default class CScript {
     }
 
     getPkgConfig(lib) {
-        let content = readFile(path.join(this.modulesPath, lib, 'package.json'));
+        let uri = path.join(this.modulesPath, lib);
+        let location = findRoot(uri);
+        let content = readFile(path.join(location, 'package.json'));
         try {
             content = JSON.parse(content);
         } catch (e) {
@@ -73,7 +78,7 @@ export default class CScript {
                 }
             } else if (lib.indexOf('/') === -1 || // require('asset');
                 lib.indexOf('/') === lib.length - 1 || // require('a/b/something/') require('vue/dist/runtime.common')
-                (lib[0] === '@' && lib.indexOf('/') !== -1 && lib.lastIndexOf('/') === lib.indexOf('/')) // require('@abc/something')
+                (orgPkgReg.test(lib)) // require('@abc/something/cd')
             ) {
                 let pkg = this.getPkgConfig(lib);
                 if (!pkg) {
@@ -94,7 +99,6 @@ export default class CScript {
                 ext = '';
                 needCopy = true;
             }
-            console.log('target', target);
 
             if (isFile(path.join(source+this.ext))) {
                 ext = '.js';
