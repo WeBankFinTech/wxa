@@ -31,6 +31,7 @@ export default class CScript {
         this.code = '';
         let configs = getConfig();
         this.alias = configs.resolve && configs.resolve.alias || {};
+        this.extensions = configs.resolve && configs.resolve.extensions || ['.js', '.json'];
         this.modulesPath = path.join(this.current, 'node_modules', path.sep);
         this.npmPath = path.join(this.current, dist, 'npm', path.sep);
     }
@@ -100,7 +101,13 @@ export default class CScript {
                 // 非完整后缀的路径
                 if (isFile(source+this.ext)) ext = '.js'; // .wxa的文件转js
                 else if (isDir(source) && isFile(source+path.sep+'index.js')) ext = path.sep+'index.js';
-                else throw new Error('找不到文件 '+lib);
+                else {
+                    // 解析拓展
+                    let pext = this.extensions.find((ext)=>isFile(source+ext));
+                    if (pext == null) throw new Error('找不到文件 '+lib);
+
+                    ext = pext;
+                }
             }
             source = !path.extname(source) ? source+ext : source;
             target = !path.extname(target) ? target + ext : target;
@@ -123,7 +130,7 @@ export default class CScript {
                     if (lib[0] === '.' && lib[1] === '.') resolved = './'+resolved;
                 }
             } else {
-                console.log('resolved', ext, getDistPath(opath, ext, this.src, this.dist), target, resolved);
+                // console.log('resolved', ext, getDistPath(opath, ext, this.src, this.dist), target, resolved);
                 resolved = path.relative(getDistPath(opath, ext, this.src, this.dist), target);
             }
             // 转化windowd的\\，修复path,relative需要向上一级目录的缺陷
