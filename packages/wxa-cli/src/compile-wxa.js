@@ -34,7 +34,11 @@ class CompileWxa {
             compiler.compile(wxa.script.type, wxa.script.code, type, opath);
         }
 
-        if (wxa.config.code) new CConfig(this.src, this.dist).compile(wxa.config.code, opath);
+        if (wxa.config.code) {
+            let compiler = new CConfig(this.src, this.dist);
+            applyPlugins(compiler);
+            compiler.compile(wxa.config.code, opath);
+        }
     }
     resolveWxa(xml, opath) {
         let filepath;
