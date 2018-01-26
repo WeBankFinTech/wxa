@@ -5,6 +5,7 @@ const defaultOpt = {}
 module.exports = class UglifyjsPlugins {
     constructor(options = {}) {
         this.configs = Object.assign({}, {
+            filter: /\.js$/,
             config: defaultOpt
         }, options);
         this.count = 0;
@@ -15,6 +16,7 @@ module.exports = class UglifyjsPlugins {
         });
     }
     run(compilation, code, next) {
+        if(!this.configs.filter.test(compilation.type)) return next(null);
         let rst = uglify.minify(code, this.configs.config);
         if(rst.error) next(rst.error);
 
