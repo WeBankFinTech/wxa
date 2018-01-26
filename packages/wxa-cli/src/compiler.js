@@ -4,6 +4,7 @@ import CWxa from './compile-wxa';
 import CScript from './compile-script';
 import CStyle from './compile-style';
 import chokidar from 'chokidar';
+import schedule from './schedule';
 
 class Compiler {
     constructor(src, dist, ext) {
@@ -69,6 +70,7 @@ class Compiler {
         let file = cmd.file;
         let files = file ? [file] : getFiles(this.src);
 
+        info('[compile] start '+new Date());
         files.forEach((file)=>{
             let opath = path.parse(path.join(this.current, this.src, file));
             if (file) {
@@ -90,18 +92,26 @@ class Compiler {
         }
 
         switch (opath.ext) {
-            case this.ext:
-                new CWxa(this.src, this.dist, this.ext).compile(opath);
+            case this.ext: {
+                let cWxa = new CWxa(this.src, this.dist, this.ext);
+                cWxa.compile(opath);
                 break;
+            }
             case '.sass':
-            case '.scss':
-                new CStyle(this.src, this.dist, '.ext').compile('sass', opath);
-            case '.js':
-                new CScript(this.src, this.dist, '.js').compile('babel', null, 'js', opath);
+            case '.scss': {
+                let cStyle = new CStyle(this.src, this.dist, '.ext');
+                schedule.push(cStyle.compile('sass', opath));
+                break;
+            }
+            case '.js': {
+                let cScript = new CScript(this.src, this.dist, '.js');
+                cScript.compile('babel', null, 'js', opath);
+                break;
+            }
             default:
                 info('[拷贝]'+path.join(opath.dir, opath.base));
 
-                copy(opath, opath.ext, this.src, this.dist);
+                schedule.push(copy(opath, opath.ext, this.src, this.dist));
         }
     }
 }

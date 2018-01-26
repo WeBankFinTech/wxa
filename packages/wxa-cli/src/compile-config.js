@@ -8,18 +8,19 @@ class CConfig {
         this.current = process.cwd();
         this.src = src || 'src';
         this.dist = dist || 'dist';
+        this.type = 'json';
         this.hooks = {
             optimizeAssets: new AsyncSeriesHook(['code', 'compilation']),
         };
     }
     compile(content, opath) {
         this.code = content;
-        this.hooks.optimizeAssets.promise(content, this).then((err)=>{
+        return this.hooks.optimizeAssets.promise(content, this).then((err)=>{
             if (err) return Promise.reject(err);
             let target = getDistPath(opath, 'json', this.src, this.dist);
             log(`[配置]写入到 ${path.relative(this.current, target)}`);
             writeFile(target, this.code);
-        });
+        }).catch((e)=>console.error(e, content));
     }
 }
 

@@ -95,11 +95,22 @@ export function getDistPath(opath, ext, src, dist) {
 }
 
 export function copy(opath, ext, src, dist) {
-    let target = getDistPath(opath, ext, src, dist);
-    writeFile(target, readFile(path.join(opath.dir, opath.base)));
-    let readable = fs.createReadStream(path.join(opath.dir, opath.base));
-    let writeable = fs.createWriteStream(target);
-    readable.pipe(writeable);
+    return new Promise((resolve, reject)=>{
+        let target = getDistPath(opath, ext, src, dist);
+        writeFile(target, readFile(path.join(opath.dir, opath.base)));
+        let readable = fs.createReadStream(path.join(opath.dir, opath.base));
+        let writeable = fs.createWriteStream(target);
+        readable.pipe(writeable);
+        readable.on('error', (e)=>{
+            reject(e);
+        });
+        writeable.on('error', (err)=>{
+            reject(err);
+        });
+        writeable.on('finish', ()=>{
+            resolve();
+        });
+    });
 }
 
 export function encode(content, start, end) {
