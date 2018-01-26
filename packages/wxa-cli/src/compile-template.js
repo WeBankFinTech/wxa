@@ -13,5 +13,6 @@ export default class CTemplate {
         // 暂时直接写入wxml
         let target = getDistPath(path.parse(rst.src), 'wxml', this.src, this.dist);
         writeFile(target, rst.code);
+        return Promise.resolve();
     }
 }

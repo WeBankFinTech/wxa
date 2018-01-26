@@ -52,7 +52,7 @@ export default class CStyle {
             });
         });
 
-        Promise.all(promises).then((rets)=>{
+        return Promise.all(promises).then((rets)=>{
             let allContent = rets.join('');
 
             let target = getDistPath(opath, 'wxss', this.src, this.dist);

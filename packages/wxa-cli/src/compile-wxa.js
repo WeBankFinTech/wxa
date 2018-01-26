@@ -5,6 +5,7 @@ import CStyle from './compile-style';
 import CTemplate from './compile-template';
 import CScript from './compile-script';
 import CConfig from './compile-config';
+import schedule from './schedule';
 
 class CompileWxa {
     constructor(src, dist, ext) {
@@ -14,6 +15,9 @@ class CompileWxa {
         this.ext = ext;
     }
     compile(opath) {
+        this.$compile(opath);
+    }
+    $compile(opath) {
         let wxa = this.resolveWxa(opath);
         // console.log(wxa);
         if (!wxa) return;
@@ -24,9 +28,15 @@ class CompileWxa {
 
         if (type === 'app') delete wxa.template;
 
-        if (wxa.style) new CStyle(this.src, this.dist, this.ext).compile(wxa.style, opath);
+        if (wxa.style) {
+            let cStyle = new CStyle(this.src, this.dist, this.ext);
+            schedule.push(cStyle.compile(wxa.style, opath));
+        }
 
-        if (wxa.template && wxa.template.code) new CTemplate(this.src, this.dist, this.ext).compile(wxa.template);
+        if (wxa.template && wxa.template.code) {
+            let cTemplate = new CTemplate(this.src, this.dist, this.ext);
+            schedule.push(cTemplate.compile(wxa.template));
+        }
 
         if (wxa.script.code) {
             let compiler = new CScript(this.src, this.dist, this.ext);
@@ -37,7 +47,7 @@ class CompileWxa {
         if (wxa.config.code) {
             let compiler = new CConfig(this.src, this.dist);
             applyPlugins(compiler);
-            compiler.compile(wxa.config.code, opath);
+            schedule.push(compiler.compile(wxa.config.code, opath));
         }
     }
     resolveWxa(xml, opath) {

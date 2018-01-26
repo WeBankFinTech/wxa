@@ -4,6 +4,7 @@ import {transform} from 'babel-core';
 import {Base64} from 'js-base64';
 import {Tapable, AsyncSeriesHook} from 'tapable';
 import findRoot from 'find-root';
+import schedule from './schedule';
 const pkg = require('../package.json');
 
 function compileWithBabel(content, config) {
@@ -24,6 +25,8 @@ export default class CScript {
         this.hooks = {
             optimizeAssets: new AsyncSeriesHook(['code', 'compilation']),
         };
+        this.schedule = [];
+        this.type = 'js';
         this.current = process.cwd();
         this.src = src;
         this.dist = dist;
@@ -156,14 +159,14 @@ export default class CScript {
         return code;
     }
 
-    compile(lang, code, type, opath) {
+    $compile(lang, code, type, opath) {
         if (!code) {
             code = readFile(path.join(opath.dir, opath.base));
             if (code === null) throw new Error('打开文件失败：'+path.join(opath.dir, opath.base));
         }
 
         let configs = getConfig().compilers.babel;
-        amazingCache({
+        return amazingCache({
             source: code,
             options: {configs},
             transform: function(code, options) {
@@ -202,5 +205,9 @@ export default class CScript {
                 writeFile(target, this.code);
             });
         }).catch((e)=>error(e));
+    }
+
+    compile(lang, code, type, opath) {
+        schedule.push(this.$compile(lang, code, type, opath));
     }
 }
