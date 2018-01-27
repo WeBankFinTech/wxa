@@ -1,22 +1,15 @@
-// import {Eventbus, Wxapi} from '../utils/decorators';
+import mixin from './mixin';
 
+const plugins = [];
 let launch = function(instance) {
     let vm = instance;
     if (typeof instance === 'function') {
         vm = new instance();
     }
 
-    // if(vm.mixins) {
-    //     let mixins = vm.mixins;
-    //     delete vm.mixins;
-
-    //     let data = vm.data;
-    //     // data = mixins.reduce((p, m)=>merge(p, m.data||{}), data);
-    //     console.log(vm)
-    //     let sub = mixins.reduce((p, m)=>(console.log(p,m), Object.assign(p, m)), {});
-    //     vm = Object.assign(sub, vm);
-    //     // vm.data = data;
-    // }
+    if (vm.mixins && !!vm.mixins.length) {
+        vm = mixin(vm);
+    }
 
     // 复制methods
     if (vm.methods != null && typeof vm.methods === 'object') {
@@ -24,9 +17,22 @@ let launch = function(instance) {
             vm[key] = vm.methods[key];
         });
     }
+    // 允许添加自定义方法
+    plugins.forEach((plugin)=>{
+        plugin.fn.call(null, plugin.options, 'App').call(null, vm);
+    });
+
     App(vm);
 };
 
-export {
+let use = function(plugin, options) {
+    plugins.push({
+        fn: plugin,
+        options,
+    });
+};
+
+export default {
     launch,
+    use,
 };
