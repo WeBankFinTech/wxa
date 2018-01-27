@@ -1,10 +1,8 @@
-import {Eventbus, Wxapi} from '../utils/decorators';
+// import {Eventbus, Wxapi} from '../utils/decorators';
 
-module.exports.launch = function(instance) {
+let launch = function(instance) {
     let vm = instance;
     if (typeof instance === 'function') {
-        instance = Eventbus(instance);
-        instance = Wxapi(instance);
         vm = new instance();
     }
 
@@ -20,7 +18,15 @@ module.exports.launch = function(instance) {
     //     // vm.data = data;
     // }
 
-    // console.dir(vm);
-
+    // 复制methods
+    if (vm.methods != null && typeof vm.methods === 'object') {
+        Object.keys(vm.methods).forEach((key)=>{
+            vm[key] = vm.methods[key];
+        });
+    }
     App(vm);
+};
+
+export {
+    launch,
 };

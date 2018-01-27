@@ -2,7 +2,7 @@ import {Eventbus, Promisify} from '../utils/decorators';
 import debounce from '../utils/debounce';
 // const merge = require('../utils/deep-merge');
 
-module.exports.launch = function(instance) {
+let launch = function(instance) {
     let vm = instance;
     if (typeof instance === 'function') {
         vm = new instance();
@@ -40,6 +40,15 @@ module.exports.launch = function(instance) {
     // }
 
     // console.dir(vm);
+    if (vm.methods != null && typeof vm.methods === 'object') {
+        Object.keys(vm.methods).forEach((key)=>{
+            vm[key] = vm.methods[key];
+        });
+    }
 
     Page(vm);
+};
+
+export {
+    launch,
 };
