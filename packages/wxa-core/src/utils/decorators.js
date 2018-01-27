@@ -5,6 +5,7 @@ import wxapi from './wxapi';
 import {storage} from './storage';
 // import wa from '../assets/libs/wa';
 import debounce from './debounce';
+import * as helpers from './helper';
 
 // class
 function Eventbus(target) {
@@ -32,7 +33,7 @@ function Promisify(target) {
 }
 
 // class Wa
-function Wa(target) {
+function Logger(target) {
     target.prototype.logger = console;
 
     return target;
@@ -53,6 +54,7 @@ function Storage(target) {
 function Utils(target) {
     target.prototype.utils = {
         debounce,
+        ...helpers,
     };
     return target;
 }
@@ -64,7 +66,7 @@ function Page(target) {
     target = Router(target);
     target = Eventbus(target);
     target = GetApp(target);
-    target = Wa(target);
+    target = Logger(target);
 
     return target;
 }
@@ -74,7 +76,7 @@ function App(target) {
     target = Storage(target);
     target = Eventbus(target);
     target = Wxapi(target);
-    target = Wa(target);
+    target = Logger(target);
 
     return target;
 }
