@@ -1,17 +1,9 @@
 const path = require('path');
-const UglifyjsPlugin = require('/usr/local/lib/node_modules/wxa-plugin-uglifyjs');
-const ReplacePlugin = require('/usr/local/lib/node_modules/wxa-plugin-replace');
+// const UglifyjsPlugin = require('/usr/local/lib/node_modules/wxa-plugin-uglifyjs')
+// const ReplacePlugin = require('/usr/local/lib/node_modules/wxa-plugin-replace')
 let prod = process.env.NODE_ENV === 'production';
 
 module.exports = {
-  wpyExt: '.wxa',
-  build: {
-    web: {
-      htmlTemplate: path.join('src', 'index.template.html'),
-      htmlOutput: path.join('web', 'index.html'),
-      jsOutput: path.join('web', 'index.js'),
-    },
-  },
   resolve: {
     alias: {
       '@': path.join(__dirname, 'src'),
@@ -41,13 +33,13 @@ module.exports = {
     },
   },
   plugins: [
-    new UglifyjsPlugin(),
-    new ReplacePlugin({
-      list: [{
-        regular: new RegExp('APP_ENV', 'gm'),
-        value: 'bcds',
-      }],
-    }),
+    // new UglifyjsPlugin(),
+    // new ReplacePlugin({
+    //   list: [{
+    //     regular: new RegExp('APP_ENV', 'gm'),
+    //     value: 'bcds'
+    //   }]
+    // })
   ],
 };
 

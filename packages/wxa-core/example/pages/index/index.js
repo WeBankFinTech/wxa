@@ -9,7 +9,10 @@ const app = getApp();
 let a = 1;
 
 let i = Page(class Index {
-    mixins = [common]
+    mixins = [common];
+    mapState = {
+        todos: (state) =>state.todo,
+    }
     data = {
         motto: 'Hello World',
         userInfo: {},
@@ -44,6 +47,22 @@ let i = Page(class Index {
                 },
             });
         }
+
+        this.unsubscribe = this.store.subscribe((...args)=>{
+            console.log(args);
+            console.log(this.store.getState());
+            let state = this.store.getState();
+            let data = Object.keys(this.mapState).reduce((ret, key)=>{
+                let newState = this.mapState[key](state);
+                ret[key] = newState;
+                return ret;
+            }, {});
+            console.log(data);
+            this.setData(data);
+        });
+    }
+    onUnload() {
+        this.unsubscribe();
     }
     onShow() {
         setTimeout(() => console.log(this, ++a), 1000);
@@ -59,6 +78,9 @@ let i = Page(class Index {
                 userInfo: e.detail.userInfo,
                 hasUserInfo: true,
             });
+        },
+        add(e) {
+            this.store.dispatch({type: 'Add', payload: '+2'});
         },
     }
 });
