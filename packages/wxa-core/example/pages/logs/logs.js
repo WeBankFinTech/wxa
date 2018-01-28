@@ -13,6 +13,11 @@ let i = Page(class Logs {
       }),
     });
   }
+  onShow() {
+      setTimeout(()=>{
+          this.store.dispatch({type: 'Add', payload: '+3'});
+    }, 1000);
+  }
 });
 
 wxa.launchPage(i);

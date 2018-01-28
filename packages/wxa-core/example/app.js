@@ -2,6 +2,10 @@ import {
     App,
     wxa,
 } from './dist/wxa.js';
+import {
+    createStore,
+    combineReducers,
+} from './redux/lib/index';
 
 wxa.use((options, type) => {
     return (vm) => {
@@ -10,6 +14,39 @@ wxa.use((options, type) => {
 }, {
     name: 'Genuifx',
 });
+
+let todo = (state=[], action)=>{
+    let n;
+    switch (action.type) {
+        case 'Add': {
+            n = [...state, action.payload];
+            break;
+        }
+        default: n = state;
+    }
+    return n;
+};
+let user = (state={}, action)=>{
+    switch (action.type) {
+        case 'Update': {
+            return Object.assign({}, state, action.payload);
+        }
+        default: return state;
+    }
+};
+wxa.use((reducers, type)=>{
+    return (vm)=>{
+        if (type === 'App') {
+            vm.store = createStore(reducers);
+        } else {
+            if (vm.app == null) throw new Error('wxa-redux需要使用@GetApp修饰符');
+            vm.store = vm.app.store;
+        }
+    };
+}, combineReducers({
+    todo,
+    user,
+}));
 
 // app.js
 let i = App(
