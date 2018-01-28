@@ -1,7 +1,7 @@
 {
   "name": "@wxa/cli",
   "version": "1.0.0",
-  "description": "",
+  "description": "cli for wxa development",
   "main": "dist/wxa.js",
   "scripts": {
     "build": "babel src --out-dir dist/dist",
