@@ -1,4 +1,4 @@
-import {getDistPath, writeFile} from './utils';
+import {getDistPath, writeFile, info} from './utils';
 import path from 'path';
 
 export default class CTemplate {
@@ -12,6 +12,7 @@ export default class CTemplate {
         // console.log(rst);
         // 暂时直接写入wxml
         let target = getDistPath(path.parse(rst.src), 'wxml', this.src, this.dist);
+        info('write', target);
         writeFile(target, rst.code);
         return Promise.resolve();
     }

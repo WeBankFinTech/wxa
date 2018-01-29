@@ -1,3 +1,4 @@
+import chalk from 'chalk';
 import fs from 'fs';
 import path from 'path';
 import mkdirp from 'mkdirp';
@@ -146,8 +147,12 @@ export function error(msg) {
     console.error(msg);
 }
 
-export function info(msg) {
-    console.info(msg);
+export function info(type, msg) {
+    console.info(chalk.green(`[${type}]`), msg);
+}
+
+export function message(type, msg) {
+    console.info(chalk.magenta(`[${type}]`), msg);
 }
 
 export function warn(msg) {

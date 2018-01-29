@@ -1,7 +1,6 @@
 import sass from 'node-sass';
 import path from 'path';
-import {readFile, getDistPath, writeFile, amazingCache, getConfig} from './utils';
-import {info} from '../dist/utils';
+import {readFile, getDistPath, writeFile, amazingCache, getConfig, info} from './utils';
 
 function compileSass(data, file, config) {
     return new Promise((resolve, reject)=>{
@@ -57,6 +56,7 @@ export default class CStyle {
 
             let target = getDistPath(opath, 'wxss', this.src, this.dist);
             // console.log(target);
+            info('write', target);
             writeFile(target, allContent);
         }).catch((e)=>{
             console.error(e);

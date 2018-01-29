@@ -1,5 +1,5 @@
 import {getDistPath, writeFile, readFile} from './utils';
-import {log} from 'util';
+import {info} from './utils';
 import path from 'path';
 import {AsyncSeriesHook} from 'tapable';
 
@@ -23,7 +23,7 @@ class CConfig {
         return this.hooks.optimizeAssets.promise(content, this).then((err)=>{
             if (err) return Promise.reject(err);
             let target = getDistPath(opath, 'json', this.src, this.dist);
-            log(`[配置]写入到 ${path.relative(this.current, target)}`);
+            info('Config', `${path.relative(this.current, target)}`);
             writeFile(target, this.code);
         }).catch((e)=>console.error(e, content));
     }

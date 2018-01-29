@@ -1,4 +1,4 @@
-import {getConfig, getFiles, readFile, isFile, error, getRelative, info, copy, applyPlugins} from './utils';
+import {getConfig, getFiles, readFile, isFile, error, getRelative, info, copy, applyPlugins, message} from './utils';
 import path from 'path';
 import CWxa from './compile-wxa';
 import CScript from './compile-script';
@@ -47,18 +47,17 @@ class Compiler {
 
         chokidar.watch(`.${path.sep}${this.src}`)
         .on('all', (event, filepath)=>{
-            console.log(event, filepath);
             if (this.isWatchReady && ['change', 'add'].indexOf(event)>-1 && !this.queue[filepath]) {
+                message(event, filepath);
                 this.queue[filepath] = event;
                 cmd.file = path.join('..', filepath); ;
-                info(`[${event}] ${filepath} start building`);
                 this.build(cmd);
                 setTimeout(()=>this.queue[filepath]=false, 500);
             }
         })
         .on('ready', (event, filepath)=>{
             this.isWatchReady = true;
-            info('准备完毕，开始监听文件');
+            info('Watch', '准备完毕，开始监听文件');
         });
     }
     build(cmd) {
@@ -71,7 +70,7 @@ class Compiler {
         let file = cmd.file;
         let files = file ? [file] : getFiles(this.src);
 
-        info('[compile] start '+new Date());
+        info('Compile', 'start '+new Date());
         files.forEach((file)=>{
             let opath = path.parse(path.join(this.current, this.src, file));
             if (file) {
@@ -116,7 +115,7 @@ class Compiler {
                 break;
             }
             default:
-                info('[拷贝]'+path.join(opath.dir, opath.base));
+                info('copy', path.join(opath.dir, opath.base));
 
                 schedule.push(copy(opath, opath.ext, this.src, this.dist));
         }
