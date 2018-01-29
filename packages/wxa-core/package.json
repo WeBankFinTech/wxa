@@ -1,8 +1,8 @@
 {
   "name": "@wxa/core",
   "version": "1.0.0",
-  "description": "dist/wxa.js",
-  "main": "index.js",
+  "description": "wxa core feature",
+  "main": "dist/wxa.js",
   "scripts": {
     "build": "babel src --out-dir dist/dist",
     "dev": "babel --watch src --out-dir ./example/dist"
