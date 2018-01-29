@@ -23,7 +23,7 @@ class CConfig {
         return this.hooks.optimizeAssets.promise(content, this).then((err)=>{
             if (err) return Promise.reject(err);
             let target = getDistPath(opath, 'json', this.src, this.dist);
-            info('Config', `${path.relative(this.current, target)}`);
+            info('Config', path.relative(this.current, target));
             writeFile(target, this.code);
         }).catch((e)=>console.error(e, content));
     }
