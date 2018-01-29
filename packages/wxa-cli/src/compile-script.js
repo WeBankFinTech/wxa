@@ -1,5 +1,5 @@
 import path from 'path';
-import {readFile, getDistPath, error, writeFile, isFile, isDir, getConfig, amazingCache} from './utils';
+import {readFile, getDistPath, error, writeFile, isFile, isDir, getConfig, amazingCache, info} from './utils';
 import {transform} from 'babel-core';
 import {Base64} from 'js-base64';
 import {Tapable, AsyncSeriesHook} from 'tapable';
@@ -202,6 +202,7 @@ export default class CScript {
             // writeFile(target, code);
             return this.hooks.optimizeAssets.promise(code, this).then((err)=>{
                 if (err) return Promise.reject(err);
+                info('write', target);
                 writeFile(target, this.code);
             });
         }).catch((e)=>error(e));
