@@ -67,6 +67,7 @@ eventbus
 ## Logger
 logger to report err or user behavior to your remote server.
 
-# Todo
-1. redux
+# Redux
+use redux to manage your application's page state
+url: https://github.com/Genuifx/wxa-redux.git
 
