@@ -1,10 +1,11 @@
-import {getConfig, getFiles, readFile, isFile, error, getRelative, info, copy} from './utils';
+import {getConfig, getFiles, readFile, isFile, error, getRelative, info, copy, applyPlugins} from './utils';
 import path from 'path';
 import CWxa from './compile-wxa';
 import CScript from './compile-script';
 import CStyle from './compile-style';
 import chokidar from 'chokidar';
 import schedule from './schedule';
+import CConfig from './compile-config';
 
 class Compiler {
     constructor(src, dist, ext) {
@@ -106,6 +107,12 @@ class Compiler {
             case '.js': {
                 let cScript = new CScript(this.src, this.dist, '.js');
                 cScript.compile('babel', null, 'js', opath);
+                break;
+            }
+            case '.json': {
+                let cConfig = new CConfig(this.src, this.dist);
+                applyPlugins(cConfig);
+                cConfig.compile(void(0), opath);
                 break;
             }
             default:
