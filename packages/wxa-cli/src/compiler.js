@@ -4,7 +4,6 @@ import CWxa from './compile-wxa';
 import CScript from './compile-script';
 import CStyle from './compile-style';
 import chokidar from 'chokidar';
-import schedule from './schedule';
 import CConfig from './compile-config';
 
 class Compiler {
@@ -57,7 +56,7 @@ class Compiler {
         })
         .on('ready', (event, filepath)=>{
             this.isWatchReady = true;
-            info('Watch', '准备完毕，开始监听文件');
+            message('Watch', '准备完毕，开始监听文件');
         });
     }
     build(cmd) {
@@ -100,7 +99,7 @@ class Compiler {
             case '.sass':
             case '.scss': {
                 let cStyle = new CStyle(this.src, this.dist, '.ext');
-                schedule.push(cStyle.compile('sass', opath));
+                cStyle.compile('sass', opath);
                 break;
             }
             case '.js': {
@@ -115,9 +114,9 @@ class Compiler {
                 break;
             }
             default:
-                info('copy', path.join(opath.dir, opath.base));
+                info('copy', path.relative(this.current, path.join(opath.dir, opath.base)) );
 
-                schedule.push(copy(opath, opath.ext, this.src, this.dist));
+                copy(opath, opath.ext, this.src, this.dist);
         }
     }
 }

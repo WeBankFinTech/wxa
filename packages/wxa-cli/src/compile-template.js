@@ -12,7 +12,7 @@ export default class CTemplate {
         // console.log(rst);
         // 暂时直接写入wxml
         let target = getDistPath(path.parse(rst.src), 'wxml', this.src, this.dist);
-        info('write', target);
+        info('write', path.relative(this.current, target));
         writeFile(target, rst.code);
         return Promise.resolve();
     }

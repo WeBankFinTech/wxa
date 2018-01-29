@@ -5,7 +5,6 @@ import CStyle from './compile-style';
 import CTemplate from './compile-template';
 import CScript from './compile-script';
 import CConfig from './compile-config';
-import schedule from './schedule';
 
 class CompileWxa {
     constructor(src, dist, ext) {
@@ -30,12 +29,12 @@ class CompileWxa {
 
         if (wxa.style) {
             let cStyle = new CStyle(this.src, this.dist, this.ext);
-            schedule.push(cStyle.compile(wxa.style, opath));
+            cStyle.compile(wxa.style, opath);
         }
 
         if (wxa.template && wxa.template.code) {
             let cTemplate = new CTemplate(this.src, this.dist, this.ext);
-            schedule.push(cTemplate.compile(wxa.template));
+            cTemplate.compile(wxa.template);
         }
 
         if (wxa.script.code) {
@@ -47,7 +46,7 @@ class CompileWxa {
         if (wxa.config.code) {
             let compiler = new CConfig(this.src, this.dist);
             applyPlugins(compiler);
-            schedule.push(compiler.compile(wxa.config.code, opath));
+            compiler.compile(wxa.config.code, opath);
         }
     }
     resolveWxa(xml, opath) {

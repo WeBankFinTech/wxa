@@ -1,3 +1,4 @@
+import path from 'path';
 /**
  * todo:
  *  1. full control compile task
@@ -6,15 +7,27 @@
 class Schedule {
     constructor() {
         this.queue = [];
+        this.finishedQueue = [];
     }
 
-    push(task) {
-        this.queue.push(task);
-        // console.log(this.queue.length);
+    push(opath) {
+        let p = opath.dir+path.sep+opath.base;
+        this.queue.push(p);
     }
 
-    run() {
-        return Promise.all(this.queue);
+    pop(opath) {
+        let p = opath.dir+path.sep+opath.base;
+        let idx = this.queue.indexOf(p);
+        if (idx !== -1) {
+            this.queue.splice(idx, 1);
+            this.finishedQueue.push(p);
+        }
+    }
+
+    check(opath) {
+        let p = opath.dir+path.sep+opath.base;
+
+        return this.queue.indexOf(p) === -1 && this.finishedQueue.indexOf(p) === -1;
     }
 }
 

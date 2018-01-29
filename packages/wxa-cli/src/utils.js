@@ -148,11 +148,11 @@ export function error(msg) {
 }
 
 export function info(type, msg) {
-    console.info(chalk.green(`[${type}]`), msg);
+    console.info(chalk.green(`[${type[0].toUpperCase()+type.slice(1)}]`), msg);
 }
 
 export function message(type, msg) {
-    console.info(chalk.magenta(`[${type}]`), msg);
+    console.info(chalk.magenta(`[${type[0].toUpperCase()+type.slice(1)}]`), msg);
 }
 
 export function warn(msg) {

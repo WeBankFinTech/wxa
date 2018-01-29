@@ -202,13 +202,17 @@ export default class CScript {
             // writeFile(target, code);
             return this.hooks.optimizeAssets.promise(code, this).then((err)=>{
                 if (err) return Promise.reject(err);
-                info('write', target);
+                info('write', path.relative(this.current, target));
+                schedule.pop(opath);
                 writeFile(target, this.code);
             });
         }).catch((e)=>error(e));
     }
 
     compile(lang, code, type, opath) {
-        schedule.push(this.$compile(lang, code, type, opath));
+        if (schedule.check(opath)) {
+            schedule.push(opath);
+            this.$compile(lang, code, type, opath);
+        }
     }
 }

@@ -56,7 +56,7 @@ export default class CStyle {
 
             let target = getDistPath(opath, 'wxss', this.src, this.dist);
             // console.log(target);
-            info('write', target);
+            info('write', path.relative(this.current, target));
             writeFile(target, allContent);
         }).catch((e)=>{
             console.error(e);
