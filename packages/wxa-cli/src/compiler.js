@@ -5,6 +5,7 @@ import CScript from './compile-script';
 import CStyle from './compile-style';
 import chokidar from 'chokidar';
 import CConfig from './compile-config';
+import schedule from './schedule';
 
 class Compiler {
     constructor(src, dist, ext) {
@@ -47,9 +48,12 @@ class Compiler {
         chokidar.watch(`.${path.sep}${this.src}`)
         .on('all', (event, filepath)=>{
             if (this.isWatchReady && ['change', 'add'].indexOf(event)>-1 && !this.queue[filepath]) {
+                cmd.file = path.join('..', filepath); ;
+                let opath = path.parse(path.join(this.current, this.src, cmd.file));
+                schedule.clear(opath);
+                // schedule
                 message(event, filepath);
                 this.queue[filepath] = event;
-                cmd.file = path.join('..', filepath); ;
                 this.build(cmd);
                 setTimeout(()=>this.queue[filepath]=false, 500);
             }
