@@ -37,6 +37,14 @@ export default class CScript {
         this.extensions = configs.resolve && configs.resolve.extensions || ['.js', '.json'];
         this.modulesPath = path.join(this.current, 'node_modules', path.sep);
         this.npmPath = path.join(this.current, dist, 'npm', path.sep);
+        this.babelConfigs = null;
+        try {
+            let babelrc = JSON.parse(readFile(path.join(this.current, '.babelrc')));
+            this.babelConfigs = babelrc;
+        } catch (e) {
+            let pkg = require(path.join(this.current, 'package.json'));
+            this.babelConfigs = pkg.babel || null;
+        }
     }
 
     getPkgConfig(lib) {
@@ -165,10 +173,11 @@ export default class CScript {
             if (code === null) throw new Error('打开文件失败：'+path.join(opath.dir, opath.base));
         }
 
-        let configs = getConfig().compilers.babel;
+        if (this.babelConfigs == null) this.babelConfigs = getConfig().compilers.babel;
+
         return amazingCache({
             source: code,
-            options: {configs},
+            options: {configs: this.babelConfigs},
             transform: function(code, options) {
                 return compileWithBabel(code, options.configs);
             },
