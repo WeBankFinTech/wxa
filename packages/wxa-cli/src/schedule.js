@@ -24,11 +24,18 @@ class Schedule {
         }
     }
 
+    clear(opath) {
+        let p = opath.dir+path.sep+opath.base;
+        this.queue.splice(this.queue.indexOf(p), 1);
+        this.finishedQueue.splice(this.finishedQueue.indexOf(p), 1);
+    }
+
     check(opath) {
         let p = opath.dir+path.sep+opath.base;
 
         return this.queue.indexOf(p) === -1 && this.finishedQueue.indexOf(p) === -1;
     }
 }
+const schedule = new Schedule();
 
-export default new Schedule();
+export default schedule;
