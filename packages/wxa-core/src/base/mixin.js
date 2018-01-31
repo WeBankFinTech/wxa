@@ -20,7 +20,7 @@ export default function mixin(vm) {
         data: {},
     });
     // copy lifecycle hooks
-    const hooksName = ['onLaunch', 'onHide', 'onError', 'onLoad', 'onReady', 'onShow', 'onUnload', 'onPullDownRefresh', 'onReachBottom', 'onShareAppMessage', 'onPageScroll', 'onTabItemTap',
+    const hooksName = ['onLaunch', 'onHide', 'onError', 'onLoad', 'onReady', 'onShow', 'onUnload', 'onPullDownRefresh', 'onReachBottom', 'onPageScroll', 'onTabItemTap',
     ];
     let hooks = mixins.reduce((ret, mixin) => {
         hooksName.forEach((hook)=>{
