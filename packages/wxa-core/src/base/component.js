@@ -30,7 +30,6 @@ let launch = function(instance) {
     let created = vm.created;
     vm.created = function(...args) {
         let comMethods = methods;
-        methods = null;
         for (let key in comMethods) {
             if (comMethods.hasOwnProperty(key)) {
                 this[key] = comMethods[key];
