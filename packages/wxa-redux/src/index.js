@@ -35,11 +35,11 @@ export const wxaRedux = ({reducers, middlewares}, type)=>{
                 this.$isCurrentPage = true;
                 let data = mapState(this.mapState, this.store.getState());
                 if(data != null) this.setData(data);
-                onShow.apply(this, args);
+                if(onShow) onShow.apply(this, args);
             }
             vm.onHide = function(...args) {
                 this.$isCurrentPage = false;
-                onHide.apply(this, args);
+                if(onHide) onHide.apply(this, args);
             }
             vm.onUnload = unmountRedux(onUnload);
         } else if(type === 'Component') {
