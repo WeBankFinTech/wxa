@@ -16,22 +16,22 @@ let launch = function(instance) {
             this.router[category](path);
         }, 250);
     })();
-    vm.onShareAppMessage = vm.onShareAppMessage || function() {
-        let pages = getCurrentPages();
-        return {
-            success: function() {
-                try {
-                    vm.logger.clickStat('share', pages[pages.length-1].route);
-                } catch (e) {
-                    console.error(e);
-                }
-            },
+    if (vm.onShareAppMessage !== false) {
+        vm.onShareAppMessage = vm.onShareAppMessage || function() {
+            let pages = getCurrentPages();
+            return {
+                success: function() {
+                    try {
+                        vm.logger.clickStat('share', pages[pages.length-1].route);
+                    } catch (e) {
+                        console.error(e);
+                    }
+                },
+            };
         };
-    };
-
-    if (vm.mixins && !!vm.mixins.length) {
-        vm = mixin(vm);
     }
+
+    vm = mixin(vm);
 
     if (vm.methods != null && typeof vm.methods === 'object') {
         Object.keys(vm.methods).forEach((key)=>{

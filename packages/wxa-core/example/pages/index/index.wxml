@@ -10,4 +10,7 @@
   <view class="usermotto" bindtap="add">
     <text class="user-motto">{{motto}}</text>
   </view>
+  <pop>
+      <view slot="title">test</view>
+  </pop>
 </view>
