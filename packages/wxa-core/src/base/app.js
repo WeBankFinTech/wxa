@@ -7,9 +7,7 @@ let launch = function(instance) {
         vm = new instance();
     }
 
-    if (vm.mixins && !!vm.mixins.length) {
-        vm = mixin(vm);
-    }
+    vm = mixin(vm);
 
     // 复制methods
     if (vm.methods != null && typeof vm.methods === 'object') {

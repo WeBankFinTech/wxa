@@ -28,7 +28,8 @@
         "require-jsdoc": "off",
         "camelcase": "warn",
         "no-invalid-this": "warn",
-        "new-cap": "warn"
+        "new-cap": "warn",
+        "guard-for-in": "warn"
     },
     "plugins": []
 }

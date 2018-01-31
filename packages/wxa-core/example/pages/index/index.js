@@ -9,7 +9,7 @@ const app = getApp();
 let a = 1;
 
 let i = Page(class Index {
-    mixins = [common];
+    // mixins = [common];
     mapState = {
         todos: (state) =>state.todo,
     }
@@ -21,6 +21,7 @@ let i = Page(class Index {
     }
     onLoad() {
         console.log('page index onLoad');
+        console.log(this);
         if (app.globalData.userInfo) {
             this.setData({
                 userInfo: app.globalData.userInfo,
@@ -49,16 +50,17 @@ let i = Page(class Index {
         }
 
         this.unsubscribe = this.store.subscribe((...args)=>{
-            console.log(args);
-            console.log(this.store.getState());
+            console.log('---');
+            // console.log(args);
+            // console.log(this.store.getState());
             let state = this.store.getState();
             let data = Object.keys(this.mapState).reduce((ret, key)=>{
                 let newState = this.mapState[key](state);
                 ret[key] = newState;
                 return ret;
             }, {});
-            console.log(data);
             this.setData(data);
+            console.log(data);
         });
     }
     onUnload() {
@@ -68,9 +70,9 @@ let i = Page(class Index {
         setTimeout(() => console.log(this, ++a), 1000);
     }
     methods = {
-        // bindViewTap() {
-        //     this.router.push('../logs/logs');
-        // },
+        bindViewTap() {
+            this.router.push('../logs/logs');
+        },
         getUserInfo(e) {
             console.log(e);
             app.globalData.userInfo = e.detail.userInfo;

@@ -92,6 +92,9 @@ let i = App(
         globalData = {
             userInfo: null,
         }
+        hello() {
+            console.log('');
+        }
     }
 );
 
