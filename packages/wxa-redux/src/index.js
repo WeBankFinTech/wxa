@@ -9,21 +9,23 @@ let mountRedux = function(originMount){
             
             if(this.$isCurrentPage && data != null) this.setData(data);
         });
-        originMount.apply(this, args);
+        if(originMount) originMount.apply(this, args);
     }
 }
 
 let unmountRedux = function(originUnmount) {
     return function(...args) {
         if(this.unsubscribe) this.unsubscribe();
-        originUnmount.apply(this, args);
+        if(originUnmount) originUnmount.apply(this, args);
     }
 }
 
 export const wxaRedux = ({reducers, middlewares}, type)=>{
     return (vm)=>{
         if (type === 'App') {
-            vm.store = createStore(reducers, applyMiddleware(...middlewares));
+            let args = [reducers];
+            if(middlewares) args.push(applyMiddleware(...middlewares));
+            vm.store = createStore.apply(null, args);
         } else if(type === 'Page'){
             if (vm.app == null) throw new Error('wxa-redux需要使用@GetApp修饰符');
             vm.store = vm.app.store;
@@ -31,7 +33,7 @@ export const wxaRedux = ({reducers, middlewares}, type)=>{
             vm.onLoad = mountRedux(onLoad);
             vm.onShow = function(...args) {
                 this.$isCurrentPage = true;
-                let data = mapState(this.mapState, state);
+                let data = mapState(this.mapState, this.store.getState());
                 if(data != null) this.setData(data);
                 onShow.apply(this, args);
             }

@@ -4,10 +4,10 @@ redux version for wxa.
 ```javascript
 // app.wxa app.js
 import wxa from '@wxa/core'
-import {wxaRedux, combineReducer} from '@wxa/redux'
+import {wxaRedux, combineReducers} from '@wxa/redux'
 import promiseMiddleware from 'redux-promise';
 wxa.use(wxaRedux, {
-    reducers: combineReducer(...your reducer),
+    reducers: combineReducers(...your reducer),
     middlewares: [promiseMiddleware]
 })
 ```
