@@ -44,7 +44,10 @@ export const wxaRedux = ({reducers, middlewares}, type)=>{
             vm.onUnload = unmountRedux(onUnload);
         } else if(type === 'Component') {
             let {created, attached, detached} = vm;
-            vm.store = vm.app.store;
+            vm.created = function(...args) {
+                vm.store = vm.app.store;
+                if(created) created.apply(this, args);
+            }
             vm.attached = mountRedux(attached);
             vm.detached = unmountRedux(detached);
         }
