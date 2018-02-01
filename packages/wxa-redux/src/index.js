@@ -3,12 +3,14 @@ import {createStore, applyMiddleware} from 'redux'
 
 let mountRedux = function(originMount){
     return function(...args) {
-        this.unsubscribe = this.store.subscribe((...args)=>{
-            let state = this.store.getState();
-            let data = mapState(this.mapState, state);
-            
-            if(this.$isCurrentPage && data != null) this.setData(data);
-        });
+        if(this.store) {
+            this.unsubscribe = this.store.subscribe((...args)=>{
+                let state = this.store.getState();
+                let data = mapState(this.mapState, state);
+                
+                if(this.$isCurrentPage && data != null) this.setData(data);
+            });
+        }
         if(originMount) originMount.apply(this, args);
     }
 }
@@ -45,8 +47,12 @@ export const wxaRedux = ({reducers, middlewares}, type)=>{
         } else if(type === 'Component') {
             let {created, attached, detached} = vm;
             vm.created = function(...args) {
-                this.store = this.app.store;
-                if(created) created.apply(this, args);
+                if(this.app == null) {
+                    console.warn('组件未注入app实例，无法使用Redux')
+                } else {
+                    this.store = this.app.store;
+                    if(created) created.apply(this, args);
+                }
             }
             vm.attached = mountRedux(attached);
             vm.detached = unmountRedux(detached);
