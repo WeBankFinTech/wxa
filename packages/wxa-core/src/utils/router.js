@@ -18,7 +18,7 @@ export default class Router {
     }
 
     replace(url) {
-        return this.wxapi.replaceTo({url});
+        return this.wxapi.redirectTo({url});
     }
 
     reLaunch(url) {
@@ -26,7 +26,7 @@ export default class Router {
     }
 
     switch(url) {
-        return this.wxapi.switch({url});
+        return this.wxapi.switchTab({url});
     }
 
     go(len) {

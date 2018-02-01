@@ -15,6 +15,7 @@ let launch = function(instance) {
     plugins.forEach((plugin)=>{
         plugin.fn.call(null, plugin.options, 'Component').call(null, vm);
     });
+
     let methods = {};
     try {
         methods = vm.methods;
@@ -35,7 +36,7 @@ let launch = function(instance) {
                 this[key] = comMethods[key];
             }
         }
-        created.apply(this, args);
+        if (created) created.apply(this, args);
     };
 
     Component(vm);

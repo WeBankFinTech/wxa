@@ -21,3 +21,10 @@ export function formatDate(timestap, format) {
     }
     return format;
 }
+
+export function trim(str) {
+    if (typeof str === 'string') {
+        return str.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
+    }
+    return str;
+}
