@@ -45,7 +45,7 @@ export const wxaRedux = ({reducers, middlewares}, type)=>{
         } else if(type === 'Component') {
             let {created, attached, detached} = vm;
             vm.created = function(...args) {
-                vm.store = vm.app.store;
+                this.store = this.app.store;
                 if(created) created.apply(this, args);
             }
             vm.attached = mountRedux(attached);
