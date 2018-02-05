@@ -5,7 +5,10 @@
   "main": "dist/wxa.js",
   "scripts": {
     "build": "babel src --out-dir dist/dist",
-    "dev": "babel --watch src --out-dir ./example/dist"
+    "dev": "babel --watch src --out-dir ./example/dist",
+    "test": "jest",
+    "cover": "jest --coverage",
+    "travis": "npm run cover"
   },
   "author": "iveswen",
   "license": "MIT",
@@ -20,7 +23,8 @@
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.6.1",
     "eslint": "^4.15.0",
-    "eslint-config-google": "^0.9.1"
+    "eslint-config-google": "^0.9.1",
+    "jest": "^22.1.4"
   },
   "dependencies": {}
 }
