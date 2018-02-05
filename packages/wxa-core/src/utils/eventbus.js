@@ -3,14 +3,7 @@ class Eventbus {
         this.storage = {};
     }
     findIndex(arr, x) {
-        let ret;
-        arr.forEach((item, index) => {
-            if (item === x) {
-                ret = index;
-            }
-        });
-
-        return ret;
+        return arr.findIndex((item)=>item===x);
     };
 
     on(name, fn) {
@@ -25,7 +18,7 @@ class Eventbus {
         if (this.storage[name]) {
             let i = this.findIndex(this.storage[name], fn);
 
-            this.storage[name].splice(i, 1);
+            if (i !==-1) this.storage[name].splice(i, 1);
         }
     }
 

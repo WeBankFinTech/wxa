@@ -4,6 +4,7 @@ export default class Router {
     constructor(wxapi) {
         this.wxapi = wxapi;
     }
+
     get() {
         let stack = this.getAll();
         return stack[stack.length-1];

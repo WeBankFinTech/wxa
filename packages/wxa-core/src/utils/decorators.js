@@ -32,7 +32,7 @@ function Promisify(target) {
     return target;
 }
 
-// class Wa
+// class logger
 function Logger(target) {
     target.prototype.logger = console;
 
@@ -41,7 +41,7 @@ function Logger(target) {
 
 // 挂载微信api
 function Wxapi(target) {
-    target.prototype.wxapi = Object.assign({}, wxapi);
+    target.prototype.wxapi = wxapi;
     return target;
 }
 
@@ -60,23 +60,23 @@ function Utils(target) {
 }
 
 function Page(target) {
-    target = Utils(target);
-    target = Storage(target);
-    target = Wxapi(target);
-    target = Router(target);
-    target = Eventbus(target);
-    target = GetApp(target);
-    target = Logger(target);
+    Utils(target);
+    Storage(target);
+    Wxapi(target);
+    Router(target);
+    Eventbus(target);
+    GetApp(target);
+    Logger(target);
 
     return target;
 }
 
 function App(target) {
-    target = Utils(target);
-    target = Storage(target);
-    target = Eventbus(target);
-    target = Wxapi(target);
-    target = Logger(target);
+    Utils(target);
+    Storage(target);
+    Eventbus(target);
+    Wxapi(target);
+    Logger(target);
 
     return target;
 }
