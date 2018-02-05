@@ -4,4 +4,8 @@ node_js:
 os:
 - linux
 - osx
+install:
+- npm i -g codecov
 script: npm run travis
+after_success:
+- codecov

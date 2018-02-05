@@ -26,5 +26,9 @@
     "eslint-config-google": "^0.9.1",
     "jest": "^22.1.4"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "jest": {
+    "coverageDirectory": "./coverage/",
+    "collectCoverage": true
+  }
 }
