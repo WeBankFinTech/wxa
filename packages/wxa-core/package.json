@@ -1,34 +1,43 @@
 {
-  "name": "@wxa/core",
-  "version": "1.1.3",
-  "description": "wxa core feature",
-  "main": "dist/wxa.js",
-  "scripts": {
-    "build": "babel src --out-dir dist/dist",
-    "dev": "babel --watch src --out-dir ./example/dist",
-    "test": "jest",
-    "cover": "jest --coverage",
-    "travis": "npm run cover"
-  },
-  "author": "iveswen",
-  "license": "MIT",
-  "repository": "https://github.com/Genuifx/wxa.git",
-  "devDependencies": {
-    "babel": "^6.23.0",
-    "babel-cli": "^6.26.0",
-    "babel-eslint": "^8.2.1",
-    "babel-plugin-syntax-dynamic-import": "^6.18.0",
-    "babel-plugin-transform-class-properties": "^6.24.1",
-    "babel-plugin-transform-decorators-legacy": "^1.3.4",
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "babel-preset-env": "^1.6.1",
-    "eslint": "^4.15.0",
-    "eslint-config-google": "^0.9.1",
-    "jest": "^22.1.4"
-  },
-  "dependencies": {},
-  "jest": {
-    "coverageDirectory": "./coverage/",
-    "collectCoverage": true
-  }
+    "name": "@wxa/core",
+    "version": "1.1.3",
+    "description": "wxa core feature",
+    "main": "dist/wxa.js",
+    "scripts": {
+        "build": "babel src --out-dir dist/dist",
+        "dev": "babel --watch src --out-dir ./example/dist",
+        "test": "jest",
+        "cover": "jest --coverage",
+        "travis": "npm run cover",
+        "precommit": "lint-staged"
+    },
+    "author": "iveswen",
+    "license": "MIT",
+    "repository": "https://github.com/Genuifx/wxa.git",
+    "devDependencies": {
+        "babel": "^6.23.0",
+        "babel-cli": "^6.26.0",
+        "babel-eslint": "^8.2.1",
+        "babel-plugin-syntax-dynamic-import": "^6.18.0",
+        "babel-plugin-transform-class-properties": "^6.24.1",
+        "babel-plugin-transform-decorators-legacy": "^1.3.4",
+        "babel-plugin-transform-object-rest-spread": "^6.26.0",
+        "babel-preset-env": "^1.6.1",
+        "eslint": "^4.15.0",
+        "eslint-config-google": "^0.9.1",
+        "husky": "file:node_modules/husky",
+        "jest": "^22.1.4",
+        "lint-staged": "^6.1.0"
+    },
+    "dependencies": {},
+    "jest": {
+        "coverageDirectory": "./coverage/",
+        "collectCoverage": true
+    },
+    "lint-staged": {
+        "*.js": [
+            "eslint --fix",
+            "git add"
+        ]
+    }
 }
