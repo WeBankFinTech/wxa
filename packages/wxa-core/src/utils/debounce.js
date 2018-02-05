@@ -10,10 +10,9 @@ function debounce(fn, delay) {
     let timer;
 
     // 返回一个函数，这个函数会在一个时间区间结束后的 delay 毫秒时执行 fn 函数
-    return function() {
+    return function(...args) {
         // 保存函数调用时的上下文和参数，传递给 fn
         let context = this;
-        let args = arguments;
 
         // 每次这个返回的函数被调用，就清除定时器，以保证不执行 fn
         clearTimeout(timer);
