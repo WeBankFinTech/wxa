@@ -61,13 +61,13 @@ support mixin object;
 ## Storage
 useful, convenient methods for interact with wx.storage*
 - **set**: preserve data with wx.setStorageSync;
- > `this.storage.set(key, data)`
+`this.storage.set(key, data)`
 - **get**: get data from storage;
- > `let data = this.storage.get(key)`
+`let data = this.storage.get(key)`
 - **clear**: clean up storage, delete all data;
- > `this.storage.clear()`
+`this.storage.clear()`
 - **remove**: remove target the data;
- > `this.storage.remove(key)`
+`this.storage.remove(key)`
 ## Wxapi
 wrap Mini program's async function with promise, and do nothing with the sync function
 example:
