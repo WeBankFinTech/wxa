@@ -5,6 +5,7 @@ os:
 - linux
 - osx
 install:
+- npm i
 - npm i -g codecov
 script: npm run travis
 after_success:
