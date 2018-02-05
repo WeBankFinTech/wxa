@@ -1,5 +1,9 @@
 # wxa-core
-enhanced library for develop wechat miniprogram.
+
+[![Build Status](https://travis-ci.org/Genuifx/wxa.svg?branch=master)](https://travis-ci.org/Genuifx/wxa)
+[![NPM version](https://img.shields.io/npm/v/@wxa/core.svg)](https://www.npmjs.com/package/@wxa/core)
+
+A tiny library for improving  Wechat Mini programs development
 
 # Usage
 ## App
@@ -56,12 +60,30 @@ support mixin object;
 # Api
 ## Storage
 useful, convenient methods for interact with wx.storage*
+- **set**: preserve data with wx.setStorageSync;
+ > `this.storage.set(key, data)`
+- **get**: get data from storage;
+ > `let data = this.storage.get(key)`
+- **clear**: clean up storage, delete all data;
+ > `this.storage.clear()`
+- **remove**: remove target the data;
+ > `this.storage.remove(key)`
 ## Wxapi
-promise wrap miniprogram's async function
+wrap Mini program's async function with promise, and do nothing with the sync function
+example:
+1. navigateToMiniProgram
+```javascript
+this.wxapi.navigateToMiniProgram({params})
+.then(succ=>{}).catch(fail=>{})
+```
+2. setStorageSync
+```javascript
+let value = this.wxapi.getStorageSync(key);
+```
 ## Utils
 helper function
 ## Router
-similar api pattern to vue-router, just wrap the miniprogram's navigate methods;
+similar API pattern to vue-router, just wrap the mini programs navigate methods;
 ## Eventbus
 eventbus
 ## Logger
