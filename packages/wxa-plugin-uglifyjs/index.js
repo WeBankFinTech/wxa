@@ -8,7 +8,6 @@ module.exports = class UglifyjsPlugins {
             filter: /\.js$/,
             config: defaultOpt
         }, options);
-        this.count = 0;
     }
     apply(compiler) {
         compiler.hooks.optimizeAssets.tapAsync('optimize-assets', (code, compilation, next) => {
