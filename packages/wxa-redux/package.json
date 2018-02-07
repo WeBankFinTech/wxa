@@ -6,7 +6,9 @@
     "scripts": {
         "build": "babel src --out-dir ./dist/dist/",
         "dev": "babel --watch src --out-dir ./dist/",
-        "test": "jest"
+        "test": "jest",
+        "cover": "jest --coverage",
+        "travis": "npm run cover"
     },
     "repository": {
         "type": "git",
