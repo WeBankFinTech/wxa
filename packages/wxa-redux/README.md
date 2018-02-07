@@ -1,7 +1,8 @@
 # wxa-redux
 [![Build Status](https://travis-ci.org/Genuifx/wxa-redux.svg?branch=master)](https://travis-ci.org/Genuifx/wxa-redux)
 [![NPM version](https://img.shields.io/npm/v/@wxa/redux.svg)](https://www.npmjs.com/package/@wxa/redux)
-[![codecov](https://codecov.io/gh/Genuifx/wxa-redux/branch/master/graph/badge.svg)](https://codecov.io/gh/Genuifx/wxa-redux)
+[![codecov](https://codecov.io/gh/Genuifx/wxa-redux/branch/master/graph/badge.svg)](https://codecov.io/gh/Genuifx/wxa-redux)    
+
 redux for wxa.
 # Usage
 ```javascript
