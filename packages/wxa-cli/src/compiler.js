@@ -108,6 +108,7 @@ class Compiler {
             }
             case '.js': {
                 let cScript = new CScript(this.src, this.dist, '.js');
+                applyPlugins(cScript);
                 cScript.compile('babel', null, 'js', opath);
                 break;
             }
