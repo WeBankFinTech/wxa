@@ -1,6 +1,6 @@
 import shallowequal from 'shallowequal'
 
-export default function mapState(map, state, source) {
+export default function mapState(map, state, source={}) {
     if(map == null) return null;
 
     let {newState, oldState} = Object.keys(map).reduce((ret, key)=>{
