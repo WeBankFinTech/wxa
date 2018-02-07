@@ -1,6 +1,6 @@
 {
     "name": "@wxa/redux",
-    "version": "1.1.6",
+    "version": "1.1.7",
     "description": "redux for wxa ",
     "main": "./dist/index.js",
     "scripts": {
@@ -38,6 +38,8 @@
     "jest": {
         "coverageDirectory": "./coverage/",
         "collectCoverage": true,
-        "testMatch": ["**/test/*.js"]
+        "testMatch": [
+            "**/test/*.js"
+        ]
     }
 }
