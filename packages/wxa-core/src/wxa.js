@@ -1,6 +1,12 @@
 import app from './base/app';
 import page from './base/page';
 import component from './base/component';
+import wxapi from './utils/wxapi';
+import {storage} from './utils/storage';
+import {router} from './utils/router';
+import promisify from './utils/promisify';
+import {eventbus} from './utils/eventbus';
+
 
 // define some convenient api for user.
 class Wxa {
@@ -38,3 +44,10 @@ class Wxa {
 
 export const wxa = new Wxa();
 export * from './utils/decorators';
+export {
+    wxapi,
+    storage,
+    router,
+    promisify,
+    eventbus,
+};
