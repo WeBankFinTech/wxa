@@ -6,16 +6,18 @@ import {
 
 let mountRedux = function (originMount) {
     return function (...args) {
-        this.unsubscribe = this.store.subscribe((...args) => {
-            if(this.$isCurrentPage) {
-                let newState = this.store.getState();
-                let data = mapState(this.mapState, newState, this.data);
-
-                if (data !== null) {
-                    this.setData(data);
+        if(this.store) {
+            this.unsubscribe = this.store.subscribe((...args) => {
+                if(this.$isCurrentPage) {
+                    let newState = this.store.getState();
+                    let data = mapState(this.mapState, newState, this.data);
+    
+                    if (data !== null) {
+                        this.setData(data);
+                    }
                 }
-            }
-        });
+            });
+        }
         if (originMount) originMount.apply(this, args);
     }
 }

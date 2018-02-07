@@ -165,6 +165,19 @@ describe('Page', ()=>{
          page.onUnload();
     })
 
+    test('page without map', ()=>{
+        let page = {
+            app,
+            setData
+        };
+
+        reduxFnPage(page);
+        page.onLoad();
+        page.onShow();
+        page.store.dispatch({type: 'add', payload: 'test+1'});
+        expect(page.data).toBeFalsy();
+    })
+
     test('throw error while not mount app', ()=>{
         let page = {};
 
@@ -189,6 +202,7 @@ describe('Component', ()=>{
             app,
             created
         };
+        let comWithoutApp = {};
         let q = {scene: 110};
 
         reduxFnComponent(com);
@@ -196,6 +210,10 @@ describe('Component', ()=>{
         com.created(q);
         expect(created.mock.calls.length).toBe(1);
         expect(created).toHaveBeenCalledWith(q);
+
+        reduxFnComponent(comWithoutApp);
+        comWithoutApp.attached();
+        expect(comWithoutApp.unsubscribe).toBeFalsy();
     });
 
     test('dispatch data to component', ()=>{
