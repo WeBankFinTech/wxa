@@ -1,37 +1,43 @@
 {
-  "name": "@wxa/redux",
-  "version": "1.1.6",
-  "description": "redux for wxa ",
-  "main": "./dist/index.js",
-  "scripts": {
-    "build": "babel src --out-dir ./dist/dist/",
-    "dev": "babel --watch src --out-dir ./dist/",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Genuifx/wxa-redux.git"
-  },
-  "keywords": [
-    "wxa",
-    "redux",
-    "state"
-  ],
-  "author": "genuifx",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/Genuifx/wxa-redux/issues"
-  },
-  "homepage": "https://github.com/Genuifx/wxa-redux#readme",
-  "dependencies": {
-    "redux": "^3.7.2",
-    "shallowequal": "^1.0.2"
-  },
-  "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-plugin-syntax-dynamic-import": "^6.18.0",
-    "babel-plugin-transform-class-properties": "^6.24.1",
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "babel-preset-env": "^1.6.1"
-  }
+    "name": "@wxa/redux",
+    "version": "1.1.6",
+    "description": "redux for wxa ",
+    "main": "./dist/index.js",
+    "scripts": {
+        "build": "babel src --out-dir ./dist/dist/",
+        "dev": "babel --watch src --out-dir ./dist/",
+        "test": "jest"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Genuifx/wxa-redux.git"
+    },
+    "keywords": [
+        "wxa",
+        "redux",
+        "state"
+    ],
+    "author": "genuifx",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/Genuifx/wxa-redux/issues"
+    },
+    "homepage": "https://github.com/Genuifx/wxa-redux#readme",
+    "dependencies": {
+        "redux": "^3.7.2",
+        "shallowequal": "^1.0.2"
+    },
+    "devDependencies": {
+        "babel-cli": "^6.26.0",
+        "babel-plugin-syntax-dynamic-import": "^6.18.0",
+        "babel-plugin-transform-class-properties": "^6.24.1",
+        "babel-plugin-transform-object-rest-spread": "^6.26.0",
+        "babel-preset-env": "^1.6.1",
+        "jest": "^22.0.6"
+    },
+    "jest": {
+        "coverageDirectory": "./coverage/",
+        "collectCoverage": true,
+        "testMatch": ["**/test/*.js"]
+    }
 }

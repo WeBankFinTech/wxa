@@ -5,8 +5,8 @@ let mountRedux = function(originMount){
     return function(...args) {
         if(this.store) {
             this.unsubscribe = this.store.subscribe((...args)=>{
-                let state = this.store.getState();
-                let data = mapState(this.mapState, state);
+                let newState = this.store.getState();
+                let data = mapState(this.mapState, newState, this.data);
                 
                 if(this.$isCurrentPage && data != null) this.setData(data);
             });
@@ -35,7 +35,7 @@ export const wxaRedux = ({reducers, middlewares}, type)=>{
             vm.onLoad = mountRedux(onLoad);
             vm.onShow = function(...args) {
                 this.$isCurrentPage = true;
-                let data = mapState(this.mapState, this.store.getState());
+                let data = mapState(this.mapState, this.store.getState(), this.data);
                 if(data != null) this.setData(data);
                 if(onShow) onShow.apply(this, args);
             }

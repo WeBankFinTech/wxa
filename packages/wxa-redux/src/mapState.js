@@ -1,14 +1,17 @@
 import shallowequal from 'shallowequal'
 
-export default function mapState(map, state) {
+export default function mapState(map, state, source) {
     if(map == null) return null;
 
-    let newState = Object.keys(map).reduce((ret, key)=>{
-        ret[key] = map[key](state);
+    let {newState, oldState} = Object.keys(map).reduce((ret, key)=>{
+        ret.newState[key] = map[key](state);
+        ret.oldState[key] = map[key](source);
         return ret;
-    }, {});
+    }, {newState: {}, oldState: {}});
 
-    if(shallowequal(newState, state)) return null;
-
-    return newState;
+    if(shallowequal(newState, oldState)){
+        return null;
+    } else {
+        return newState;
+    }
 }
