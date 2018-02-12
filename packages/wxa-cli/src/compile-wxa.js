@@ -79,11 +79,6 @@ class CompileWxa {
         let startConfig = content.indexOf('<config') + 7;
         content = encodeXml(content, startScript, '</script>');
         content = encodeXml(content, startConfig, '</config>');
-        // if (startlen >=7 && content.length >= 8) {
-        //     while (content[startlen++] !== '>') {}
-
-        //     content = encode(content, startlen, content.indexOf('</script>') -1);
-        // }
 
         xml = this.parserXml().parseFromString(content);
 
