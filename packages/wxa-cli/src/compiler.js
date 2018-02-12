@@ -109,7 +109,19 @@ class Compiler {
             case '.js': {
                 let cScript = new CScript(this.src, this.dist, '.js');
                 applyPlugins(cScript);
-                cScript.compile('babel', null, 'js', opath);
+                let filepath = path.join(opath.dir, opath.base);
+                let type = 'other';
+                if (filepath === path.join(this.current, this.src, 'app.js')) type = 'app';
+                cScript.compile('js', null, type, opath);
+                break;
+            }
+            case '.ts': {
+                let cScript = new CScript(this.src, this.dist, '.js');
+                applyPlugins(cScript);
+                let filepath = path.join(opath.dir, opath.base);
+                let type = 'other';
+                if (filepath === path.join(this.current, this.src, 'app.ts')) type = 'app';
+                cScript.compile('ts', null, type, opath);
                 break;
             }
             case '.json': {

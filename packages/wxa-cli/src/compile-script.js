@@ -1,21 +1,11 @@
 import path from 'path';
 import {readFile, getDistPath, error, writeFile, isFile, isDir, getConfig, amazingCache, info} from './utils';
-import {transform} from 'babel-core';
 import {Base64} from 'js-base64';
 import {Tapable, AsyncSeriesHook} from 'tapable';
 import findRoot from 'find-root';
 import schedule from './schedule';
+import CompilerLoader from './compilers/index';
 const pkg = require('../package.json');
-
-function compileWithBabel(content, config) {
-    console.info('compile with babel');
-    try {
-        let rst = transform(content, config);
-        return Promise.resolve(rst);
-    } catch (e) {
-        return Promise.reject(e);
-    }
-}
 
 const pkgReg = /^([\w\-\_\d@\.]*\/?)+$/;
 
@@ -37,14 +27,6 @@ export default class CScript {
         this.extensions = configs.resolve && configs.resolve.extensions || ['.js', '.json'];
         this.modulesPath = path.join(this.current, 'node_modules', path.sep);
         this.npmPath = path.join(this.current, dist, 'npm', path.sep);
-        this.babelConfigs = null;
-        try {
-            let babelrc = JSON.parse(readFile(path.join(this.current, '.babelrc')));
-            this.babelConfigs = babelrc;
-        } catch (e) {
-            let pkg = require(path.join(this.current, 'package.json'));
-            this.babelConfigs = pkg.babel || null;
-        }
     }
 
     getPkgConfig(lib) {
@@ -173,13 +155,15 @@ export default class CScript {
             if (code === null) throw new Error('打开文件失败：'+path.join(opath.dir, opath.base));
         }
 
-        if (this.babelConfigs == null) this.babelConfigs = getConfig().compilers.babel;
+        let compilerLoader = new CompilerLoader();
+        let Compiler = compilerLoader.get(lang);
 
+        let compilation = new Compiler(this.current);
         return amazingCache({
             source: code,
-            options: {configs: this.babelConfigs},
+            options: {configs: compilation.configs},
             transform: function(code, options) {
-                return compileWithBabel(code, options.configs);
+                return compilation.parse(code, options.configs);
             },
         }).then((succ)=>{
             let sourcemap;
