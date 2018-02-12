@@ -1,6 +1,7 @@
 import sass from 'node-sass';
 import path from 'path';
 import {readFile, getDistPath, writeFile, amazingCache, getConfig, info} from './utils';
+import CompilerLoader from './compilers/index';
 
 function compileSass(data, file, config) {
     return new Promise((resolve, reject)=>{
@@ -24,12 +25,6 @@ export default class CStyle {
     }
 
     compile(rst, opath) {
-        let configs = {};
-        try {
-            configs = getConfig().compiler.sass;
-        } catch (e) {
-            // info('项目没有sass配置');
-        }
         if (typeof rst === 'string') {
             rst = [{
                 type: rst,
@@ -38,15 +33,15 @@ export default class CStyle {
         }
 
         let promises = rst.map((style)=>{
-            let lang = 'sass';
             const content = style.code;
-            let filepath = style.src ? style.src : path.join(opath.dir, opath.base);
-            // return compileSass(content, filepath, configs);
+            let compilerLoader = new CompilerLoader();
+            let Compiler = compilerLoader.get(style.type);
+            let compiler = new Compiler(this.current);
             return amazingCache({
                 source: content,
-                options: {filepath, configs},
+                options: {configs: compiler.configs},
                 transform: function(source, options) {
-                    return compileSass(content, options.filepath, options.configs).then((css)=>css.toString());
+                    return compiler.parse(content, options.configs);
                 },
             });
         });

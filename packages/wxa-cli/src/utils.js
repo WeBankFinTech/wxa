@@ -169,3 +169,7 @@ export function amazingCache(params) {
     };
     return cache({...defaultOpts, ...params});
 }
+
+export function isEmpty(n) {
+    return n == null || n === '';
+}

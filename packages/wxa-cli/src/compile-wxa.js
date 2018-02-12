@@ -1,5 +1,5 @@
 import path from 'path';
-import {readFile, error, encode, warn, isFile, decode, applyPlugins} from './utils';
+import {readFile, error, encode, warn, isFile, decode, applyPlugins, isEmpty} from './utils';
 import {DOMParser} from 'xmldom';
 import CStyle from './compile-style';
 import CTemplate from './compile-template';
@@ -113,7 +113,17 @@ class CompileWxa {
                     rstTypeObject = rst[nodeName];
                 }
                 rstTypeObject.src = child.getAttribute('src');
-                rstTypeObject.type = child.getAttribute('lang') || child.getAttribute('type') || 'js';
+                rstTypeObject.type = child.getAttribute('lang') || child.getAttribute('type');
+
+                if (isEmpty(rstTypeObject.type)) {
+                    let map = {
+                        style: 'scss',
+                        template: 'wxml',
+                        script: 'js',
+                        config: 'json',
+                    };
+                    rstTypeObject.type = map[nodeName];
+                }
 
                 if (rstTypeObject.src) rstTypeObject.src = path.resolve(opath.dir, rstTypeObject.src);
 
