@@ -25,7 +25,6 @@
     "eslint-config-google": "^0.9.1"
   },
   "dependencies": {
-    "babel-core": "^6.26.0",
     "chalk": "^2.3.0",
     "chokidar": "^2.0.0",
     "commander": "^2.13.0",
@@ -33,7 +32,6 @@
     "find-root": "^1.1.0",
     "js-base64": "^2.4.0",
     "mkdirp": "^0.5.1",
-    "node-sass": "^4.7.2",
     "tapable": "^1.0.0-beta.5",
     "xmldom": "^0.1.27"
   }

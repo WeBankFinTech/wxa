@@ -144,7 +144,7 @@ export function decode(content) {
 }
 
 export function error(msg) {
-    console.error(msg);
+    console.error(chalk.red(msg));
 }
 
 export function info(type, msg) {

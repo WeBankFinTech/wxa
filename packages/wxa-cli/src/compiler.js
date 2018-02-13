@@ -6,6 +6,7 @@ import CStyle from './compile-style';
 import chokidar from 'chokidar';
 import CConfig from './compile-config';
 import schedule from './schedule';
+import compilerLoader from './loader';
 
 class Compiler {
     constructor(src, dist, ext) {
@@ -16,6 +17,7 @@ class Compiler {
         this.isWatching = false;
         this.isWatchReady = false;
         this.queue = {};
+        this.init();
     }
     // 找到引用的src文件
     findReference(file) {
@@ -40,6 +42,14 @@ class Compiler {
         });
 
         return refs;
+    }
+    init() {
+        // 加载编译器
+        const configs = getConfig();
+        const defaultCompilers = [];
+        const usedCompilers = Array.from(new Set(defaultCompilers.concat(configs.use || [])));
+
+        compilerLoader.mount(usedCompilers, configs.compilers||{});
     }
     watch(cmd) {
         if (this.isWatching) return;
@@ -102,7 +112,7 @@ class Compiler {
             }
             case '.sass':
             case '.scss': {
-                let cStyle = new CStyle(this.src, this.dist, '.ext');
+                let cStyle = new CStyle(this.src, this.dist);
                 cStyle.compile('sass', opath);
                 break;
             }
@@ -139,4 +149,4 @@ class Compiler {
 }
 
 
-export default new Compiler();
+export default Compiler;
