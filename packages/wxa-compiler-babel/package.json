@@ -1,0 +1,35 @@
+{
+  "name": "@wxa/compiler-babel",
+  "version": "1.0.0",
+  "description": "wxa babel compiler",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "babel index.js --out-dir dist/dist",
+    "dev": "babel --watch index.js --out-dir dist",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Genuifx/wxa-compiler-babel.git"
+  },
+  "keywords": [
+    "babel",
+    "wxa",
+    "compiler"
+  ],
+  "author": "genuifx",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Genuifx/wxa-compiler-babel/issues"
+  },
+  "homepage": "https://github.com/Genuifx/wxa-compiler-babel#readme",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-env": "^1.6.1"
+  },
+  "dependencies": {
+    "node-sass": "^4.7.2"
+  }
+}
