@@ -4,7 +4,7 @@ import {Base64} from 'js-base64';
 import {Tapable, AsyncSeriesHook} from 'tapable';
 import findRoot from 'find-root';
 import schedule from './schedule';
-import CompilerLoader from './compilers/index';
+import compilerLoader from './loader';
 const pkg = require('../package.json');
 
 const pkgReg = /^([\w\-\_\d@\.]*\/?)+$/;
@@ -155,15 +155,12 @@ export default class CScript {
             if (code === null) throw new Error('打开文件失败：'+path.join(opath.dir, opath.base));
         }
 
-        let compilerLoader = new CompilerLoader();
-        let Compiler = compilerLoader.get(lang);
-
-        let compilation = new Compiler(this.current);
+        let compiler = compilerLoader.get(lang);
         return amazingCache({
             source: code,
-            options: {configs: compilation.configs},
+            options: {configs: compiler.configs},
             transform: function(code, options) {
-                return compilation.parse(code, options.configs);
+                return compiler.parse(code, options.configs);
             },
         }).then((succ)=>{
             let sourcemap;

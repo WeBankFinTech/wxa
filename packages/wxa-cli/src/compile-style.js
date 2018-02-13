@@ -1,20 +1,6 @@
-import sass from 'node-sass';
 import path from 'path';
-import {readFile, getDistPath, writeFile, amazingCache, getConfig, info} from './utils';
-import CompilerLoader from './compilers/index';
-
-function compileSass(data, file, config) {
-    return new Promise((resolve, reject)=>{
-        sass.render({
-            ...config,
-            data,
-            file,
-        }, (err, res)=>{
-            if (err) reject(err);
-            else resolve(res.css);
-        });
-    });
-}
+import {readFile, getDistPath, writeFile, amazingCache, getConfig, info, error} from './utils';
+import compilerLoader from './loader';
 
 export default class CStyle {
     constructor(src, dist, ext) {
@@ -34,9 +20,9 @@ export default class CStyle {
 
         let promises = rst.map((style)=>{
             const content = style.code;
-            let compilerLoader = new CompilerLoader();
-            let Compiler = compilerLoader.get(style.type);
-            let compiler = new Compiler(this.current);
+
+            let compiler = compilerLoader.get(style.type);
+
             return amazingCache({
                 source: content,
                 options: {configs: compiler.configs},
@@ -54,7 +40,7 @@ export default class CStyle {
             info('write', path.relative(this.current, target));
             writeFile(target, allContent);
         }).catch((e)=>{
-            console.error(e);
+            error(e);
         });
     }
 }
