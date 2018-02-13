@@ -11,7 +11,7 @@ module.exports = {
     use: ['stylus'],
     compiler: {
         stylus: {
-            // enter your sass option here
+            // enter your option here
         }
     }
 }
