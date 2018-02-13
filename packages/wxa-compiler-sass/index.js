@@ -1,40 +1,38 @@
-import {transform} from 'babel-core';
-import fs from 'fs';
+import sass from 'node-sass';
 import path from 'path';
 
-class BabelCompiler {
-    constructor(cwd, configs) {
-        if (BabelCompiler.prototype.instance) return BabelCompiler.prototype.instance;
-        BabelCompiler.prototype.instance = this;
+class SassCompiler {
+    constructor(cwd, compilers) {
+        if (SassCompiler.prototype.instance) return SassCompiler.prototype.instance;
+        SassCompiler.prototype.instance = this;
+
         this.current = cwd;
-        // get configuration from .babelrc, package.json or wxa.config.js
         this.configs = null;
         try {
-            let babelrc = JSON.parse(fs.readFileSync(path.join(this.current, '.babelrc'), 'utf-8'));
-            this.configs = babelrc;
-        } catch (e) {
             let pkg = require(path.join(this.current, 'package.json'));
-            this.configs = pkg.babel || null;
+            this.configs = pkg.sass;
+        } catch (e) {
+            this.configs = compilers.sass || {};
         }
-
-        if (this.configs == null) this.configs = configs.babel || {};
     }
 
     parse(content, configs) {
-        console.info('compile with babel');
-        if (configs == null) configs = this.configs;
-        try {
-            let rst = transform(content, configs);
-            return Promise.resolve(rst);
-        } catch (e) {
-            return Promise.reject(e);
-        }
+        return new Promise((resolve, reject)=>{
+            sass.render({
+                ...configs,
+                data: content,
+            }, (err, res)=>{
+                if (err) reject(err);
+                else resolve(res.css.toString());
+            });
+        });
     }
 
     mount(map) {
-        map['js'] = this;
+        map['scss'] = this;
+        map['sass'] = this;
         return map;
     }
 }
 
-export default BabelCompiler;
+export default SassCompiler;
