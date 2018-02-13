@@ -14,13 +14,15 @@ class SassCompiler {
         } catch (e) {
             this.configs = compilers.sass || {};
         }
+        if(this.configs == null) this.configs = compilers.sass || {};
     }
 
-    parse(content, configs) {
+    parse(content, configs, filepath) {
         return new Promise((resolve, reject)=>{
             sass.render({
                 ...configs,
                 data: content,
+                file: filepath
             }, (err, res)=>{
                 if (err) reject(err);
                 else resolve(res.css.toString());
