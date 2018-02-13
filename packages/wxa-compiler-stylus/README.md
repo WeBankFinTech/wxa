@@ -1,16 +1,16 @@
-# wxa-compiler-sass
-wxa sass compiler
+# wxa-compiler-stylus
+wxa stylus compiler
 
 # Install 
-run `npm` to install. example: `npm i -D @wxa/compiler-sass`
+run `npm` to install. example: `npm i -D @wxa/compiler-stylus`
 
 # Usage
 ```javascript
 // wxa.config.js
 module.exports = {
-    use: ['sass'],
+    use: ['stylus'],
     compiler: {
-        sass: {
+        stylus: {
             // enter your sass option here
         }
     }
