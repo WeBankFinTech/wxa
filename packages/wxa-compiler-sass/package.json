@@ -10,7 +10,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/Genuifx/wxa-compiler-babel.git"
+        "url": "git+https://github.com/Genuifx/wxa-compiler-sass.git"
     },
     "keywords": [
         "sass",
@@ -20,9 +20,9 @@
     "author": "genuifx",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/Genuifx/wxa-compiler-babel/issues"
+        "url": "https://github.com/Genuifx/wxa-compiler-sass/issues"
     },
-    "homepage": "https://github.com/Genuifx/wxa-compiler-babel#readme",
+    "homepage": "https://github.com/Genuifx/wxa-compiler-sass#readme",
     "devDependencies": {
         "babel-cli": "^6.26.0",
         "babel-plugin-transform-class-properties": "^6.24.1",
