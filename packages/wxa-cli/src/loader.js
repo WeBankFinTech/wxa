@@ -1,5 +1,22 @@
 import path from 'path';
 import {error} from './utils';
+class EmptyCompiler {
+    constructor(cwd) {
+        if (EmptyCompiler.prototype.instance) return EmptyCompiler.prototype.instance;
+        EmptyCompiler.prototype.instance = this;
+
+        this.current = cwd;
+        this.configs = {};
+    }
+    parse(content, configs, filepath) {
+        return Promise.resolve(content);
+    }
+    mount(map) {
+        map['wxml'] = this;
+        return map;
+    }
+}
+
 class CompilerLoader {
     constructor(cwd) {
         this.map = {};
@@ -13,7 +30,9 @@ class CompilerLoader {
     mount(usedCompilers, configs) {
         usedCompilers.forEach((uri)=>{
             let Compiler;
-            if (uri.indexOf('/') === 0) {
+            if (typeof uri === 'function') {
+                Compiler = uri;
+            } else if (uri.indexOf('/') === 0) {
                 // 绝对路径
                 Compiler = require(uri).default;
             } else {
@@ -30,4 +49,7 @@ class CompilerLoader {
     }
 }
 
-export default new CompilerLoader(process.cwd());
+const compilerLoader = new CompilerLoader(process.cwd());
+compilerLoader.mount([EmptyCompiler], {});
+
+export default compilerLoader;

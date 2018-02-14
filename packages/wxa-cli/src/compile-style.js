@@ -1,5 +1,5 @@
 import path from 'path';
-import {readFile, getDistPath, writeFile, amazingCache, getConfig, info, error} from './utils';
+import {readFile, getDistPath, writeFile, amazingCache, info, error} from './utils';
 import compilerLoader from './loader';
 
 export default class CStyle {
@@ -22,12 +22,11 @@ export default class CStyle {
             const content = style.code;
 
             let compiler = compilerLoader.get(style.type);
-
             return amazingCache({
                 source: content,
                 options: {configs: compiler.configs},
                 transform: function(source, options) {
-                    return compiler.parse(content, options.configs);
+                    return compiler.parse(content, options.configs, path.join(opath.dir, opath.base));
                 },
             });
         });
@@ -40,6 +39,9 @@ export default class CStyle {
             info('write', path.relative(this.current, target));
             writeFile(target, allContent);
         }).catch((e)=>{
+            if (e.column) {
+                error('column: '+e.column+' line: '+e.line);
+            }
             error(e);
         });
     }
