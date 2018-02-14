@@ -1,4 +1,6 @@
 # wxa-cli
+[![NPM version](https://img.shields.io/npm/v/@wxa/cli.svg)](https://www.npmjs.com/package/@wxa/cli)
+
 cli for wechat miniprogram developing.
 
 ![mind-node](./xmind.PNG)
