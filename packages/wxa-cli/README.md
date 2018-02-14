@@ -62,7 +62,7 @@ if (prod) {
 # Editor
 use [vsCode](https://github.com/Microsoft/vscode) to make coding more enjoyable.
 use [vetur](https://github.com/vuejs/vetur) for beautify `.wxa` file.
-flowing vscode's configurations is recommended:
+following vscode's configurations is recommended:
 ```json
 {
     "javascript.implicitProjectConfig.experimentalDecorators": true,
