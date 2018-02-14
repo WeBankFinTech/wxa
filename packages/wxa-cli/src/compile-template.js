@@ -4,11 +4,12 @@ import compilerLoader from './loader';
 import path from 'path';
 
 export default class CTemplate {
-    constructor(src, dist, ext) {
+    constructor(src, dist, ext, options) {
         this.current = process.cwd();
         this.src = src;
         this.dist = dist;
         this.ext = ext;
+        this.options = options || {};
     }
     compile(rst, opath) {
         if (typeof rst === 'string') {
@@ -27,7 +28,7 @@ export default class CTemplate {
             transform: function(source, options) {
                 return compiler.parse(source, options);
             },
-        }).then((succ)=>{
+        }, this.options.noCache).then((succ)=>{
             let target = getDistPath(path.parse(rst.src), 'wxml', this.src, this.dist);
             info('write', path.relative(this.current, target));
             writeFile(target, rst.code);

@@ -3,11 +3,12 @@ import {readFile, getDistPath, writeFile, amazingCache, info, error} from './uti
 import compilerLoader from './loader';
 
 export default class CStyle {
-    constructor(src, dist, ext) {
+    constructor(src, dist, ext, options) {
         this.current = process.cwd();
         this.src = src;
         this.dist = dist;
         this.ext = ext;
+        this.options = options || {};
     }
 
     compile(rst, opath) {
@@ -38,7 +39,7 @@ export default class CStyle {
             // console.log(target);
             info('write', path.relative(this.current, target));
             writeFile(target, allContent);
-        }).catch((e)=>{
+        }, this.options.noCache).catch((e)=>{
             if (e.column) {
                 error('column: '+e.column+' line: '+e.line);
             }

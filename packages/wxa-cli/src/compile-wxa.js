@@ -7,11 +7,12 @@ import CScript from './compile-script';
 import CConfig from './compile-config';
 
 class CompileWxa {
-    constructor(src, dist, ext) {
+    constructor(src, dist, ext, options) {
         this.current = process.cwd();
         this.src = src;
         this.dist = dist;
         this.ext = ext;
+        this.options;
     }
     compile(opath) {
         this.$compile(opath);
@@ -28,23 +29,23 @@ class CompileWxa {
         if (type === 'app') delete wxa.template;
 
         if (wxa.style) {
-            let cStyle = new CStyle(this.src, this.dist, this.ext);
+            let cStyle = new CStyle(this.src, this.dist, this.ext, this.options);
             cStyle.compile(wxa.style, opath);
         }
 
         if (wxa.template && wxa.template.code) {
-            let cTemplate = new CTemplate(this.src, this.dist, this.ext);
+            let cTemplate = new CTemplate(this.src, this.dist, this.ext, this.options);
             cTemplate.compile(wxa.template);
         }
 
         if (wxa.script.code) {
-            let compiler = new CScript(this.src, this.dist, this.ext);
+            let compiler = new CScript(this.src, this.dist, this.ext, this.options);
             applyPlugins(compiler);
             compiler.compile(wxa.script.type, wxa.script.code, type, opath);
         }
 
         if (wxa.config.code) {
-            let compiler = new CConfig(this.src, this.dist);
+            let compiler = new CConfig(this.src, this.dist, this.options);
             applyPlugins(compiler);
             compiler.compile(wxa.config.code, opath);
         }

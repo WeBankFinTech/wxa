@@ -7,6 +7,7 @@ const version = require('../package.json').version;
 
 commander.usage('[command] <options ...>');
 commander.option('-w, --watch', '监听文件改动');
+commander.option('-N, --noCache', '不使用缓存');
 commander.command('build').description('编译项目').action((projectpath)=>{
     // console.log(commander);
     info('Hello', `This is ${chalk.keyword('orange')('wxa@'+version)}, Running in ${chalk.keyword('orange')(process.env.NODE_ENV || 'development')}`);
