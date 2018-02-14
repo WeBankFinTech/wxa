@@ -3,8 +3,9 @@ import path from 'path';
 import CWxa from './compile-wxa';
 import CScript from './compile-script';
 import CStyle from './compile-style';
-import chokidar from 'chokidar';
 import CConfig from './compile-config';
+import CTemplate from './compile-template';
+import chokidar from 'chokidar';
 import schedule from './schedule';
 import compilerLoader from './loader';
 
@@ -125,19 +126,15 @@ class Compiler {
                 cScript.compile('js', null, type, opath);
                 break;
             }
-            case '.ts': {
-                let cScript = new CScript(this.src, this.dist, '.js');
-                applyPlugins(cScript);
-                let filepath = path.join(opath.dir, opath.base);
-                let type = 'other';
-                if (filepath === path.join(this.current, this.src, 'app.ts')) type = 'app';
-                cScript.compile('ts', null, type, opath);
-                break;
-            }
             case '.json': {
                 let cConfig = new CConfig(this.src, this.dist);
                 applyPlugins(cConfig);
                 cConfig.compile(void(0), opath);
+                break;
+            }
+            case '.wxml': {
+                let cTemplate = new CTemplate(this.src, this.dist);
+                cTemplate.compile('wxml', opath);
                 break;
             }
             default:

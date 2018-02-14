@@ -156,6 +156,7 @@ export default class CScript {
         }
 
         let compiler = compilerLoader.get(lang);
+
         return amazingCache({
             source: code,
             options: {configs: compiler.configs},
