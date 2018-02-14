@@ -10,7 +10,7 @@ const pkg = require('../package.json');
 const pkgReg = /^([\w\-\_\d@\.]*\/?)+$/;
 
 export default class CScript {
-    constructor(src, dist, ext) {
+    constructor(src, dist, ext, options) {
         // super();
         this.hooks = {
             optimizeAssets: new AsyncSeriesHook(['code', 'compilation']),
@@ -21,6 +21,7 @@ export default class CScript {
         this.src = src;
         this.dist = dist;
         this.ext = ext;
+        this.options = options || {};
         this.code = '';
         let configs = getConfig();
         this.alias = configs.resolve && configs.resolve.alias || {};
@@ -163,7 +164,7 @@ export default class CScript {
             transform: function(code, options) {
                 return compiler.parse(code, options.configs);
             },
-        }).then((succ)=>{
+        }, this.options.noCache).then((succ)=>{
             let sourcemap;
             if (typeof succ === 'string') {
                 code = succ;

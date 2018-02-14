@@ -88,10 +88,10 @@ class Compiler {
         files.forEach((file)=>{
             let opath = path.parse(path.join(this.current, this.src, file));
             if (file) {
-                this.compile(opath);
+                this.compile(opath, cmd);
             } else {
                 let refs = this.findReference(file);
-                if (!refs.length) this.compile(opath);
+                if (!refs.length) this.compile(opath, cmd);
             }
         });
 
@@ -99,7 +99,7 @@ class Compiler {
             this.watch(cmd);
         }
     }
-    compile(opath) {
+    compile(opath, cmd) {
         if (!isFile(opath)) {
             error('不存在文件:' + getRelative(opath));
             return;
@@ -107,18 +107,18 @@ class Compiler {
 
         switch (opath.ext) {
             case this.ext: {
-                let cWxa = new CWxa(this.src, this.dist, this.ext);
+                let cWxa = new CWxa(this.src, this.dist, this.ext, cmd);
                 cWxa.compile(opath);
                 break;
             }
             case '.sass':
             case '.scss': {
-                let cStyle = new CStyle(this.src, this.dist);
+                let cStyle = new CStyle(this.src, this.dist, cmd);
                 cStyle.compile('sass', opath);
                 break;
             }
             case '.js': {
-                let cScript = new CScript(this.src, this.dist, '.js');
+                let cScript = new CScript(this.src, this.dist, '.js', cmd);
                 applyPlugins(cScript);
                 let filepath = path.join(opath.dir, opath.base);
                 let type = 'other';
@@ -127,13 +127,13 @@ class Compiler {
                 break;
             }
             case '.json': {
-                let cConfig = new CConfig(this.src, this.dist);
+                let cConfig = new CConfig(this.src, this.dist, cmd);
                 applyPlugins(cConfig);
                 cConfig.compile(void(0), opath);
                 break;
             }
             case '.wxml': {
-                let cTemplate = new CTemplate(this.src, this.dist);
+                let cTemplate = new CTemplate(this.src, this.dist, cmd);
                 cTemplate.compile('wxml', opath);
                 break;
             }
