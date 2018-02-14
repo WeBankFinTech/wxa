@@ -33,6 +33,10 @@ export default class Router {
     go(len) {
         return this.wxapi.navigateBack({delta: Math.abs(len)});
     }
+
+    close() {
+        return this.wxapi.navigateBack({delta: Math.abs(getCurrentPages().length)});
+    }
 }
 
 export const router = new Router(wxapi);

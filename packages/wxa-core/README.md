@@ -4,7 +4,8 @@
 [![NPM version](https://img.shields.io/npm/v/@wxa/core.svg)](https://www.npmjs.com/package/@wxa/core)
 [![codecov](https://codecov.io/gh/Genuifx/wxa/branch/master/graph/badge.svg)](https://codecov.io/gh/Genuifx/wxa)
 
-A tiny library for improving  Wechat Mini programs development
+A tiny library for improving  Wechat Mini programs development.:laughing:
+use [`@wxa/cli`](https://github.com/Genuifx/wxa-cli) for better experiment.:smirk:
 
 # Usage
 ## App
