@@ -38,7 +38,7 @@ export default function mixin(vm) {
     Object.keys(hooks).forEach((name)=>{
         vm[name] = function(...opts) {
             let self = this;
-            console.log(name, hooks[name]);
+            // console.log(name, hooks[name]);
             hooks[name].forEach((fn)=>fn.apply(self, opts));
         };
     });
