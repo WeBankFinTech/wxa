@@ -159,7 +159,7 @@ export function warn(msg) {
     console.warn(msg);
 }
 
-export function amazingCache(params, noCache) {
+export function amazingCache(params, needCache) {
     let defaultOpts = {
         directory: true,
         identifier: JSON.stringify({
@@ -167,11 +167,11 @@ export function amazingCache(params, noCache) {
             'env': process.env.NODE_ENV || 'development',
         }),
     };
-    if (noCache) {
+    if (needCache) {
+        return cache({...defaultOpts, ...params});
+    } else {
         let {source, transform, options} = params;
         return transform(source, options);
-    } else {
-        return cache({...defaultOpts, ...params});
     }
 }
 

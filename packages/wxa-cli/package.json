@@ -27,7 +27,7 @@
   "dependencies": {
     "chalk": "^2.3.0",
     "chokidar": "^2.0.0",
-    "commander": "^2.13.0",
+    "commander": "^2.14.1",
     "find-cache-dir": "^1.0.0",
     "find-root": "^1.1.0",
     "js-base64": "^2.4.0",

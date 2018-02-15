@@ -1,7 +1,7 @@
 # wxa-cli
 [![NPM version](https://img.shields.io/npm/v/@wxa/cli.svg)](https://www.npmjs.com/package/@wxa/cli)
 
-cli for wechat miniprogram developing.
+:smiley:cli for wechat miniprogram developing.
 
 ![mind-node](./xmind.PNG)
 
@@ -17,7 +17,10 @@ use `npm` for installing wxa.
 `wxa build --watch`
 
 3. build without cache
-`wxa build --noCache`
+`wxa build --no-cache`
+
+4. create new project with template, see [template](#Template)
+`wxa create base projectname`
 
 # Feature
 1. npm support
@@ -117,3 +120,6 @@ and also a list of eslint configs:
     }
 }
 ```
+
+# Template
+1. [Base Template](https://github.com/Genuifx/wxa-template-base)
