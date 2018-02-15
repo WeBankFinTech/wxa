@@ -1,0 +1,35 @@
+{
+  "name": "wxa-template-base",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": ""
+  },
+  "keywords": [
+    "wxa",
+    "basic",
+    "template"
+  ],
+  "author": "genuifx",
+  "license": "MIT",
+  "devDependencies": {
+    "@wxa/compiler-babel": "^1.0.2",
+    "@wxa/compiler-sass": "^1.0.3",
+    "babel-eslint": "^8.2.1",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-plugin-transform-decorators-legacy": "^1.3.4",
+    "babel-plugin-transform-export-extensions": "^6.22.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "cross-env": "^5.1.3",
+    "eslint": "^4.17.0",
+    "eslint-config-google": "^0.9.1",
+    "eslint-plugin-vue": "^4.2.2"
+  },
+  "dependencies": {
+    "@wxa/core": "^1.1.4",
+    "@wxa/plugin-replace": "^1.0.0",
+    "@wxa/plugin-uglifyjs": "^1.0.0"
+  }
+}
