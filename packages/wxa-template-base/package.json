@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": ""
+    "dev": "wxa build --watch",
+    "build": "cross-env NODE_ENV=production wxa build --no-cache"
   },
   "keywords": [
     "wxa",
