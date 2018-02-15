@@ -1,0 +1,40 @@
+{
+    "extends": [
+        "google"
+    ],
+    "root": true,
+    "env": {
+        "browser": true,
+        "commonjs": true,
+        "es6": true,
+        "node": true
+    },
+    "parser": "vue-eslint-parser",
+    "parserOptions": {
+        "parser": "babel-eslint",
+        "ecmaFeatures": {
+            "experimentalObjectRestSpread": true
+        },
+        "ecmaVersion": 2017,
+        "sourceType": "module"
+    },
+    "rules": {
+        "vue/valid-template-root": "off",
+        "no-const-assign": "warn",
+        "valid-template-root": "off",
+        "no-this-before-super": "warn",
+        "no-undef": "warn",
+        "no-unreachable": "warn",
+        "no-unused-vars": "warn",
+        "constructor-super": "warn",
+        "valid-typeof": "warn",
+        "one-var": "warn",
+        "max-len": "off",
+        "no-trailing-spaces": "off",
+        "require-jsdoc": "off",
+        "camelcase": "warn",
+        "no-invalid-this": "warn",
+        "new-cap": "warn",
+        "guard-for-in": "warn"
+    }
+}
