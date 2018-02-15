@@ -39,7 +39,7 @@ export default class CStyle {
             // console.log(target);
             info('write', path.relative(this.current, target));
             writeFile(target, allContent);
-        }, this.options.noCache).catch((e)=>{
+        }, this.options.cache).catch((e)=>{
             if (e.column) {
                 error('column: '+e.column+' line: '+e.line);
             }

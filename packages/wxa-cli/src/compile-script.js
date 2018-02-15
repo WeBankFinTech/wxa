@@ -164,7 +164,7 @@ export default class CScript {
             transform: function(code, options) {
                 return compiler.parse(code, options.configs);
             },
-        }, this.options.noCache).then((succ)=>{
+        }, this.options.cache).then((succ)=>{
             let sourcemap;
             if (typeof succ === 'string') {
                 code = succ;

@@ -28,7 +28,7 @@ export default class CTemplate {
             transform: function(source, options) {
                 return compiler.parse(source, options);
             },
-        }, this.options.noCache).then((succ)=>{
+        }, this.options.cache).then((succ)=>{
             let target = getDistPath(path.parse(rst.src), 'wxml', this.src, this.dist);
             info('write', path.relative(this.current, target));
             writeFile(target, rst.code);

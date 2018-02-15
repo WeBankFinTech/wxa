@@ -12,7 +12,7 @@ class CompileWxa {
         this.src = src;
         this.dist = dist;
         this.ext = ext;
-        this.options;
+        this.options = options;
     }
     compile(opath) {
         this.$compile(opath);

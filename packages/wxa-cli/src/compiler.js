@@ -84,7 +84,7 @@ class Compiler {
         let file = cmd.file;
         let files = file ? [file] : getFiles(this.src);
 
-        info('Compile', 'start '+new Date());
+        info('Compile', 'AT: '+new Date());
         files.forEach((file)=>{
             let opath = path.parse(path.join(this.current, this.src, file));
             if (file) {
