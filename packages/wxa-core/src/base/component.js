@@ -16,16 +16,11 @@ let launch = function(instance) {
         plugin.fn.call(null, plugin.options, 'Component').call(null, vm);
     });
 
-    let methods;
-    try {
-        methods = vm.methods || {};
-        for (let key in vm) {
-            if (notCopy.indexOf(key) === -1) {
-                methods[key] = vm[key];
-            }
+    let methods = vm.methods || {};
+    for (let key in vm) {
+        if (notCopy.indexOf(key) === -1) {
+            methods[key] = vm[key];
         }
-    } catch (e) {
-        console.log(e);
     }
 
     let created = vm.created;
