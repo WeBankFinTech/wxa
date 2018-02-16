@@ -1,7 +1,6 @@
-// import {Eventbus, Promisify} from '../utils/decorators';
 import debounce from '../utils/debounce';
 import mixin from './mixin';
-// const merge = require('../utils/deep-merge');
+
 const plugins = [];
 let launch = function(instance) {
     let vm = instance;
@@ -13,21 +12,16 @@ let launch = function(instance) {
             let {currentTarget: {dataset: {path, type}}} = e;
             let category = 'push';
             if (type) category = type;
-            this.router[category](path);
+            if (this.router) {
+                this.router[category](path);
+            } else {
+                console.warn('router未挂载');
+            }
         }, 250);
     })();
     if (vm.onShareAppMessage !== false) {
         vm.onShareAppMessage = vm.onShareAppMessage || function() {
-            let pages = getCurrentPages();
-            return {
-                success: function() {
-                    try {
-                        vm.logger.clickStat('share', pages[pages.length-1].route);
-                    } catch (e) {
-                        console.error(e);
-                    }
-                },
-            };
+            return {};
         };
     }
 
