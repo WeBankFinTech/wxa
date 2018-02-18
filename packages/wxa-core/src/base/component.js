@@ -28,7 +28,11 @@ let launch = function(instance) {
         let comMethods = methods;
         for (let key in comMethods) {
             if (comMethods.hasOwnProperty(key)) {
-                this[key] = comMethods[key];
+                if (typeof comMethods[key] === 'function') {
+                    this[key] = comMethods[key].bind(this);
+                } else {
+                    this[key] = comMethods[key];
+                }
             }
         }
         if (created) created.apply(this, args);
