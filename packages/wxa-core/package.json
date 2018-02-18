@@ -1,6 +1,6 @@
 {
     "name": "@wxa/core",
-    "version": "1.1.4",
+    "version": "1.1.5",
     "description": "wxa core feature",
     "main": "dist/wxa.js",
     "scripts": {
@@ -33,7 +33,9 @@
     "jest": {
         "coverageDirectory": "./coverage/",
         "collectCoverage": true,
-        "coveragePathIgnorePatterns": ["<rootDir>/src/utils/deep-merge.js"]
+        "coveragePathIgnorePatterns": [
+            "<rootDir>/src/utils/deep-merge.js"
+        ]
     },
     "lint-staged": {
         "*.js": [
