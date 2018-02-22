@@ -10,9 +10,12 @@ let mountRedux = function (originMount) {
             this.unsubscribe = this.store.subscribe((...args) => {
                 if(this.$isCurrentPage) {
                     let newState = this.store.getState();
-                    let data = mapState(this.mapState, newState, this.data);
+                    let source = this.$storeLastState;
+                    let data = mapState(this.mapState, newState, source);
     
                     if (data !== null) {
+                        // 有效state
+                        this.$storeLastState = newState;
                         this.setData(data);
                     }
                 }
@@ -53,7 +56,7 @@ export const wxaRedux = ({
             vm.onLoad = mountRedux(onLoad);
             vm.onShow = function (...args) {
                 this.$isCurrentPage = true;
-                let data = mapState(this.mapState, this.store.getState(), this.data);
+                let data = mapState(this.mapState, this.store.getState(), this.$storeLastState);
                 if (data != null) this.setData(data);
                 if (onShow) onShow.apply(this, args);
             }
