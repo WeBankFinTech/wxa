@@ -225,7 +225,8 @@ describe('Component', ()=>{
             attached,
             detached,
             mapState: {
-                todoList: (state)=>state.todo
+                todoList: (state)=>state.todo,
+                first: (state)=>state.todo && state.todo[0]
             },
             setData
         }
@@ -243,6 +244,7 @@ describe('Component', ()=>{
         com.store.dispatch({type: 'add', payload: 'testcom'});
         com.store.dispatch({type: 'add', payload: 'testcom'});
         expect(com.data.todoList.length).toBe(3);
+        expect(com.data.first).not.toBeFalsy();
 
         com.detached();
         expect(com.unsubscribe).toBeNull();
