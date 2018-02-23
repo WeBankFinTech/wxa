@@ -4,6 +4,10 @@ export default function mixin(vm) {
     delete vm.mixins;
 
     mixins.push(vm);
+    // 多层嵌套mixins
+    mixins = mixins.map((item)=>{
+        return item.mixins ? mixin(item) : item;
+    });
     // copy methods and data;
     let candidate = mixins.reduce((ret, mixin) => {
         if (mixin.methods) {
