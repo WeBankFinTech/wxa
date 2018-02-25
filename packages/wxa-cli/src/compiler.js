@@ -114,6 +114,7 @@ class Compiler {
             case '.sass':
             case '.scss': {
                 let cStyle = new CStyle(this.src, this.dist, cmd);
+                applyPlugins(cStyle);
                 cStyle.compile('sass', opath);
                 break;
             }
