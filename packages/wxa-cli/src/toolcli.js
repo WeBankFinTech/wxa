@@ -31,9 +31,9 @@ class Toolcli {
                     reject(err);
                 }
                 resolve(stout);
+            }).stdout.on('data', (msg)=>{
+                info('upload', msg);
             });
-        }).stdout.on('data', (msg)=>{
-            info('upload', msg);
         });
     }
 
