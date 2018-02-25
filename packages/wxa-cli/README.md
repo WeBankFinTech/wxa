@@ -22,13 +22,19 @@ use `npm` for installing wxa.
 4. create new project with template, see [template](#Template)
 `wxa create base projectname`
 
+5. invoke wechatdevtools
+- `wxa cli open`: open dev tools
+- `wxa cli preview`: preview project
+- `wxa cli upload -m 'upload msg' --ver 'verion'`: upload project
+- `wxa cli login`: login tool, preview and upload command need login your wechat account
+
 # Feature
 1. npm support
 2. vue develop pattern
 3. support multi plugins
 4. support custom compiler
 
-# configurations
+# Configurations
 
 core configs file is `wxa.config.js`, mostly like below:
 
