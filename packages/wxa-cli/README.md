@@ -22,7 +22,7 @@ use `npm` for installing wxa.
 4. create new project with template, see [template](#Template)
 `wxa create base projectname`
 
-5. invoke wechatdevtools
+5. invoke wechatdevtools, windows need setup `wechatwebdevtools` in `wxa.config.js`
 - `wxa cli open`: open dev tools
 - `wxa cli preview`: preview project
 - `wxa cli upload -m 'upload msg' --ver 'verion'`: upload project
@@ -46,6 +46,7 @@ let prod = process.env.NODE_ENV === 'production';
 const envlist = []; // your env configurations
 
 module.exports = {
+    wechatwebdevtools: '/Applications/wechatwebdevtools.app', // path to your wechat dev tool
     resolve: {
         alias: {
             '@': path.join(__dirname, 'src'),
