@@ -1,6 +1,7 @@
 import path from 'path';
 import {readFile, getDistPath, writeFile, amazingCache, info, error} from './utils';
 import compilerLoader from './loader';
+import {AsyncSeriesHook} from 'tapable';
 
 export default class CStyle {
     constructor(src, dist, ext, options) {
@@ -9,6 +10,9 @@ export default class CStyle {
         this.dist = dist;
         this.ext = ext;
         this.options = options || {};
+        this.hooks = {
+            optimizeAssets: new AsyncSeriesHook(['code', 'compilation']),
+        };
     }
 
     compile(rst, opath) {
@@ -35,10 +39,16 @@ export default class CStyle {
         return Promise.all(promises).then((rets)=>{
             let allContent = rets.join('');
 
-            let target = getDistPath(opath, 'wxss', this.src, this.dist);
-            // console.log(target);
-            info('write', path.relative(this.current, target));
-            writeFile(target, allContent);
+            this.code = allContent;
+            this.hooks.optimizeAssets.promise(this.code, this)
+            .then((err)=>{
+                if (err) return Promise.reject(err);
+
+                let target = getDistPath(opath, 'wxss', this.src, this.dist);
+                // console.log(target);
+                info('write', path.relative(this.current, target));
+                writeFile(target, this.code);
+            });
         }, this.options.cache).catch((e)=>{
             if (e.column) {
                 error('column: '+e.column+' line: '+e.line);

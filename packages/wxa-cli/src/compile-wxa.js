@@ -1,10 +1,11 @@
 import path from 'path';
-import {readFile, error, encode, warn, isFile, decode, applyPlugins, isEmpty} from './utils';
+import {readFile, error, warn, isFile, applyPlugins, isEmpty} from './utils';
 import {DOMParser} from 'xmldom';
 import CStyle from './compile-style';
 import CTemplate from './compile-template';
 import CScript from './compile-script';
 import CConfig from './compile-config';
+import Coder from './helpers/coder';
 
 class CompileWxa {
     constructor(src, dist, ext, options) {
@@ -29,8 +30,9 @@ class CompileWxa {
         if (type === 'app') delete wxa.template;
 
         if (wxa.style) {
-            let cStyle = new CStyle(this.src, this.dist, this.ext, this.options);
-            cStyle.compile(wxa.style, opath);
+            let compiler = new CStyle(this.src, this.dist, this.ext, this.options);
+            applyPlugins(compiler);
+            compiler.compile(wxa.style, opath);
         }
 
         if (wxa.template && wxa.template.code) {
@@ -70,16 +72,24 @@ class CompileWxa {
 
         if (content == '') return null;
 
-        let encodeXml = (content, start, endId)=>{
+        let coder = new Coder();
+        let templateCoder = new Coder(['&'], ['&amp;']);
+
+        let encodeXml = (content, start, endId, isTemplate)=>{
             while (content[start++] !== '>') {};
 
-            return encode(content, start, content.indexOf(endId)-1);
+            return isTemplate ?
+                coder.encode(content, start, content.indexOf(endId)-1)
+                :
+                templateCoder.encode(content, start, content.indexOf(endId)-1);
         };
 
         let startScript = content.indexOf('<script') + 7;
         let startConfig = content.indexOf('<config') + 7;
+        let startTemplate = content.indexOf('<template') + 9;
         content = encodeXml(content, startScript, '</script>');
         content = encodeXml(content, startConfig, '</config>');
+        content = encodeXml(content, startTemplate, '</template>');
 
         xml = this.parserXml().parseFromString(content);
 
@@ -134,8 +144,11 @@ class CompileWxa {
                     else rstTypeObject.code += code;
                 } else {
                     Array.prototype.slice.call(child.childNodes||[]).forEach((code)=>{
-                        // console.log(code);
-                        rstTypeObject.code += decode(code.toString());
+                        if (nodeName !== 'template') {
+                            rstTypeObject.code += coder.decode(code.toString());
+                        } else {
+                            rstTypeObject.code += templateCoder.decode(code.toString());
+                        }
                     });
                 }
 
