@@ -51,7 +51,7 @@ export default class CStyle {
             });
         }, this.options.cache).catch((e)=>{
             if (e.column) {
-                error('column: '+e.column+' line: '+e.line);
+                error('Error In: ', path.join(opath.dir, opath.base)+' with column: '+e.column+' line: '+e.line);
             }
             error(e);
         });

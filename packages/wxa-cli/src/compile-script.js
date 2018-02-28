@@ -198,7 +198,11 @@ export default class CScript {
                 schedule.pop(opath);
                 writeFile(target, this.code);
             });
-        }).catch((e)=>error(e));
+        }).catch((e)=>{
+            // console.log(code);
+            error('Error In: '+path.join(opath.dir, opath.base));
+            error(e);
+        });
     }
 
     compile(lang, code, type, opath) {
