@@ -73,23 +73,26 @@ class CompileWxa {
         if (content == '') return null;
 
         let coder = new Coder();
-        let templateCoder = new Coder(['&'], ['&amp;']);
 
-        let encodeXml = (content, start, endId, isTemplate)=>{
+        let encodeXml = (content, start, endId, isTemplate=false)=>{
             while (content[start++] !== '>') {};
 
             return isTemplate ?
-                coder.encode(content, start, content.indexOf(endId)-1)
+                coder.encodeTemplate(content, start, content.indexOf(endId)-1)
                 :
-                templateCoder.encode(content, start, content.indexOf(endId)-1);
+                coder.encode(content, start, content.indexOf(endId)-1);
         };
 
         let startScript = content.indexOf('<script') + 7;
-        let startConfig = content.indexOf('<config') + 7;
-        let startTemplate = content.indexOf('<template') + 9;
         content = encodeXml(content, startScript, '</script>');
+
+        let startConfig = content.indexOf('<config') + 7;
         content = encodeXml(content, startConfig, '</config>');
-        content = encodeXml(content, startTemplate, '</template>');
+
+        if (content.indexOf('<template') > -1) {
+            let startTemplate = content.indexOf('<template') + 9;
+            content = encodeXml(content, startTemplate, '</template>', true);
+        }
 
         xml = this.parserXml().parseFromString(content);
 
@@ -147,7 +150,7 @@ class CompileWxa {
                         if (nodeName !== 'template') {
                             rstTypeObject.code += coder.decode(code.toString());
                         } else {
-                            rstTypeObject.code += templateCoder.decode(code.toString());
+                            rstTypeObject.code += coder.decodeTemplate(code.toString());
                         }
                     });
                 }
