@@ -3,7 +3,7 @@ module.exports = class ReplacePlugin {
         this.configs = Object.assign({}, options);
     }   
     apply(compiler) {
-        compiler.hooks.optimizeAssets.tapAsync('optimize-assets', (code, compilation, next)=>{
+        compiler.hooks.optimizeAssets.tapAsync('replacePlugin', (code, compilation, next)=>{
             this.run(code, compilation, next);
         })
     }
