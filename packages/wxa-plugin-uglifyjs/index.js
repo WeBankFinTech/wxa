@@ -5,7 +5,7 @@ const defaultOpt = {}
 module.exports = class UglifyjsPlugins {
     constructor(options = {}) {
         this.configs = Object.assign({}, {
-            filter: /\.js$/,
+            filter: /(\.)?js$/,
             config: defaultOpt
         }, options);
     }
