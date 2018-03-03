@@ -10,7 +10,7 @@ module.exports = class UglifyjsPlugins {
         }, options);
     }
     apply(compiler) {
-        compiler.hooks.optimizeAssets.tapAsync('optimize-assets', (code, compilation, next) => {
+        compiler.hooks.optimizeAssets.tapAsync('uglifyjsPlugin', (code, compilation, next) => {
             this.run(compilation, code, next);
         });
     }
