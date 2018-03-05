@@ -4,7 +4,7 @@ module.exports = class ReplacePlugin {
     }   
     apply(compiler) {
         compiler.hooks.optimizeAssets.tapAsync('replacePlugin', (code, compilation, next)=>{
-            this.run(code, compilation, next);
+            this.run(compilation.code, compilation, next);
         })
     }
     run(code, compilation, next) {
