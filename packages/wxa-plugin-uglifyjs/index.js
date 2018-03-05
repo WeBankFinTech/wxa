@@ -11,7 +11,7 @@ module.exports = class UglifyjsPlugins {
     }
     apply(compiler) {
         compiler.hooks.optimizeAssets.tapAsync('uglifyjsPlugin', (code, compilation, next) => {
-            this.run(compilation, code, next);
+            this.run(compilation, compilation.code, next);
         });
     }
     run(compilation, code, next) {
