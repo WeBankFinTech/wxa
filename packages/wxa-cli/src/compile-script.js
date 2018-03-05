@@ -1,5 +1,5 @@
 import path from 'path';
-import {readFile, getDistPath, error, writeFile, isFile, isDir, getConfig, amazingCache, info} from './utils';
+import {readFile, getDistPath, error, writeFile, isFile, isDir, getConfig, amazingCache, info, applyPlugins} from './utils';
 import {Base64} from 'js-base64';
 import {Tapable, AsyncSeriesHook} from 'tapable';
 import findRoot from 'find-root';
@@ -122,7 +122,9 @@ export default class CScript {
 
             // 递归处理依赖
             if (needCopy) {
-                this.compile('js', null, 'npm', path.parse(source));
+                let cScript = new CScript(this.src, this.dist, '.js', this.options);
+                applyPlugins(cScript);
+                cScript.compile('js', null, 'npm', path.parse(source));
             }
 
             // 路径修正
@@ -172,9 +174,7 @@ export default class CScript {
                 code = succ.code;
                 sourcemap = succ.map;
             }
-
             code = this.resolveDeps(code, type, opath);
-
             let target;
 
             if (type === 'npm') {
@@ -183,7 +183,6 @@ export default class CScript {
             } else {
                 target = path.join(getDistPath(opath, 'js', this.src, this.dist));
             }
-
             if (sourcemap) {
                 sourcemap.source = [opath.name+'.js'];
                 sourcemap.file = opath.name+'.js';
@@ -191,7 +190,6 @@ export default class CScript {
             }
 
             this.code = code;
-            // writeFile(target, code);
             return this.hooks.optimizeAssets.promise(code, this).then((err)=>{
                 if (err) return Promise.reject(err);
                 info('write', path.relative(this.current, target));

@@ -36,7 +36,7 @@ export function getConfig() {
 export function applyPlugins(compiler) {
     let plugins = getConfig().plugins;
     if (plugins == null) return;
-    // console.log(compiler);
+    // console.log(plugins);
     if (typeof plugins !== 'object') throw new Error('wxa配置文件有误，plugins');
     if (!Array.isArray(plugins)) plugins = [plugins];
 

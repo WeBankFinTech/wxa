@@ -32,7 +32,7 @@
     "find-root": "^1.1.0",
     "js-base64": "^2.4.0",
     "mkdirp": "^0.5.1",
-    "tapable": "^1.0.0-beta.5",
+    "tapable": "^1.0.0",
     "xmldom": "^0.1.27"
   }
 }
