@@ -28,6 +28,7 @@ export default class CScript {
         this.alias = configs.resolve && configs.resolve.alias || {};
         this.extensions = configs.resolve && configs.resolve.extensions || ['.js', '.json'];
         this.modulesPath = path.join(this.current, 'node_modules', path.sep);
+        this.localVisualPath = path.join(this.current, 'local', path.sep);
         this.npmPath = path.join(this.current, dist, 'npm', path.sep);
         this.localPath = path.join(this.current, dist, 'local', path.sep);
     }
@@ -140,7 +141,7 @@ export default class CScript {
                     if (lib[0] === '.' && lib[1] === '.') resolved = './'+resolved;
                 }
             } else if (type === 'local') {
-                resolved = path.join(path.relative(opath.dir, this.localPath), path.parse(lib).base);
+                resolved = path.join(path.relative(opath.dir, this.localVisualPath), path.parse(lib).base);
             } else {
                 resolved = path.relative(getDistPath(opath, 'js', this.src, this.dist), target).replace(/^\.\.\//, './');
             }
