@@ -5,6 +5,7 @@ import {Tapable, AsyncSeriesHook} from 'tapable';
 import findRoot from 'find-root';
 import schedule from './schedule';
 import compilerLoader from './loader';
+import PathParser from './helpers/pathParser';
 const pkg = require('../package.json');
 
 const pkgReg = /^([\w\-\_\d@\.]*\/?)+$/;
@@ -28,6 +29,7 @@ export default class CScript {
         this.extensions = configs.resolve && configs.resolve.extensions || ['.js', '.json'];
         this.modulesPath = path.join(this.current, 'node_modules', path.sep);
         this.npmPath = path.join(this.current, dist, 'npm', path.sep);
+        this.localPath = path.join(this.current, dist, 'local', path.sep);
     }
 
     getPkgConfig(lib) {
@@ -57,13 +59,15 @@ export default class CScript {
                         // console.log('find alias');
                         let tar = lib.replace(new RegExp(key, 'g'), value);
                         let otar = path.parse(tar);
+                        // calc relative path base cwd;
                         tar = path.join(path.relative(tar, opath.dir), otar.base);
                         lib = tar.replace(/\\/g, '/').replace(/\.\.\//, './');
                     }
                 });
             }
 
-            if (lib[0] === '.') { // require('./a/b/c)' require('..')
+            let pret = new PathParser().parse(lib);
+            if (pret.isRelative) {
                 source = path.join(opath.dir, lib);
                 if (type === 'npm') {
                     target = path.join(this.npmPath, path.relative(this.modulesPath, source));
@@ -72,13 +76,17 @@ export default class CScript {
                     let otarget = path.parse(getDistPath(source, '.js', this.src, this.dist));
                     target = otarget.dir+path.sep+otarget.name;
                 }
-            } else if ((pkgReg.test(lib))) { // require('@abc/something/cd') require('vue')
+            } else if (pret.isNodeModule) {
                 source = path.join(this.modulesPath, lib);
                 target = path.join(this.npmPath, lib);
                 ext = '';
                 needCopy = true;
-            } else {
-                throw new Error('无法解析的路径类型 '+lib);
+            } else if (pret.isAbsolute) {
+                // 绝对路径, 不支持嵌套，不支持重名
+                source = lib;
+                let opath = path.parse(lib);
+                target = path.join(this.localPath, opath.base);
+                needCopy = true;
             }
 
             // 处理无后缀情况
@@ -101,9 +109,6 @@ export default class CScript {
                         main = pkg.browser;
                     }
                     if (isFile(path.join(source, main))) {
-                        // source = path.join(source, main);
-                        // target = path.join(target, main);
-                        // console.log(lib, '\n', target);
                         ext = path.sep+main;
                     } else {
                         throw new Error('找不到文件 '+lib);
@@ -112,9 +117,6 @@ export default class CScript {
             } else {
                 ext = '';
             }
-            // source = !path.extname(source) ? source+ext : source;
-            // target = !path.extname(target) ? target + ext : target;
-            // lib = !path.extname(lib) ? lib + ext : lib;
             source += ext;
             target += ext;
             lib += ext;
@@ -124,7 +126,7 @@ export default class CScript {
             if (needCopy) {
                 let cScript = new CScript(this.src, this.dist, '.js', this.options);
                 applyPlugins(cScript);
-                cScript.compile('js', null, 'npm', path.parse(source));
+                cScript.compile('js', null, pret.isAbsolute ? 'local' : 'npm', path.parse(source));
             }
 
             // 路径修正
@@ -132,17 +134,18 @@ export default class CScript {
                 if (lib[0] !== '.') {
                     // 依赖第三方包
                     // 手动添加../ 下面会删除，
-                    resolved = path.join('..'+path.sep, path.relative(opath.dir, this.modulesPath), lib);
+                    resolved = path.join(path.relative(opath.dir, this.modulesPath), lib);
                 } else {
                     // console.log(lib);
                     if (lib[0] === '.' && lib[1] === '.') resolved = './'+resolved;
                 }
+            } else if (type === 'local') {
+                resolved = path.join(path.relative(opath.dir, this.localPath), path.parse(lib).base);
             } else {
-                // console.log('resolved', ext, getDistPath(opath, ext, this.src, this.dist), target, resolved);
-                resolved = path.relative(getDistPath(opath, 'js', this.src, this.dist), target);
+                resolved = path.relative(getDistPath(opath, 'js', this.src, this.dist), target).replace(/^\.\.\//, './');
             }
             // 转化windowd的\\，修复path,relative需要向上一级目录的缺陷
-            resolved = resolved.replace(/\\/g, '/').replace(/^\.\.\//, './');
+            resolved = resolved.replace(/\\/g, '/');
             return `require('${resolved}')`;
         });
     }
@@ -180,6 +183,9 @@ export default class CScript {
             if (type === 'npm') {
                 code = this.npmHack(opath, code);
                 target = path.join(this.npmPath, path.relative(this.modulesPath, path.join(opath.dir, opath.base)));
+            } else if (type === 'local') {
+                target = path.join(this.localPath, opath.base);
+                console.log('local', target);
             } else {
                 target = path.join(getDistPath(opath, 'js', this.src, this.dist));
             }
