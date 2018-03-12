@@ -1,39 +1,150 @@
+import {getConfig, getFiles, readFile, isFile, error, getRelative, info, copy, applyPlugins, message} from './utils';
 import path from 'path';
+import CWxa from './compile-wxa';
+import CScript from './compile-script';
+import CStyle from './compile-style';
+import CConfig from './compile-config';
+import CTemplate from './compile-template';
 /**
  * todo:
  *  1. full control compile task
  */
+let count = 0;
 
 class Schedule {
-    constructor() {
-        this.queue = [];
-        this.finishedQueue = [];
+    constructor(src, dist, ext) {
+        this.current = process.cwd();
+        this.pending = [];
+        this.waiting = [];
+        this.finished = [];
+
+        this.src = src || 'src';
+        this.dist = dist || 'dist';
+        this.ext = ext || '.wxa';
+        this.max = 5;
     }
 
-    push(opath) {
-        let p = opath.dir+path.sep+opath.base;
-        this.queue.push(p);
+    set(name, value) {
+        this[name] = value;
     }
 
-    pop(opath) {
-        let p = opath.dir+path.sep+opath.base;
-        let idx = this.queue.indexOf(p);
-        if (idx !== -1) {
-            this.queue.splice(idx, 1);
-            this.finishedQueue.push(p);
+    parse(opath, rst, configs) {
+        // console.log(count++);
+        if (rst) {
+            let all = [];
+            if (rst.style) {
+                let compiler = new CStyle(this.src, this.dist, this.ext, this.options);
+                applyPlugins(compiler);
+                all.push(compiler.compile(rst.style, opath));
+            }
+
+            if (rst.template && rst.template.code) {
+                let cTemplate = new CTemplate(this.src, this.dist, this.ext, this.options);
+                all.push(cTemplate.compile(rst.template));
+            }
+
+            if (rst.script.code) {
+                let compiler = new CScript(this.src, this.dist, this.ext, this.options);
+                applyPlugins(compiler);
+                all.push(compiler.compile(rst.script.type, rst.script.code, configs.type, opath));
+            }
+
+            if (rst.config.code) {
+                let compiler = new CConfig(this.src, this.dist, this.options);
+                applyPlugins(compiler);
+                all.push(compiler.compile(rst.config.code, opath));
+            }
+
+            return Promise.all(all);
+        } else {
+            if (!isFile(opath)) {
+                error('不存在文件:' + getRelative(opath));
+                return Promise.reject();
+            }
+
+            switch (opath.ext) {
+                case this.ext: {
+                    let cWxa = new CWxa(this.src, this.dist, this.ext, this.options);
+                    return cWxa.compile(opath, configs);
+                }
+                case '.sass':
+                case '.scss': {
+                    let cStyle = new CStyle(this.src, this.dist, this.options);
+                    applyPlugins(cStyle);
+                    return cStyle.compile('sass', opath);
+                }
+                case '.js': {
+                    let cScript = new CScript(this.src, this.dist, '.js', this.options);
+                    applyPlugins(cScript);
+                    let filepath = path.join(opath.dir, opath.base);
+                    let type = configs.type;
+                    if (filepath === path.join(this.current, this.src, 'app.js')) type = 'app';
+                    return cScript.compile('js', null, type, opath);
+                }
+                case '.json': {
+                    let cConfig = new CConfig(this.src, this.dist, this.options);
+                    applyPlugins(cConfig);
+                    return cConfig.compile(void(0), opath);
+                }
+                case '.wxml': {
+                    let cTemplate = new CTemplate(this.src, this.dist, this.options);
+                    return cTemplate.compile('wxml', opath);
+                }
+                default:
+                    info('copy', path.relative(this.current, path.join(opath.dir, opath.base)) );
+
+                    return copy(opath, opath.ext, this.src, this.dist);
+            }
         }
     }
 
-    clear(opath) {
-        let p = opath.dir+path.sep+opath.base;
-        this.queue.splice(this.queue.indexOf(p), 1);
-        this.finishedQueue.splice(this.finishedQueue.indexOf(p), 1);
+    addTask(opath, rst, configs={}) {
+        let newTask = {
+            opath,
+            rst,
+            // duplicate: 0,
+            configs,
+        };
+        // console.log(['change', 'add'].indexOf(configs.category) > -1);
+        if (['change', 'add'].indexOf(configs.category) > -1) {
+            // console.log(this.finished.filter((t)=>t.opath.base === 'wxapi.js'));
+            this.waiting.push(newTask);
+        } else {
+            let ifWaiting = this.filterTask(this.waiting, newTask);
+            let ifPending = this.filterTask(this.pending, newTask);
+            let ifFinished = this.filterTask(this.finished, newTask);
+            if (ifWaiting === -1 && ifPending === -1 && ifFinished === -1) {
+                this.waiting.push(newTask);
+            } else if (ifWaiting > -1) {
+                // this.waiting[ifWaiting].duplicate++;
+            } else if (ifPending > -1) {
+                // this.pending[ifPending].duplicate++;
+            }
+        }
+
+        this.process();
     }
 
-    check(opath) {
-        let p = opath.dir+path.sep+opath.base;
+    filterTask(queue, task) {
+        return queue.findIndex((t)=>JSON.stringify(t)===JSON.stringify(task));
+    }
 
-        return this.queue.indexOf(p) === -1 && this.finishedQueue.indexOf(p) === -1;
+    process() {
+        while (this.pending.length < this.max && this.waiting.length) {
+            let task = this.waiting.shift();
+            this.pending.push(task);
+            this.parse(task.opath, task.rst, task.configs).then((succ)=>{
+                let idx = this.pending.findIndex((t)=>JSON.stringify(t)===JSON.stringify(task));
+                // delete task;
+                if (idx > -1) this.finished = this.finished.concat(this.pending.splice(idx, 1));
+                this.process();
+            }).catch((e)=>{
+                let idx = this.pending.findIndex((t)=>JSON.stringify(t)===JSON.stringify(task));
+                // delete task;
+                if (idx > -1) this.finished = this.finished.concat(this.pending.splice(idx, 1));
+                this.process();
+            });
+        }
     }
 }
 const schedule = new Schedule();
