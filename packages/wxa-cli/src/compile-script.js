@@ -125,9 +125,7 @@ export default class CScript {
 
             // 递归处理依赖
             if (needCopy) {
-                let cScript = new CScript(this.src, this.dist, '.js', this.options);
-                applyPlugins(cScript);
-                cScript.compile('js', null, pret.isAbsolute ? 'local' : 'npm', path.parse(source));
+                schedule.addTask(path.parse(source), void(0), {type: pret.isAbsolute ? 'local' : 'npm'});
             }
 
             // 路径修正
@@ -200,20 +198,17 @@ export default class CScript {
             return this.hooks.optimizeAssets.promise(code, this).then((err)=>{
                 if (err) return Promise.reject(err);
                 info('write', path.relative(this.current, target));
-                schedule.pop(opath);
                 writeFile(target, this.code);
             });
         }).catch((e)=>{
             // console.log(code);
             error('Error In: '+path.join(opath.dir, opath.base));
             error(e);
+            console.error(e);
         });
     }
 
     compile(lang, code, type, opath) {
-        if (schedule.check(opath)) {
-            schedule.push(opath);
-            this.$compile(lang, code, type, opath);
-        }
+        return this.$compile(lang, code, type, opath);
     }
 }

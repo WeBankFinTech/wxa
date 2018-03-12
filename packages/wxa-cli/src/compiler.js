@@ -1,10 +1,5 @@
 import {getConfig, getFiles, readFile, isFile, error, getRelative, info, copy, applyPlugins, message} from './utils';
 import path from 'path';
-import CWxa from './compile-wxa';
-import CScript from './compile-script';
-import CStyle from './compile-style';
-import CConfig from './compile-config';
-import CTemplate from './compile-template';
 import chokidar from 'chokidar';
 import schedule from './schedule';
 import compilerLoader from './loader';
@@ -59,12 +54,11 @@ class Compiler {
         chokidar.watch(`.${path.sep}${this.src}`)
         .on('all', (event, filepath)=>{
             if (this.isWatchReady && ['change', 'add'].indexOf(event)>-1 && !this.queue[filepath]) {
-                cmd.file = path.join('..', filepath); ;
-                let opath = path.parse(path.join(this.current, this.src, cmd.file));
-                schedule.clear(opath);
+                cmd.file = path.join('..', filepath);
                 // schedule
                 message(event, filepath);
                 this.queue[filepath] = event;
+                cmd.category = event;
                 this.build(cmd);
                 setTimeout(()=>this.queue[filepath]=false, 500);
             }
@@ -84,65 +78,23 @@ class Compiler {
         let file = cmd.file;
         let files = file ? [file] : getFiles(this.src);
 
+        schedule.set('src', this.src);
+        schedule.set('dist', this.dist);
+        schedule.set('options', cmd);
+
         info('Compile', 'AT: '+new Date());
         files.forEach((file)=>{
             let opath = path.parse(path.join(this.current, this.src, file));
-            if (file) {
-                this.compile(opath, cmd);
-            } else {
-                let refs = this.findReference(file);
-                if (!refs.length) this.compile(opath, cmd);
-            }
+            // if (file) {
+                schedule.addTask(opath, void(0), {category: cmd.category});
+            // } else {
+            //     let refs = this.findReference(file);
+            //     if (!refs.length) schedule.addTask(opath);
+            // }
         });
 
-        if (cmd.watch) {
-            this.watch(cmd);
-        }
-    }
-    compile(opath, cmd) {
-        if (!isFile(opath)) {
-            error('不存在文件:' + getRelative(opath));
-            return;
-        }
-
-        switch (opath.ext) {
-            case this.ext: {
-                let cWxa = new CWxa(this.src, this.dist, this.ext, cmd);
-                cWxa.compile(opath);
-                break;
-            }
-            case '.sass':
-            case '.scss': {
-                let cStyle = new CStyle(this.src, this.dist, cmd);
-                applyPlugins(cStyle);
-                cStyle.compile('sass', opath);
-                break;
-            }
-            case '.js': {
-                let cScript = new CScript(this.src, this.dist, '.js', cmd);
-                applyPlugins(cScript);
-                let filepath = path.join(opath.dir, opath.base);
-                let type = 'other';
-                if (filepath === path.join(this.current, this.src, 'app.js')) type = 'app';
-                cScript.compile('js', null, type, opath);
-                break;
-            }
-            case '.json': {
-                let cConfig = new CConfig(this.src, this.dist, cmd);
-                applyPlugins(cConfig);
-                cConfig.compile(void(0), opath);
-                break;
-            }
-            case '.wxml': {
-                let cTemplate = new CTemplate(this.src, this.dist, cmd);
-                cTemplate.compile('wxml', opath);
-                break;
-            }
-            default:
-                info('copy', path.relative(this.current, path.join(opath.dir, opath.base)) );
-
-                copy(opath, opath.ext, this.src, this.dist);
-        }
+        if (cmd.category) delete cmd.category;
+        if (cmd.watch) this.watch(cmd);
     }
 }
 

@@ -1,11 +1,8 @@
 import path from 'path';
-import {readFile, error, warn, isFile, applyPlugins, isEmpty} from './utils';
+import {readFile, error, warn, isFile, isEmpty} from './utils';
 import {DOMParser} from 'xmldom';
-import CStyle from './compile-style';
-import CTemplate from './compile-template';
-import CScript from './compile-script';
-import CConfig from './compile-config';
 import Coder from './helpers/coder';
+import schedule from './schedule';
 
 class CompileWxa {
     constructor(src, dist, ext, options) {
@@ -15,13 +12,13 @@ class CompileWxa {
         this.ext = ext;
         this.options = options;
     }
-    compile(opath) {
-        this.$compile(opath);
+    compile(opath, configs) {
+        return this.$compile(opath, configs);
     }
-    $compile(opath) {
+    $compile(opath, configs) {
         let wxa = this.resolveWxa(opath);
         // console.log(wxa);
-        if (!wxa) return;
+        if (!wxa) return Promise.reject();
 
         let filepath = path.join(opath.dir, opath.base);
         let type = 'other';
@@ -29,28 +26,9 @@ class CompileWxa {
 
         if (type === 'app') delete wxa.template;
 
-        if (wxa.style) {
-            let compiler = new CStyle(this.src, this.dist, this.ext, this.options);
-            applyPlugins(compiler);
-            compiler.compile(wxa.style, opath);
-        }
+        schedule.addTask(opath, wxa, configs);
 
-        if (wxa.template && wxa.template.code) {
-            let cTemplate = new CTemplate(this.src, this.dist, this.ext, this.options);
-            cTemplate.compile(wxa.template);
-        }
-
-        if (wxa.script.code) {
-            let compiler = new CScript(this.src, this.dist, this.ext, this.options);
-            applyPlugins(compiler);
-            compiler.compile(wxa.script.type, wxa.script.code, type, opath);
-        }
-
-        if (wxa.config.code) {
-            let compiler = new CConfig(this.src, this.dist, this.options);
-            applyPlugins(compiler);
-            compiler.compile(wxa.config.code, opath);
-        }
+        return Promise.resolve();
     }
     resolveWxa(xml, opath) {
         let filepath;
