@@ -52,12 +52,15 @@ class Compiler {
         if (this.isWatching) return;
         this.isWatching = true;
 
+        // set mode
+        schedule.set('mode', 'watch');
+
         chokidar.watch(`.${path.sep}${this.src}`)
         .on('all', (event, filepath)=>{
             if (this.isWatchReady && ['change', 'add'].indexOf(event)>-1 && !this.queue[filepath]) {
                 cmd.file = path.join('..', filepath);
                 // schedule
-                logger.message(event, filepath).show();
+                logger.message(event, filepath, true);
                 this.queue[filepath] = event;
                 cmd.category = event;
                 this.build(cmd);
@@ -66,7 +69,7 @@ class Compiler {
         })
         .on('ready', (event, filepath)=>{
             this.isWatchReady = true;
-            logger.message('Watch', '准备完毕，开始监听文件').show();
+            logger.message('Watch', '准备完毕，开始监听文件', true);
         });
     }
     build(cmd) {
@@ -83,9 +86,9 @@ class Compiler {
         schedule.set('dist', this.dist);
         schedule.set('options', cmd);
 
-        logger.info('Compile', 'AT: '+new Date());
+        logger.info('Compile', 'AT: '+new Date(), void(0), true);
         schedule.once('finish', (n)=>{
-            logger.info('Compile', 'End: '+new Date()+` ${n} files process`).show();
+            logger.info('Compile', 'End: '+new Date()+` ${n} files process`, void(0), true);
             if (cmd.watch) this.watch(cmd);
         });
         files.forEach((file)=>{

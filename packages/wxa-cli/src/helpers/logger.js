@@ -16,18 +16,26 @@ class Logger {
         return this;
     }
 
-    info(title, msg) {
-        this.log.push({
+    info(title, msg, type='log', ...args) {
+        let immediate = typeof args[args.length-1] === 'boolean' ? args[args.length-1] : false;
+
+        let log = {
             title: title[0].toUpperCase()+title.slice(1),
-            type: 'log',
+            type,
             msg,
-        });
+        };
+        if (immediate) {
+            this.printLog(log);
+        } else {
+            this.log.push(log);
+        }
+
 
         return this;
     }
 
-    message(title, msg) {
-        this.info(title, msg);
+    message(title, msg, ...args) {
+        this.info(title, msg, 'message', ...args);
 
         return this;
     }
@@ -41,7 +49,7 @@ class Logger {
         return this;
     }
 
-    show() {
+    show(showLog=false) {
         this.warnning.forEach((obj)=>{
             console.warn(obj.msg);
         });
@@ -50,17 +58,23 @@ class Logger {
             if (msg) console.error(chalk.red(msg));
             if (err) console.trace(err);
         });
-        this.log.forEach((obj)=>{
-            let {title, msg} = obj;
-
-            console.info(chalk.green(`[${title}]`), msg);
-        });
+        if (showLog) {
+            this.log.forEach((obj)=>this.printLog(obj));
+        }
 
         this.warnning = [];
         this.log = [];
         this.errors = [];
 
         return this;
+    }
+
+    printLog({type, title, msg}) {
+        if (type && type === 'message') {
+            console.info(chalk.magenta(`[${title}]`), msg);
+        } else {
+            console.info(chalk.green(`[${title}]`), msg);
+        }
     }
 }
 
