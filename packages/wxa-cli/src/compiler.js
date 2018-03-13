@@ -2,6 +2,7 @@ import {getConfig, getFiles, readFile, isFile, error, getRelative, info, copy, a
 import path from 'path';
 import chokidar from 'chokidar';
 import schedule from './schedule';
+import logger from './helpers/logger';
 import compilerLoader from './loader';
 
 class Compiler {
@@ -56,7 +57,7 @@ class Compiler {
             if (this.isWatchReady && ['change', 'add'].indexOf(event)>-1 && !this.queue[filepath]) {
                 cmd.file = path.join('..', filepath);
                 // schedule
-                message(event, filepath);
+                logger.message(event, filepath).show();
                 this.queue[filepath] = event;
                 cmd.category = event;
                 this.build(cmd);
@@ -65,7 +66,7 @@ class Compiler {
         })
         .on('ready', (event, filepath)=>{
             this.isWatchReady = true;
-            message('Watch', '准备完毕，开始监听文件');
+            logger.message('Watch', '准备完毕，开始监听文件').show();
         });
     }
     build(cmd) {
@@ -82,7 +83,11 @@ class Compiler {
         schedule.set('dist', this.dist);
         schedule.set('options', cmd);
 
-        info('Compile', 'AT: '+new Date());
+        logger.info('Compile', 'AT: '+new Date());
+        schedule.once('finish', (n)=>{
+            logger.info('Compile', 'End: '+new Date()+` ${n} files process`).show();
+            if (cmd.watch) this.watch(cmd);
+        });
         files.forEach((file)=>{
             let opath = path.parse(path.join(this.current, this.src, file));
             // if (file) {
@@ -94,7 +99,6 @@ class Compiler {
         });
 
         if (cmd.category) delete cmd.category;
-        if (cmd.watch) this.watch(cmd);
     }
 }
 
