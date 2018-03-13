@@ -6,9 +6,7 @@ import findRoot from 'find-root';
 import schedule from './schedule';
 import compilerLoader from './loader';
 import PathParser from './helpers/pathParser';
-const pkg = require('../package.json');
-
-const pkgReg = /^([\w\-\_\d@\.]*\/?)+$/;
+import logger from './helpers/logger';
 
 export default class CScript {
     constructor(src, dist, ext, options) {
@@ -184,7 +182,7 @@ export default class CScript {
                 target = path.join(this.npmPath, path.relative(this.modulesPath, path.join(opath.dir, opath.base)));
             } else if (type === 'local') {
                 target = path.join(this.localPath, opath.base);
-                console.log('local', target);
+                // console.log('local', target);
             } else {
                 target = path.join(getDistPath(opath, 'js', this.src, this.dist));
             }
@@ -197,14 +195,11 @@ export default class CScript {
             this.code = code;
             return this.hooks.optimizeAssets.promise(code, this).then((err)=>{
                 if (err) return Promise.reject(err);
-                info('write', path.relative(this.current, target));
+                logger.info('write', path.relative(this.current, target));
                 writeFile(target, this.code);
             });
         }).catch((e)=>{
-            // console.log(code);
-            error('Error In: '+path.join(opath.dir, opath.base));
-            error(e);
-            console.error(e);
+            logger.error('Error In: '+path.join(opath.dir, opath.base), e);
         });
     }
 

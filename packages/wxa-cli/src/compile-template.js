@@ -2,6 +2,7 @@ import {getDistPath, writeFile, readFile, info, error} from './utils';
 import {amazingCache} from './utils';
 import compilerLoader from './loader';
 import path from 'path';
+import logger from './helpers/logger';
 
 export default class CTemplate {
     constructor(src, dist, ext, options) {
@@ -30,9 +31,9 @@ export default class CTemplate {
             },
         }, this.options.cache).then((succ)=>{
             let target = getDistPath(path.parse(rst.src), 'wxml', this.src, this.dist);
-            info('write', path.relative(this.current, target));
+            logger.info('write', path.relative(this.current, target));
             writeFile(target, rst.code);
             return Promise.resolve();
-        }).catch((e)=>error(e));
+        }).catch((e)=>logger.error('Error In: '+path.join(opath.dir, opath.base), e));
     }
 }
