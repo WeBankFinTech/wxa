@@ -4,6 +4,7 @@ import path from 'path';
 import {AsyncSeriesHook} from 'tapable';
 import PathParser from './helpers/pathParser';
 import findRoot from 'find-root';
+import logger from './helpers/logger';
 
 class CConfig {
     constructor(src, dist) {
@@ -34,10 +35,10 @@ class CConfig {
                 } else {
                     target = path.join(this.localPath, path.parse(com).base);
                 }
-                info(`write ${isNpm ? 'npm' : 'local'} com`, path.relative(this.current, target));
+                logger.info(`write ${isNpm ? 'npm' : 'local'} com`, path.relative(this.current, target));
                 writeFile(target, readFile(uri));
             } else if (ext === '.json') {
-                warn(com+'组件不存在json配置文件');
+                logger.warn(com+'组件不存在json配置文件');
             }
         });
     }
@@ -70,8 +71,7 @@ class CConfig {
             // 编译组件
             content = this.resolveComponents(content, opath);
         } catch (e) {
-            error('config有误, 请检查格式');
-            error(e);
+            logger.error('config有误, 请检查格式', e);
             return Promise.reject(e);
         }
 
@@ -79,9 +79,9 @@ class CConfig {
         return this.hooks.optimizeAssets.promise(content, this).then((err)=>{
             if (err) return Promise.reject(err);
             let target = getDistPath(opath, 'json', this.src, this.dist);
-            info('Config', path.relative(this.current, target));
+            logger.info('Config', path.relative(this.current, target));
             writeFile(target, this.code);
-        }).catch((e)=>console.error(e, content));
+        }).catch((e)=>logger.error('Error In: '+path.join(opath.dir, opath.base), e));
     }
 }
 

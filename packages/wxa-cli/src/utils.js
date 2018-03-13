@@ -144,19 +144,19 @@ export function decode(content, pmap, amap) {
 }
 
 export function error(msg) {
-    console.error(chalk.red(msg));
+    // console.error(chalk.red(msg));
 }
 
 export function info(type, msg) {
-    console.info(chalk.green(`[${type[0].toUpperCase()+type.slice(1)}]`), msg);
+    // console.info(chalk.green(`[${type[0].toUpperCase()+type.slice(1)}]`), msg);
 }
 
 export function message(type, msg) {
-    console.info(chalk.magenta(`[${type[0].toUpperCase()+type.slice(1)}]`), msg);
+    // console.info(chalk.magenta(`[${type[0].toUpperCase()+type.slice(1)}]`), msg);
 }
 
 export function warn(msg) {
-    console.warn(msg);
+    // console.warn(msg);
 }
 
 export function amazingCache(params, needCache) {

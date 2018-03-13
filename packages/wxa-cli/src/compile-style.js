@@ -2,6 +2,7 @@ import path from 'path';
 import {readFile, getDistPath, writeFile, amazingCache, info, error} from './utils';
 import compilerLoader from './loader';
 import {AsyncSeriesHook} from 'tapable';
+import logger from './helpers/logger';
 
 export default class CStyle {
     constructor(src, dist, ext, options) {
@@ -46,14 +47,11 @@ export default class CStyle {
 
                 let target = getDistPath(opath, 'wxss', this.src, this.dist);
                 // console.log(target);
-                info('write', path.relative(this.current, target));
+                logger.info('write', path.relative(this.current, target));
                 writeFile(target, this.code);
             });
         }, this.options.cache).catch((e)=>{
-            if (e.column) {
-                error('Error In: ', path.join(opath.dir, opath.base)+' with column: '+e.column+' line: '+e.line);
-            }
-            error(e);
+            logger.error('Error In: '+path.join(opath.dir, opath.base), e);
         });
     }
 }

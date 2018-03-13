@@ -5,6 +5,8 @@ import CScript from './compile-script';
 import CStyle from './compile-style';
 import CConfig from './compile-config';
 import CTemplate from './compile-template';
+import ProgressBar from './helpers/progressBar';
+import logger from './helpers/logger';
 /**
  * todo:
  *  1. full control compile task
@@ -22,6 +24,8 @@ class Schedule {
         this.dist = dist || 'dist';
         this.ext = ext || '.wxa';
         this.max = 5;
+
+        this.bar = new ProgressBar();
     }
 
     set(name, value) {
@@ -30,6 +34,7 @@ class Schedule {
 
     parse(opath, rst, configs) {
         // console.log(count++);
+        count++;
         if (rst) {
             let all = [];
             if (rst.style) {
@@ -115,6 +120,7 @@ class Schedule {
             let ifFinished = this.filterTask(this.finished, newTask);
             if (ifWaiting === -1 && ifPending === -1 && ifFinished === -1) {
                 this.waiting.push(newTask);
+                this.updateBar();
             } else if (ifWaiting > -1) {
                 // this.waiting[ifWaiting].duplicate++;
             } else if (ifPending > -1) {
@@ -137,14 +143,25 @@ class Schedule {
                 let idx = this.pending.findIndex((t)=>JSON.stringify(t)===JSON.stringify(task));
                 // delete task;
                 if (idx > -1) this.finished = this.finished.concat(this.pending.splice(idx, 1));
+                this.bar.update(this.finished.length);
+                if (this.pending.length <=0 && this.waiting.length <= 0) {
+                    // end compile
+                    this.bar.clean();
+                    logger.show();
+                }
                 this.process();
             }).catch((e)=>{
                 let idx = this.pending.findIndex((t)=>JSON.stringify(t)===JSON.stringify(task));
                 // delete task;
                 if (idx > -1) this.finished = this.finished.concat(this.pending.splice(idx, 1));
+                this.bar.update(this.finished.length);
                 this.process();
             });
         }
+    }
+
+    updateBar() {
+        this.bar.init(this.finished.length+this.pending.length+this.waiting.length);
     }
 }
 const schedule = new Schedule();
