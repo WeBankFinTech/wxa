@@ -21,6 +21,7 @@ class Schedule extends EventEmitter {
         this.pending = [];
         this.waiting = [];
         this.finished = [];
+        this.npmOrLocal = [];
 
         this.src = src || 'src';
         this.dist = dist || 'dist';
@@ -29,6 +30,7 @@ class Schedule extends EventEmitter {
 
         this.bar = new ProgressBar();
         this.logger = logger;
+        this.mode = 'compile';
     }
 
     set(name, value) {
@@ -113,9 +115,20 @@ class Schedule extends EventEmitter {
             // duplicate: 0,
             configs,
         };
-        // console.log(['change', 'add'].indexOf(configs.category) > -1);
+
+        if ( this.mode === 'watch' &&
+            this.npmOrLocal.findIndex((x)=>JSON.stringify(x)===JSON.stringify(opath)) > -1
+        ) {
+            // watch mode not compile old npm or local file
+            return;
+        }
+
+        // record npm or local file
+        if (['local', 'npm'].indexOf(configs.type) > -1 ) {
+            this.npmOrLocal.push(opath);
+        }
+
         if (['change', 'add'].indexOf(configs.category) > -1) {
-            // console.log(this.finished.filter((t)=>t.opath.base === 'wxapi.js'));
             this.waiting.push(newTask);
         } else {
             let ifWaiting = this.filterTask(this.waiting, newTask);
@@ -168,7 +181,7 @@ class Schedule extends EventEmitter {
         if (this.pending.length <=0 && this.waiting.length <= 0) {
             // end compile
             this.bar.clean();
-            logger.show();
+            logger.show(this.options.verbose);
             this.emit('finish', this.finished.length);
             this.finished = [];
         }

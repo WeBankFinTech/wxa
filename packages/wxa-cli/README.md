@@ -16,8 +16,8 @@ use `npm` for installing wxa.
 2. watch mode
 `wxa build --watch`
 
-3. build without cache
-`wxa build --no-cache`
+3. build without cache and more detail log
+`wxa build --no-cache --verbose`
 
 4. create new project with template, see [template](#Template)
 `wxa create base projectname`
