@@ -3,8 +3,8 @@ import {info} from './utils';
 import path from 'path';
 import {AsyncSeriesHook} from 'tapable';
 import PathParser from './helpers/pathParser';
-import findRoot from 'find-root';
 import logger from './helpers/logger';
+import schedule from './schedule';
 
 class CConfig {
     constructor(src, dist) {
@@ -26,12 +26,15 @@ class CConfig {
         let extOfCom = ['.wxml', '.wxss', '.js', '.json'];
 
         extOfCom.forEach((ext)=>{
-            let uri = isNpm ? path.join(this.modulesPath, com, ext) : com+path.sep+ext;
-
-            if (isFile(uri)) {
+            let uri = isNpm ? path.join(this.modulesPath, com+ext) : com+path.sep+ext;
+            console.log(uri);
+            if (ext === '.js' && isFile(uri)) {
+                // while js file use script compiler.
+                schedule.addTask(path.parse(uri), void(0), {type: isNpm ? 'npm' : 'local'});
+            } else if (isFile(uri)) {
                 let target;
                 if (isNpm) {
-                    target = path.join(this.npmPath, com);
+                    target = path.join(this.npmPath, com+ext);
                 } else {
                     target = path.join(this.localPath, path.parse(com).base);
                 }
@@ -53,7 +56,8 @@ class CConfig {
             if (pret.isNodeModule || pret.isAbsolute) {
                 // copy npm or local components, generate new path;
                 this.copyComponents(com, pret.isNodeModule);
-                let resolved = path.join(path.relative(opath.dir, pret.isNodeModule ? this.modulesPath : this.localVisualPath), com);
+                let target = path.join(pret.isNodeModule ? this.npmPath : this.localPath, com);
+                let resolved = path.relative(getDistPath(opath, 'json', this.src, this.dist), target).replace(/^\.\.\//, './');
                 coms[key] = resolved;
             }
         });
