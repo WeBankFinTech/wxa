@@ -12,6 +12,8 @@ class Logger {
             type: 'error',
             msg,
         });
+
+        return this;
     }
 
     info(title, msg) {
@@ -20,10 +22,14 @@ class Logger {
             type: 'log',
             msg,
         });
+
+        return this;
     }
 
     message(title, msg) {
-        return this.info(title, msg);
+        this.info(title, msg);
+
+        return this;
     }
 
     warn(msg) {
@@ -31,6 +37,8 @@ class Logger {
             type: 'warn',
             msg,
         });
+
+        return this;
     }
 
     show() {
@@ -51,6 +59,8 @@ class Logger {
         this.warnning = [];
         this.log = [];
         this.errors = [];
+
+        return this;
     }
 }
 

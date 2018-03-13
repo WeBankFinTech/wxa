@@ -7,14 +7,16 @@ import CConfig from './compile-config';
 import CTemplate from './compile-template';
 import ProgressBar from './helpers/progressBar';
 import logger from './helpers/logger';
+import {EventEmitter} from 'events';
 /**
  * todo:
  *  1. full control compile task
  */
 let count = 0;
 
-class Schedule {
+class Schedule extends EventEmitter {
     constructor(src, dist, ext) {
+        super();
         this.current = process.cwd();
         this.pending = [];
         this.waiting = [];
@@ -26,6 +28,7 @@ class Schedule {
         this.max = 5;
 
         this.bar = new ProgressBar();
+        this.logger = logger;
     }
 
     set(name, value) {
@@ -144,17 +147,14 @@ class Schedule {
                 // delete task;
                 if (idx > -1) this.finished = this.finished.concat(this.pending.splice(idx, 1));
                 this.bar.update(this.finished.length);
-                if (this.pending.length <=0 && this.waiting.length <= 0) {
-                    // end compile
-                    this.bar.clean();
-                    logger.show();
-                }
+                this.checkStatus();
                 this.process();
             }).catch((e)=>{
                 let idx = this.pending.findIndex((t)=>JSON.stringify(t)===JSON.stringify(task));
                 // delete task;
                 if (idx > -1) this.finished = this.finished.concat(this.pending.splice(idx, 1));
                 this.bar.update(this.finished.length);
+                this.checkStatus();
                 this.process();
             });
         }
@@ -162,6 +162,16 @@ class Schedule {
 
     updateBar() {
         this.bar.init(this.finished.length+this.pending.length+this.waiting.length);
+    }
+
+    checkStatus() {
+        if (this.pending.length <=0 && this.waiting.length <= 0) {
+            // end compile
+            this.bar.clean();
+            logger.show();
+            this.emit('finish', this.finished.length);
+            this.finished = [];
+        }
     }
 }
 const schedule = new Schedule();
