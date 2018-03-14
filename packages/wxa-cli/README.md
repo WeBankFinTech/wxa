@@ -130,3 +130,23 @@ and also a list of eslint configs:
 
 # Template
 1. [Base Template](https://github.com/Genuifx/wxa-template-base)
+
+# Component
+wxa will resolve component in npm folder. you can easily import com from others.
+```js
+// in your page's config.json
+{
+    "usingComponents": {
+        "counting": "@wxa/ui/src/components/counting"
+    }
+}
+```
+output mostly like this:
+```js
+{
+    "usingComponents": {
+        "counting": "./../npm/@wxa/ui/src/components/counting"
+    }
+}
+```
+and [wxa-ui](https://github.com/Genuifx/wxa-ui) is coming soon.
