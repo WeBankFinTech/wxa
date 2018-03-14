@@ -21,10 +21,7 @@ class CompileWxa {
         if (!wxa) return Promise.reject();
 
         let filepath = path.join(opath.dir, opath.base);
-        let type = 'other';
-        if (filepath === path.join(this.current, this.src, 'app' + this.ext)) type = 'app';
-
-        if (type === 'app') delete wxa.template;
+        if (filepath === path.join(this.current, this.src, 'app' + this.ext)) delete wxa.template;
 
         schedule.addTask(opath, wxa, configs);
 

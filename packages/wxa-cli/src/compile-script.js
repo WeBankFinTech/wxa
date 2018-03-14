@@ -179,9 +179,9 @@ export default class CScript {
 
             if (type === 'npm') {
                 code = this.npmHack(opath, code);
-                target = path.join(this.npmPath, path.relative(this.modulesPath, path.join(opath.dir, opath.base)));
+                target = path.join(this.npmPath, path.relative(this.modulesPath, path.join(opath.dir, opath.name+'.js')));
             } else if (type === 'local') {
-                target = path.join(this.localPath, opath.base);
+                target = path.join(this.localPath, opath.name+'.js');
                 // console.log('local', target);
             } else {
                 target = path.join(getDistPath(opath, 'js', this.src, this.dist));
