@@ -24,26 +24,30 @@ class CConfig {
 
     copyComponents(com, isNpm=true) {
         let extOfCom = ['.wxml', '.wxss', '.js', '.json'];
-
-        extOfCom.forEach((ext)=>{
-            let uri = isNpm ? path.join(this.modulesPath, com+ext) : com+path.sep+ext;
-            console.log(uri);
-            if (ext === '.js' && isFile(uri)) {
-                // while js file use script compiler.
-                schedule.addTask(path.parse(uri), void(0), {type: isNpm ? 'npm' : 'local'});
-            } else if (isFile(uri)) {
-                let target;
-                if (isNpm) {
-                    target = path.join(this.npmPath, com+ext);
-                } else {
-                    target = path.join(this.localPath, path.parse(com).base);
+        // wxa com support
+        let uri = isNpm ? path.join(this.modulesPath, com+'.wxa') : com+path.sep+'.wxa';
+        if (isFile(uri)) {
+            schedule.addTask(path.parse(uri), void(0), {type: isNpm ? 'npm' : 'local'} );
+        } else {
+            extOfCom.forEach((ext)=>{
+                let uri = isNpm ? path.join(this.modulesPath, com+ext) : com+path.sep+ext;
+                if (ext === '.js' && isFile(uri)) {
+                    // while js file use script compiler.
+                    schedule.addTask(path.parse(uri), void(0), {type: isNpm ? 'npm' : 'local'});
+                } else if (isFile(uri)) {
+                    let target;
+                    if (isNpm) {
+                        target = path.join(this.npmPath, com+ext);
+                    } else {
+                        target = path.join(this.localPath, path.parse(com).base);
+                    }
+                    logger.info(`write ${isNpm ? 'npm' : 'local'} com`, path.relative(this.current, target));
+                    writeFile(target, readFile(uri));
+                } else if (ext === '.json') {
+                    logger.warn(com+'组件不存在json配置文件');
                 }
-                logger.info(`write ${isNpm ? 'npm' : 'local'} com`, path.relative(this.current, target));
-                writeFile(target, readFile(uri));
-            } else if (ext === '.json') {
-                logger.warn(com+'组件不存在json配置文件');
-            }
-        });
+            });
+        }
     }
 
     resolveComponents(code, opath) {
