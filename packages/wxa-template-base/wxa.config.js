@@ -12,9 +12,7 @@ module.exports = {
     },
     use: ['babel', 'sass'],
     compilers: {
-        sass: {
-            includePath: [path.resolve('./src', 'common.scss')],
-        },
+        sass: {},
     },
     plugins: [
         new ReplacePlugin({
@@ -24,6 +22,5 @@ module.exports = {
 };
 
 if (prod) {
-    delete module.exports.compilers.babel.sourcesMap;
     module.exports.plugins.push(new UglifyjsPlugin());
 }
