@@ -21,7 +21,7 @@ class BabelCompiler {
     }
 
     parse(content, configs) {
-        console.info('compile with babel');
+        // console.info('compile with babel');
         if (configs == null) configs = this.configs;
         try {
             let rst = transform(content, configs);
