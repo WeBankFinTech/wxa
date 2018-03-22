@@ -3,7 +3,7 @@
 
 :smiley:cli for wechat miniprogram developing.
 
-![mind-node](./xmind.PNG)
+![mind-node](./Wxa.PNG)
 
 # Installing
 use `npm` for installing wxa.
@@ -29,10 +29,14 @@ use `npm` for installing wxa.
 - `wxa cli login`: login tool, preview and upload command need login your wechat account
 
 # Feature
-1. npm support
-2. vue develop pattern
-3. support multi plugins
-4. support custom compiler
+- [x] Npm resolve
+- [x] Native mini program pattern
+- [x] Vue pattern
+- [x] Mult Plugins
+- [x] Custom compiler
+- [x] Native mini program component
+- [x] Component Npm resolve
+- [x] Wechatwebdevtools control
 
 # Configurations
 
@@ -132,7 +136,7 @@ and also a list of eslint configs:
 1. [Base Template](https://github.com/Genuifx/wxa-template-base)
 
 # Component
-wxa will resolve component in npm folder. you can easily import com from others.
+wxa can resolve component in npm folder. you can easily import com from npm.
 ```js
 // in your page's config.json
 {
