@@ -17,7 +17,7 @@ let launch = function(instance) {
             } else {
                 console.warn('router未挂载');
             }
-        }, 250);
+        }, 220);
     })();
     if (vm.onShareAppMessage !== false) {
         vm.onShareAppMessage = vm.onShareAppMessage || function() {

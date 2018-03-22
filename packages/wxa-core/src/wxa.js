@@ -6,7 +6,7 @@ import {storage} from './utils/storage';
 import {router} from './utils/router';
 import promisify from './utils/promisify';
 import {eventbus} from './utils/eventbus';
-
+import fetch from './utils/fetch';
 
 // define some convenient api for user.
 class Wxa {
@@ -50,4 +50,5 @@ export {
     router,
     promisify,
     eventbus,
+    fetch,
 };

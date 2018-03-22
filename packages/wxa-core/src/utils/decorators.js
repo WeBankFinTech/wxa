@@ -6,6 +6,7 @@ import {storage} from './storage';
 // import wa from '../assets/libs/wa';
 import debounce from './debounce';
 import * as helpers from './helper';
+import fetch from './fetch';
 
 // class
 function Eventbus(target) {
@@ -59,6 +60,12 @@ function Utils(target) {
     return target;
 }
 
+function Fetch(target) {
+    target.prototype.fetch = fetch;
+
+    return target;
+}
+
 function Page(target) {
     Utils(target);
     Storage(target);
@@ -67,6 +74,7 @@ function Page(target) {
     Eventbus(target);
     GetApp(target);
     Logger(target);
+    Fetch(target);
 
     return target;
 }
@@ -77,6 +85,7 @@ function App(target) {
     Eventbus(target);
     Wxapi(target);
     Logger(target);
+    Fetch(target);
 
     return target;
 }
@@ -95,4 +104,5 @@ export {
     Promisify,
     Router,
     Eventbus,
+    Fetch,
 };
