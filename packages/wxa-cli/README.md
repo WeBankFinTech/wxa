@@ -3,7 +3,17 @@
 
 :smiley:cli for wechat miniprogram developing.
 
-![mind-node](./Wxa.PNG)
+![mind-node](./Wxa.png)
+
+# Feature
+- [x] Npm resolve
+- [x] Native mini program pattern
+- [x] Vue pattern
+- [x] Mult Plugins
+- [x] Custom compiler
+- [x] Native mini program component
+- [x] Component Npm resolve
+- [x] Wechatwebdevtools control
 
 # Installing
 use `npm` for installing wxa.
@@ -27,16 +37,6 @@ use `npm` for installing wxa.
 - `wxa cli preview`: preview project
 - `wxa cli upload -m 'upload msg' --ver 'verion'`: upload project
 - `wxa cli login`: login tool, preview and upload command need login your wechat account
-
-# Feature
-- [x] Npm resolve
-- [x] Native mini program pattern
-- [x] Vue pattern
-- [x] Mult Plugins
-- [x] Custom compiler
-- [x] Native mini program component
-- [x] Component Npm resolve
-- [x] Wechatwebdevtools control
 
 # Configurations
 
