@@ -1,6 +1,6 @@
 {
   "name": "@wxa/compiler-babel",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "wxa babel compiler",
   "main": "dist/index.js",
   "scripts": {
