@@ -8,28 +8,36 @@ A tiny library for improving  Wechat Mini programs development.:laughing:
 
 use [`@wxa/cli`](https://github.com/Genuifx/wxa-cli) for better experiment.:smirk:
 
+# Feature
+- [x] Mixins
+- [x] Promisify
+- [x] Decorator
+- [x] Router
+- [x] Eventbus
+- [x] Redux
+
 # Usage
 ## App
 ```
-    import {app, App, Page} from '@wxa/core';
+    import {wxa, App} from '@wxa/core';
 
     @App
     class Main{
         //your logic here
     }
     // start up app
-    app.launch(Main);
+    wxa.launchApp(Main);
 ```
 ## Page
 ```
-    import {app, App, Page} from '@wxa/core';
+    import {wxa, Page} from '@wxa/core';
 
     @Page
     class Index{
         //your logic here
     }
     // start up app
-    page.launch(Index);
+    wxa.launchPage(Index);
 ```
 ## mixins
 support mixin object;
