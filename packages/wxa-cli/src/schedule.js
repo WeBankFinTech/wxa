@@ -116,12 +116,12 @@ class Schedule extends EventEmitter {
             configs,
         };
 
-        if ( this.mode === 'watch' &&
-            this.npmOrLocal.findIndex((x)=>JSON.stringify(x)===JSON.stringify(opath)) > -1
-        ) {
-            // watch mode not compile old npm or local file
-            return;
-        }
+        // if ( this.mode === 'watch' &&
+        //     this.npmOrLocal.findIndex((x)=>JSON.stringify(x)===JSON.stringify(opath)) > -1
+        // ) {
+        //     // watch mode not compile old npm or local file
+        //     return;
+        // }
 
         // record npm or local file
         if (['local', 'npm'].indexOf(configs.type) > -1 ) {

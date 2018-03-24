@@ -79,6 +79,7 @@ class CConfig {
             // 编译组件
             content = this.resolveComponents(content, opath);
         } catch (e) {
+            logger.error(opath.dir+path.sep+opath.base);
             logger.error('config有误, 请检查格式', e);
             return Promise.reject(e);
         }

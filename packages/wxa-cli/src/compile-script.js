@@ -152,6 +152,22 @@ export default class CScript {
         return code;
     }
 
+    checkIgnore(opath, ignore) {
+        let filepath = opath.dir + path.sep + opath.base;
+
+        if (Array.isArray(ignore)) {
+            return ignore.some((str)=>{
+                let reg = typeof str === 'object' ? str : new RegExp(str);
+
+                return reg.test(filepath);
+            });
+        } else {
+            let reg = typeof ignore === 'object' ? ignore : new RegExp(ignore);
+
+            return reg.test(filepath);
+        }
+    }
+
     $compile(lang, code, type, opath) {
         if (!code) {
             code = readFile(path.join(opath.dir, opath.base));
@@ -163,8 +179,12 @@ export default class CScript {
         return amazingCache({
             source: code,
             options: {configs: compiler.configs},
-            transform: function(code, options) {
-                return compiler.parse(code, options.configs);
+            transform: (code, options)=>{
+                if (options.configs.ignore && this.checkIgnore(opath, options.configs.ignore)) {
+                    return Promise.resolve({code});
+                } else {
+                    return compiler.parse(code, options.configs);
+                }
             },
         }, this.options.cache).then((succ)=>{
             let sourcemap;
