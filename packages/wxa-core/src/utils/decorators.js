@@ -34,11 +34,11 @@ function Promisify(target) {
 }
 
 // class logger
-function Logger(target) {
-    target.prototype.logger = console;
+// function Logger(target) {
+//     target.prototype.logger = console;
 
-    return target;
-}
+//     return target;
+// }
 
 // 挂载微信api
 function Wxapi(target) {
@@ -73,7 +73,7 @@ function Page(target) {
     Router(target);
     Eventbus(target);
     GetApp(target);
-    Logger(target);
+    // Logger(target);
     Fetch(target);
 
     return target;
@@ -84,7 +84,7 @@ function App(target) {
     Storage(target);
     Eventbus(target);
     Wxapi(target);
-    Logger(target);
+    // Logger(target);
     Fetch(target);
 
     return target;

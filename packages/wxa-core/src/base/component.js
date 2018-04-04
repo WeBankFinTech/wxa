@@ -13,7 +13,7 @@ let launch = function(instance) {
 
     // 允许添加自定义方法
     plugins.forEach((plugin)=>{
-        plugin.fn.call(null, plugin.options, 'Component').call(null, vm);
+        plugin.fn.call(null, plugin.options, 'Component').call(null, vm, 'Component');
     });
 
     let methods = vm.methods || {};
