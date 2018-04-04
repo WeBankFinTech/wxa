@@ -8,6 +8,10 @@ A tiny library for improving  Wechat Mini programs development.:laughing:
 
 use [`@wxa/cli`](https://github.com/Genuifx/wxa-cli) for better experiment.:smirk:
 
+detail docuemnts: [@wxa/doc](https://genuifx.github.io/wxa-doc/#/lang/english/):100:
+
+更完善的文档：[@wxa/doc](https://genuifx.github.io/wxa-doc/#/home):100:
+
 # Feature
 - [x] Mixins
 - [x] Promisify
@@ -68,39 +72,3 @@ support mixin object;
         //your logic here
     }
 ```
-# Api
-## Storage
-useful, convenient methods for interact with wx.storage*
-- **set**: preserve data with wx.setStorageSync;
-`this.storage.set(key, data)`
-- **get**: get data from storage;
-`let data = this.storage.get(key)`
-- **clear**: clean up storage, delete all data;
-`this.storage.clear()`
-- **remove**: remove target the data;
-`this.storage.remove(key)`
-## Wxapi
-wrap Mini program's async function with promise, and do nothing with the sync function
-example:
-1. navigateToMiniProgram
-```javascript
-this.wxapi.navigateToMiniProgram({params})
-.then(succ=>{}).catch(fail=>{})
-```
-2. setStorageSync
-```javascript
-let value = this.wxapi.getStorageSync(key);
-```
-## Utils
-helper function
-## Router
-similar API pattern to vue-router, just wrap the mini programs navigate methods;
-## Eventbus
-eventbus
-## Logger
-logger to report err or user behavior to your remote server.
-
-# Redux
-use redux to manage your application's page state
-url: https://github.com/Genuifx/wxa-redux.git
-
