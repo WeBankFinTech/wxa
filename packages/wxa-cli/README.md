@@ -3,7 +3,7 @@
 
 :smiley:cli for wechat miniprogram developing.
 
-detail docuemnts: [@wxa/doc](https://genuifx.github.io/wxa-doc/#/lang/english/):100:
+Detail documents: [@wxa/doc](https://genuifx.github.io/wxa-doc/#/lang/english/):100:
 
 更完善的文档：[@wxa/doc](https://genuifx.github.io/wxa-doc/#/home):100:
 
