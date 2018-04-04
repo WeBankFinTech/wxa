@@ -34,6 +34,10 @@ export default class Router {
         return this.wxapi.navigateBack({delta: Math.abs(len)});
     }
 
+    goBack() {
+        return this.go(-1);
+    }
+
     close() {
         return this.wxapi.navigateBack({delta: Math.abs(getCurrentPages().length)});
     }

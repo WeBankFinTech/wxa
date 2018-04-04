@@ -17,7 +17,7 @@ let launch = function(instance) {
     }
     // 允许添加自定义方法
     plugins.forEach((plugin)=>{
-        plugin.fn.call(null, plugin.options, 'App').call(null, vm);
+        plugin.fn.call(null, plugin.options, 'App').call(null, vm, 'App');
     });
 
     App(vm);
