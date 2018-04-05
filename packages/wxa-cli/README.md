@@ -5,7 +5,7 @@
 
 Detail documents: [@wxa/doc](https://genuifx.github.io/wxa-doc/#/lang/english/):100:
 
-更完善的文档：[@wxa/doc](https://genuifx.github.io/wxa-doc/#/home):100:
+更完善的文档：[@wxa/doc](https://genuifx.github.io/wxa-doc/):100:
 
 ![mind-node](./Wxa.png)
 
