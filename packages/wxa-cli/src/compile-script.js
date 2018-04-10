@@ -60,7 +60,9 @@ export default class CScript {
                         let otar = path.parse(tar);
                         // calc relative path base cwd;
                         tar = path.join(path.relative(tar, opath.dir), otar.base);
-                        lib = tar.replace(/\\/g, '/').replace(/\.\.[\/\\]/, './');
+                        lib = tar
+                                .replace(/(^\.\.\/)|(^\.\.\\\\)/, './')
+                                .replace(/\\/g, '/');
                     }
                 });
             }
@@ -139,7 +141,7 @@ export default class CScript {
             } else if (type === 'local') {
                 resolved = path.join(path.relative(opath.dir, this.localVisualPath), path.parse(lib).base);
             } else {
-                resolved = path.relative(getDistPath(opath, 'js', this.src, this.dist), target).replace(/^\.\.[\/\\]/, './');
+                resolved = path.relative(getDistPath(opath, 'js', this.src, this.dist), target).replace(/(^\.\.\/)|(^\.\.\\\\)/, './');
             }
             // 转化windowd的\\，修复path,relative需要向上一级目录的缺陷
             resolved = resolved.replace(/\\/g, '/');
