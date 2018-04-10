@@ -183,7 +183,7 @@ export default class CScript {
                 if (options.configs.ignore && this.checkIgnore(opath, options.configs.ignore)) {
                     return Promise.resolve({code});
                 } else {
-                    return compiler.parse(code, options.configs);
+                    return compiler.parse(code, options.configs, opath);
                 }
             },
         }, this.options.cache).then((succ)=>{

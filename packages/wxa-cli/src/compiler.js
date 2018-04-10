@@ -86,9 +86,9 @@ class Compiler {
         schedule.set('dist', this.dist);
         schedule.set('options', cmd);
 
-        logger.info('Compile', 'AT: '+new Date(), void(0), true);
+        logger.infoNow('Compile', 'AT: '+new Date(), void(0));
         schedule.once('finish', (n)=>{
-            logger.info('Compile', 'End: '+new Date()+` ${n} files process`, void(0), true);
+            logger.infoNow('Compile', 'End: '+new Date()+` ${n} files process`, void(0));
             if (cmd.watch) this.watch(cmd);
         });
         files.forEach((file)=>{
