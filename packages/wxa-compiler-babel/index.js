@@ -20,14 +20,34 @@ class BabelCompiler {
         if (this.configs == null) this.configs = configs.babel || {};
     }
 
-    parse(content, configs) {
-        // console.info('compile with babel');
+    parse(content, configs, opath) {
         if (configs == null) configs = this.configs;
-        try {
-            let rst = transform(content, configs);
-            return Promise.resolve(rst);
-        } catch (e) {
-            return Promise.reject(e);
+        if(opath && this.checkIgnore(opath, configs.ignore)) {
+            return Promise.resolve(content);
+        } else {
+            try {
+                let rst = transform(content, configs);
+                return Promise.resolve(rst);
+            } catch (e) {
+                return Promise.reject(e);
+            }
+        }
+    }
+
+    checkIgnore(opath, ignore) {
+        if(ignore == null) return false;
+        let filepath = opath.dir + path.sep + opath.base;
+
+        if (Array.isArray(ignore)) {
+            return ignore.some((str)=>{
+                let reg = typeof str === 'object' ? str : new RegExp(str);
+
+                return reg.test(filepath);
+            });
+        } else {
+            let reg = typeof ignore === 'object' ? ignore : new RegExp(ignore);
+
+            return reg.test(filepath);
         }
     }
 
