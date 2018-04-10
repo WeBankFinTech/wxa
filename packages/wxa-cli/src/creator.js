@@ -1,5 +1,5 @@
 import {exec} from 'child_process';
-import {error, info} from './utils';
+import logger from './helpers/logger';
 import fs from 'fs';
 import path from 'path';
 class Creator {
@@ -14,14 +14,16 @@ class Creator {
         }
         exec(`git clone ${full} ${name}`, function(err, stdout, stderr) {
             if (err) {
-                error(err);
+                logger.errorNow(err);
             } else {
-                info('clone', `成功下载 ${full}`);
+                exec(`rm -rf ./${name}/.git`);
+
+                logger.infoNow('clone', `成功下载 ${full}`);
                 let filepath = path.join(process.cwd(), `${name}/package.json`);
                 let pkg = require(filepath);
                 pkg.name = name;
                 fs.writeFileSync(filepath, JSON.stringify(pkg, null, 4));
-                info('success', '新建成功');
+                logger.infoNow('success', '新建成功');
             }
         });
     }

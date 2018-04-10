@@ -16,6 +16,13 @@ class Logger {
         return this;
     }
 
+    errorNow(msg, err) {
+        if (msg) console.error(chalk.red(msg));
+        if (err) console.trace(err);
+
+        return this;
+    }
+
     info(title, msg, type='log', ...args) {
         let immediate = typeof args[args.length-1] === 'boolean' ? args[args.length-1] : false;
 
@@ -34,10 +41,18 @@ class Logger {
         return this;
     }
 
+    infoNow(...args) {
+        return this.info(...args, true);
+    }
+
     message(title, msg, ...args) {
         this.info(title, msg, 'message', ...args);
 
         return this;
+    }
+
+    messageNow(...args) {
+        return this.message(...args, true);
     }
 
     warn(msg) {
@@ -47,6 +62,10 @@ class Logger {
         });
 
         return this;
+    }
+
+    warnNow(...args) {
+        return this.warn(...args, true);
     }
 
     show(showLog=false) {
