@@ -15,7 +15,7 @@
   "author": "genuifx",
   "license": "MIT",
   "devDependencies": {
-    "@wxa/compiler-babel": "^1.0.2",
+    "@wxa/compiler-babel": "^1.0.4",
     "@wxa/compiler-sass": "^1.0.3",
     "babel-eslint": "^8.2.1",
     "babel-plugin-transform-class-properties": "^6.24.1",
@@ -29,7 +29,7 @@
     "eslint-plugin-vue": "^4.2.2"
   },
   "dependencies": {
-    "@wxa/core": "^1.1.4",
+    "@wxa/core": "^1.2.1",
     "@wxa/plugin-replace": "^1.0.0",
     "@wxa/plugin-uglifyjs": "^1.0.0"
   }
