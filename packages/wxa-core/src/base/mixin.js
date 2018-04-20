@@ -1,49 +1,57 @@
 import merge from '../utils/deep-merge';
+
+const hooksName = ['onLaunch', 'onHide', 'onError', 'onLoad', 'onReady', 'onShow', 'onUnload', 'onPullDownRefresh', 'onReachBottom', 'onPageScroll', 'onTabItemTap', 'onPageNotFound'];
+
 export default function mixin(vm) {
     let mixins = vm.mixins || [];
     delete vm.mixins;
 
     mixins.push(vm);
-    // 多层嵌套mixins
+    // nested mixins copy
     mixins = mixins.map((item)=>{
         return item.mixins ? mixin(item) : item;
     });
-    // copy methods and data;
+    // copy methods , data and hooks;
     let candidate = mixins.reduce((ret, mixin) => {
+        /**
+         * copy object's methods
+         */
         if (mixin.methods) {
             Object.keys(mixin.methods).forEach((key) => {
                 ret.methods[key] = mixin.methods[key];
             });
         }
-        if (typeof mixin.data === 'object') {
+        /**
+         * copy data
+         */
+        if (typeof mixin.data === 'object' && mixin.data != null) {
             ret.data = merge(ret.data, mixin.data);
         }
+        /**
+         * copy lifecycle hooks
+         * do not copy onShareAppMessage
+         */
+        hooksName.forEach((name)=>{
+            if (mixin[name]) {
+                Array.isArray(ret.hooks[name]) ?
+                    ret.hooks[name].push(mixin[name]) :
+                    (ret.hooks[name] = [mixin[name]]);
+            }
+        });
+
         return ret;
     }, {
         methods: {},
         data: {},
+        hooks: {},
     });
-    // copy lifecycle hooks
-    const hooksName = ['onLaunch', 'onHide', 'onError', 'onLoad', 'onReady', 'onShow', 'onUnload', 'onPullDownRefresh', 'onReachBottom', 'onPageScroll', 'onTabItemTap',
-    ];
-    let hooks = mixins.reduce((ret, mixin) => {
-        hooksName.forEach((hook)=>{
-            if (mixin[hook]) {
-                Array.isArray(ret[hook]) ?
-                    ret[hook].push(mixin[hook]) :
-                    (ret[hook] = [mixin[hook]]);
-            }
-        });
-        return ret;
-    }, {});
 
     vm.data = candidate.data;
     vm.methods = candidate.methods;
-    Object.keys(hooks).forEach((name)=>{
+    Object.keys(candidate.hooks).forEach((name)=>{
         vm[name] = function(...opts) {
             let self = this;
-            // console.log(name, hooks[name]);
-            hooks[name].forEach((fn)=>fn.apply(self, opts));
+            candidate.hooks[name].forEach((fn)=>fn.apply(self, opts));
         };
     });
 
