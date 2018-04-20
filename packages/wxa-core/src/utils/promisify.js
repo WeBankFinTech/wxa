@@ -1,7 +1,7 @@
 export default (api, fnName) => {
-    const noPromiseApi = ['createSelectorQuery', 'createAnimation', 'getUpdateManager'];
+    const noPromiseApi = ['getUpdateManager'];
     // 同步方法
-    if (/.*Sync$/.test(fnName) || noPromiseApi.indexOf(fnName) > -1) {
+    if ( /^create.+/.test(fnName) || /.*Sync$/.test(fnName) || noPromiseApi.indexOf(fnName) > -1) {
         return (...params)=>{
             return api(...params);
         };

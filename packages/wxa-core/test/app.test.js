@@ -54,6 +54,18 @@ describe('app mount', ()=>{
         instance.onLoad();
         expect(com.onLoad.mock.calls.length).toBe(1);
     });
+
+    test('no methods in app', ()=>{
+        const load = jest.fn();
+        app.launch({
+            onLoad: load,
+            methods: null,
+        });
+
+        let instance = App.mock.calls[3][0];
+        instance.onLoad();
+        expect(load).toHaveBeenCalled();
+    });
 });
 
 test('use plugin', ()=>{
@@ -76,4 +88,26 @@ test('use plugin', ()=>{
 
     instance.pluginMethod();
     expect(instance.pluginMethod.mock.calls.length).toBe(1);
+});
+
+test('plugin throw error', ()=>{
+    let plugin = ()=>{
+        return ()=>{
+            throw new Error('heiheihei');
+        };
+    };
+    const error = jest.fn();
+
+    global.App = jest.fn();
+    global.console = {
+        error,
+    };
+
+    app.use(
+        plugin, {options: 'something useless'}
+    );
+
+    app.launch({});
+
+    expect(error).toHaveBeenCalled();
 });

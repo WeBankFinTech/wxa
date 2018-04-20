@@ -5,7 +5,8 @@
         "browser": true,
         "commonjs": true,
         "es6": true,
-        "node": true
+        "node": true,
+        "jest/globals": true
     },
     "parser": "babel-eslint",
     "parserOptions": {
@@ -31,5 +32,5 @@
         "new-cap": "warn",
         "guard-for-in": "warn"
     },
-    "plugins": []
+    "plugins": ["jest"]
 }
