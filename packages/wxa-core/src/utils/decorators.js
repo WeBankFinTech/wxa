@@ -106,3 +106,5 @@ export {
     Eventbus,
     Fetch,
 };
+
+export * from 'core-decorators';

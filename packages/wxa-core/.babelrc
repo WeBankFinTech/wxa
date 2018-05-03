@@ -1,4 +1,4 @@
 {
     "presets": ["env"],
-    "plugins": ["transform-object-rest-spread", "syntax-dynamic-import", "transform-class-properties"]
+    "plugins": ["transform-object-rest-spread", "syntax-dynamic-import", "transform-class-properties", "transform-decorators-legacy"]
 }

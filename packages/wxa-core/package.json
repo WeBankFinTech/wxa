@@ -30,13 +30,8 @@
         "jest": "^22.1.4",
         "lint-staged": "^6.1.0"
     },
-    "dependencies": {},
-    "jest": {
-        "coverageDirectory": "./coverage/",
-        "collectCoverage": true,
-        "coveragePathIgnorePatterns": [
-            "<rootDir>/src/utils/deep-merge.js"
-        ]
+    "dependencies": {
+        "core-decorators": "^0.20.0"
     },
     "lint-staged": {
         "*.js": [
