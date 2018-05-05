@@ -1,5 +1,10 @@
 export function formatDate(timestap, format) {
-    if (!timestap) return '';
+    if (
+        !timestap ||
+        timestap == Number.POSITIVE_INFINITY ||
+        timestap == Number.NEGATIVE_INFINITY
+    ) return '';
+
     format = format || 'yyyy-MM-dd hh:mm:ss';
     let date = new Date(Number(timestap));
     let obj = {

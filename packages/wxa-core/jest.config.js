@@ -5,7 +5,13 @@ module.exports = {
         '<rootDir>/src/utils/deep-merge.js',
     ],
     'globals': {
-        'wx': {},
+        'wx': {
+            login(obj) {
+                setTimeout(() => {
+                    obj.success && obj.success();
+                }, 1000);
+            },
+        },
         getApp() {
             return {};
         },
