@@ -55,17 +55,11 @@ describe('page mount', ()=>{
         expect(instance.router.replace.mock.calls.length).toBe(1);
     });
 
-    test('empty obj with shareMessage', ()=>{
+    test('empty obj should not with shareMessage', ()=>{
         page.launch({});
 
         let instance = Page.mock.calls[3][0];
-        expect(instance.onShareAppMessage).not.toBeFalsy();
-        expect(instance.onShareAppMessage()).not.toBeFalsy();
-
-        page.launch({onShareAppMessage: false});
-
-        let instance2 = Page.mock.calls[4][0];
-        expect(instance2.onShareAppMessage).toBeFalsy();
+        expect(instance.onShareAppMessage).toBeFalsy();
     });
 
     test('mixin', ()=>{
@@ -84,7 +78,7 @@ describe('page mount', ()=>{
 
         });
 
-        let instance = Page.mock.calls[5][0];
+        let instance = Page.mock.calls[4][0];
         expect(instance.tap).not.toBeFalsy();
         expect(instance.hello).not.toBeFalsy();
         expect(instance.onLoad).not.toBeFalsy();
