@@ -4,8 +4,9 @@
     "description": "wxa core feature",
     "main": "dist/wxa.js",
     "scripts": {
-        "build": "babel src --out-dir dist/dist",
-        "dev": "babel --watch src --out-dir ./example/dist",
+        "prebuild": "sh prebuild.sh",
+        "build": "webpack src/wxa.js --output-path ./dist/src/",
+        "dev": "npm run prebuild && webpack src/wxa.js --output-path ./example/src/ -w --optimize-minimize",
         "test": "jest",
         "cover": "jest --coverage",
         "travis": "npm run cover",
@@ -16,27 +17,31 @@
     "repository": "https://github.com/Genuifx/wxa.git",
     "devDependencies": {
         "babel": "^6.23.0",
-        "babel-cli": "^6.26.0",
-        "babel-eslint": "^8.2.1",
+        "babel-eslint": "^8.2.3",
+        "babel-loader": "^7.1.4",
         "babel-plugin-syntax-dynamic-import": "^6.18.0",
         "babel-plugin-transform-class-properties": "^6.24.1",
         "babel-plugin-transform-decorators-legacy": "^1.3.4",
         "babel-plugin-transform-object-rest-spread": "^6.26.0",
         "babel-preset-env": "^1.6.1",
-        "eslint": "^4.15.0",
+        "eslint": "^4.19.1",
         "eslint-config-google": "^0.9.1",
         "eslint-plugin-jest": "^21.15.1",
         "husky": "^0.14.3",
-        "jest": "^22.1.4",
-        "lint-staged": "^6.1.0"
+        "jest": "^22.4.3",
+        "lint-staged": "^6.1.1",
+        "uglifyjs-webpack-plugin": "^1.2.5",
+        "webpack": "^4.7.0",
+        "webpack-cli": "^2.1.2"
     },
     "dependencies": {
-        "core-decorators": "^0.20.0"
+        "lodash": "^4.17.10"
     },
     "lint-staged": {
         "*.js": [
             "eslint --fix",
             "git add"
         ]
-    }
+    },
+    "sideEffects": false
 }

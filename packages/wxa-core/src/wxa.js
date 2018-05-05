@@ -14,17 +14,17 @@ class Wxa {
         this.use.app = app.use;
         this.use.page = page.use;
         this.use.component = component.use;
-    }
-    launch = {
-        app(instance) {
-            return app.launch(instance);
-        },
-        page(instance) {
-            return page.launch(instance);
-        },
-        component(instance) {
-            return component.launch(instance);
-        },
+        this.launch = {
+            app(instance) {
+                return app.launch(instance);
+            },
+            page(instance) {
+                return page.launch(instance);
+            },
+            component(instance) {
+                return component.launch(instance);
+            },
+        };
     }
     launchApp(instance) {
         return app.launch(instance);
