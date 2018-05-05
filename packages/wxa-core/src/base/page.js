@@ -19,11 +19,6 @@ let launch = function(instance) {
             }
         }, 180);
     })();
-    if (vm.onShareAppMessage !== false) {
-        vm.onShareAppMessage = vm.onShareAppMessage || function() {
-            return {};
-        };
-    }
 
     vm = mixin(vm);
 
