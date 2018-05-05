@@ -45,9 +45,49 @@ class Uuid {
         return uuid;
     }
 }
+
 /**
- *
+ * 缓存请求
  */
+class RequestCache {
+    constructor(expired = 500) {
+        this.queue = [];
+        this.expired = expired;
+    }
+
+    valid(request) {
+        if (request.method.toUpperCase() === 'POST') {
+            let lastRequest = this.queue.find((req)=>{
+                let {
+                    url, data, axiosConfigs,
+                } = req;
+
+                let cod = request.url === url &&
+                JSON.stringify(request.data) === JSON.stringify(data) &&
+                JSON.stringify(request.axiosConfigs) === JSON.stringify(axiosConfigs);
+                return cod;
+            });
+            let now = Date.now();
+            return !(lastRequest && (now-lastRequest.start)<this.expired);
+        } else {
+            return true;
+        }
+    }
+
+    record({url, method, data, axiosConfigs}) {
+        if (method.toUpperCase() === 'POST') {
+            this.queue.push({
+                url, method, data, axiosConfigs,
+                start: Date.now(),
+            });
+            let now = Date.now();
+            this.queue = this.queue.filter((req)=>(now - req.start)< this.expired);
+        }
+    }
+}
+// 缓存队列
+let cacheRequest = new RequestCache();
+
 function continueQueue() {
     // 队列里面有任务，继续请求。
     while (requestQueue.length < MAXREQUEST && waitQueue.length) {
@@ -57,6 +97,8 @@ function continueQueue() {
         let uuid = new Uuid(requestQueue).get();
         // 压入请求队列
         requestQueue.push({resolve, reject, configs, uuid});
+        // 记录请求
+        cacheRequest.record(configs);
 
         $$fetch(configs).then((succ)=>{
             let idx = requestQueue.findIndex((req)=>req.uuid===uuid);
@@ -69,8 +111,6 @@ function continueQueue() {
             continueQueue();
             reject(fail);
         });
-
-        // return;
     }
 }
 
@@ -101,9 +141,7 @@ function $$fetch(configs) {
     });
 }
 
-fetch.prototype.setMaxRequest = (x)=>{
-    MAXREQUEST = x;
-};
+
 /**
  *
  * @param {*} url
@@ -115,18 +153,34 @@ fetch.prototype.setMaxRequest = (x)=>{
  */
 export default function fetch(url, data = {}, axiosConfigs = {}, method = 'get') {
     let configs = {url, data, axiosConfigs, method};
-    let {$top} = axiosConfigs;
+    let {$top, $noCache} = axiosConfigs;
     delete axiosConfigs.$top;
+    delete axiosConfigs.$noCache;
 
     axiosConfigs = {
         dataType: 'json',
         ...axiosConfigs,
     };
-    return new Promise((resolve, reject) => {
-        // 排队
-        $top ?
-            waitQueue.unshift({resolve, reject, configs}) :
-            waitQueue.push({resolve, reject, configs});
-        continueQueue();
-    });
+    let validRequest = cacheRequest.valid(configs);
+
+    if ($noCache || validRequest) {
+        return $request();
+    } else {
+        !validRequest && console.warn('重复的请求： ', configs);
+        return Promise.reject({data: {code: -101, msg: '重复的请求'}});
+    }
+
+    function $request() {
+        return new Promise((resolve, reject) => {
+            // 排队
+            $top ?
+                waitQueue.unshift({resolve, reject, configs}) :
+                waitQueue.push({resolve, reject, configs});
+            continueQueue();
+        });
+    }
 }
+
+fetch.prototype.setMaxRequest = (x)=>{
+    MAXREQUEST = x;
+};
