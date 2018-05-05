@@ -1,4 +1,4 @@
-import debounce from '../utils/debounce';
+import debounce from 'lodash/debounce';
 import mixin from './mixin';
 
 const plugins = [];
@@ -17,7 +17,7 @@ let launch = function(instance) {
             } else {
                 console.warn('router未挂载');
             }
-        }, 220);
+        }, 180);
     })();
     if (vm.onShareAppMessage !== false) {
         vm.onShareAppMessage = vm.onShareAppMessage || function() {
