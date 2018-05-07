@@ -1,7 +1,7 @@
 import app from './base/app';
 import page from './base/page';
 import component from './base/component';
-import wxapi from './utils/wxapi';
+import {default as wxapi, addNoPromiseApi} from './utils/wxapi';
 import {storage} from './utils/storage';
 import {router} from './utils/router';
 import promisify from './utils/promisify';
@@ -25,6 +25,7 @@ class Wxa {
                 return component.launch(instance);
             },
         };
+        this.addNoPromiseApi = addNoPromiseApi;
     }
     launchApp(instance) {
         return app.launch(instance);

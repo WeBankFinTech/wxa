@@ -1,4 +1,8 @@
-import {formatDate, trim} from '../src/utils/helper';
+import {
+    formatDate,
+    trim,
+    compareVersion,
+} from '../src/utils/helpers';
 
 describe('formatDate', ()=>{
     test('empty stamp', ()=>{
@@ -35,8 +39,23 @@ describe('trim', ()=>{
     });
 
     test('normal input', ()=>{
-        expect(trim('a ')).toBe('a');
+        expect(trim(' a ')).toBe('a');
         expect(trim(`a
         `)).toBe('a');
+    });
+});
+
+describe('compareVersion', ()=>{
+    test('special input', ()=>{
+        expect(compareVersion(null, '1.1.0')).toBe(-1);
+        expect(compareVersion('1.7.0', null)).toBe(1);
+    });
+
+    test('normal input', ()=>{
+        expect(compareVersion(1.1, '1.1.0')).toBe(0);
+        expect(compareVersion(1.2, '1.10')).toBe(-1);
+        expect(compareVersion(1.3, '1.1')).toBe(1);
+        expect(compareVersion('2.0.0', '1.9.90')).toBe(1);
+        expect(compareVersion('1.9.98', '1.9.90')).toBe(1);
     });
 });
