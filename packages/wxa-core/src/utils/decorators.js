@@ -7,7 +7,7 @@ import debounce from 'lodash/debounce';
 import throttle from 'lodash/throttle';
 import once from 'lodash/once';
 import delay from 'lodash/delay';
-import * as helpers from './helper';
+import * as helpers from './helpers';
 import fetch from './fetch';
 
 // class
@@ -28,16 +28,9 @@ function Router(target) {
     return target;
 }
 
-// class Promisify
-function Promisify(target) {
-    target.prototype.promisify = promisify;
-
-    return target;
-}
-
 // 挂载微信api
 function Wxapi(target) {
-    target.prototype.wxapi = wxapi;
+    target.prototype.wxapi = wxapi(wx);
     return target;
 }
 
@@ -50,6 +43,9 @@ function Storage(target) {
 function Utils(target) {
     target.prototype.utils = {
         debounce,
+        promisify,
+        throttle,
+
         ...helpers,
     };
     return target;
@@ -78,6 +74,7 @@ function App(target) {
     Storage(target);
     Eventbus(target);
     Wxapi(target);
+    Router(target);
     Fetch(target);
 
     return target;
@@ -89,10 +86,10 @@ export {
     GetApp,
     Storage,
     Wxapi,
-    Promisify,
     Router,
     Eventbus,
     Fetch,
+    Utils,
 };
 /**
  * mark methods to deprecate. while developer call it, print a warning text to console
@@ -190,7 +187,9 @@ function Delay(wait) {
     return function(target, name, descriptor) {
         let fn = descriptor.value;
 
-        descriptor.value = delay(fn, wait);
+        descriptor.value = function(...args) {
+            return delay(fn, wait, ...args);
+        };
 
         return descriptor;
     };

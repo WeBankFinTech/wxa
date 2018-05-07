@@ -1,6 +1,5 @@
 import wxapi from './wxapi';
 
-const req = wxapi.request;
 let MAXREQUEST = 5; // 最大请求数
 // 增加请求队列
 let requestQueue = [];
@@ -133,7 +132,7 @@ function $$fetch(configs) {
         ...axiosConfigs,
     };
 
-    return req(postconfig)
+    return wxapi(wx).request(postconfig)
     .then((response)=>{
         return Promise.resolve(response);
     }, (fail)=>{
