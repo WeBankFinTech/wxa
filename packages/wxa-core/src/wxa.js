@@ -6,7 +6,10 @@ import {storage} from './utils/storage';
 import {router} from './utils/router';
 import promisify from './utils/promisify';
 import {eventbus} from './utils/eventbus';
-import fetch from './utils/fetch';
+import {
+    default as fetch,
+    setMaxRequest,
+} from './utils/fetch';
 
 // define some convenient api for user.
 class Wxa {
@@ -26,6 +29,7 @@ class Wxa {
             },
         };
         this.addNoPromiseApi = addNoPromiseApi;
+        this.setMaxRequest = setMaxRequest;
     }
     launchApp(instance) {
         return app.launch(instance);

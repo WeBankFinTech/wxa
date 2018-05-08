@@ -165,7 +165,10 @@ export default function fetch(url, data = {}, axiosConfigs = {}, method = 'get')
     if ($noCache || validRequest) {
         return $request();
     } else {
-        !validRequest && console.warn('重复的请求： ', configs);
+        try {
+            !validRequest && console && console.warn('重复的请求： ', configs);
+        } catch (e) {}
+
         return Promise.reject({data: {code: -101, msg: '重复的请求'}});
     }
 
@@ -180,6 +183,7 @@ export default function fetch(url, data = {}, axiosConfigs = {}, method = 'get')
     }
 }
 
-fetch.prototype.setMaxRequest = (x)=>{
-    MAXREQUEST = x;
+export function setMaxRequest(x) {
+    if (x == null) return null;
+    MAXREQUEST = +x;
 };
