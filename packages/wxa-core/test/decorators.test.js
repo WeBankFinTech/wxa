@@ -1,3 +1,10 @@
+global.getApp = function() {
+    return {};
+};
+global.getCurrentPages = function() {
+    return [{}];
+};
+
 import {
     GetApp,
     Router,
