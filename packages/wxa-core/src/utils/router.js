@@ -1,8 +1,8 @@
 import wxapi from './wxapi';
 
 export default class Router {
-    constructor(wxapi) {
-        this.wxapi = wxapi;
+    constructor() {
+        this.wxapi = wxapi(wx);
     }
 
     get() {
@@ -43,4 +43,4 @@ export default class Router {
     }
 }
 
-export const router = new Router(wxapi);
+export const router = new Router();

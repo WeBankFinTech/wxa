@@ -15,5 +15,8 @@ module.exports = {
         getApp() {
             return {};
         },
+        getCurrentPages() {
+            return [{}];
+        },
     },
 };

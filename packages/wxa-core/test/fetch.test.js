@@ -56,15 +56,11 @@ describe('fetch api', ()=>{
 
         let c1 = jest.fn();
 
-        await fetch('/users/1', {}, {}, 'post').then(()=>{
-            originConsole.log('succ');
-        }, ()=>{
-            originConsole.log('fail');
-        }).catch(c1);
+        await fetch('/users/1', {}, {}, 'post').catch(c1);
 
         await fetch('/users/1', {}, {}, 'post').catch(c1);
         await fetch('/users/2', {}, {}, 'post').catch(c1);
 
-        expect(c1).toHaveBeenCalledTimes(2);
+        expect(c1).toHaveBeenCalledTimes(3);
     });
 });
