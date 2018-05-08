@@ -2,7 +2,7 @@
     "name": "@wxa/core",
     "version": "1.3.0",
     "description": "wxa core feature",
-    "main": "dist/wxa.js",
+    "main": "./src/main.js",
     "scripts": {
         "prebuild": "sh prebuild.sh",
         "build": "webpack src/wxa.js --output-path ./dist/src/",
