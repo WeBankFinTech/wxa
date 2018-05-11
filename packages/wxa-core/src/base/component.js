@@ -5,7 +5,13 @@ const notCopy = ['properties', 'data', 'methods', 'behaviors', 'created', 'attac
 let launch = function(instance) {
     let vm = instance;
     if (typeof instance === 'function') {
-        vm = new instance();
+        let obj = new instance();
+
+        Object.getOwnPropertyNames(instance.prototype).forEach((key)=>{
+            obj[key] = instance.prototype[key];
+        });
+
+        vm = obj;
     }
 
     // 微信自定义组件支持使用behaviors，不需要mixins

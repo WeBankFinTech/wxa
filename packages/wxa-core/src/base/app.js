@@ -4,7 +4,13 @@ const plugins = [];
 let launch = function(instance) {
     let vm = instance;
     if (typeof instance === 'function') {
-        vm = new instance();
+        let obj = new instance();
+
+        Object.getOwnPropertyNames(instance.prototype).forEach((key)=>{
+            obj[key] = instance.prototype[key];
+        });
+
+        vm = obj;
     }
 
     vm = mixin(vm);
