@@ -1,3 +1,13 @@
+<a name="1.4.0"></a>
+# [1.4.0](https://github.com/Genuifx/wxa/compare/v1.3.1...v1.4.0) (2018-05-12)
+
+
+### Features
+
+* support directly write function in class ([2757f35](https://github.com/Genuifx/wxa/commit/2757f35))
+
+
+
 <a name="1.3.1"></a>
 ## [1.3.1](https://github.com/Genuifx/wxa/compare/v1.3.0...v1.3.1) (2018-05-08)
 
