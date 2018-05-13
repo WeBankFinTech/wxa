@@ -23,6 +23,8 @@ import {
     Once,
     Delay,
     Lock,
+
+    Mixins,
 } from '../src/utils/decorators';
 
 describe('wxa decorator', ()=>{
@@ -373,5 +375,44 @@ describe('lodash decorators', ()=>{
 
         expect(instance.reject().catch(()=>{}).then).not.toBeFalsy();
         expect(c3).toHaveBeenCalledTimes(1);
+    });
+});
+
+describe('mixins decorators', ()=>{
+    test('merge data and method', ()=>{
+        let common = {
+            data: {
+                a: 1,
+                c: 3,
+            },
+            methods: {
+                test: jest.fn(),
+                test2: jest.fn(),
+            },
+        };
+
+        @Mixins(common)
+        class Vm {
+            data = {
+                a: 2,
+                b: 2,
+            }
+            methods= {
+                test: jest.fn(),
+            }
+        };
+
+        let dvm = new Vm();
+
+        expect(dvm.mixins).toMatchObject([{
+            data: {
+                a: 1,
+                c: 3,
+            },
+            methods: {
+                test: expect.any(Function),
+                test2: expect.any(Function),
+            },
+        }]);
     });
 });
