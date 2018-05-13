@@ -9,6 +9,7 @@ import once from 'lodash/once';
 import delay from 'lodash/delay';
 import * as helpers from './helpers';
 import fetch from './fetch';
+import mixin from '../base/mixin';
 
 // class
 function Eventbus(target) {
@@ -57,6 +58,13 @@ function Fetch(target) {
     return target;
 }
 
+function Mixins(...args) {
+    return function(target) {
+        target.prototype.mixins = [mixin({mixins: args})];
+        return target;
+    };
+}
+
 function Page(target) {
     Utils(target);
     Storage(target);
@@ -90,6 +98,7 @@ export {
     Eventbus,
     Fetch,
     Utils,
+    Mixins,
 };
 /**
  * mark methods to deprecate. while developer call it, print a warning text to console

@@ -3,16 +3,24 @@ import merge from '../utils/deep-merge';
 const hooksName = ['onLaunch', 'onHide', 'onError', 'onLoad', 'onReady', 'onShow', 'onUnload', 'onPullDownRefresh', 'onReachBottom', 'onPageScroll', 'onTabItemTap', 'onPageNotFound'];
 
 export default function mixin(vm) {
+    if (vm == null || typeof vm !== 'object') return {};
+
+    // mixins object is allow to put on prototype object. so here may not delete it.
     let mixins = vm.mixins || [];
     delete vm.mixins;
 
     mixins.push(vm);
     // nested mixins copy
     mixins = mixins.map((item)=>{
-        return item.mixins ? mixin(item) : item;
+        // never call handle vm again, or may cost forever loop
+        return item !== vm ? item.mixins ? mixin(item) : item : item;
     });
-    // copy methods , data and hooks;
+    // copy methods, data and hooks;
     let candidate = mixins.reduce((ret, mixin) => {
+        if (mixin == null || typeof mixin !== 'object') {
+            return ret;
+        }
+
         /**
          * copy object's methods
          */

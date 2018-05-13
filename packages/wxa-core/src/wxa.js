@@ -6,12 +6,22 @@ import {storage} from './utils/storage';
 import {router} from './utils/router';
 import promisify from './utils/promisify';
 import {eventbus} from './utils/eventbus';
+import debounce from 'lodash/debounce';
+import throttle from 'lodash/throttle';
+import once from 'lodash/once';
+import delay from 'lodash/delay';
+
 import {
     default as fetch,
     setMaxRequest,
 } from './utils/fetch';
 
-// define some convenient api for user.
+/**
+ * wxa core class function.
+ * launchApp, launchPage, launchComponent.
+ *
+ * @class Wxa
+ */
 class Wxa {
     constructor() {
         this.use.app = app.use;
@@ -56,4 +66,8 @@ export {
     promisify,
     eventbus,
     fetch,
+    debounce,
+    throttle,
+    once,
+    delay,
 };
