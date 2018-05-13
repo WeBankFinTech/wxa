@@ -45,7 +45,7 @@ export default class CScript {
     }
 
     resolveDeps(code, type, opath) {
-        return code.replace(/require\(['"]([\w\d_\-\.\/@]+)['"]\)/ig, (match, lib)=>{
+        return code.replace(/(?:[\s\n\t]+require|^require)\(['"]([\w\d_\-\.\/@]+)['"]\)/ig, (match, lib)=>{
             let resolved = lib;
             let target = '', source = '', ext = '', needCopy = false;
 
@@ -150,7 +150,41 @@ export default class CScript {
     }
 
     npmHack(opath, code) {
+        // inspired by wepy
         code = code.replace(/process\.env\.NODE_ENV/g, JSON.stringify(process.env.NODE_ENV));
+        switch (opath.base) {
+            case 'lodash.js':
+            case '_root.js':
+            case '_global.js':
+                code = code.replace('Function(\'return this\')()', 'this');
+                break;
+            case '_html.js':
+                code = 'module.exports = false;';
+                break;
+            case '_microtask.js':
+                code = code.replace('if(Observer)', 'if(false && Observer)');
+                // IOS 1.10.2 Promise BUG
+                code = code.replace('Promise && Promise.resolve', 'false && Promise && Promise.resolve');
+                break;
+            // 并没有好的方法找到全局变量，top, self, this, window, global都不能解决三端问题, 只好采用https://cnodejs.org/topic/5846b2883ebad99b336b1e06的方式解决问题了。
+            case '_freeGlobal.js':
+                code = code.replace('module.exports = freeGlobal;', `module.exports = {
+                    Array: Array,
+                    Date: Date,
+                    Error: Error,
+                    Function: Function,
+                    Math: Math,
+                    Object: Object,
+                    RegExp: RegExp,
+                    String: String,
+                    TypeError: TypeError,
+                    setTimeout: setTimeout,
+                    clearTimeout: clearTimeout,
+                    setInterval: setInterval,
+                    clearInterval: clearInterval
+                  };
+                `);
+        }
         return code;
     }
 
