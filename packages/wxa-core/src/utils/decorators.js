@@ -162,23 +162,24 @@ function Time(name, ...rest) {
 /**
  * debounce function with delay.
  * @param {number} [delay=100]
+ * @param {Object} [options={}]
  * @return {any}
  */
-function Debounce(delay=100) {
+function Debounce(delay=100, options={}) {
     return function(target, key, descriptor) {
         let fn = descriptor.value;
 
-        descriptor.value = debounce(fn, delay);
+        descriptor.value = debounce(fn, delay, options);
 
         return descriptor;
     };
 }
 
-function Throttle(wait=1000) {
+function Throttle(wait=1000, options={}) {
     return function(target, key, descriptor) {
         let fn = descriptor.value;
 
-        descriptor.value = throttle(fn, wait);
+        descriptor.value = throttle(fn, wait, options);
 
         return descriptor;
     };
