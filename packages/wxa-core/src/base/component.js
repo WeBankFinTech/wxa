@@ -8,7 +8,9 @@ let launch = function(instance) {
         let obj = new instance();
 
         Object.getOwnPropertyNames(instance.prototype).forEach((key)=>{
-            obj[key] = instance.prototype[key];
+            if (['constructor'].indexOf(key) === -1) {
+                obj[key] = instance.prototype[key];
+            }
         });
 
         vm = obj;
