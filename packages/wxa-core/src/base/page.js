@@ -23,7 +23,10 @@ let launch = function(instance) {
             } else {
                 console.warn('router未挂载');
             }
-        }, 180);
+        }, 200, {
+            leading: true,
+            trailing: false,
+        });
     })();
 
     vm = mixin(vm);
