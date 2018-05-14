@@ -1,3 +1,13 @@
+<a name="1.4.1"></a>
+## [1.4.1](https://github.com/Genuifx/wxa/compare/v1.4.0...v1.4.1) (2018-05-13)
+
+
+### Features
+
+* **(decorators.js):** add Mixins decorator ([6589538](https://github.com/Genuifx/wxa/commit/6589538))
+
+
+
 <a name="1.4.0"></a>
 # [1.4.0](https://github.com/Genuifx/wxa/compare/v1.3.1...v1.4.0) (2018-05-12)
 
