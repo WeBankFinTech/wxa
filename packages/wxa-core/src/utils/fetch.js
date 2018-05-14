@@ -83,6 +83,10 @@ class RequestCache {
             this.queue = this.queue.filter((req)=>(now - req.start)< this.expired);
         }
     }
+
+    setExpiredTime(time=500) {
+        this.expired = time;
+    }
 }
 // 缓存队列
 let cacheRequest = new RequestCache();
@@ -187,3 +191,8 @@ export function setMaxRequest(x) {
     if (x == null) return null;
     MAXREQUEST = +x;
 };
+
+export function setRequestExpiredTime(x) {
+    if (x == null) return null;
+    cacheRequest.setExpiredTime(x);
+}

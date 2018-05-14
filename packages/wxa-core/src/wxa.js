@@ -18,6 +18,7 @@ import toast from './utils/toast';
 import {
     default as fetch,
     setMaxRequest,
+    setRequestExpiredTime,
 } from './utils/fetch';
 
 /**
@@ -44,6 +45,7 @@ class Wxa {
         };
         this.addNoPromiseApi = addNoPromiseApi;
         this.setMaxRequest = setMaxRequest;
+        this.setRequestExpiredTime = setRequestExpiredTime;
     }
     launchApp(instance) {
         return app.launch(instance);
