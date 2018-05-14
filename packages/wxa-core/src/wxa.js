@@ -1,15 +1,19 @@
 import app from './base/app';
 import page from './base/page';
 import component from './base/component';
-import {default as wxapi, addNoPromiseApi} from './utils/wxapi';
+import {default as wxapiFn, addNoPromiseApi} from './utils/wxapi';
 import {storage} from './utils/storage';
 import {router} from './utils/router';
 import promisify from './utils/promisify';
 import {eventbus} from './utils/eventbus';
+
 import debounce from 'lodash/debounce';
 import throttle from 'lodash/throttle';
 import once from 'lodash/once';
 import delay from 'lodash/delay';
+
+import message from './utils/message';
+import toast from './utils/toast';
 
 import {
     default as fetch,
@@ -59,8 +63,8 @@ class Wxa {
 
 export const wxa = new Wxa();
 export * from './utils/decorators';
+export const wxapi = wxapiFn(wx);
 export {
-    wxapi,
     storage,
     router,
     promisify,
@@ -70,4 +74,7 @@ export {
     throttle,
     once,
     delay,
+
+    message,
+    toast,
 };
