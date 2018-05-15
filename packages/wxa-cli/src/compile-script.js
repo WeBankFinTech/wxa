@@ -45,7 +45,9 @@ export default class CScript {
     }
 
     resolveDeps(code, type, opath) {
-        return code.replace(/(?:[\s\n\t]+require|^require)\(['"]([\w\d_\-\.\/@]+)['"]\)/ig, (match, lib)=>{
+        return code.replace(/([\.][\t\n\s]*)?require\([']([\w\d_\-\.\/@]+)['"]\)/ig, (match, space, lib)=>{
+            if (space) return match;
+
             let resolved = lib;
             let target = '', source = '', ext = '', needCopy = false;
 
@@ -216,11 +218,7 @@ export default class CScript {
             source: code,
             options: {configs: compiler.configs},
             transform: (code, options)=>{
-                if (options.configs.ignore && this.checkIgnore(opath, options.configs.ignore)) {
-                    return Promise.resolve({code});
-                } else {
-                    return compiler.parse(code, options.configs, opath);
-                }
+                return compiler.parse(code, options.configs, opath);
             },
         }, this.options.cache).then((succ)=>{
             let sourcemap;
