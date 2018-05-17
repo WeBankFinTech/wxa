@@ -1,3 +1,46 @@
+<a name="1.4.4"></a>
+## [1.4.4](https://github.com/Genuifx/wxa/compare/v1.4.3...v1.4.4) (2018-05-17)
+
+
+### Bug Fixes
+
+* **app.js, page.js, component.js:** prototype methods should cover function defined in methods objec ([a8db03f](https://github.com/Genuifx/wxa/commit/a8db03f))
+
+
+### BREAKING CHANGES
+
+* **app.js, page.js, component.js:** if user define two same name function both in class and class.methods object, the
+one in class prototype will cover methods object one.
+
+
+
+<a name="1.4.3"></a>
+## [1.4.3](https://github.com/Genuifx/wxa/compare/v1.4.2...v1.4.3) (2018-05-14)
+
+
+### Bug Fixes
+
+* **page.js, component.js, app.js:** do not copy constructor ([6e28c50](https://github.com/Genuifx/wxa/commit/6e28c50))
+
+
+
+<a name="1.4.2"></a>
+## [1.4.2](https://github.com/Genuifx/wxa/compare/v1.4.1...v1.4.2) (2018-05-14)
+
+
+### Bug Fixes
+
+* **decorators.js:** add options control for decorator ([82fffd9](https://github.com/Genuifx/wxa/commit/82fffd9))
+* **page.js:** debounce should use leading mode ([c62b0b7](https://github.com/Genuifx/wxa/commit/c62b0b7))
+
+
+### Features
+
+* **fetch.js:** setRequestExpiredTime allow set up per request's expired time ([2bb5fc2](https://github.com/Genuifx/wxa/commit/2bb5fc2))
+* **wxa.js, message, toast:** export some lodash function, add message and toast function for using. ([0874650](https://github.com/Genuifx/wxa/commit/0874650))
+
+
+
 <a name="1.4.1"></a>
 ## [1.4.1](https://github.com/Genuifx/wxa/compare/v1.4.0...v1.4.1) (2018-05-13)
 
