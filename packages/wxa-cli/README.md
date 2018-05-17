@@ -1,4 +1,5 @@
 # wxa-cli
+[![Build Status](https://travis-ci.org/Genuifx/wxa-cli.svg?branch=master)](https://travis-ci.org/Genuifx/wxa-cli)
 ![](https://img.shields.io/badge/node-%3E%3D8-brightgreen.svg)
 [![NPM version](https://img.shields.io/npm/v/@wxa/cli.svg)](https://www.npmjs.com/package/@wxa/cli)
 
