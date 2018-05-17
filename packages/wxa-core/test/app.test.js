@@ -66,6 +66,27 @@ describe('app mount', ()=>{
         instance.onLoad();
         expect(load).toHaveBeenCalled();
     });
+
+    test('copy prototype function to methods in app', ()=>{
+        const load = jest.fn();
+
+        class Main {
+            load() {
+                load();
+            }
+        }
+
+        app.launch(Main);
+
+        let instance = App.mock.calls[4][0];
+
+        expect(instance.load).not.toBeFalsy();
+        expect(instance.methods.load).not.toBeFalsy();
+
+        instance.load();
+
+        expect(load).toHaveBeenCalled();
+    });
 });
 
 test('use plugin', ()=>{
