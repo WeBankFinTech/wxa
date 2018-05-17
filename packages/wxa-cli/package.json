@@ -5,7 +5,8 @@
   "main": "dist/wxa.js",
   "scripts": {
     "build": "babel src --out-dir dist/dist",
-    "dev": "babel --watch src --out-dir dist"
+    "dev": "babel --watch src --out-dir dist",
+    "travis-dev": "babel src --out-dir dist"
   },
   "author": "iveswen",
   "license": "MIT",
