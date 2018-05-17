@@ -6,9 +6,10 @@ let launch = function(instance) {
     if (typeof instance === 'function') {
         let obj = new instance();
 
+        obj.methods = obj.methods || {};
         Object.getOwnPropertyNames(instance.prototype).forEach((key)=>{
             if (['constructor'].indexOf(key) === -1) {
-                obj[key] = instance.prototype[key];
+                obj.methods[key] = instance.prototype[key];
             }
         });
 

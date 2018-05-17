@@ -72,6 +72,7 @@ export {
     promisify,
     eventbus,
     fetch,
+
     debounce,
     throttle,
     once,

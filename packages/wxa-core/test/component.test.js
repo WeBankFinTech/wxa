@@ -42,6 +42,38 @@ describe('component', ()=>{
         instance.created();
         expect(created).toHaveBeenCalled();
     });
+
+    // 4
+    test('copy prototype function to methods in Component', ()=>{
+        const load1 = jest.fn();
+        const load2 = jest.fn();
+
+        class Com {
+            load() {
+                load1();
+            }
+            methods = {
+                load() {
+                    load2();
+                },
+                abc: 1,
+            }
+        }
+
+        component.launch(Com);
+
+        let instance = Component.mock.calls[4][0];
+
+        instance.created();
+
+        expect(instance.load).not.toBeFalsy();
+        expect(instance.methods.load).not.toBeFalsy();
+        expect(instance.abc).toBe(1);
+
+        instance.load();
+
+        expect(load1).toHaveBeenCalled();
+    });
 });
 
 test('use plugin', ()=>{

@@ -90,6 +90,34 @@ describe('page mount', ()=>{
         instance.onLoad();
         expect(com.onLoad.mock.calls.length).toBe(1);
     });
+
+    // 5
+    test('copy prototype function to methods in page', ()=>{
+        const load1 = jest.fn();
+        const load2 = jest.fn();
+
+        class Index {
+            load() {
+                load1();
+            }
+            methods = {
+                load() {
+                    load2();
+                },
+            }
+        }
+
+        page.launch(Index);
+
+        let instance = Page.mock.calls[5][0];
+
+        expect(instance.load).not.toBeFalsy();
+        expect(instance.methods.load).not.toBeFalsy();
+
+        instance.load();
+
+        expect(load1).toHaveBeenCalled();
+    });
 });
 
 test('use plugin', ()=>{
