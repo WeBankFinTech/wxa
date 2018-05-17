@@ -1,7 +1,8 @@
 # wxa-cli
+![](https://img.shields.io/badge/node-%3E%3D8-brightgreen.svg)
 [![NPM version](https://img.shields.io/npm/v/@wxa/cli.svg)](https://www.npmjs.com/package/@wxa/cli)
 
-:smiley:cli for wechat miniprogram developing.
+:tada::smiley:cli for wechat miniprogram developing.
 
 Detail documents: [@wxa/doc](https://genuifx.github.io/wxa-doc/#/lang/english/):100:
 
