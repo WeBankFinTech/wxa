@@ -7,7 +7,7 @@ os:
 - window
 before_install:
 - git clone https://github.com/Genuifx/wxa-cli.git;
-- cd wxa-cli;
+- cd wxa-cli && npm i && npm run travis-dev;
 - npm link;
 - cd .. && wxa create base h && cd h;
 install:
