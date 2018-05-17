@@ -1,5 +1,6 @@
 // inspired by https://medium.com/@bargord11/write-your-first-node-js-terminal-progress-bar-5bd5edb8a563
 import {bgWhite} from 'chalk';
+import readline from 'readline';
 
 export default class ProgressBar {
     constructor() {
@@ -29,8 +30,8 @@ export default class ProgressBar {
         const emptyBar = this.getBar(emptyBarLength, '-');
         const percentageProgress = (currentProgress * 100).toFixed(2);
 
-        process.stdout.clearLine();
-        process.stdout.cursorTo(0);
+        readline.clearLine(process.stdout);
+        readline.cursorTo(process.stdout, 0);
         process.stdout.write(
             `Compiling: [${filledBar}${emptyBar}] | ${percentageProgress}% `
         );
@@ -45,7 +46,7 @@ export default class ProgressBar {
     }
 
     clean() {
-        process.stdout.clearLine();
-        process.stdout.cursorTo(0);
+        readline.clearLine(process.stdout);
+        readline.cursorTo(process.stdout, 0);
     }
 }
