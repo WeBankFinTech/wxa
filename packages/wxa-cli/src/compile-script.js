@@ -45,8 +45,15 @@ export default class CScript {
     }
 
     resolveDeps(code, type, opath) {
-        return code.replace(/([\.][\t\n\s]*)?require\([']([\w\d_\-\.\/@]+)['"]\)/ig, (match, space, lib)=>{
-            if (space) return match;
+        return code.replace(
+            // /([\.][\t\n\s]*)?require\([']([\w\d_\-\.\/@]+)['"]\)/ig,
+            /(?:\/\*[\s\S]*?\*\/|(?:[^\\:]|^)\/\/.*)|(\.)?require\([']([\w\d_\-\.\/@]+)['"]\)/igm,
+
+            (match, point, lib)=>{
+            // a.require()
+            if (point) return match;
+            // ignore comment
+            if (point == null && lib == null) return match;
 
             let resolved = lib;
             let target = '', source = '', ext = '', needCopy = false;
