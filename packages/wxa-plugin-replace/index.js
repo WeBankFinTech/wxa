@@ -1,6 +1,16 @@
 module.exports = class ReplacePlugin {
     constructor(options={}) {
-        this.configs = Object.assign({}, options);
+        this.configs = Object.assign({
+            list: [],
+            flag: 'gm'    
+        }, options);
+        if(typeof this.configs.list === 'object' && this.configs.list !== null) {
+            this.list = this.mapConfigsToWxa(this.configs.list);
+        } else if(Array.isArray(this.configs.list)){
+            this.list = this.configs.list;
+        } else {
+            this.list = [];
+        }
     }   
     apply(compiler) {
         compiler.hooks.optimizeAssets.tapAsync('replacePlugin', (code, compilation, next)=>{
@@ -8,8 +18,8 @@ module.exports = class ReplacePlugin {
         })
     }
     run(code, compilation, next) {
-        if(this.configs.list.length) {
-            this.configs.list.forEach((rep)=>{
+        if(this.list.length) {
+            this.list.forEach((rep)=>{
                 code = code.replace(rep.regular, rep.value);
             });
             
@@ -18,5 +28,16 @@ module.exports = class ReplacePlugin {
         } else {
             next();
         }
+    }
+    mapConfigsToWxa(configs) {
+        if(configs == null) return [];
+
+        return Object.keys(configs).reduce((ret, name, idx)=>{
+            ret.push({
+                regular: new RegExp(name, this.configs.flag),
+                value: configs[name],
+            });
+            return ret;
+        }, []);
     }
 }
