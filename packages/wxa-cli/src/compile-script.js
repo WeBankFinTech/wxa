@@ -47,7 +47,7 @@ export default class CScript {
     resolveDeps(code, type, opath) {
         return code.replace(
             // /([\.][\t\n\s]*)?require\([']([\w\d_\-\.\/@]+)['"]\)/ig,
-            /(?:\/\*[\s\S]*?\*\/|(?:[^\\:]|^)\/\/.*)|(\.)?require\([']([\w\d_\-\.\/@]+)['"]\)/igm,
+            /(?:\/\*[\s\S]*?\*\/|(?:[^\\:]|^)\/\/.*)|(\.)?require\(['"]([\w\d_\-\.\/@]+)['"]\)/igm,
 
             (match, point, lib)=>{
             // a.require()
@@ -77,6 +77,7 @@ export default class CScript {
             }
 
             let pret = new PathParser().parse(lib);
+            // console.log(opath, pret);
             if (pret.isRelative) {
                 source = path.join(opath.dir, lib);
                 if (type === 'npm') {
@@ -235,6 +236,10 @@ export default class CScript {
                 code = succ.code;
                 sourcemap = succ.map;
             }
+            if (opath.base === 'counting.js') {
+                console.log(code);
+                console.log(opath);
+            };
             code = this.resolveDeps(code, type, opath);
             let target;
 
