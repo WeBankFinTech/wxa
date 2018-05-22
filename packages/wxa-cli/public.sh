@@ -20,7 +20,7 @@ then
 
   set -ex
 
-  npm publish --access public ./dist
+  npm publish --tag=beta --access public ./dist
 
 else
   echo "Compilation failed" >&2

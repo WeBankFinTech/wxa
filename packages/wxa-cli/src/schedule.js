@@ -83,6 +83,7 @@ class Schedule extends EventEmitter {
                     applyPlugins(cStyle);
                     return cStyle.compile('sass', opath);
                 }
+                case '.wxs':
                 case '.js': {
                     let cScript = new CScript(this.src, this.dist, '.js', this.options);
                     applyPlugins(cScript);

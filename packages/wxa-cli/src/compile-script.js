@@ -238,6 +238,7 @@ export default class CScript {
             }
             code = this.resolveDeps(code, type, opath);
             let target;
+            let ext = '.js';
 
             if (type === 'npm') {
                 code = this.npmHack(opath, code);
@@ -245,12 +246,15 @@ export default class CScript {
             } else if (type === 'local') {
                 target = path.join(this.localPath, opath.name+'.js');
                 // console.log('local', target);
+            } else if (opath.ext === '.wxs') {
+                target = path.join(getDistPath(opath, 'wxs', this.src, this.dist));
+                ext = '.wxs';
             } else {
                 target = path.join(getDistPath(opath, 'js', this.src, this.dist));
             }
             if (sourcemap) {
-                sourcemap.source = [opath.name+'.js'];
-                sourcemap.file = opath.name+'.js';
+                sourcemap.source = [opath.name+ext];
+                sourcemap.file = opath.name+ext;
                 code += `\r\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,${Base64.encode(JSON.stringify(sourcemap))}`;
             }
 
