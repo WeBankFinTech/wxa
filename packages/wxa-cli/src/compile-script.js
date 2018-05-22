@@ -236,10 +236,6 @@ export default class CScript {
                 code = succ.code;
                 sourcemap = succ.map;
             }
-            if (opath.base === 'counting.js') {
-                console.log(code);
-                console.log(opath);
-            };
             code = this.resolveDeps(code, type, opath);
             let target;
 
