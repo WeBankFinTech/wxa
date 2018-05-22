@@ -151,9 +151,9 @@ export default class CScript {
             } else if (type === 'local') {
                 resolved = path.join(path.relative(opath.dir, this.localVisualPath), path.parse(lib).base);
             } else {
-                resolved = path.relative(getDistPath(opath, 'js', this.src, this.dist), target).replace(/(^\.\.\/)|(^\.\.\\\\)/, './');
+                resolved = path.relative(getDistPath(opath, 'js', this.src, this.dist), target).replace(/(^\.\.\/)|(^\.\.\\)/, './');
             }
-            // 转化windowd的\\，修复path,relative需要向上一级目录的缺陷
+            // 转化windowd的\\，修复path, relative需要向上一级目录的缺陷
             resolved = resolved.replace(/\\/g, '/');
             return `require('${resolved}')`;
         });
