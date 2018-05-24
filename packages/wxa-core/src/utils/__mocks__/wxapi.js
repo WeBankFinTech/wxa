@@ -11,11 +11,13 @@ export default function() {
                 const userID = parseInt(options.url.substr('/users/'.length), 10);
                 process.nextTick(
                     () =>
-                      users[userID]
-                        ? resolve(users[userID])
-                        : reject({
-                            error: 'User with ' + userID + ' not found.',
-                          }),
+                        userID < 0 ? resolve({statusCode: 404}) :
+                            users[userID]
+                            ? resolve({statusCode: 200, data: users[userID]})
+                            : reject({
+                                statusCode: 200,
+                                error: 'User with ' + userID + ' not found.',
+                            }),
                   );
             });
         },

@@ -86,6 +86,8 @@ class RequestCache {
 
     setExpiredTime(time=500) {
         this.expired = time;
+
+        return this.expired;
     }
 }
 // 缓存队列
@@ -138,7 +140,11 @@ function $$fetch(configs) {
 
     return wxapi(wx).request(postconfig)
     .then((response)=>{
-        return Promise.resolve(response);
+        if (response && response.statusCode === 200) {
+            return Promise.resolve(response);
+        } else {
+            return Promise.reject(response);
+        }
     }, (fail)=>{
         return Promise.reject(fail);
     });
