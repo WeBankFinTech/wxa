@@ -1,4 +1,6 @@
 import path from 'path';
+import logger from './logger';
+import validUrl from 'valid-url';
 
 export default class PathParser {
     constructor() {
@@ -12,6 +14,7 @@ export default class PathParser {
             isRelative: false,
             isNodeModule: false,
             isAbsolute: false,
+            isURI: false,
         };
 
         // judge path's kind;
@@ -21,8 +24,10 @@ export default class PathParser {
             ret.isNodeModule = true;
         } else if (path.isAbsolute(x)) { // require('/abcd')
             ret.isAbsolute = true;
+        } else if (validUrl.is_uri(x)) {
+            ret.isURI = true;
         } else {
-            throw new Error('无法解析的路径类型: '+x);
+            logger.error('Path Error', '无法解析的路径类型: '+x);
         }
 
         return ret;
