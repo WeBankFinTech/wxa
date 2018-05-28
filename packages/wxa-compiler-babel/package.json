@@ -1,6 +1,6 @@
 {
   "name": "@wxa/compiler-babel",
-  "version": "1.0.4",
+  "version": "1.0.5-beta",
   "description": "wxa babel compiler",
   "main": "dist/index.js",
   "scripts": {
@@ -30,6 +30,7 @@
     "babel-preset-env": "^1.6.1"
   },
   "dependencies": {
+    "@babel/core": "^7.0.0-beta.49",
     "babel-core": "^6.26.0"
   }
 }
