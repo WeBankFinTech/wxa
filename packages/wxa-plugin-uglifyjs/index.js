@@ -15,7 +15,7 @@ module.exports = class UglifyjsPlugins {
         });
     }
     run(compilation, code, next) {
-        if(!this.configs.filter.test(compilation.type)) return next(null);
+        if(!this.configs.filter.test(compilation.ext)) return next(null);
         let rst = uglify.minify(code, this.configs.config);
         if(rst.error) next(rst.error);
 
