@@ -85,7 +85,7 @@ class Schedule extends EventEmitter {
                 }
                 case '.wxs':
                 case '.js': {
-                    let cScript = new CScript(this.src, this.dist, '.js', this.options);
+                    let cScript = new CScript(this.src, this.dist, opath.ext, this.options);
                     applyPlugins(cScript);
                     let filepath = path.join(opath.dir, opath.base);
                     let type = configs.type;
