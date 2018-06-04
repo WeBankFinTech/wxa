@@ -1,6 +1,6 @@
 <p align="center">
     <a href="https://genuifx.github.io/wxa-doc/">
-        <img src="./wxa-logo.png" />
+        <img src="./wxa-logo.png" width="300" height="300" />
     </a>
 </p>
 
