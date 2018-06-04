@@ -26,7 +26,10 @@ class BabelCompiler {
             return Promise.resolve(content);
         } else {
             try {
-                let rst = transformSync(content, configs);
+                let rst = transformSync(content, {
+                    ...configs,
+                    filename: opath.base
+                });
                 return Promise.resolve(rst);
             } catch (e) {
                 return Promise.reject(e);
