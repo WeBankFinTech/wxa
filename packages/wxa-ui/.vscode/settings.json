@@ -1,8 +1,0 @@
-{
-    "javascript.implicitProjectConfig.experimentalDecorators": true,
-    "vetur.grammar.customBlocks": {
-    "config": "json"
-  },
-  "vetur.validation.template": false,
-  "eslint.enable": true
-}

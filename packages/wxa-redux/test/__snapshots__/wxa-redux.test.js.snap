@@ -1,5 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`Page throw error while not mount app 1`] = `"wxa-redux需要使用@GetApp修饰符"`;
-
-exports[`throw error while type undefined 1`] = `"不合法的wxa组件类型"`;

@@ -1,0 +1,21 @@
+0 silly input [ '../wxa-core' ]
+1 silly flags { _: [ 'import' ],
+1 silly flags   'reject-cycles': false,
+1 silly flags   rejectCycles: false,
+1 silly flags   pathToRepo: '../wxa-core' }
+2 verbose rootPath /Users/wenzetian/Documents/web/webank/miniprogram/wxa/wxa
+3 info version 2.9.0
+4 silly isInitialized
+5 silly isInitialized true
+6 silly existsSync /Users/wenzetian/Documents/web/webank/miniprogram/wxa/wxa/VERSION
+7 info versioning independent
+8 silly initialize attempt
+9 silly statSync /Users/wenzetian/Documents/web/webank/miniprogram/wxa/wxa-core
+10 silly getWorkspaceRoot
+11 verbose getWorkspaceRoot /Users/wenzetian/Documents/web/webank/miniprogram/wxa/wxa
+12 silly existsSync /Users/wenzetian/Documents/web/webank/miniprogram/wxa/wxa/packages/wxa-core
+13 silly getCurrentSHA
+14 verbose getCurrentSHA c7ed6be9272f5c1f87cf00c12f0197f7b433dcad
+15 error initialize callback with error
+16 error Error: Local repository has un-committed changes
+16 error     at ImportCommand.initialize (/usr/local/lib/node_modules/lerna/lib/commands/ImportCommand.js:158:25)
