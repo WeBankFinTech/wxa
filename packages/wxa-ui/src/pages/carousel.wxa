@@ -1,0 +1,72 @@
+<script>
+import {wxa, Page} from '@wxa/core';
+
+@Page
+class Carousel {
+    construcor() {}
+
+    data = {
+        imgUrls: [
+            'http://img02.tooopen.com/images/20150928/tooopen_sy_143912755726.jpg',
+            'http://img06.tooopen.com/images/20160818/tooopen_sy_175866434296.jpg',
+            'http://img06.tooopen.com/images/20160818/tooopen_sy_175833047715.jpg',
+        ],
+    }
+}
+
+wxa.launchPage(Carousel);
+</script>
+<template>
+<view class="title">Carousel</view>
+<carousel indicator-dots="true" autoplay="true" class="carousel">
+    <block wx:for="{{imgUrls}}">
+        <carousel-item >
+            <image src="{{item}}" class="slide-image"/>
+        </carousel-item>
+    </block>
+</carousel>
+
+<carousel indicator-dots="true" autoplay="true" class="carousel" category="full">
+    <block wx:for="{{imgUrls}}">
+        <carousel-item >
+            <image src="{{item}}" class="slide-image"/>
+        </carousel-item>
+    </block>
+</carousel>
+
+</template>
+<config>
+{
+    "usingComponents": {
+        "carousel": "../components/carousel",
+        "carousel-item": "../components/carousel-item"
+    }
+}
+</config>
+<style style="scss">
+    page {
+        background-color: white;
+        overflow: hidden;
+    }
+    .carousel {
+        width: 100%;
+        margin-top: 50rpx;
+        display: block;
+    }
+    .carousel-item { 
+        float: left;
+        display: block;
+        box-sizing: border-box;
+        border: 4rpx solid #ffffff;
+        box-shadow: 0 8rpx 20rpx rgba(0, 0, 0, .1);
+        border-radius: calc(8rpx*2);
+        width: calc(336rpx*2);
+        height: calc(200rpx*2);
+        overflow: hidden;
+        margin-right: 20rpx;
+    }
+    image {
+        width: 100%;
+        height: 100%;
+    }
+</style>

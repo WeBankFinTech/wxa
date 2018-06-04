@@ -1,0 +1,6 @@
+{
+	"name": "wxa",
+	"devDependencies": {
+		"lerna": "^2.9.0"
+	}
+}

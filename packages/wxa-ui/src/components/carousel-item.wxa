@@ -1,0 +1,63 @@
+<script>
+import {wxa, Wxapi} from '@wxa/core';
+
+@Wxapi
+class Carousel {
+    constructor() {}
+    properties = {
+
+    }
+    data = {
+        itemPanel: '',
+    }
+    relations = {
+        './carousel': {
+            type: 'parent',
+        },
+    }
+    methods = {
+        setGap(x) {
+            this.setData({itemPanel: x});
+        },
+        setMode(y) {
+            this.setData({mode: y});
+        },
+    }
+    created() {
+    }
+}
+
+wxa.launchComponent(Carousel);
+</script>
+<template>
+    <view class="carousel-item {{mode}}" style="{{itemPanel}}">
+        <slot></slot>
+    </view>
+</template>
+<style lang="scss">
+    .carousel-item {
+        float: left;
+        text-align: center;
+        overflow: hidden;
+        box-sizing: border-box;
+
+        &.smart {
+            border-radius: calc(8rpx*2);
+            width: calc(336rpx*2);
+            height: calc(180rpx*2);
+            border: 4rpx solid #ffffff;
+            box-shadow: 0 8rpx 20rpx rgba(0, 0, 0, .1);
+        }
+
+        &.full {
+            width: calc(375rpx*2);
+            height: calc(180rpx*2);
+        }
+    }
+
+</style>
+<config>
+{
+    "component": true
+}
+</config>

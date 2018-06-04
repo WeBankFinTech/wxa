@@ -1,0 +1,72 @@
+<script>
+import {wxa, Wxapi} from '@wxa/core';
+
+@Wxapi
+class Collapse {
+    constructor() {}
+    options = {
+        multipleSlots: true,
+    }
+    properties = {
+        spread: {
+            type: Boolean,
+            value: false,
+        },
+    }
+    methods = {
+        show() {
+            this.animate(this.mainHeight);
+        },
+        hide() {
+            this.animate(0);
+        },
+        animate(x) {
+            this.animation.height(x).step();
+            this.setData({
+                animation: this.animation.export(),
+            });
+        },
+    }
+    created() {
+        this.animation = this.wxapi.createAnimation({
+            duration: 300,
+            delay: 0,
+            timingFunction: 'ease-out',
+        });
+    }
+    ready() {
+        let main = this.createSelectorQuery();
+        main.select('.main').boundingClientRect();
+        main.exec((ret)=>{
+            // console.log(ret);
+            if (ret == null || ret[0] === null) return this.mainHeight = 'auto';
+
+            this.mainHeight = ret[0].height;
+            if (this.data.spread) this.show();
+        });
+    }
+}
+
+wxa.launchComponent(Collapse);
+</script>
+<config>
+{
+    "component": true
+}
+</config>
+<template>
+    <view class="header">
+        <slot name="header"></slot>
+    </view>
+    <view class="body" animation="{{animation}}">
+        <view class="main">
+            <slot name="main"></slot>
+        </view>
+    </view>
+</template>
+<style lang="scss">
+    .body {
+        height: 0;
+        overflow: hidden;
+    }
+</style>
