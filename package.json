@@ -1,6 +1,16 @@
 {
 	"name": "wxa",
 	"devDependencies": {
+		"cz-conventional-changelog": "^2.1.0",
 		"lerna": "^2.9.0"
+	},
+	"scripts": {
+		"commit": "git-cz"
+	},
+	"sideEffects": false,
+	"config": {
+		"commitizen": {
+			"path": "./node_modules/cz-conventional-changelog"
+		}
 	}
 }
