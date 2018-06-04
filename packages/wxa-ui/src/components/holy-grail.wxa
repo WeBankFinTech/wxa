@@ -1,0 +1,66 @@
+<script>
+import {wxa} from '@wxa/core';
+
+class HolyGrail {
+    options = {
+        multipleSlots: true,
+    }
+    properties = {
+        footerHeight: {
+            value: 140,
+            type: Number,
+        },
+    }
+    data = {
+        footerPanel: '',
+    }
+    ready() {
+        let footerT = `
+            margin-top: -${this.data.footerHeight}rpx;
+            height: ${this.data.footerHeight}rpx;
+        `;
+        let innerMainT = `
+            padding-bottom: ${this.data.footerHeight}rpx;
+        `;
+        this.setData({
+            footer: footerT,
+            innerMain: innerMainT,
+        });
+    }
+}
+
+wxa.launchComponent(HolyGrail);
+</script>
+<template>
+    <view class="wrapMain">
+        <view class="innerMain" style="{{innerMain}}">
+            <slot name="main"></slot>
+        </view>
+    </view>
+    <view class="footer" style="{{footer}}">
+        <slot name="footer"></slot>
+    </view>
+</template>
+<style lang="scss">
+    .wrapMain {
+        box-sizing: border-box;
+        min-height: 100%;
+        .innerMain{
+            // padding-bottom: 140rpx;
+            overflow: hidden;
+        }
+    }
+            
+    .footer{
+        // margin-top: -140rpx;
+        // height: 140rpx;
+        padding-top: 88rpx;
+        box-sizing: border-box;
+    }
+</style>
+<config>
+{
+    "component": true
+}
+</config>
+

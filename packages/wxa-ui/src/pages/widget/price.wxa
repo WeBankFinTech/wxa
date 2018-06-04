@@ -1,0 +1,73 @@
+<script>
+import {wxa, Page} from '@wxa/core';
+
+@Page
+class Price {
+    constructor() {}
+    methods = {
+    }
+}
+
+wxa.launchPage(Price);
+</script>
+<config>
+{
+    "usingComponents": {
+        "price" : "../../components/widget/price"
+    }
+}
+</config>
+<template>
+    <view class="page">
+        <view class="title">
+            Price
+        </view>
+        <view class="section">
+            <view class="sub-title">normal</view>
+            <view>
+                <price value="88.88"></price>
+            </view>
+        </view>
+        <view class="section">
+            <view class="sub-title">dollar</view>
+            <view>
+                <price symbol="$" value="66"></price>
+            </view>
+        </view>
+        <view class="section">
+            <view class="sub-title">through</view>
+            <view>
+                <price value="18.88" category="through"></price>
+            </view>
+        </view>
+        <view class="section">
+            <view class="sub-title">sup</view>
+            <view>
+                <price value="18.88" category="sup"></price>
+            </view>
+        </view>
+        <view class="section">
+            <view class="sub-title">sub</view>
+            <view>
+                <price value="16.66" category="sub"></price>
+            </view>
+        </view>
+        <view class="section">
+            <view class="sub-title">decimal small</view>
+            <view>
+                <price value="16.66" symbol="" category="sub" small-decimal="true"></price>
+            </view>
+        </view>
+        <view class="section">
+            <view class="sub-title">normal with margin</view>
+            <view>
+                <price value="17.777" withMargin></price>
+            </view>
+        </view>
+    </view>
+</template>
+<style lang="scss">
+.section {
+    font-size: 36rpx;
+}
+</style>

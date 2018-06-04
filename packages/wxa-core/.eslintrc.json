@@ -1,0 +1,36 @@
+{
+    "extends": "./node_modules/eslint-config-google/index.js",
+    "root": true,
+    "env": {
+        "browser": true,
+        "commonjs": true,
+        "es6": true,
+        "node": true,
+        "jest/globals": true
+    },
+    "parser": "babel-eslint",
+    "parserOptions": {
+        "ecmaFeatures": {
+            "jsx": true
+        },
+        "sourceType": "module"
+    },
+    "rules": {
+        "no-const-assign": "warn",
+        "no-this-before-super": "warn",
+        "no-undef": "warn",
+        "no-unreachable": "warn",
+        "no-unused-vars": "warn",
+        "constructor-super": "warn",
+        "valid-typeof": "warn",
+        "one-var": "warn",
+        "max-len": "off",
+        "no-trailing-spaces": "off",
+        "require-jsdoc": "off",
+        "camelcase": "warn",
+        "no-invalid-this": "warn",
+        "new-cap": "warn",
+        "guard-for-in": "warn"
+    },
+    "plugins": ["jest"]
+}

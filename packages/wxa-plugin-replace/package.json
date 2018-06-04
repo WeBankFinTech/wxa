@@ -1,0 +1,16 @@
+{
+  "name": "@wxa/plugin-replace",
+  "version": "1.0.3",
+  "description": "replace string",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "wxa",
+    "replace",
+    "string"
+  ],
+  "author": "iveswen",
+  "license": "MIT"
+}

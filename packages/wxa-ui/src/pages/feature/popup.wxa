@@ -1,0 +1,88 @@
+<script>
+import {wxa, Page} from '@wxa/core';
+
+@Page 
+class Popup {
+    constructor() {}
+    data = {
+        category: 'bottom',
+    }
+    methods = {
+        toggle(e) {
+            let {currentTarget: {dataset: {type='bottom'}}} = e;
+            this.setData({category: type});
+            let com = this.selectComponent('.col');
+            com.toggle();
+        },
+    }
+}
+
+wxa.launchPage(Popup);
+</script>
+<config>
+{
+    "usingComponents": {
+        "popup": "../../components/popup",
+        "center": "../../components/center"
+    }
+}
+</config>
+<template>
+    <view class="title">
+        Popup
+    </view>
+    <center direction="column" class="center">
+        <button type="primary" size="mini" bindtap="toggle">{{isShow ? '点击收起底部' : '点击展开底部'}}</button>
+        <button type="primary" size="mini" bindtap="toggle" data-type="top">{{isShow ? '点击收起上方' : '点击展开上方'}}</button>
+        <button type="primary" size="mini" bindtap="toggle" data-type="left">{{isShow ? '点击收起左方' : '点击展开左方'}}</button>
+        <button type="primary" size="mini" bindtap="toggle" data-type="right">{{isShow ? '点击收起右方' : '点击展开右方'}}</button>
+    </center>
+    <popup class="col {{category}}" category="{{category}}">
+        <view class="main">
+            <text>    
+                Stray birds of summer come to my window to sing and fly away.\n
+                And yellow leaves of autumn, which have no songs, flutter and fall \n
+                there with a sign.\n
+            </text>
+        </view>
+    </popup>
+</template>
+<style lang="scss">
+    view {
+        box-sizing: border-box;
+    }
+    .h {
+        font-size: 40rpx;
+        border-bottom: 1px solid #b2b2b2;
+        padding-left: 30rpx;
+        line-height: 2;
+    }
+    .header {
+        padding: 30rpx;
+        font-size: 36rpx;
+    }
+    .main {
+        font-size: 32rpx;
+        line-height: 1.2;
+        color: #888;
+        padding: 30rpx;
+        text {
+            border: 2rpx dashed #b2b2b2;
+        }
+    }
+
+    .col.left .main,
+    .col.right .main {
+        width: 300rpx;
+    }
+
+    button {
+        margin: 30rpx 0 0;
+    }
+
+    .center {
+        width: 100%;
+        height: 600rpx;
+        display: block;
+    }
+</style>

@@ -1,0 +1,41 @@
+<script>
+import {wxa, Page} from '@wxa/core';
+
+@Page
+class Elip {
+}
+
+wxa.launchPage(Elip);
+</script>
+<config>
+{
+    "usingComponents": {
+        "elip" : "../../components/widget/elip"
+    }
+}
+</config>
+<template>
+    <view class="page">
+        <view class="title">
+            Elip
+        </view>
+        <view class="section">
+            <view class="sub-title">1 行</view>
+            <view>
+                <elip>
+                    Stray birds of summer come to my window to sing and fly away.And yellow leaves of autumn, which have no songs, flutter and fall there with a sign.
+                </elip>
+            </view>
+        </view>
+        <view class="section">
+            <view class="sub-title">n 行</view>
+            <view>
+                <elip line="2">
+                    Stray birds of summer come to my window to sing and fly away.And yellow leaves of autumn, which have no songs, flutter and fall there with a sign.
+                </elip>
+            </view>
+        </view>
+    </view>
+</template>
+<style lang="scss">
+</style>
