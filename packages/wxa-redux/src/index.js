@@ -73,7 +73,7 @@ export const wxaRedux = ({
             } = vm;
             vm.created = function (...args) {
                 if (this.app == null) {
-                    console.warn('组件未注入app实例，无法使用Redux')
+                    process.env.NODE_ENV !== 'production' && console.warn('组件未注入app实例，无法使用Redux')
                 } else {
                     this.store = this.app.store;
                     if (created) created.apply(this, args);
