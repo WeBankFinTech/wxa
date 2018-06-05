@@ -1,5 +1,6 @@
 {
 	"name": "wxa",
+	"version":"1.0.0",
 	"devDependencies": {
 		"cz-conventional-changelog": "^2.1.0",
 		"husky": "^0.14.3",
@@ -20,5 +21,8 @@
 		"commitizen": {
 			"path": "./node_modules/cz-conventional-changelog"
 		}
+	},
+	"publishConfig": {
+		"access": "public"
 	}
 }

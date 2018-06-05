@@ -1,9 +1,5 @@
 0 silly input [ 'publish' ]
-1 silly flags { _: [ 'publish' ],
-1 silly flags   'reject-cycles': false,
-1 silly flags   rejectCycles: false,
-1 silly flags   'npm-tag': 'beta',
-1 silly flags   npmTag: 'beta' }
+1 silly flags { _: [ 'publish' ], 'reject-cycles': false, rejectCycles: false }
 2 verbose rootPath /Users/wenzetian/Documents/web/webank/miniprogram/wxa/wxa
 3 info version 2.9.0
 4 silly isInitialized
@@ -23,7 +19,7 @@
 18 verbose hasTags true
 19 silly getLastTag
 20 error initialize caught error
-21 error Error: fatal: No tags can describe '3590327258b61ca59ffa8b346118277ed14481f8'.
+21 error Error: fatal: No tags can describe '47228d4ad85734d8b375d025cc1c2c94b8795490'.
 21 error Try --always, or create some tags.
 21 error
 21 error     at Function.module.exports.sync (/usr/local/lib/node_modules/lerna/node_modules/execa/index.js:303:26)
