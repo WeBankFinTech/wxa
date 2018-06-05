@@ -1,5 +1,5 @@
 {
-  "name": "wxa-template-base",
+  "name": "@wxa/template-base",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
