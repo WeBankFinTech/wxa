@@ -1,21 +1,24 @@
-0 silly input [ '../wxa-core' ]
-1 silly flags { _: [ 'import' ],
+0 silly input [ 'melanke-watchjs' ]
+1 silly flags { _: [ 'add' ],
 1 silly flags   'reject-cycles': false,
 1 silly flags   rejectCycles: false,
-1 silly flags   pathToRepo: '../wxa-core' }
+1 silly flags   scope: 'watch-wxa-plugin',
+1 silly flags   args: [ 'melanke-watchjs' ] }
 2 verbose rootPath /Users/wenzetian/Documents/web/webank/miniprogram/wxa/wxa
 3 info version 2.9.0
 4 silly isInitialized
 5 silly isInitialized true
 6 silly existsSync /Users/wenzetian/Documents/web/webank/miniprogram/wxa/wxa/VERSION
 7 info versioning independent
-8 silly initialize attempt
-9 silly statSync /Users/wenzetian/Documents/web/webank/miniprogram/wxa/wxa-core
-10 silly getWorkspaceRoot
-11 verbose getWorkspaceRoot /Users/wenzetian/Documents/web/webank/miniprogram/wxa/wxa
-12 silly existsSync /Users/wenzetian/Documents/web/webank/miniprogram/wxa/wxa/packages/wxa-core
-13 silly getCurrentSHA
-14 verbose getCurrentSHA c7ed6be9272f5c1f87cf00c12f0197f7b433dcad
-15 error initialize callback with error
-16 error Error: Local repository has un-committed changes
-16 error     at ImportCommand.initialize (/usr/local/lib/node_modules/lerna/lib/commands/ImportCommand.js:158:25)
+8 info scope watch-wxa-plugin
+9 error EPACKAGES Errored while collecting packages and package graph
+10 error Error: No packages found that match scope 'watch-wxa-plugin'
+10 error     at Function.filterPackages (/usr/local/lib/node_modules/lerna/lib/PackageUtilities.js:226:17)
+10 error     at AddCommand.runPreparations (/usr/local/lib/node_modules/lerna/lib/Command.js:328:60)
+10 error     at /usr/local/lib/node_modules/lerna/lib/Command.js:204:18
+10 error     at new Promise (<anonymous>)
+10 error     at AddCommand.run (/usr/local/lib/node_modules/lerna/lib/Command.js:188:14)
+10 error     at Object.handler (/usr/local/lib/node_modules/lerna/lib/commands/AddCommand.js:77:14)
+10 error     at Object.self.runCommand (/usr/local/lib/node_modules/lerna/node_modules/yargs/lib/command.js:233:22)
+10 error     at Object.Yargs.self._parseArgs (/usr/local/lib/node_modules/lerna/node_modules/yargs/yargs.js:990:30)
+10 error     at Object.Yargs.self.parse (/usr/local/lib/node_modules/lerna/node_modules/yargs/yargs.js:532:23)

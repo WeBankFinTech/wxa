@@ -1,0 +1,29 @@
+{
+  "name": "@wxa/watch",
+  "version": "0.1.0",
+  "description": "watch plugin for wxa",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "babel src --out-dir ./dist/",
+    "dev": "babel --watch src --out-dir ./dist/",
+    "test": "jest"
+  },
+  "keywords": [
+    "watch",
+    "wxa"
+  ],
+  "author": "iveswen",
+  "license": "MIT",
+  "dependencies": {
+    "melanke-watchjs": "^1.4.3"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "jest": "^23.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

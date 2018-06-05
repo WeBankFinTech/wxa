@@ -21,7 +21,8 @@ module.exports = {
     },
     themeConfig: {
         repo: 'genuifx/wxa',
-        docsRepo: 'genuifx/wxa/docs',
+        docsRepo: 'genuifx/wxa',
+        docsDir: 'docs',
         editLinks: true,
         editLinkText: '帮助我们改善此页面！',
         locales: {
