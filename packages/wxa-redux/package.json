@@ -4,7 +4,7 @@
     "description": "redux for wxa ",
     "main": "./dist/index.js",
     "scripts": {
-        "build": "babel src --out-dir ./dist/dist/",
+        "build": "babel src --out-dir ./dist/",
         "dev": "babel --watch src --out-dir ./dist/",
         "test": "jest",
         "cover": "jest --coverage",

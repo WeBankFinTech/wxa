@@ -1,24 +1,34 @@
-0 silly input [ 'melanke-watchjs' ]
-1 silly flags { _: [ 'add' ],
+0 silly input [ 'publish' ]
+1 silly flags { _: [ 'publish' ],
 1 silly flags   'reject-cycles': false,
 1 silly flags   rejectCycles: false,
-1 silly flags   scope: 'watch-wxa-plugin',
-1 silly flags   args: [ 'melanke-watchjs' ] }
+1 silly flags   'npm-tag': 'beta',
+1 silly flags   npmTag: 'beta' }
 2 verbose rootPath /Users/wenzetian/Documents/web/webank/miniprogram/wxa/wxa
 3 info version 2.9.0
 4 silly isInitialized
 5 silly isInitialized true
 6 silly existsSync /Users/wenzetian/Documents/web/webank/miniprogram/wxa/wxa/VERSION
 7 info versioning independent
-8 info scope watch-wxa-plugin
-9 error EPACKAGES Errored while collecting packages and package graph
-10 error Error: No packages found that match scope 'watch-wxa-plugin'
-10 error     at Function.filterPackages (/usr/local/lib/node_modules/lerna/lib/PackageUtilities.js:226:17)
-10 error     at AddCommand.runPreparations (/usr/local/lib/node_modules/lerna/lib/Command.js:328:60)
-10 error     at /usr/local/lib/node_modules/lerna/lib/Command.js:204:18
-10 error     at new Promise (<anonymous>)
-10 error     at AddCommand.run (/usr/local/lib/node_modules/lerna/lib/Command.js:188:14)
-10 error     at Object.handler (/usr/local/lib/node_modules/lerna/lib/commands/AddCommand.js:77:14)
-10 error     at Object.self.runCommand (/usr/local/lib/node_modules/lerna/node_modules/yargs/lib/command.js:233:22)
-10 error     at Object.Yargs.self._parseArgs (/usr/local/lib/node_modules/lerna/node_modules/yargs/yargs.js:990:30)
-10 error     at Object.Yargs.self.parse (/usr/local/lib/node_modules/lerna/node_modules/yargs/yargs.js:532:23)
+8 silly initialize attempt
+9 silly isDetachedHead
+10 silly getCurrentBranch
+11 verbose getCurrentBranch master
+12 verbose isDetachedHead false
+13 silly getCurrentBranch
+14 verbose getCurrentBranch master
+15 silly getUpdates
+16 info Checking for updated packages...
+17 silly hasTags
+18 verbose hasTags true
+19 silly getLastTag
+20 error initialize caught error
+21 error Error: fatal: No tags can describe '3590327258b61ca59ffa8b346118277ed14481f8'.
+21 error Try --always, or create some tags.
+21 error
+21 error     at Function.module.exports.sync (/usr/local/lib/node_modules/lerna/node_modules/execa/index.js:303:26)
+21 error     at Function.execSync (/usr/local/lib/node_modules/lerna/lib/ChildProcessUtilities.js:59:30)
+21 error     at Function.getLastTag (/usr/local/lib/node_modules/lerna/lib/GitUtilities.js:163:53)
+21 error     at UpdatedPackagesCollector.collectUpdatedPackages (/usr/local/lib/node_modules/lerna/lib/UpdatedPackagesCollector.js:112:42)
+21 error     at UpdatedPackagesCollector.getUpdates (/usr/local/lib/node_modules/lerna/lib/UpdatedPackagesCollector.js:88:35)
+21 error     at PublishCommand.initialize (/usr/local/lib/node_modules/lerna/lib/commands/PublishCommand.js:275:67)

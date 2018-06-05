@@ -4,7 +4,7 @@
   "description": "wxa babel compiler",
   "main": "dist/index.js",
   "scripts": {
-    "build": "babel index.js --out-dir dist/dist",
+    "build": "babel index.js --out-dir dist",
     "dev": "babel --watch index.js --out-dir dist",
     "test": "jest"
   },
@@ -32,5 +32,8 @@
   "dependencies": {
     "@babel/core": "^7.0.0-beta.49",
     "babel-core": "^6.26.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

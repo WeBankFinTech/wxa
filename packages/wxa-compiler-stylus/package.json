@@ -4,7 +4,7 @@
     "description": "wxa stylus compiler",
     "main": "dist/index.js",
     "scripts": {
-        "build": "babel index.js --out-dir dist/dist",
+        "build": "babel index.js --out-dir dist",
         "dev": "babel --watch index.js --out-dir dist",
         "test": "jest"
     },
@@ -31,5 +31,8 @@
     },
     "dependencies": {
         "stylus": "^0.54.5"
+    },
+    "publishConfig": {
+        "access": "public"
     }
 }
