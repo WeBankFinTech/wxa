@@ -1,6 +1,6 @@
 {
   "name": "@wxa/plugin-uglifyjs",
-  "version": "1.0.3",
+  "version": "1.0.4-0",
   "description": "",
   "main": "index.js",
   "scripts": {
