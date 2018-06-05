@@ -13,5 +13,8 @@
   "license": "MIT",
   "dependencies": {
     "uglify-js": "^3.3.8"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
