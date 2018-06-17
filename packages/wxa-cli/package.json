@@ -24,10 +24,10 @@
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.6.1",
     "eslint": "^4.15.0",
-    "eslint-config-google": "^0.9.1",
-    "node-notifier": "^5.2.1"
-  },
-  "dependencies": {
+    "eslint-config-google": "^0.9.1"
+},
+"dependencies": {
+    "node-notifier": "^5.2.1",
     "chalk": "^2.3.0",
     "chokidar": "^2.0.0",
     "commander": "^2.14.1",
