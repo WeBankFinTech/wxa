@@ -10,9 +10,11 @@ export default class CStyle {
         this.src = src;
         this.dist = dist;
         this.ext = ext;
+
+        this.$sourceType = 'style';
         this.options = options || {};
         this.hooks = {
-            optimizeAssets: new AsyncSeriesHook(['code', 'compilation']),
+            optimizeAssets: new AsyncSeriesHook(['opath', 'compilation']),
         };
     }
 
@@ -49,7 +51,8 @@ export default class CStyle {
             let allContent = rets.join('');
 
             this.code = allContent;
-            this.hooks.optimizeAssets.promise(this.code, this)
+            this.hooks.optimizeAssets
+            .promise(opath, this)
             .then((err)=>{
                 if (err) return Promise.reject(err);
 

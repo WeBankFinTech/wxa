@@ -13,17 +13,16 @@ module.exports = class ReplacePlugin {
         }
     }   
     apply(compiler) {
-        compiler.hooks.optimizeAssets.tapAsync('replacePlugin', (code, compilation, next)=>{
-            this.run(compilation.code, compilation, next);
+        compiler.hooks.optimizeAssets.tapAsync('replacePlugin', (opath, compilation, next)=>{
+            this.run(opath, compilation, next);
         })
     }
-    run(code, compilation, next) {
+    run(opath, compilation, next) {
         if(this.list.length) {
             this.list.forEach((rep)=>{
-                code = code.replace(rep.regular, rep.value);
+                compilation.code = code.replace(rep.regular, rep.value);
             });
             
-            compilation.code = code;
             next();
         } else {
             next();

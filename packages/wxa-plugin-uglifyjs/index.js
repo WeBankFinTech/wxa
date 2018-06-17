@@ -1,22 +1,23 @@
 const uglify = require('uglify-js');
 const fs = require('fs');
 const path = require('path');
-const defaultOpt = {}
+
 module.exports = class UglifyjsPlugins {
     constructor(options = {}) {
         this.configs = Object.assign({}, {
-            filter: /(\.)?js$/,
-            config: defaultOpt
+            test: /(\.)?js|script$/,
+            uglifyjsOptions: {}
         }, options);
     }
     apply(compiler) {
-        compiler.hooks.optimizeAssets.tapAsync('uglifyjsPlugin', (code, compilation, next) => {
-            this.run(compilation, compilation.code, next);
+        compiler.hooks.optimizeAssets.tapAsync('uglifyjsPlugin', (opath, compilation, next) => {
+            this.run(compilation, opath, next);
         });
     }
-    run(compilation, code, next) {
-        if(!this.configs.filter.test(compilation.ext)) return next(null);
-        let rst = uglify.minify(code, this.configs.config);
+    run(compilation, opath, next) {
+        if(!this.configs.test.test(compilation.$sourceType||compilation.ext)) return next(null);
+
+        let rst = uglify.minify(compilation.code, this.configs.uglifyjsOptions);
         if(rst.error) next(rst.error);
 
         compilation.code = rst.code;
