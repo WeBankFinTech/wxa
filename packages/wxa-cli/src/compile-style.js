@@ -28,6 +28,14 @@ export default class CStyle {
             const content = style.code;
 
             let compiler = compilerLoader.get(style.type);
+
+            if (compiler == null) {
+                logger.error('找不到编译器');
+                logger.error(opath.dir+path.sep+opath.base);
+
+                return Promise.resolve('');
+            }
+
             return amazingCache({
                 source: content,
                 options: {configs: compiler.configs},
@@ -51,7 +59,7 @@ export default class CStyle {
                 writeFile(target, this.code);
             });
         }, this.options.cache).catch((e)=>{
-            logger.error('Error In: '+path.join(opath.dir, opath.base), e);
+            logger.errorNow('Error In: '+path.join(opath.dir, opath.base), e);
         });
     }
 }

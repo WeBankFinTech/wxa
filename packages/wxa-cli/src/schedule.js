@@ -5,7 +5,7 @@ import CScript from './compile-script';
 import CStyle from './compile-style';
 import CConfig from './compile-config';
 import CTemplate from './compile-template';
-import ProgressBar from './helpers/progressBar';
+import bar from './helpers/progressBar';
 import logger from './helpers/logger';
 import {EventEmitter} from 'events';
 /**
@@ -28,9 +28,11 @@ class Schedule extends EventEmitter {
         this.ext = ext || '.wxa';
         this.max = 5;
 
-        this.bar = new ProgressBar();
+        this.bar = bar;
         this.logger = logger;
         this.mode = 'compile';
+        this.wxaConfigs = {}; // wxa.config.js
+        this.$isMountingCompiler = false; // if is mounting compiler, all task will be blocked.
     }
 
     set(name, value) {
@@ -110,20 +112,26 @@ class Schedule extends EventEmitter {
     }
 
     addTask(opath, rst, configs={}) {
+        if (this.wxaConfigs.resolve && this.wxaConfigs.resolve.ignore) {
+            let pathString = opath.dir + path.sep + opath.base;
+            let ignore = this.wxaConfigs.resolve.ignore;
+            ignore = Array.isArray(ignore) ? ignore : [ignore];
+
+            let invalid = ignore.some((exp)=>{
+                let r = (exp instanceof RegExp) ? exp : new RegExp(exp);
+
+                return r.test(pathString);
+            });
+
+            if (invalid) return;
+        }
+
         let newTask = {
             opath,
             rst,
             // duplicate: 0,
             configs,
         };
-
-        // if ( this.mode === 'watch' &&
-        //     this.npmOrLocal.findIndex((x)=>JSON.stringify(x)===JSON.stringify(opath)) > -1
-        // ) {
-        //     // watch mode not compile old npm or local file
-        //     return;
-        // }
-
         // record npm or local file
         if (['local', 'npm'].indexOf(configs.type) > -1 ) {
             this.npmOrLocal.push(opath);
@@ -148,12 +156,20 @@ class Schedule extends EventEmitter {
         this.process();
     }
 
+    toggleMounting($isMountingCompiler=false) {
+        this.$isMountingCompiler = $isMountingCompiler;
+
+        if (!this.$isMountingCompiler) {
+            this.process();
+        }
+    }
+
     filterTask(queue, task) {
         return queue.findIndex((t)=>JSON.stringify(t)===JSON.stringify(task));
     }
 
     process() {
-        while (this.pending.length < this.max && this.waiting.length) {
+        while (!this.$isMountingCompiler && this.pending.length < this.max && this.waiting.length) {
             let task = this.waiting.shift();
             this.pending.push(task);
             this.parse(task.opath, task.rst, task.configs).then((succ)=>{
