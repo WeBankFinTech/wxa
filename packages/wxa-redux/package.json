@@ -5,6 +5,7 @@
     "main": "./dist/index.js",
     "scripts": {
         "build": "babel src --out-dir ./dist/",
+        "prepublish": "npm run build",
         "dev": "babel --watch src --out-dir ./dist/",
         "test": "jest",
         "cover": "jest --coverage",
@@ -43,5 +44,8 @@
         "testMatch": [
             "**/test/*.js"
         ]
+    },
+    "publishConfig": {
+        "access": "public"
     }
 }

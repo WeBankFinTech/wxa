@@ -32,5 +32,8 @@
   },
   "dependencies": {
     "@wxa/core": "^1.4.4"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
