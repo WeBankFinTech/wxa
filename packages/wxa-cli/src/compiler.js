@@ -4,6 +4,7 @@ import chokidar from 'chokidar';
 import schedule from './schedule';
 import logger from './helpers/logger';
 import compilerLoader from './loader';
+import {green} from 'chalk';
 
 class Compiler {
     constructor(src, dist, ext) {
@@ -43,10 +44,17 @@ class Compiler {
     init() {
         // 加载编译器
         const configs = getConfig();
+        schedule.set('wxaConfigs', configs || {});
+        schedule.toggleMounting(true);
+
+        // mount compilers
         const defaultCompilers = [];
         const usedCompilers = Array.from(new Set(defaultCompilers.concat(configs.use || [])));
-
-        compilerLoader.mount(usedCompilers, configs.compilers||{});
+        compilerLoader
+        .mount(usedCompilers, configs.compilers||{})
+        .then(()=>{
+            schedule.toggleMounting(false);
+        });
     }
     watch(cmd) {
         if (this.isWatching) return;
@@ -88,7 +96,7 @@ class Compiler {
 
         logger.infoNow('Compile', 'AT: '+new Date(), void(0));
         schedule.once('finish', (n)=>{
-            logger.infoNow('Compile', 'End: '+new Date()+` ${n} files process`, void(0));
+            logger.infoNow('Compile', 'End: '+new Date()+` ${green(n)} files process`, void(0));
             if (cmd.watch) this.watch(cmd);
         });
         files.forEach((file)=>{

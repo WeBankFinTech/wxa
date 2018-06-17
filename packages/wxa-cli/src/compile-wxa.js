@@ -3,6 +3,7 @@ import {readFile, error, warn, isFile, isEmpty} from './utils';
 import {DOMParser} from 'xmldom';
 import Coder from './helpers/coder';
 import schedule from './schedule';
+import logger from './helpers/logger';
 
 class CompileWxa {
     constructor(src, dist, ext, options) {
@@ -69,7 +70,7 @@ class CompileWxa {
             content = encodeXml(content, startTemplate, '</template>', true);
         }
 
-        xml = this.parserXml().parseFromString(content);
+        xml = this.parserXml(opath).parseFromString(content);
 
         let rst = {
             style: [],
@@ -136,14 +137,16 @@ class CompileWxa {
 
         return rst;
     }
-    parserXml() {
+    parserXml(opath) {
         return new DOMParser({
-            errorHanlder: {
+            errorHandler: {
                 warn(x) {
-                    warn(x);
+                    logger.errorNow('XML警告:'+(opath.dir+path.sep+opath.base));
+                    logger.warnNow(x);
                 },
                 error(x) {
-                    error(x);
+                    logger.errorNow('XML错误:'+(opath.dir+path.sep+opath.base));
+                    logger.errorNow(x);
                 },
             },
         });

@@ -1,4 +1,7 @@
 import chalk from 'chalk';
+import bar from './progressBar';
+import notifier from 'node-notifier';
+
 class Logger {
     constructor() {
         this.errors = [];
@@ -17,7 +20,17 @@ class Logger {
     }
 
     errorNow(msg, err) {
-        if (msg) console.error(chalk.red(msg));
+        bar.clean();
+
+        if (msg) {
+            console.error(chalk.red(msg));
+            notifier.notify({
+                title: 'WXA ERROR',
+                message: chalk.red(msg),
+                sound: true,
+                wait: true,
+            });
+        }
         if (err) console.trace(err);
 
         return this;
@@ -89,6 +102,7 @@ class Logger {
     }
 
     printLog({type, title, msg}) {
+        bar.clean();
         if (type && type === 'message') {
             console.info(chalk.magenta(`[${title}]`), msg);
         } else {

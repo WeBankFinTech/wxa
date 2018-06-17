@@ -1,12 +1,24 @@
 // inspired by https://medium.com/@bargord11/write-your-first-node-js-terminal-progress-bar-5bd5edb8a563
-import {bgWhite} from 'chalk';
+import {white, green, blue, yellow} from 'chalk';
 import readline from 'readline';
 
-export default class ProgressBar {
+class ProgressBar {
     constructor() {
         this.total;
         this.current;
-        this.bar_length = process.stdout.columns - 24;
+        this.bar_length = Math.floor( Math.max(0, process.stdout.columns / 2 - 24) );
+        this.incomplete = '-';
+        this.complete = '=';
+        this.colorMap = {
+            25: white,
+            50: yellow,
+            80: blue,
+            100: green,
+        };
+
+        process.stdout.on('resize', ()=> {
+            this.bar_length = Math.floor( Math.max(0, process.stdout.columns / 2 - 24) );
+        });
     }
 
     init(total) {
@@ -18,31 +30,28 @@ export default class ProgressBar {
     update(current) {
         this.current = current;
         const currentProgress = this.current / this.total;
-        // console.log(this.current, this.total);
         this.draw(currentProgress);
     }
 
     draw(currentProgress) {
-        const filledBarLength = (currentProgress * this.bar_length).toFixed(0);
-        const emptyBarLength = this.bar_length - filledBarLength;
+        const percent = (currentProgress * 100).toFixed(2);
+        const filledBarLength = ~~(+currentProgress * this.bar_length);
 
-        const filledBar = this.getBar(filledBarLength, ' ', bgWhite);
-        const emptyBar = this.getBar(emptyBarLength, '-');
-        const percentageProgress = (currentProgress * 100).toFixed(2);
+        let colorFn = this.findColor(percent);
+        const filledBar = colorFn(Array(Math.max(0, filledBarLength)).join(this.complete));
+        const emptyBar = Array(Math.max(0, +this.bar_length - filledBarLength)).join(this.incomplete);
 
-        readline.clearLine(process.stdout);
-        readline.cursorTo(process.stdout, 0);
+        this.clean();
         process.stdout.write(
-            `Compiling: [${filledBar}${emptyBar}] | ${percentageProgress}% `
+            `Compiling: [${filledBar}${emptyBar}] | ${colorFn(percent)}% `
         );
     }
 
-    getBar(length, char, color=(a)=>a) {
-        let str = '';
-        for (let i = 0; i < length; i++) {
-            str += char;
-        }
-        return color(str);
+    findColor(percent) {
+        let k = Object.keys(this.colorMap).find((key)=>{
+            return +key>=+percent;
+        });
+        return this.colorMap[k] || ((a)=>a);
     }
 
     clean() {
@@ -50,3 +59,6 @@ export default class ProgressBar {
         readline.cursorTo(process.stdout, 0);
     }
 }
+
+
+export default new ProgressBar();
