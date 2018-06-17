@@ -1,3 +1,54 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+<a name="1.5.0-beta.c319b649"></a>
+# 1.5.0-beta.c319b649 (2018-06-17)
+
+
+### Features
+
+* **logger, npmManager, progressBar:** add node-notifier to notify error, add npmManager to auto ins ([59d897e](https://github.com/Genuifx/wxa/commit/59d897e))
+
+
+
+<a name="1.0.0"></a>
+# 1.0.0 (2018-06-05)
+
+
+### Bug Fixes
+
+* bind this to component methods ([a65cbba](https://github.com/Genuifx/wxa/commit/a65cbba))
+* onShareAppMessage shouldn't to be wrap ([3a9d010](https://github.com/Genuifx/wxa/commit/3a9d010))
+* **app.js, page.js, component.js:** prototype methods should cover function defined in methods objec ([9b33f23](https://github.com/Genuifx/wxa/commit/9b33f23))
+* **decorators.js:** add options control for decorator ([94ae26d](https://github.com/Genuifx/wxa/commit/94ae26d))
+* **page.js:** debounce should use leading mode ([5d01338](https://github.com/Genuifx/wxa/commit/5d01338))
+* **page.js, component.js, app.js:** do not copy constructor ([140729f](https://github.com/Genuifx/wxa/commit/140729f))
+
+
+### Features
+
+* featch api, fix some bug ([6452888](https://github.com/Genuifx/wxa/commit/6452888))
+* fetch api, add some test stuff ([dfc6b5b](https://github.com/Genuifx/wxa/commit/dfc6b5b))
+* mixins support nesting copy ([c4a4240](https://github.com/Genuifx/wxa/commit/c4a4240))
+* support directly write function in class ([55f3270](https://github.com/Genuifx/wxa/commit/55f3270))
+* support mixins and add a example application ([107610b](https://github.com/Genuifx/wxa/commit/107610b))
+* **(decorators.js):** add Mixins decorator ([68b74e9](https://github.com/Genuifx/wxa/commit/68b74e9))
+* **fetch.js:** response without 200 statusCode will reject ([002517d](https://github.com/Genuifx/wxa/commit/002517d))
+* **fetch.js:** setRequestExpiredTime allow set up per request's expired time ([b7fa527](https://github.com/Genuifx/wxa/commit/b7fa527))
+* **wxa.js, message, toast:** export some lodash function, add message and toast function for using. ([37ef20b](https://github.com/Genuifx/wxa/commit/37ef20b))
+
+
+### BREAKING CHANGES
+
+* **fetch.js:** response without 200 statusCode will reject
+* **app.js, page.js, component.js:** if user define two same name function both in class and class.methods object, the
+one in class prototype will cover methods object one.
+
+
+
+
 <a name="1.4.4"></a>
 ## [1.4.4](https://github.com/Genuifx/wxa/compare/v1.4.3...v1.4.4) (2018-05-17)
 
@@ -153,6 +204,3 @@ one in class prototype will cover methods object one.
 ### Features
 
 * support mixins and add a example application ([538bcf0](https://github.com/Genuifx/wxa/commit/538bcf0))
-
-
-

@@ -8,7 +8,7 @@
 		"lint-staged": "^7.1.3"
 	},
 	"scripts": {
-		"publish-beta": "sh ./scripts/build.sh && lerna publish --npm-tag=beta",
+		"publish-beta": "sh ./scripts/build.sh && lerna publish --npm-tag=beta --canary=beta --conventional-commits",
 		"commit": "git-cz"
 	},
 	"lint-staged": {
