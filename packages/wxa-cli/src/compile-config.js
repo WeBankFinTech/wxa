@@ -12,13 +12,14 @@ class CConfig {
         this.src = src || 'src';
         this.dist = dist || 'dist';
         this.type = 'json';
+        this.$sourceType = 'json';
         this.code = '';
         this.modulesPath = path.join(this.current, 'node_modules', path.sep);
         this.localVisualPath = path.join(this.current, 'local', path.sep);
         this.npmPath = path.join(this.current, dist, 'npm', path.sep);
         this.localPath = path.join(this.current, dist, 'local', path.sep);
         this.hooks = {
-            optimizeAssets: new AsyncSeriesHook(['code', 'compilation']),
+            optimizeAssets: new AsyncSeriesHook(['opath', 'compilation']),
         };
     }
 
@@ -85,7 +86,7 @@ class CConfig {
         }
 
         this.code = JSON.stringify(content, void(0), 4);
-        return this.hooks.optimizeAssets.promise(content, this).then((err)=>{
+        return this.hooks.optimizeAssets.promise(opath, this).then((err)=>{
             if (err) return Promise.reject(err);
             let target = getDistPath(opath, 'json', this.src, this.dist);
             logger.info('Config', path.relative(this.current, target));

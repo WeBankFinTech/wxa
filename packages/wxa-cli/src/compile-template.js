@@ -10,6 +10,8 @@ export default class CTemplate {
         this.src = src;
         this.dist = dist;
         this.ext = ext;
+
+        this.$sourceType = 'xml';
         this.options = options || {};
     }
     compile(rst, opath) {

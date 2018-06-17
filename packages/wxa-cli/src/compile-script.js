@@ -12,7 +12,7 @@ export default class CScript {
     constructor(src, dist, ext, options) {
         // super();
         this.hooks = {
-            optimizeAssets: new AsyncSeriesHook(['code', 'compilation']),
+            optimizeAssets: new AsyncSeriesHook(['opath', 'compilation']),
         };
         this.schedule = [];
         this.type = 'js';
@@ -20,6 +20,8 @@ export default class CScript {
         this.src = src;
         this.dist = dist;
         this.ext = ext;
+
+        this.$sourceType = 'script';
         this.options = options || {};
         this.code = '';
         let configs = getConfig();
@@ -259,7 +261,7 @@ export default class CScript {
             }
 
             this.code = code;
-            return this.hooks.optimizeAssets.promise(code, this).then((err)=>{
+            return this.hooks.optimizeAssets.promise(opath, this).then((err)=>{
                 if (err) return Promise.reject(err);
                 logger.info('write', path.relative(this.current, target));
                 writeFile(target, this.code);
