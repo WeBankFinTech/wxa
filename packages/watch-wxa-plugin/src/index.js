@@ -70,9 +70,9 @@ export default (options)=>{
                 }
 
                 onUnload.apply(this, args);
-                watcher = null;
-                onload = null;
-                onUnload =null;
+                watcher = [];
+                // onload = null;
+                // onUnload =null;
             };
         }
     };
