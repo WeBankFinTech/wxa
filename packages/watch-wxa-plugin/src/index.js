@@ -25,10 +25,13 @@ export default (options)=>{
             let onUnload = vm.onUnload || function() {};
 
             let watcher = [];
+            let isInit = false;
 
             vm.onLoad = function(...args) {
                 try {
-                    if (this.watch) {
+                    if (this.watch && !isInit) {
+                        isInit = true;
+
                         Object.keys(this.watch).forEach((key)=>{
                             let keyArr = key.split(/[.\[\]]/).filter((x)=>x!=null&&x!=='');
 
@@ -70,7 +73,7 @@ export default (options)=>{
                 }
 
                 onUnload.apply(this, args);
-                watcher = [];
+                // watcher = [];
                 // onload = null;
                 // onUnload =null;
             };
