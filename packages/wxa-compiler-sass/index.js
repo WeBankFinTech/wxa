@@ -33,6 +33,7 @@ class SassCompiler {
     mount(map) {
         map['scss'] = this;
         map['sass'] = this;
+        map['css'] = this;
         return map;
     }
 }
