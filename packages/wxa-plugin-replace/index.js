@@ -4,10 +4,10 @@ module.exports = class ReplacePlugin {
             list: [],
             flag: 'gm'    
         }, options);
-        if(typeof this.configs.list === 'object' && this.configs.list !== null) {
-            this.list = this.mapConfigsToWxa(this.configs.list);
-        } else if(Array.isArray(this.configs.list)){
+        if(Array.isArray(this.configs.list)) {
             this.list = this.configs.list;
+        } else if(typeof this.configs.list === 'object' && this.configs.list !== null){
+            this.list = this.mapConfigsToWxa(this.configs.list);
         } else {
             this.list = [];
         }
@@ -20,7 +20,7 @@ module.exports = class ReplacePlugin {
     run(opath, compilation, next) {
         if(this.list.length) {
             this.list.forEach((rep)=>{
-                compilation.code = code.replace(rep.regular, rep.value);
+                compilation.code = compilation.code.replace(rep.regular, rep.value);
             });
             
             next();
