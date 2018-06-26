@@ -6,7 +6,7 @@ class ProgressBar {
     constructor() {
         this.total;
         this.current;
-        this.bar_length = Math.floor( Math.max(0, process.stdout.columns / 2 - 24) );
+        this.bar_length = Math.floor( Math.max(0, (process.stdout.columns || 100) / 2 - 24) );
         this.incomplete = '-';
         this.complete = '=';
         this.colorMap = {
@@ -16,7 +16,7 @@ class ProgressBar {
         };
 
         process.stdout.on('resize', ()=> {
-            this.bar_length = Math.floor( Math.max(0, process.stdout.columns / 2 - 24) );
+            this.bar_length = Math.floor( Math.max(0, (process.stdout.columns || 100) / 2 - 24) );
         });
     }
 
