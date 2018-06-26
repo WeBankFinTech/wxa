@@ -12,7 +12,6 @@ class ProgressBar {
         this.colorMap = {
             25: white,
             50: yellow,
-            80: blue,
             100: green,
         };
 
