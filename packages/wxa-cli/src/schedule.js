@@ -120,7 +120,7 @@ class Schedule extends EventEmitter {
             let invalid = ignore.some((exp)=>{
                 let r = (exp instanceof RegExp) ? exp : new RegExp(exp);
 
-                return r.test(pathString);
+                return r.test(pathString.replace(/\\/g, '/'));
             });
 
             if (invalid) return;
