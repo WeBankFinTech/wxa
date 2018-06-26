@@ -62,7 +62,7 @@ class CConfig {
                 // copy npm or local components, generate new path;
                 this.copyComponents(com, pret.isNodeModule);
                 let target = path.join(pret.isNodeModule ? this.npmPath : this.localPath, com);
-                let resolved = path.relative(getDistPath(opath, 'json', this.src, this.dist), target).replace(/^\.\.\//, './');
+                let resolved = path.relative(getDistPath(opath, 'json', this.src, this.dist), target).replace(/\\/g, '/').replace(/^\.\.\//, './');
                 coms[key] = resolved;
             }
         });

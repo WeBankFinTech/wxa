@@ -85,6 +85,9 @@ export default class CScript {
                 if (type === 'npm') {
                     target = path.join(this.npmPath, path.relative(this.modulesPath, source));
                     needCopy = true;
+                } else if (type === 'local') {
+                    target = path.join(this.localPath, path.relative(this.localVisualPath, source));
+                    needCopy = true;
                 } else {
                     let otarget = path.parse(getDistPath(source, '.js', this.src, this.dist));
                     target = otarget.dir+path.sep+otarget.name;
