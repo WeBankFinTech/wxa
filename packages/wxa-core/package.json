@@ -2,10 +2,10 @@
     "name": "@wxa/core",
     "version": "1.4.5",
     "description": "wxa core feature",
-    "main": "./src/main.js",
+    "main": "./dist/main.js",
     "scripts": {
         "prebuild": "sh prebuild.sh",
-        "build": "webpack src/wxa.js --output-path ./dist/src/",
+        "build": "webpack src/wxa.js --output-path ./dist/ --optimize-minimize",
         "dev": "npm run prebuild && webpack src/wxa.js --output-path ./example/src/ -w --optimize-minimize",
         "test": "jest",
         "cover": "jest --coverage",
