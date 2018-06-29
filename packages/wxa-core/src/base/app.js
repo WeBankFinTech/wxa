@@ -1,4 +1,5 @@
 import mixin from './mixin';
+import {hooksName} from './hook';
 
 const plugins = [];
 let launch = function(instance) {
@@ -8,7 +9,10 @@ let launch = function(instance) {
 
         obj.methods = obj.methods || {};
         Object.getOwnPropertyNames(instance.prototype).forEach((key)=>{
-            if (['constructor'].indexOf(key) === -1) {
+            if (
+                ['constructor', 'mixins'].indexOf(key) === -1 &&
+                hooksName.indexOf(key) === -1
+            ) {
                 obj.methods[key] = instance.prototype[key];
             }
         });

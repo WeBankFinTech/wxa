@@ -1,5 +1,6 @@
 import debounce from 'lodash/debounce';
 import mixin from './mixin';
+import {hooksName} from './hook';
 
 const plugins = [];
 let launch = function(instance) {
@@ -9,7 +10,10 @@ let launch = function(instance) {
 
         obj.methods = obj.methods || {};
         Object.getOwnPropertyNames(instance.prototype).forEach((key)=>{
-            if (['constructor'].indexOf(key) === -1) {
+            if (
+                ['constructor', 'mixins'].indexOf(key) === -1 &&
+                hooksName.indexOf(key) === -1
+            ) {
                 obj.methods[key] = instance.prototype[key];
             }
         });
@@ -39,7 +43,6 @@ let launch = function(instance) {
             vm[key] = vm.methods[key];
         });
     }
-
     // 允许添加自定义方法
     plugins.forEach((plugin)=>{
         plugin.fn.call(null, plugin.options, 'Page').call(null, vm, 'Page');
