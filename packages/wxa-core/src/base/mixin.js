@@ -1,6 +1,6 @@
 import merge from '../utils/deep-merge';
 
-const hooksName = ['onLaunch', 'onHide', 'onError', 'onLoad', 'onReady', 'onShow', 'onUnload', 'onPullDownRefresh', 'onReachBottom', 'onPageScroll', 'onTabItemTap', 'onPageNotFound'];
+import {hooksName} from './hook';
 
 export default function mixin(vm) {
     if (vm == null || typeof vm !== 'object') return {};
@@ -56,10 +56,14 @@ export default function mixin(vm) {
 
     vm.data = candidate.data;
     vm.methods = candidate.methods;
+    // console.log(candidate.hooks);
     Object.keys(candidate.hooks).forEach((name)=>{
+        // console.log(name);
         vm[name] = function(...opts) {
             let self = this;
-            candidate.hooks[name].forEach((fn)=>fn.apply(self, opts));
+            candidate.hooks[name].forEach((fn)=>{
+                fn.apply(self, opts);
+            });
         };
     });
 
