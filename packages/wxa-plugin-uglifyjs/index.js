@@ -41,7 +41,7 @@ module.exports = class UglifyjsPlugins {
 
     checkIgnore(opath, ignore) {
         if(ignore == null) return false;
-        let filepath = normal(opath.dir + path.sep + opath.base);
+        let filepath = this.normal(opath.dir + path.sep + opath.base);
 
         if (Array.isArray(ignore)) {
             return ignore.some((str)=>{
