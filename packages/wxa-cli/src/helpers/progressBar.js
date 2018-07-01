@@ -10,8 +10,7 @@ class ProgressBar {
         this.incomplete = '-';
         this.complete = '=';
         this.colorMap = {
-            25: white,
-            50: yellow,
+            50: white,
             100: green,
         };
 

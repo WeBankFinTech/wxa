@@ -1,4 +1,5 @@
 import path from 'path';
+import fs from 'fs';
 import {readFile, getDistPath, error, writeFile, isFile, isDir, getConfig, amazingCache, info, applyPlugins} from './utils';
 import {Base64} from 'js-base64';
 import {Tapable, AsyncSeriesHook} from 'tapable';
@@ -264,13 +265,14 @@ export default class CScript {
             }
 
             this.code = code;
+            this.$sourceFrom = type;
             return this.hooks.optimizeAssets.promise(opath, this).then((err)=>{
                 if (err) return Promise.reject(err);
                 logger.info('write', path.relative(this.current, target));
                 writeFile(target, this.code);
             });
         }).catch((e)=>{
-            logger.error('Error In: '+path.join(opath.dir, opath.base), e);
+            logger.errorNow('Error In: '+path.join(opath.dir, opath.base), e);
         });
     }
 

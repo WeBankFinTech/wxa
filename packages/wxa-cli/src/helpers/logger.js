@@ -31,7 +31,7 @@ class Logger {
                 wait: true,
             });
         }
-        if (err) console.trace(err);
+        if (err) console.error(err);
 
         return this;
     }
