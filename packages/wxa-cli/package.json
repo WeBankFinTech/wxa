@@ -25,8 +25,8 @@
     "babel-preset-env": "^1.6.1",
     "eslint": "^4.15.0",
     "eslint-config-google": "^0.9.1"
-},
-"dependencies": {
+  },
+  "dependencies": {
     "node-notifier": "^5.2.1",
     "chalk": "^2.3.0",
     "chokidar": "^2.0.0",

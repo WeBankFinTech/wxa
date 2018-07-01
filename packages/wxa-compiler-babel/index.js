@@ -39,7 +39,7 @@ class BabelCompiler {
 
     checkIgnore(opath, ignore) {
         if(ignore == null) return false;
-        let filepath = opath.dir + path.sep + opath.base;
+        let filepath = this.normal(opath.dir + path.sep + opath.base);
 
         if (Array.isArray(ignore)) {
             return ignore.some((str)=>{
@@ -52,6 +52,10 @@ class BabelCompiler {
 
             return reg.test(filepath);
         }
+    }
+
+    normal(path) {
+        return path.replace(/\\/g, '/');
     }
 
     mount(map) {
