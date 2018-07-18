@@ -23,7 +23,8 @@ class Logger {
         bar.clean();
 
         if (msg) {
-            console.error(chalk.red(msg));
+            console.log('\n');
+            console.error(chalk.redBright(msg));
             notifier.notify({
                 title: 'WXA ERROR',
                 message: chalk.red(msg),
@@ -31,7 +32,7 @@ class Logger {
                 wait: true,
             });
         }
-        if (err) console.error(err);
+        if (err) this.showError(err);
 
         return this;
     }
@@ -88,7 +89,7 @@ class Logger {
         this.errors.forEach((obj)=>{
             let {msg, err} = obj;
             if (msg) console.error(chalk.red(msg));
-            if (err) console.trace(err);
+            if (err) this.showError(err);
         });
         if (showLog) {
             this.log.forEach((obj)=>this.printLog(obj));
@@ -108,6 +109,22 @@ class Logger {
         } else {
             console.info(chalk.green(`[${title}]`), msg);
         }
+    }
+
+    showError(err) {
+        if (err == null) return;
+
+        if (err.name) {
+            let line = err.line || err.lineNumber || (err.loc && err.loc.line);
+            let column = err.column || err.columnNumber || (err.loc && err.loc.column);
+
+            console.info(
+                chalk.bgRedBright(`[${err.name}]`),
+                line ? `line: ${line} column: ${column}` : ''
+            );
+        }
+        console.info(chalk.greenBright(err.message));
+        console.info('\n');
     }
 }
 

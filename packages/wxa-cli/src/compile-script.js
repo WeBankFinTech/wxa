@@ -90,8 +90,8 @@ export default class CScript {
                     target = path.join(this.localPath, path.relative(this.localVisualPath, source));
                     needCopy = true;
                 } else {
-                    let otarget = path.parse(getDistPath(source, '.js', this.src, this.dist));
-                    target = otarget.dir+path.sep+otarget.name;
+                    let otarget = path.parse(getDistPath(source, void(0), this.src, this.dist));
+                    target = otarget.dir+path.sep+otarget.base;
                 }
             } else if (pret.isNodeModule) {
                 source = path.join(this.modulesPath, lib);

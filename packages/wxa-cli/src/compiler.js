@@ -63,7 +63,12 @@ class Compiler {
         // set mode
         schedule.set('mode', 'watch');
 
-        chokidar.watch(`.${path.sep}${this.src}`)
+        chokidar.watch(`.${path.sep}${this.src}`, {
+            awaitWriteFinish: {
+                stabilityThreshold: 300,
+                pollInterval: 100,
+            },
+        })
         .on('all', (event, filepath)=>{
             if (this.isWatchReady && ['change', 'add'].indexOf(event)>-1 && !this.queue[filepath]) {
                 cmd.file = path.join('..', filepath);
@@ -101,6 +106,7 @@ class Compiler {
         });
         files.forEach((file)=>{
             let opath = path.parse(path.join(this.current, this.src, file));
+            // console.log(opath);
             // if (file) {
                 schedule.addTask(opath, void(0), {category: cmd.category});
             // } else {
