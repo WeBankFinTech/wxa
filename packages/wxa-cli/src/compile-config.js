@@ -80,8 +80,7 @@ class CConfig {
             // 编译组件
             content = this.resolveComponents(content, opath);
         } catch (e) {
-            logger.error(opath.dir+path.sep+opath.base);
-            logger.error('config有误, 请检查格式', e);
+            logger.errorNow(`ERROR IN: ${opath.dir+path.sep+opath.base}`, e);
             return Promise.reject(e);
         }
 
@@ -91,7 +90,9 @@ class CConfig {
             let target = getDistPath(opath, 'json', this.src, this.dist);
             logger.info('Config', path.relative(this.current, target));
             writeFile(target, this.code);
-        }).catch((e)=>logger.error('Error In: '+path.join(opath.dir, opath.base), e));
+        }).catch((e)=>{
+            logger.errorNow('Error In: '+path.join(opath.dir, opath.base), e);
+        });
     }
 }
 
