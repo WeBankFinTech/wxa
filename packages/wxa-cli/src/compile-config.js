@@ -23,25 +23,30 @@ class CConfig {
         };
     }
 
-    copyComponents(com, isNpm=true) {
+    copyComponents(com, pret) {
+        let {isNodeModule, isAbsolute} = pret;
+
+        let isNpm = isNodeModule;
+
         let extOfCom = ['.wxml', '.wxss', '.js', '.json'];
         // wxa com support
-        let uri = isNpm ? path.join(this.modulesPath, com+'.wxa') : com+path.sep+'.wxa';
-        if (isFile(uri)) {
-            schedule.addTask(path.parse(uri), void(0), {type: isNpm ? 'npm' : 'local'} );
+        let wxaFile = isNpm ? path.join(this.modulesPath, com+'.wxa') : com+path.sep+'.wxa';
+
+        if (isFile(wxaFile)) {
+            schedule.addTask(path.parse(wxaFile), void(0), {type: isNpm ? 'npm' : 'local'} );
         } else {
+            // console.log(com)
             extOfCom.forEach((ext)=>{
-                let uri = isNpm ? path.join(this.modulesPath, com+ext) : com+path.sep+ext;
+                let uri = isNpm ? path.join(this.modulesPath, com+ext) : com+ext;
+
+                // console.log('uri', uri)
+
                 if (ext === '.js' && isFile(uri)) {
                     // while js file use script compiler.
                     schedule.addTask(path.parse(uri), void(0), {type: isNpm ? 'npm' : 'local'});
                 } else if (isFile(uri)) {
-                    let target;
-                    if (isNpm) {
-                        target = path.join(this.npmPath, com+ext);
-                    } else {
-                        target = path.join(this.localPath, path.parse(com).base);
-                    }
+                    // file is exits
+                    let target = path.join(this.npmPath, com+ext);
                     logger.info(`write ${isNpm ? 'npm' : 'local'} com`, path.relative(this.current, target));
                     writeFile(target, readFile(uri));
                 } else if (ext === '.json') {
@@ -58,9 +63,9 @@ class CConfig {
         Object.keys(coms).forEach((key)=>{
             let com = code.usingComponents[key];
             let pret = new PathParser().parse(com);
-            if (pret.isNodeModule || pret.isAbsolute) {
+            if (pret.isNodeModule) {
                 // copy npm or local components, generate new path;
-                this.copyComponents(com, pret.isNodeModule);
+                this.copyComponents(com, pret);
                 let target = path.join(pret.isNodeModule ? this.npmPath : this.localPath, com);
                 let resolved = path.relative(getDistPath(opath, 'json', this.src, this.dist), target).replace(/\\/g, '/').replace(/^\.\.\//, './');
                 coms[key] = resolved;
