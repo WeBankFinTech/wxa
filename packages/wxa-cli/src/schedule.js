@@ -52,6 +52,7 @@ class Schedule extends EventEmitter {
 
             if (rst.template && rst.template.code) {
                 let cTemplate = new CTemplate(this.src, this.dist, this.ext, this.options);
+                applyPlugins(cTemplate);
                 all.push(cTemplate.compile(rst.template));
             }
 
@@ -101,6 +102,7 @@ class Schedule extends EventEmitter {
                 }
                 case '.wxml': {
                     let cTemplate = new CTemplate(this.src, this.dist, this.options);
+                    applyPlugins(cTemplate);
                     return cTemplate.compile('wxml', opath);
                 }
                 default:
