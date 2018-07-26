@@ -1,6 +1,6 @@
 {
   "name": "@wxa/cli",
-  "version": "1.5.12",
+  "version": "1.6.0",
   "description": "cli for wxa development",
   "main": "dist/wxa.js",
   "scripts": {
@@ -28,7 +28,6 @@
     "semver": "^5.5.0"
   },
   "dependencies": {
-    "node-notifier": "^5.2.1",
     "chalk": "^2.3.0",
     "chokidar": "^2.0.0",
     "commander": "^2.14.1",
@@ -36,6 +35,7 @@
     "find-root": "^1.1.0",
     "js-base64": "^2.4.0",
     "mkdirp": "^0.5.1",
+    "node-notifier": "^5.2.1",
     "tapable": "^1.0.0",
     "valid-url": "^1.0.9",
     "xmldom": "^0.1.27"
