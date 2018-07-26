@@ -10,6 +10,7 @@
 	"scripts": {
 		"publish-beta-sh": "sh ./scripts/build.sh && lerna publish --npm-tag=beta --canary=beta --conventional-commits",
 		"publish-beta": "lerna publish --npm-tag=beta --canary=beta --ignore @wxa/form",
+		"publish": "lerna publish --npm-tag=latest --ignore @wxa/form --conventional-commits --cd-version=minor",
 		"commit": "git-cz"
 	},
 	"lint-staged": {
