@@ -5,21 +5,10 @@ import {hooksName} from './hook';
 const plugins = [];
 let launch = function(instance) {
     let vm = instance;
-    if (typeof instance === 'function') {
-        let obj = new instance();
 
-        obj.methods = obj.methods || {};
-        Object.getOwnPropertyNames(instance.prototype).forEach((key)=>{
-            if (
-                ['constructor', 'mixins'].indexOf(key) === -1 &&
-                hooksName.indexOf(key) === -1
-            ) {
-                obj.methods[key] = instance.prototype[key];
-            }
-        });
 
-        vm = obj;
-    }
+    vm = mixin(vm);
+
     vm.$go = (()=>{
         return debounce(function(e) {
             let {currentTarget: {dataset: {path, type}}} = e;
@@ -35,8 +24,6 @@ let launch = function(instance) {
             trailing: false,
         });
     })();
-
-    vm = mixin(vm);
 
     if (vm.methods != null && typeof vm.methods === 'object') {
         Object.keys(vm.methods).forEach((key)=>{

@@ -4,20 +4,9 @@ const plugins = [];
 const notCopy = ['properties', 'data', 'methods', 'behaviors', 'created', 'attached', 'ready', 'moved', 'detached', 'relations', 'options'];
 let launch = function(instance) {
     let vm = instance;
-    if (typeof instance === 'function') {
-        let obj = new instance();
-
-        obj.methods = obj.methods || {};
-        Object.getOwnPropertyNames(instance.prototype).forEach((key)=>{
-            if (['constructor'].indexOf(key) === -1) {
-                obj.methods[key] = instance.prototype[key];
-            }
-        });
-
-        vm = obj;
-    }
 
     // 微信自定义组件支持使用behaviors，不需要mixins
+    vm = mixin(vm);
     // 自定义组件支持methods方式定义组件，不需要迁移methods
 
     // 允许添加自定义方法

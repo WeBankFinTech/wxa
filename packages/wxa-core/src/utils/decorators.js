@@ -129,21 +129,39 @@ function Deprecate(target, key, descriptor) {
 function Time(name, ...rest) {
     let h = (target, key, descriptor)=>{
         let fn = descriptor.value;
+        let timer;
+
+        let timeStart;
+        let timeEnd;
+        if (console.time == null) {
+            timeStart = console.time;
+            timeEnd = console.timeEnd;
+        } else {
+            timeStart = ()=>{
+                timer = Date.now();
+            };
+
+            timeEnd = (name)=>{
+                let abstime = Date.now() - timer;
+
+                console.log(name, '：', abstime);
+            };
+        }
 
         descriptor.value = function(...args) {
-            console.time(name || key);
+            timeStart(name || key);
             let r = fn.apply(this, args);
 
             if (r && typeof r.then === 'function') {
                 return r.then((succ)=>{
-                    console.timeEnd(name || key);
+                    timeEnd(name || key);
                     return Promise.resolve(succ);
                 }, (fail)=>{
-                    console.timeEnd(name || key);
+                    timeEnd(name || key);
                     return Promise.reject(fail);
                 });
             } else {
-                console.timeEnd(name || key);
+                timeEnd(name || key);
                 return r;
             }
         };

@@ -22,12 +22,17 @@ class CompileWxa {
         if (!wxa) return Promise.reject();
 
         let filepath = path.join(opath.dir, opath.base);
-        if (filepath === path.join(this.current, this.src, 'app' + this.ext)) delete wxa.template;
+        if (filepath === path.join(this.current, this.src, 'app' + this.ext)) {
+            // let appConfig = JSON.parse('"'+wxa.config+'"');
+            console.log(JSON.parse(wxa.config.code));
+            delete wxa.template;
+        }
 
         schedule.addTask(opath, wxa, configs);
 
         return Promise.resolve();
     }
+
     resolveWxa(xml, opath) {
         let filepath;
 
@@ -91,6 +96,8 @@ class CompileWxa {
             },
         };
 
+        // console.log(xml);
+
         Array.prototype.slice.call(xml.childNodes || []).forEach((child)=>{
             const nodeName = child.nodeName;
             if (nodeName === 'style' || nodeName === 'template' || nodeName === 'script' || nodeName === 'config') {
@@ -137,6 +144,7 @@ class CompileWxa {
 
         return rst;
     }
+
     parserXml(opath) {
         return new DOMParser({
             errorHandler: {
