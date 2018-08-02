@@ -12,7 +12,7 @@
   "author": "iveswen",
   "license": "MIT",
   "bin": {
-    "wxa": "bin/wxa.js"
+    "wxa2": "bin/wxa.js"
   },
   "repository": "https://github.com/Genuifx/wxa-cli.git",
   "devDependencies": {
@@ -20,15 +20,19 @@
     "babel-cli": "^6.26.0",
     "babel-eslint": "^8.2.1",
     "babel-plugin-syntax-dynamic-import": "^6.18.0",
+    "babel-plugin-transform-async-to-generator": "^6.24.1",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-polyfill": "^6.26.0",
     "babel-preset-env": "^1.6.1",
     "eslint": "^4.15.0",
     "eslint-config-google": "^0.9.1",
     "semver": "^5.5.0"
   },
   "dependencies": {
-    "node-notifier": "^5.2.1",
+    "@babel/parser": "^7.0.0-beta.54",
+    "acorn": "^5.7.1",
+    "babylon-walk": "^1.0.2",
     "chalk": "^2.3.0",
     "chokidar": "^2.0.0",
     "commander": "^2.14.1",
@@ -36,6 +40,7 @@
     "find-root": "^1.1.0",
     "js-base64": "^2.4.0",
     "mkdirp": "^0.5.1",
+    "node-notifier": "^5.2.1",
     "tapable": "^1.0.0",
     "valid-url": "^1.0.9",
     "xmldom": "^0.1.27"

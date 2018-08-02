@@ -1,13 +1,14 @@
 import path from 'path';
-import {readFile, error, warn, isFile, isEmpty} from './utils';
+import {readFile, error, isFile, isEmpty} from './utils';
 import {DOMParser} from 'xmldom';
-import Coder from './helpers/coder';
-import schedule from './schedule';
-import logger from './helpers/logger';
+import Coder from '../helpers/coder';
+import logger from '../helpers/logger';
 
-class WxaCompiler {
+export class WxaCompiler {
     parse(filepath) {
-        return Promise.resolve(this.resolveWxa(filepath));
+        let wxa = this.resolveWxa(filepath);
+
+        return wxa == null ? Promise.reject(null) : Promise.resolve({rst: wxa});
     }
 
     resolveWxa(filepath) {
@@ -47,7 +48,11 @@ class WxaCompiler {
         xml = this.parserXml(path.parse(filepath)).parseFromString(content);
 
         let rst = {
-            style: [],
+            style: {
+                code: '',
+                src: '',
+                type: 'css',
+            },
             template: {
                 code: '',
                 src: '',
@@ -61,29 +66,22 @@ class WxaCompiler {
             config: {
                 code: '',
                 src: '',
-                type: 'config',
+                type: 'json',
             },
         };
-
-        // console.log(xml);
 
         Array.prototype.slice.call(xml.childNodes || []).forEach((child)=>{
             const nodeName = child.nodeName;
             if (nodeName === 'style' || nodeName === 'template' || nodeName === 'script' || nodeName === 'config') {
                 let rstTypeObject;
 
-                if (nodeName === 'style') {
-                    rstTypeObject = {code: ''};
-                    rst[nodeName].push(rstTypeObject);
-                } else {
-                    rstTypeObject = rst[nodeName];
-                }
+                rstTypeObject = rst[nodeName];
                 rstTypeObject.src = child.getAttribute('src');
                 rstTypeObject.type = child.getAttribute('lang') || child.getAttribute('type');
 
                 if (isEmpty(rstTypeObject.type)) {
                     let map = {
-                        style: 'scss',
+                        style: 'css',
                         template: 'wxml',
                         script: 'js',
                         config: 'json',
@@ -91,7 +89,7 @@ class WxaCompiler {
                     rstTypeObject.type = map[nodeName];
                 }
 
-                if (rstTypeObject.src) rstTypeObject.src = path.resolve(opath.dir, rstTypeObject.src);
+                if (rstTypeObject.src) rstTypeObject.src = path.resolve(path.parse(filepath).dir, rstTypeObject.src);
 
                 if (rstTypeObject.src && isFile(rstTypeObject.src)) {
                     const code = readFile(rstTypeObject.src);
@@ -107,7 +105,14 @@ class WxaCompiler {
                     });
                 }
 
-                if (!rstTypeObject.src) rstTypeObject.src = filepath;
+                if (!rstTypeObject.src) {
+                    let opath = path.parse(filepath);
+
+
+                    rstTypeObject.src = opath.dir + path.sep + opath.name + '.' + rstTypeObject.type;
+                }
+
+                rstTypeObject.$from = filepath;
             }
         });
 
@@ -129,38 +134,3 @@ class WxaCompiler {
         });
     }
 }
-
-class CompileWxa {
-    constructor(src, dist, ext, options) {
-        this.current = process.cwd();
-        this.src = src;
-        this.dist = dist;
-        this.ext = ext;
-        this.options = options;
-    }
-    compile(opath, configs, opt) {
-        return this.$compile(opath, configs, opt);
-    }
-    $compile(opath, configs, {isResolving = true}={}) {
-        let wxa = this.resolveWxa(opath);
-        // console.log(wxa);
-        if (!wxa) return Promise.reject();
-
-        let filepath = path.join(opath.dir, opath.base);
-        if (filepath === path.join(this.current, this.src, 'app' + this.ext)) {
-            // let appConfig = JSON.parse('"'+wxa.config+'"');
-            console.log(JSON.parse(wxa.config.code));
-            delete wxa.template;
-        }
-
-        if (isResolving) schedule.addTask(opath, wxa, configs);
-
-        return Promise.resolve(wxa);
-    }
-}
-
-export default CompileWxa;
-
-export {
-    WxaCompiler,
-};

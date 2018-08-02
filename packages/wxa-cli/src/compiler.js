@@ -1,10 +1,17 @@
-import {getConfig, getFiles, readFile, isFile, error, getRelative, info, copy, applyPlugins, message} from './utils';
+import 'babel-polyfill';
+
+import {getConfig, getFiles, readFile, isFile, error, getRelative, info, copy, applyPlugins, message, writeFile} from './utils';
 import path from 'path';
-import chokidar from 'chokidar';
+import chokidar from '../../../../../../../../../Library/Caches/typescript/2.9/node_modules/@types/chokidar';
 import schedule from './schedule';
 import logger from './helpers/logger';
 import compilerLoader from './loader';
+import WxaCompiler from './compile-wxa';
+import ScriptCompiler from './compile-script';
+import findDependencies from './ast/findDependencies';
 import {green} from 'chalk';
+
+let acorn = require('acorn');
 
 class Compiler {
     constructor(src, dist, ext) {
@@ -50,7 +57,8 @@ class Compiler {
         // mount compilers
         const defaultCompilers = [];
         const usedCompilers = Array.from(new Set(defaultCompilers.concat(configs.use || [])));
-        compilerLoader
+
+        return compilerLoader
         .mount(usedCompilers, configs.compilers||{})
         .then(()=>{
             schedule.toggleMounting(false);
@@ -85,7 +93,7 @@ class Compiler {
             logger.message('Watch', '准备完毕，开始监听文件', true);
         });
     }
-    build(cmd) {
+    async build(cmd) {
         let config = getConfig();
 
         config.source = this.src;
@@ -99,21 +107,111 @@ class Compiler {
         schedule.set('dist', this.dist);
         schedule.set('options', cmd);
 
-        logger.infoNow('Compile', 'AT: '+new Date(), void(0));
-        schedule.once('finish', (n)=>{
-            logger.infoNow('Compile', 'End: '+new Date()+` ${green(n)} files process`, void(0));
-            if (cmd.watch) this.watch(cmd);
-        });
-        files.forEach((file)=>{
-            let opath = path.parse(path.join(this.current, this.src, file));
-            // console.log(opath);
-            // if (file) {
-                schedule.addTask(opath, void(0), {category: cmd.category});
-            // } else {
-            //     let refs = this.findReference(file);
-            //     if (!refs.length) schedule.addTask(opath);
-            // }
-        });
+        logger.infoNow('Compile', 'AT: '+new Date().toLocaleString(), void(0));
+        // schedule.once('finish', (n)=>{
+        //     logger.infoNow('Compile', 'END: '+new Date().toLocaleString()+` ${green(n)} files process`, void(0));
+        //     if (cmd.watch) this.watch(cmd);
+        // });
+
+        // find app.js、 app.wxa first
+        let appJSON = this.src+path.sep+'app.json';
+        let appJS = this.src+path.sep+'app.js';
+        let wxaJSON = this.src+path.sep+'app'+this.ext;
+        let isWXA = false;
+        if (!isFile(appJSON) && isFile(wxaJSON)) {
+            isWXA = true;
+        } else {
+            logger.errorNow('不存在app.json或app.wxa文件!');
+        }
+
+        let p;
+        if (isWXA) {
+            let wxaCompiler = new WxaCompiler(this.src, this.dist, this.ext, {});
+
+            p = ()=>wxaCompiler.compile(path.parse(wxaJSON), {}, {isResolving: false});
+        } else {
+            p = ()=>Promise.resolve({
+                script: {
+                    code: readFile(appJS),
+                },
+                json: {
+                    code: require(appJSON),
+                },
+            });
+        }
+
+        try {
+            await this.init();
+
+            let rst = await p();
+
+            let appConfigs = JSON.parse(rst.config.code);
+
+            // mount to schedule.
+            schedule.set('appConfigs', appConfigs);
+            schedule.set('$pageArray', [{
+                src: wxaJSON,
+                rst: rst,
+                type: 'wxa',
+                category: 'app',
+            }]);
+
+            // do dependencies analysis.
+            await schedule.doDPA();
+
+            // module optimize, dependencies merge, minor.
+            await schedule.doOptimize();
+
+            // module dest, dependencies copy,
+            await schedule.doLanding();
+        } catch (e) {
+            logger.errorNow(e);
+        }
+        // this.init()
+        // .then(()=>p())
+        // .then((rst)=>{
+        //     let {json} = rst;
+
+        //     let appConfigs = JSON.parse(json.code);
+        //     // mount to schedule.
+        //     schedule.set('appConfigs', appConfigs);
+
+        //     // do dependencies analysis.
+        //     schedule.doDPA();
+
+        //     // module optimize, dependencies merge, minor.
+        //     schedule.doOptimize();
+
+        //     // module dest, dependencies copy,
+        //     schedule.doLanding();
+
+        //     let scriptCompiler = new ScriptCompiler(this.src, this.dist, this.ext);
+
+        //     return scriptCompiler.$compile(
+        //         rst.script.type,
+        //         rst.script.code,
+        //         path.parse(isWXA ? wxaJSON : appJS),
+        //         {ast: true}
+        //     );
+        // })
+        // .then((succ)=>{
+        //     // console.log(succ);
+        //     let {ast} = succ;
+        //     let dependencies = findDependencies(ast);
+        //     writeFile(this.src+path.sep+'app.ast.json', JSON.stringify(dependencies, void(0), 2));
+        // });
+
+
+        // files.forEach((file)=>{
+        //     let opath = path.parse(path.join(this.current, this.src, file));
+        //     // console.log(opath);
+        //     // if (file) {
+        //         schedule.addTask(opath, void(0), {category: cmd.category});
+        //     // } else {
+        //     //     let refs = this.findReference(file);
+        //     //     if (!refs.length) schedule.addTask(opath);
+        //     // }
+        // });
 
         if (cmd.category) delete cmd.category;
     }

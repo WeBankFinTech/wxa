@@ -1,9 +1,9 @@
 import path from 'path';
 import fs from 'fs';
 import {readFile, getDistPath, error, writeFile, isFile, isDir, getConfig, amazingCache, info, applyPlugins} from './utils';
-import {Base64} from 'js-base64';
-import {Tapable, AsyncSeriesHook} from 'tapable';
-import findRoot from 'find-root';
+import {Base64} from '../../../../../../../../../Library/Caches/typescript/2.9/node_modules/@types/js-base64';
+import {Tapable, AsyncSeriesHook} from '../../../../../../../../../Library/Caches/typescript/2.9/node_modules/@types/tapable';
+import findRoot from '../../../../../../../../../Library/Caches/typescript/2.9/node_modules/@types/find-root';
 import schedule from './schedule';
 import compilerLoader from './loader';
 import PathParser from './helpers/pathParser';
@@ -220,7 +220,7 @@ export default class CScript {
         }
     }
 
-    $compile(lang, code, type, opath) {
+    $compile(lang, code, opath, babaleConfigs) {
         if (!code) {
             code = readFile(path.join(opath.dir, opath.base));
             if (code === null) throw new Error('打开文件失败：'+path.join(opath.dir, opath.base));
@@ -230,11 +230,21 @@ export default class CScript {
 
         return amazingCache({
             source: code,
-            options: {configs: compiler.configs},
+            options: {
+                configs: Object.assign(
+                babaleConfigs,
+                compiler.configs
+                ),
+            },
             transform: (code, options)=>{
                 return compiler.parse(code, options.configs, opath);
             },
-        }, this.options.cache).then((succ)=>{
+        }, this.options.cache);
+    }
+
+    compile(lang, code, type, opath) {
+        return this.$compile(lang, code, opath)
+        .then((succ)=>{
             let sourcemap;
             if (typeof succ === 'string') {
                 code = succ;
@@ -274,9 +284,5 @@ export default class CScript {
         }).catch((e)=>{
             logger.errorNow('Error In: '+path.join(opath.dir, opath.base), e);
         });
-    }
-
-    compile(lang, code, type, opath) {
-        return this.$compile(lang, code, type, opath);
     }
 }
