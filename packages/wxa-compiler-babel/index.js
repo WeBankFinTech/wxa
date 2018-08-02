@@ -1,4 +1,4 @@
-import {transformSync} from '@babel/core';
+import {transformSync} from 'babel-core';
 import fs from 'fs';
 import path from 'path';
 
