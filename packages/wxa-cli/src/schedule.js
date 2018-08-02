@@ -1,4 +1,4 @@
-import {getConfig, getFiles, readFile, isFile, error, getRelative, info, copy, applyPlugins, message} from './utils';
+import {getConfig, getFiles, readFile, isFile, error, getRelative, info, copy, applyPlugins, message, amazingCache} from './utils';
 import path from 'path';
 import CWxa from './compile-wxa';
 import CScript from './compile-script';
@@ -8,6 +8,10 @@ import CTemplate from './compile-template';
 import bar from './helpers/progressBar';
 import logger from './helpers/logger';
 import {EventEmitter} from 'events';
+import compilerLoader from './loader';
+import ASTManager from './ast/index';
+import COLOR from './const/color';
+
 /**
  * todo:
  *  1. full control compile task
@@ -26,12 +30,21 @@ class Schedule extends EventEmitter {
         this.src = src || 'src';
         this.dist = dist || 'dist';
         this.ext = ext || '.wxa';
+
+        this.meta = {
+            src,
+            dist,
+            ext,
+        };
+
         this.max = 5;
 
         this.bar = bar;
         this.logger = logger;
         this.mode = 'compile';
         this.wxaConfigs = {}; // wxa.config.js
+        this.$pageArray = []; // denpendencies
+        this.$index = []; // all module
         this.$isMountingCompiler = false; // if is mounting compiler, all task will be blocked.
     }
 
@@ -40,7 +53,8 @@ class Schedule extends EventEmitter {
     }
 
     parse(opath, rst, configs) {
-        // console.log(count++);
+        if (typeof opath === 'string') opath = path.parse(opath);
+
         count++;
         if (rst) {
             let all = [];
@@ -204,6 +218,162 @@ class Schedule extends EventEmitter {
             this.emit('finish', this.finished.length);
             this.finished = [];
         }
+    }
+
+    doDPA() {
+        if (
+            this.appConfigs == null ||
+            !!this.appConfigs.pages ||
+            !this.appConfigs.pages.length
+        ) {
+            logger.errorNow('app页面配置缺失, 请检查app.json的pages配置项');
+        }
+
+        let pages = this.appConfigs.pages;
+        // multi packages process.
+        if (this.appConfigs.subPackages) {
+            let subPages = this.appConfigs.subPackages.reduce((subPkgs, pkg)=>{
+                return subPkgs.concat(pkg.pages.map((subpath)=>pkg.root+'/'+subpath));
+            }, []);
+
+            pages = pages.concat(subPages);
+        }
+
+        // pages spread
+        let exts = Object.keys(compilerLoader.map);
+        console.log(pages);
+        pages.forEach((page)=>{
+            // wxa file
+            let wxaPage = path.join(this.src, page+this.ext);
+            if (isFile(wxaPage)) {
+                this.$pageArray.push({
+                    src: wxaPage,
+                    type: 'wxa',
+                    category: 'Page',
+                });
+            } else {
+                exts.forEach((ext)=>{
+                    let p = path.join(this.src, page+ext);
+                    if (isFile(p)) {
+                        this.$pageArray.push({
+                            src: p,
+                            type: ext,
+                            category: 'Page',
+                        });
+                    }
+                });
+            }
+        });
+
+        if (this.$pageArray.length) {
+            logger.errorNow('找不到可编译的页面');
+            return;
+        }
+
+        this.$depPending = this.$pageArray.slice(0);
+        this.$index = this.$pageArray.slice(0);
+
+        return this.$doDPA();
+    }
+
+    $doDPA() {
+        while (this.$depPending.length) {
+            let dep = this.$depPending.shift();
+
+            this.$parse(dep);
+        }
+    }
+
+    async $parse(dep) {
+        let compiler = compilerLoader.get(dep.type);
+
+        try {
+            let ret = await amazingCache({
+                source: dep.code,
+                options: {
+                    configs: {
+                        ast: true,
+                        ...compiler.configs,
+                    },
+                },
+                transfrom(code, options) {
+                    return compiler.parse(code, options.configs, dep.src, dep.type);
+                },
+            }, this.options.cache);
+
+            if (typeof ret === 'string') {
+                dep.code = ret;
+            }
+
+            if (ret.rst) {
+                dep.rst = ret.rst;
+
+                this.$$parseRST(dep);
+            }
+
+            if (ret.xml) dep.xml = ret.xml;
+
+            if (ret.ast) {
+                // only allow babel-ast
+                dep.ast = ret.ast;
+
+                this.$$parseAST(dep);
+            }
+
+            if (ret.config) dep.config = ret.config;
+        } catch (e) {
+            logger.errorNow('编译失败', e);
+        }
+    }
+
+    $$parseRST(dep) {
+        // spread dep with child nodes
+        dep.childNotes = dep.childNotes || [];
+        Object.keys(dep.rst).forEach((key)=>{
+            let m = this.$index.find((module)=>module.src===dep.rst[key].src);
+            let child;
+
+            if (m) {
+                child = m;
+            } else {
+                child = {
+                    ...dep.rst[key],
+                    color: COLOR.INIT,
+                };
+                this.$depPending.push(child);
+                this.$index.push(child);
+            }
+
+            dep.childNotes.push(child);
+        });
+    }
+
+    $$parseAST(mdl) {
+        let deps = new ASTManager(this.wxaConfigs.resolve||{}, this.meta).parse(mdl.ast);
+
+        // analysis deps;
+        mdl.childNotes = mdl.childNotes || [];
+        deps.forEach((dep)=>{
+            let m = this.$index.find((module)=>module.src===dep.src);
+            let child;
+
+            if (m) {
+                child = m;
+            } else {
+                child = {
+                    src: dep.absPath,
+                    color: COLOR.INIT,
+                    isNpm: dep.pret.isNodeModule,
+                    isPlugin: dep.pret.isURI,
+                    $target: dep.target,
+                    $pret: dep.pret,
+                };
+                this.$depPending.push(child);
+                this.$index.push(child);
+            }
+
+            mdl.childNotes.push(child);
+        });
     }
 }
 const schedule = new Schedule();

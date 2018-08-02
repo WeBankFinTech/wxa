@@ -1,7 +1,8 @@
 import commander from 'commander';
 import Compiler from './compiler';
 import chalk from 'chalk';
-import {info, error, warn} from './utils';
+// import {info, error, warn} from './utils';
+import logger from './helpers/logger';
 import Creator from './creator';
 import Toolcli from './toolcli';
 
@@ -18,7 +19,7 @@ commander
     .option('-N, --no-cache', '不使用缓存')
     .action((cmd)=>{
         // console.log(cmd);
-        info('Hello', `This is ${chalk.keyword('orange')('wxa@'+version)}, Running in ${chalk.keyword('orange')(process.env.NODE_ENV || 'development')}`);
+        logger.infoNow('Hello', `This is ${chalk.keyword('orange')('wxa@'+version)}, Running in ${chalk.keyword('orange')(process.env.NODE_ENV || 'development')}`);
         new Compiler().build(cmd);
     });
 
