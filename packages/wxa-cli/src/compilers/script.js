@@ -13,8 +13,10 @@ export default class scriptCompiler {
         try {
             ast = parser.parse(code, {
                 plugins: [
-                    'decorators', 'decorators-legacy', 'classProperties',
+                    ['decorators', {decoratorsBeforeExport: true}],
+                    'classProperties',
                 ],
+                sourceType: 'module',
                 ...configs,
             });
         } catch (e) {

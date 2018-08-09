@@ -151,10 +151,16 @@ export function amazingCache(params, needCache) {
             'env': process.env.NODE_ENV || 'development',
         }),
     };
+    let cacheParams = Object.assign(
+        {},
+        defaultOpts,
+        params,
+    );
+
     if (needCache) {
-        return cache({...defaultOpts, ...params});
+        return cache(cacheParams);
     } else {
-        let {source, transform, options} = params;
+        let {source, transform, options} = cacheParams;
         return transform(source, options);
     }
 }

@@ -1,17 +1,16 @@
 import 'babel-polyfill';
 
-import {getConfig, getFiles, readFile, isFile, error, getRelative, info, copy, applyPlugins, message, writeFile} from './utils';
+import {getConfig, getFiles, readFile, isFile} from './utils';
 import path from 'path';
-import chokidar from '../../../../../../../../../Library/Caches/typescript/2.9/node_modules/@types/chokidar';
+import chokidar from 'chokidar';
 import schedule from './schedule';
 import logger from './helpers/logger';
 import compilerLoader from './loader';
-import WxaCompiler from './compile-wxa';
-import ScriptCompiler from './compile-script';
-import findDependencies from './ast/findDependencies';
+import debugPKG from 'debug';
 import {green} from 'chalk';
+import defaultPret from './const/defaultPret';
 
-let acorn = require('acorn');
+let debug = debugPKG('WXA:Compiler');
 
 class Compiler {
     constructor(src, dist, ext) {
@@ -124,29 +123,32 @@ class Compiler {
             logger.errorNow('不存在app.json或app.wxa文件!');
         }
 
-        let p;
-        if (isWXA) {
-            let wxaCompiler = new WxaCompiler(this.src, this.dist, this.ext, {});
-
-            p = ()=>wxaCompiler.compile(path.parse(wxaJSON), {}, {isResolving: false});
-        } else {
-            p = ()=>Promise.resolve({
-                script: {
-                    code: readFile(appJS),
-                },
-                json: {
-                    code: require(appJSON),
-                },
-            });
-        }
-
         try {
             await this.init();
 
-            let rst = await p();
+            // debug('compiler loader init map %O', compilerLoader.map);
+
+            let p;
+            if (isWXA) {
+                let compiler = compilerLoader.get('wxa');
+
+                p = ()=>compiler.parse(void(0), void(0), wxaJSON, 'wxa');
+            } else {
+                p = ()=>Promise.resolve({
+                    script: {
+                        code: readFile(appJS),
+                    },
+                    config: {
+                        code: require(appJSON),
+                    },
+                });
+            }
+
+            let ret = await p();
+            let rst = ret.rst || ret;
+            delete rst.template;
 
             let appConfigs = JSON.parse(rst.config.code);
-
             // mount to schedule.
             schedule.set('appConfigs', appConfigs);
             schedule.set('$pageArray', [{
@@ -154,16 +156,18 @@ class Compiler {
                 rst: rst,
                 type: 'wxa',
                 category: 'app',
+                pret: defaultPret,
             }]);
 
             // do dependencies analysis.
             await schedule.doDPA();
+            debug('schedule dependencies Tree %O', schedule.$indexOfModule);
 
             // module optimize, dependencies merge, minor.
-            await schedule.doOptimize();
+            // await schedule.doOptimize();
 
             // module dest, dependencies copy,
-            await schedule.doLanding();
+            // await schedule.doLanding();
         } catch (e) {
             logger.errorNow(e);
         }

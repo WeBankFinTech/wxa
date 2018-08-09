@@ -10,13 +10,18 @@ import logger from './helpers/logger';
 import {EventEmitter} from 'events';
 import compilerLoader from './loader';
 import ASTManager from './ast/index';
+import XMLManager from './xml/index';
 import COLOR from './const/color';
+import debugPKG from 'debug';
+import * as NODE from './const/node';
+import defaultPret from './const/defaultPret';
 
 /**
  * todo:
  *  1. full control compile task
  */
 let count = 0;
+let debug = debugPKG('WXA:Schedule');
 
 class Schedule extends EventEmitter {
     constructor(src, dist, ext) {
@@ -29,12 +34,13 @@ class Schedule extends EventEmitter {
 
         this.src = src || 'src';
         this.dist = dist || 'dist';
-        this.ext = ext || '.wxa';
+        this.wxaExt = ext || '.wxa';
 
         this.meta = {
-            src,
-            dist,
-            ext,
+            current: this.current,
+            src: this.src,
+            dist: this.dist,
+            wxaExt: this.wxaExt,
         };
 
         this.max = 5;
@@ -43,8 +49,25 @@ class Schedule extends EventEmitter {
         this.logger = logger;
         this.mode = 'compile';
         this.wxaConfigs = {}; // wxa.config.js
+
+        let wxaConfigs;
+        Object.defineProperty(this, 'wxaConfigs', {
+            get() {
+                return wxaConfigs;
+            },
+            set(configs) {
+                if (!configs.resolve || !configs.resolve.extensions) {
+                    configs.resolve = {
+                        extensions: ['.js', '.json'],
+                        ...configs.resolve,
+                    };
+                }
+                wxaConfigs = configs;
+            },
+        });
+
         this.$pageArray = []; // denpendencies
-        this.$index = []; // all module
+        this.$indexOfModule = []; // all module
         this.$isMountingCompiler = false; // if is mounting compiler, all task will be blocked.
     }
 
@@ -223,7 +246,7 @@ class Schedule extends EventEmitter {
     doDPA() {
         if (
             this.appConfigs == null ||
-            !!this.appConfigs.pages ||
+            !this.appConfigs.pages ||
             !this.appConfigs.pages.length
         ) {
             logger.errorNow('app页面配置缺失, 请检查app.json的pages配置项');
@@ -244,7 +267,7 @@ class Schedule extends EventEmitter {
         console.log(pages);
         pages.forEach((page)=>{
             // wxa file
-            let wxaPage = path.join(this.src, page+this.ext);
+            let wxaPage = path.join(this.current, this.src, page+this.ext);
             if (isFile(wxaPage)) {
                 this.$pageArray.push({
                     src: wxaPage,
@@ -265,14 +288,15 @@ class Schedule extends EventEmitter {
             }
         });
 
-        if (this.$pageArray.length) {
+        if (!this.$pageArray.length) {
             logger.errorNow('找不到可编译的页面');
             return;
         }
 
         this.$depPending = this.$pageArray.slice(0);
-        this.$index = this.$pageArray.slice(0);
+        this.$indexOfModule = this.$pageArray.slice(0);
 
+        debug('DPA started');
         return this.$doDPA();
     }
 
@@ -280,26 +304,37 @@ class Schedule extends EventEmitter {
         while (this.$depPending.length) {
             let dep = this.$depPending.shift();
 
+            debug('file to parse %O', dep);
             this.$parse(dep);
         }
+
+        // console.log(this.$indexOfModule);
     }
 
     async $parse(dep) {
-        let compiler = compilerLoader.get(dep.type);
-
+        let compiler = compilerLoader.get(dep.type || path.extname(dep.src));
+        debug('compiler %o', compiler);
         try {
-            let ret = await amazingCache({
+            let cacheParams = {
                 source: dep.code,
                 options: {
                     configs: {
                         ast: true,
-                        ...compiler.configs,
+                        ...(compiler.configs || {}),
                     },
                 },
-                transfrom(code, options) {
-                    return compiler.parse(code, options.configs, dep.src, dep.type);
+                transform: (code, options)=>{
+                    return compiler.parse(code, options.configs, dep.src, dep.type || path.extname(dep.src));
                 },
-            }, this.options.cache);
+            };
+
+            let ret = await amazingCache(cacheParams, this.options.cache);
+
+            debug('transform succ %O', ret);
+
+            // todo: app.js or app.wxa will do compile twice.
+            // drop template from app.wxa
+            if (ret.rst && dep.category === 'app') delete ret.rst.template;
 
             if (typeof ret === 'string') {
                 dep.code = ret;
@@ -311,7 +346,11 @@ class Schedule extends EventEmitter {
                 this.$$parseRST(dep);
             }
 
-            if (ret.xml) dep.xml = ret.xml;
+            if (ret.xml) {
+                dep.xml = ret.xml;
+
+                this.$$parseXML(dep);
+            }
 
             if (ret.ast) {
                 // only allow babel-ast
@@ -321,59 +360,94 @@ class Schedule extends EventEmitter {
             }
 
             if (ret.config) dep.config = ret.config;
+
+            dep.color = COLOR.COMPILED;
+
+            this.$doDPA();
         } catch (e) {
-            logger.errorNow('编译失败', e);
+            // logger.errorNow('编译失败', e);
+            debug('编译失败 %O', e);
         }
     }
 
-    $$parseRST(dep) {
-        // spread dep with child nodes
-        dep.childNotes = dep.childNotes || [];
-        Object.keys(dep.rst).forEach((key)=>{
-            let m = this.$index.find((module)=>module.src===dep.rst[key].src);
-            let child;
-
-            if (m) {
-                child = m;
-            } else {
-                child = {
-                    ...dep.rst[key],
-                    color: COLOR.INIT,
-                };
-                this.$depPending.push(child);
-                this.$index.push(child);
-            }
-
-            dep.childNotes.push(child);
+    $$parseRST(mdl) {
+        // spread mdl with child nodes
+        mdl.childNotes = mdl.childNotes || [];
+        Object.keys(mdl.rst).forEach((key)=>{
+            let dep = mdl.rst[key];
+            // wxa file pret object should as same as his parent node.
+            dep.pret = mdl.pret || defaultPret;
+            let child = this.findOrAddDependency(dep, mdl);
+            mdl.childNotes.push(child);
         });
     }
 
     $$parseAST(mdl) {
-        let deps = new ASTManager(this.wxaConfigs.resolve||{}, this.meta).parse(mdl.ast);
+        let deps = new ASTManager(this.wxaConfigs.resolve||{}, this.meta).parse(mdl);
 
         // analysis deps;
         mdl.childNotes = mdl.childNotes || [];
         deps.forEach((dep)=>{
-            let m = this.$index.find((module)=>module.src===dep.src);
-            let child;
-
-            if (m) {
-                child = m;
-            } else {
-                child = {
-                    src: dep.absPath,
-                    color: COLOR.INIT,
-                    isNpm: dep.pret.isNodeModule,
-                    isPlugin: dep.pret.isURI,
-                    $target: dep.target,
-                    $pret: dep.pret,
-                };
-                this.$depPending.push(child);
-                this.$index.push(child);
-            }
-
+            let child = this.findOrAddDependency(dep, mdl);
             mdl.childNotes.push(child);
         });
+    }
+
+    $$parseXML(mdl) {
+        let deps = new XMLManager(this.wxaConfigs.resolve||{}, this.meta).parse(mdl);
+
+        // analysis deps;
+        mdl.childNotes = mdl.childNotes || [];
+        deps.forEach((dep)=>{
+            let child = this.findOrAddDependency(dep, mdl);
+            mdl.childNotes.push(child);
+        });
+    }
+
+    findOrAddDependency(dep, mdl) {
+        // circle referrence.
+        dep.from = dep.from || {};
+        dep.from.parent = mdl;
+
+        // pret backup
+        dep.pret = dep.pret || {
+            isNodeModule: false,
+            isURI: false,
+            isRelative: true,
+        };
+
+        let indexedModule = this.$indexOfModule.find((module)=>module.src===dep.src);
+        let child = {
+            ...dep,
+            color: COLOR.INIT,
+            isNpm: dep.pret.isNodeModule,
+            isPlugin: dep.pret.isURI,
+            $target: dep.target,
+            $pret: dep.pret,
+        };
+
+        if (indexedModule) {
+            let ref = dep.from;
+
+            // merge from.
+            if (Array.isArray(indexedModule.from)) {
+                indexedModule.from.push(ref);
+            } else if (typeof indexedModule.from === 'object') {
+                indexedModule.from = [
+                    indexedModule.from,
+                    ref,
+                ];
+            } else {
+                indexedModule.from = ref;
+            }
+
+            child = indexedModule;
+        } else {
+            this.$depPending.push(child);
+            this.$indexOfModule.push(child);
+        }
+
+        return child;
     }
 }
 const schedule = new Schedule();
