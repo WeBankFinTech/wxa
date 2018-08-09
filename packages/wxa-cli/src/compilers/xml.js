@@ -24,7 +24,7 @@ export default class XmlCompiler {
 
         let xml = this.parseXml(path.parse(filepath)).parseFromString(code);
 
-        code = Array.prototype.slice.call(xml.childNotes||[]).reduce((ret, node)=>{
+        code = Array.prototype.slice.call(xml.childNodes||[]).reduce((ret, node)=>{
             ret += coder.decodeTemplate(node.toString());
             return ret;
         }, '');

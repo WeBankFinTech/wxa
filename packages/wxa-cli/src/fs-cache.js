@@ -9,6 +9,9 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import zlib from 'zlib';
+import debug from 'debug';
+
+let $logger = debug('fs-cache');
 
 const read = (filename)=>{
     return new Promise((resolve, reject)=>{
@@ -82,17 +85,21 @@ const handleCache = (directory, params)=>{
                 resolve(succ);
             }, (fail)=>{
                 // transform source
-                transform(source, options).then((ret)=>{
-                    write(file, ret).then((succ)=>{
-                        resolve(ret);
-                    }, (fail)=>{
-                        if (!shouldFallback) {
-                            reject(fail);
-                        } else {
-                            handleCache(os.tmpdir(), params).then(resolve, reject);
-                        }
-                    });
-                }, (err)=>reject(err));
+                try {
+                    params.transform(source, options).then((ret)=>{
+                        write(file, ret).then((succ)=>{
+                            resolve(ret);
+                        }, (fail)=>{
+                            if (!shouldFallback) {
+                                reject(fail);
+                            } else {
+                                handleCache(os.tmpdir(), params).then(resolve, reject);
+                            }
+                        });
+                    }, (err)=>reject(err));
+                } catch (e) {
+                    reject(e);
+                }
             });
         });
     });
@@ -103,6 +110,5 @@ export default function(params) {
     if (typeof directory !== 'string') {
         directory = findCacheDir({name: 'wxa'}) || os.tmpdir();
     }
-
     return handleCache(directory, params);
 }

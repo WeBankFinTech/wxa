@@ -1,10 +1,10 @@
 import path from 'path';
-import {readFile, error, isFile, isEmpty} from './utils';
+import {readFile, error, isFile, isEmpty} from '../utils';
 import {DOMParser} from 'xmldom';
 import Coder from '../helpers/coder';
 import logger from '../helpers/logger';
 
-export class WxaCompiler {
+export default class WxaCompiler {
     parse(filepath) {
         let wxa = this.resolveWxa(filepath);
 

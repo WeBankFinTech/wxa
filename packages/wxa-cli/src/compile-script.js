@@ -1,9 +1,9 @@
 import path from 'path';
 import fs from 'fs';
 import {readFile, getDistPath, error, writeFile, isFile, isDir, getConfig, amazingCache, info, applyPlugins} from './utils';
-import {Base64} from '../../../../../../../../../Library/Caches/typescript/2.9/node_modules/@types/js-base64';
-import {Tapable, AsyncSeriesHook} from '../../../../../../../../../Library/Caches/typescript/2.9/node_modules/@types/tapable';
-import findRoot from '../../../../../../../../../Library/Caches/typescript/2.9/node_modules/@types/find-root';
+import {Base64} from 'js-base64';
+import {Tapable, AsyncSeriesHook} from 'tapable';
+import findRoot from 'find-root';
 import schedule from './schedule';
 import compilerLoader from './loader';
 import PathParser from './helpers/pathParser';

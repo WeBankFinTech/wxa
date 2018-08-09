@@ -5,6 +5,7 @@ import WxaCompiler from './compilers/wxa';
 import ScriptCompiler from './compilers/script';
 import XmlCompiler from './compilers/xml';
 import ConfigCompiler from './compilers/config';
+import debugPKG from 'debug';
 
 /**
  * default compiler
@@ -28,6 +29,7 @@ class EmptyCompiler {
     }
 }
 
+let debug = debugPKG('WXA:DefaultCompiler');
 /**
  * default compiler
  *
@@ -42,6 +44,8 @@ class DefaultCompiler {
         this.configs = {};
     }
     parse(code, configs, filepath, type) {
+        debug('parse arguments, %O', arguments);
+        type = type.replace(/^\.*/, '');
         switch (type) {
             case 'wxa': {
                 return new WxaCompiler().parse(filepath);
@@ -55,6 +59,7 @@ class DefaultCompiler {
                 return new XmlCompiler().parse(filepath, code);
             }
 
+            case 'json':
             case 'config': {
                 return new ConfigCompiler().parse(filepath, code);
             }
@@ -70,6 +75,7 @@ class DefaultCompiler {
         map['js'] = this;
         map['wxa'] = this;
         map['config'] = this;
+        map['json'] = this;
         return map;
     }
 }
@@ -80,11 +86,13 @@ class CompilerLoader {
         this.current = cwd;
         this.modulePath = path.join(this.current, 'node_modules');
     }
-    get(type) {
+    get(type='') {
         // if (this.map[type] == null) {
         //     logger.errorNow(`未知的编译器类型: ${type}, 请尝试安装对应的编译器（@wxa/compiler-${type}?）后并添加到wxa.config.js文件配置后，重新构建`);
         //     process.exit(0);
         // }
+
+        type = type.replace(/^\./, '');
 
         return this.map[type] ? this.map[type] : this.map['*'];
     }
