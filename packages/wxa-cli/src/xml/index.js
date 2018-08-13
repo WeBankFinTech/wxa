@@ -52,7 +52,7 @@ class XMLManager {
                         absPath: meta.source,
                         pret: meta.pret,
                         $$meta: meta,
-                        from: {
+                        reference: {
                             $$AttrNode: attr,
                             $$category: 'xml',
                             resolved,
@@ -94,7 +94,7 @@ class XMLManager {
                     src: meta.source,
                     pret: meta.pret,
                     $$meta: meta,
-                    from: {
+                    reference: {
                         $$style: str,
                         $$match: match,
                         $$category: 'xml',

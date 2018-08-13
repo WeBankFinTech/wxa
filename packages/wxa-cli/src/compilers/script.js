@@ -16,7 +16,7 @@ export default class scriptCompiler {
                     ['decorators', {decoratorsBeforeExport: true}],
                     'classProperties',
                 ],
-                sourceType: 'module',
+                sourceType: 'unambiguous',
                 ...configs,
             });
         } catch (e) {

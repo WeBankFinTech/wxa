@@ -30,7 +30,9 @@
     "semver": "^5.5.0"
   },
   "dependencies": {
+    "@babel/generator": "^7.0.0-rc.1",
     "@babel/parser": "^7.0.0-beta.54",
+    "@babel/template": "^7.0.0-rc.1",
     "acorn": "^5.7.1",
     "babylon-walk": "^1.0.2",
     "chalk": "^2.3.0",

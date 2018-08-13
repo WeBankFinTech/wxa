@@ -15,6 +15,7 @@ import COLOR from './const/color';
 import debugPKG from 'debug';
 import * as NODE from './const/node';
 import defaultPret from './const/defaultPret';
+import wrapWxa from './helpers/wrapWxa';
 
 /**
  * todo:
@@ -41,6 +42,8 @@ class Schedule extends EventEmitter {
             src: this.src,
             dist: this.dist,
             wxaExt: this.wxaExt,
+            libSrc: path.join(__dirname, '../lib-dist'),
+            libs: ['wxa_wrap.js'],
         };
 
         this.max = 5;
@@ -264,59 +267,92 @@ class Schedule extends EventEmitter {
 
         // pages spread
         let exts = Object.keys(compilerLoader.map);
-        console.log(pages);
         pages.forEach((page)=>{
             // wxa file
-            let wxaPage = path.join(this.current, this.src, page+this.ext);
+            let wxaPage = path.join(this.current, this.src, page+this.meta.wxaExt);
             if (isFile(wxaPage)) {
-                this.$pageArray.push({
-                    src: wxaPage,
-                    type: 'wxa',
-                    category: 'Page',
-                });
+                try {
+                    this.$pageArray.push({
+                        src: wxaPage,
+                        type: 'wxa',
+                        category: 'Page',
+                        pagePath: page,
+                    });
+                } catch (e) {
+                    console.error(e);
+                }
             } else {
                 exts.forEach((ext)=>{
-                    let p = path.join(this.src, page+ext);
+                    let p = path.join(this.current, this.src, page+ext);
                     if (isFile(p)) {
                         this.$pageArray.push({
                             src: p,
                             type: ext,
                             category: 'Page',
+                            pagePath: page,
                         });
                     }
                 });
             }
         });
+        console.log(this.$pageArray);
 
         if (!this.$pageArray.length) {
             logger.errorNow('找不到可编译的页面');
             return;
         }
 
-        this.$depPending = this.$pageArray.slice(0);
-        this.$indexOfModule = this.$pageArray.slice(0);
+        // lib compile
+        let libs = this.meta.libs.map((file)=>{
+            let libDep = {
+                src: path.join(this.meta.current, this.meta.src, '_wxa', file),
+                $from: path.join(this.meta.libSrc, file),
+                category: 'Lib',
+            };
 
+            libDep.code = readFile(libDep.$from);
+
+            return libDep;
+        });
+
+        this.$depPending = [].concat(libs, this.$pageArray);
+        this.$indexOfModule = [].concat(libs, this.$pageArray);
+        debug('depPending %o', this.$depPending);
         debug('DPA started');
         return this.$doDPA();
     }
 
     $doDPA() {
+        let tasks = [];
         while (this.$depPending.length) {
             let dep = this.$depPending.shift();
 
             debug('file to parse %O', dep);
-            this.$parse(dep);
+            tasks.push(this.$parse(dep));
         }
 
-        // console.log(this.$indexOfModule);
+        return Promise.all(tasks).then((succ)=>{
+            if (this.$depPending.length === 0) {
+                // dependencies resolve complete
+                this.emit('finish', this.$indexedModule);
+            } else {
+                return this.$doDPA();
+            }
+        });
     }
 
     async $parse(dep) {
         let compiler = compilerLoader.get(dep.type || path.extname(dep.src));
         debug('compiler %o', compiler);
+
+        // try to wrap wxa every app and page
+        this.tryWrapWXA(dep);
+
         try {
+            let code = dep.code || readFile(dep.src) || false;
+
             let cacheParams = {
-                source: dep.code,
+                source: code,
                 options: {
                     configs: {
                         ast: true,
@@ -328,7 +364,7 @@ class Schedule extends EventEmitter {
                 },
             };
 
-            let ret = await amazingCache(cacheParams, this.options.cache);
+            let ret = await amazingCache(cacheParams, this.options.cache && code);
 
             debug('transform succ %O', ret);
 
@@ -362,7 +398,9 @@ class Schedule extends EventEmitter {
             if (ret.config) dep.config = ret.config;
 
             dep.color = COLOR.COMPILED;
-
+            // tick event
+            this.emit('tick', dep);
+            // continue
             this.$doDPA();
         } catch (e) {
             // logger.errorNow('编译失败', e);
@@ -377,6 +415,8 @@ class Schedule extends EventEmitter {
             let dep = mdl.rst[key];
             // wxa file pret object should as same as his parent node.
             dep.pret = mdl.pret || defaultPret;
+            dep.category = mdl.category || '';
+            dep.pagePath = mdl.pagePath || void(0);
             let child = this.findOrAddDependency(dep, mdl);
             mdl.childNotes.push(child);
         });
@@ -406,12 +446,13 @@ class Schedule extends EventEmitter {
 
     findOrAddDependency(dep, mdl) {
         // circle referrence.
-        dep.from = dep.from || {};
-        dep.from.parent = mdl;
+        dep.reference = dep.reference || {};
+        dep.reference.parent = mdl;
 
         // pret backup
         dep.pret = dep.pret || {
             isNodeModule: false,
+            isPlugin: false,
             isURI: false,
             isRelative: true,
         };
@@ -421,33 +462,47 @@ class Schedule extends EventEmitter {
             ...dep,
             color: COLOR.INIT,
             isNpm: dep.pret.isNodeModule,
-            isPlugin: dep.pret.isURI,
+            isPlugin: dep.pret.isPlugin,
             $target: dep.target,
             $pret: dep.pret,
         };
 
         if (indexedModule) {
-            let ref = dep.from;
+            let ref = dep.reference;
 
             // merge from.
-            if (Array.isArray(indexedModule.from)) {
-                indexedModule.from.push(ref);
-            } else if (typeof indexedModule.from === 'object') {
-                indexedModule.from = [
-                    indexedModule.from,
+            if (Array.isArray(indexedModule.reference)) {
+                indexedModule.reference.push(ref);
+            } else if (typeof indexedModule.reference === 'object') {
+                indexedModule.reference = [
+                    indexedModule.reference,
                     ref,
                 ];
             } else {
-                indexedModule.from = ref;
+                indexedModule.reference = ref;
             }
 
             child = indexedModule;
-        } else {
+        } else if (!child.isPlugin) {
+            // plugin do not resolve dependencies.
             this.$depPending.push(child);
             this.$indexOfModule.push(child);
         }
 
         return child;
+    }
+
+    tryWrapWXA(dep) {
+        if (dep.type === 'wxa') return;
+
+        if (~['app', 'component', 'page'].indexOf(dep.category) && dep.type === 'js') {
+            if (dep.code == null) dep.code= readFile(dep.src);
+
+            if (dep.code == null) dep.code = '';
+
+            dep.code = wrapWxa(dep.code, dep.category, dep.pagePath);
+            debug('wrap dependencies %O', dep);
+        }
     }
 }
 const schedule = new Schedule();

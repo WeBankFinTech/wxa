@@ -44,6 +44,15 @@ class DependencyResolver {
             source = path.join(this.modulesPath, lib);
             target = path.join(this.npmPath, lib);
             ext = '';
+        } else if (pret.isWXALib) {
+            source = path.join(this.meta.current, this.meta.src, '_wxa', pret.name);
+            target = path.join(this.meta.current, this.meta.dist, '_wxa', pret.name);
+            ext = /\.js$/.test(pret.name) ? '' : '.js';
+
+            return {lib, target: target+ext, source: source+ext};
+        } else if (pret.isPlugin || pret.isURI) {
+            // url module
+            return {lib, target: null, source: lib, pret};
         } else {
             throw new Error('不支持的路径类型'+lib);
         }
