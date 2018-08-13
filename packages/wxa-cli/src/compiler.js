@@ -9,6 +9,7 @@ import compilerLoader from './loader';
 import debugPKG from 'debug';
 import {green} from 'chalk';
 import defaultPret from './const/defaultPret';
+import Optimizer from './optimizer';
 
 let debug = debugPKG('WXA:Compiler');
 
@@ -21,7 +22,6 @@ class Compiler {
         this.isWatching = false;
         this.isWatchReady = false;
         this.queue = {};
-        this.init();
     }
     // 找到引用的src文件
     findReference(file) {
@@ -165,57 +165,15 @@ class Compiler {
 
             // module optimize, dependencies merge, minor.
             // await schedule.doOptimize();
+            schedule.on('finish', ()=>{
+                new Optimizer(schedule.wxaConfigs.resolve, schedule.meta).do(schedule.$indexOfModule);
+            });
 
             // module dest, dependencies copy,
             // await schedule.doLanding();
         } catch (e) {
-            logger.errorNow(e);
+            console.error(e);
         }
-        // this.init()
-        // .then(()=>p())
-        // .then((rst)=>{
-        //     let {json} = rst;
-
-        //     let appConfigs = JSON.parse(json.code);
-        //     // mount to schedule.
-        //     schedule.set('appConfigs', appConfigs);
-
-        //     // do dependencies analysis.
-        //     schedule.doDPA();
-
-        //     // module optimize, dependencies merge, minor.
-        //     schedule.doOptimize();
-
-        //     // module dest, dependencies copy,
-        //     schedule.doLanding();
-
-        //     let scriptCompiler = new ScriptCompiler(this.src, this.dist, this.ext);
-
-        //     return scriptCompiler.$compile(
-        //         rst.script.type,
-        //         rst.script.code,
-        //         path.parse(isWXA ? wxaJSON : appJS),
-        //         {ast: true}
-        //     );
-        // })
-        // .then((succ)=>{
-        //     // console.log(succ);
-        //     let {ast} = succ;
-        //     let dependencies = findDependencies(ast);
-        //     writeFile(this.src+path.sep+'app.ast.json', JSON.stringify(dependencies, void(0), 2));
-        // });
-
-
-        // files.forEach((file)=>{
-        //     let opath = path.parse(path.join(this.current, this.src, file));
-        //     // console.log(opath);
-        //     // if (file) {
-        //         schedule.addTask(opath, void(0), {category: cmd.category});
-        //     // } else {
-        //     //     let refs = this.findReference(file);
-        //     //     if (!refs.length) schedule.addTask(opath);
-        //     // }
-        // });
 
         if (cmd.category) delete cmd.category;
     }

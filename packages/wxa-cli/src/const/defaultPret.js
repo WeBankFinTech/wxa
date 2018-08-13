@@ -1,5 +1,5 @@
 export default {
-    isNodeModule: false,
+    isNodeModuleOrPlugin: false,
     isURI: false,
     isRelative: true,
 };

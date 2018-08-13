@@ -1,5 +1,7 @@
 import traverse from '@babel/traverse';
 import * as t from '@babel/types';
+import template from '@babel/template';
+import generate from '@babel/generator';
 import path from 'path';
 import PathParser from '../helpers/pathParser';
 import {getDistPath, isFile, readFile, isDir} from '../utils';
@@ -23,7 +25,7 @@ export default class ASTManager {
     }
 
     parse(mdl) {
-        debug('start');
+        debug('parse start');
         if (mdl.ast == null) return [];
 
         let self = this;
@@ -47,7 +49,7 @@ export default class ASTManager {
                         src: meta.source,
                         pret: meta.pret,
                         $$meta: meta,
-                        from: {
+                        reference: {
                             $$ASTPath: path,
                             $$category: 'ast',
                             resolved,
@@ -74,7 +76,7 @@ export default class ASTManager {
                         src: meta.source,
                         pret: meta.pret,
                         $$meta: meta,
-                        from: {
+                        reference: {
                             $$ASTPath: path,
                             $$category: 'ast',
                             resolved,
@@ -89,5 +91,41 @@ export default class ASTManager {
 
         debug('dependencies libs %O', libs);
         return libs;
+    }
+
+    optimize(mdl) {
+        debug('optimize start');
+        if (mdl.ast == null) return;
+
+        if (~['app', 'page', 'component'].indexOf(mdl.category)) {
+            // entry.
+            // traverse(mdl.ast, {
+            //     Program(path) {
+            //         let buildIIFE = template(`
+
+            //             ;(function() {\nBODY;\n})()
+            //         `);
+
+            //         let iife = buildIIFE({
+            //             BODY: path.node.body,
+            //         });
+            //         iife[1].expression.callee.body.directives = path.node.directives;
+
+            //         path.replaceWith(
+            //             t.program(iife)
+            //         );
+
+            //         path.stop();
+            //     },
+            // });
+            // let wxaWrap = `
+            //     require()
+            // `
+            debug('body, %O', mdl.ast.program.body);
+
+            let c = generate(mdl.ast, {});
+            console.log('generated %O', c);
+            process.exit(0);
+        }
     }
 }
