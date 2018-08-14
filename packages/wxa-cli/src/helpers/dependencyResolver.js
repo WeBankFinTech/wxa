@@ -8,13 +8,12 @@ import debugPKG from 'debug';
 let debug = debugPKG('DependencyResolver');
 
 class DependencyResolver {
-    constructor(current, resolve, meta) {
+    constructor(resolve, meta) {
         this.resolve = resolve;
-        this.current = current;
         this.meta = meta;
 
-        this.modulesPath = path.join(this.current, 'node_modules', path.sep);
-        this.npmPath = path.join(this.current, meta.dist, 'npm', path.sep);
+        this.modulesPath = path.join(this.meta.current, 'node_modules', path.sep);
+        this.npmPath = path.join(this.meta.current, meta.dist, 'npm', path.sep);
 
         debug('constructor options %o', this);
     }

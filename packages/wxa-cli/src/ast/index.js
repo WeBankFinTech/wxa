@@ -40,7 +40,7 @@ export default class ASTManager {
                 ) {
                     let dep = path.node.arguments[0].value;
 
-                    let dr = new DependencyResolver(self.meta.current, self.resolve, self.meta);
+                    let dr = new DependencyResolver(self.resolve, self.meta);
 
                     let meta = dr.resolveDep(dep, mdl, {needFindExt: true});
                     let resolved = dr.getResolved(meta.lib, meta.source, meta.target, mdl);
@@ -67,7 +67,7 @@ export default class ASTManager {
                 ) {
                     let dep = path.node.source.value;
 
-                    let dr = new DependencyResolver(self.meta.current, self.resolve, self.meta);
+                    let dr = new DependencyResolver(self.resolve, self.meta);
 
                     let meta = dr.resolveDep(dep, mdl, {needFindExt: true});
                     let resolved = dr.getResolved(meta.lib, meta.source, meta.target, mdl);
@@ -93,39 +93,11 @@ export default class ASTManager {
         return libs;
     }
 
-    optimize(mdl) {
-        debug('optimize start');
+    generate(mdl) {
+        debug('generate start');
         if (mdl.ast == null) return;
 
-        if (~['app', 'page', 'component'].indexOf(mdl.category)) {
-            // entry.
-            // traverse(mdl.ast, {
-            //     Program(path) {
-            //         let buildIIFE = template(`
-
-            //             ;(function() {\nBODY;\n})()
-            //         `);
-
-            //         let iife = buildIIFE({
-            //             BODY: path.node.body,
-            //         });
-            //         iife[1].expression.callee.body.directives = path.node.directives;
-
-            //         path.replaceWith(
-            //             t.program(iife)
-            //         );
-
-            //         path.stop();
-            //     },
-            // });
-            // let wxaWrap = `
-            //     require()
-            // `
-            debug('body, %O', mdl.ast.program.body);
-
-            let c = generate(mdl.ast, {});
-            console.log('generated %O', c);
-            process.exit(0);
-        }
+        debug('module to generate %O', mdl.ast);
+        return generate(mdl.ast, {});
     }
 }

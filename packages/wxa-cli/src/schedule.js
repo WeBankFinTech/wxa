@@ -334,7 +334,7 @@ class Schedule extends EventEmitter {
         return Promise.all(tasks).then((succ)=>{
             if (this.$depPending.length === 0) {
                 // dependencies resolve complete
-                this.emit('finish', this.$indexedModule);
+                return Promise.resolve(succ);
             } else {
                 return this.$doDPA();
             }
@@ -401,7 +401,7 @@ class Schedule extends EventEmitter {
             // tick event
             this.emit('tick', dep);
             // continue
-            this.$doDPA();
+            // this.$doDPA();
         } catch (e) {
             // logger.errorNow('编译失败', e);
             debug('编译失败 %O', e);

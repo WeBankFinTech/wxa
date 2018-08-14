@@ -1,7 +1,10 @@
 import path from 'path';
 import {readFile} from '../utils';
 import logger from '../helpers/logger';
+import debugPKG from 'debug';
 let parser = require('@babel/parser');
+
+let debug = debugPKG('WXA:ScriptCompiler');
 
 export default class scriptCompiler {
     parse(filepath, code, configs) {
@@ -23,6 +26,8 @@ export default class scriptCompiler {
             logger.errorNow('编译失败', e);
             return Promise.reject(e);
         }
+
+        // debug('AST generate %O', ast);
 
         return Promise.resolve({
             ast,
