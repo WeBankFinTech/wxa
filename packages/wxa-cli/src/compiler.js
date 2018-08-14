@@ -10,6 +10,7 @@ import debugPKG from 'debug';
 import {green} from 'chalk';
 import defaultPret from './const/defaultPret';
 import Optimizer from './optimizer';
+import Generator from './generator';
 
 let debug = debugPKG('WXA:Compiler');
 
@@ -107,10 +108,6 @@ class Compiler {
         schedule.set('options', cmd);
 
         logger.infoNow('Compile', 'AT: '+new Date().toLocaleString(), void(0));
-        // schedule.once('finish', (n)=>{
-        //     logger.infoNow('Compile', 'END: '+new Date().toLocaleString()+` ${green(n)} files process`, void(0));
-        //     if (cmd.watch) this.watch(cmd);
-        // });
 
         // find app.js、 app.wxa first
         let appJSON = this.src+path.sep+'app.json';
@@ -164,13 +161,22 @@ class Compiler {
             debug('schedule dependencies Tree %O', schedule.$indexOfModule);
 
             // module optimize, dependencies merge, minor.
-            // await schedule.doOptimize();
-            schedule.on('finish', ()=>{
-                new Optimizer(schedule.wxaConfigs.resolve, schedule.meta).do(schedule.$indexOfModule);
+            let optimizer = new Optimizer(schedule.wxaConfigs.resolve, schedule.meta);
+            let optimizeTasks = schedule.$indexOfModule.map((dep)=>{
+                return optimizer.do(dep);
             });
 
+            await Promise.all(optimizeTasks);
+
             // module dest, dependencies copy,
-            // await schedule.doLanding();
+            let generator = new Generator(schedule.wxaConfigs.resolve, schedule.meta);
+            let generateTasks = schedule.$indexOfModule.map((mdl)=>{
+                return generator.do(mdl);
+            });
+
+            await Promise.all(generateTasks);
+
+            // done.
         } catch (e) {
             console.error(e);
         }
