@@ -31,60 +31,49 @@ export default class ASTManager {
         let self = this;
         let libs = [];
         traverse(mdl.ast, {
-            CallExpression(path) {
+            'CallExpression|ImportDeclaration'(path) {
+                let dep;
                 // commandJS module
                 if (
+                    path.node.type === 'CallExpression' &&
                     path.node.callee &&
                     path.node.callee.name === 'require' &&
                     path.node.arguments.length
                 ) {
-                    let dep = path.node.arguments[0].value;
-
-                    let dr = new DependencyResolver(self.resolve, self.meta);
-
-                    let meta = dr.resolveDep(dep, mdl, {needFindExt: true});
-                    let resolved = dr.getResolved(meta.lib, meta.source, meta.target, mdl);
-
-                    libs.push({
-                        src: meta.source,
-                        pret: meta.pret,
-                        $$meta: meta,
-                        reference: {
-                            $$ASTPath: path,
-                            $$category: 'ast',
-                            resolved,
-                        },
-                    });
-
-                    // path.replaceWithSourceString(`require(${resolved})`);
-                }
-            },
-            ImportDeclaration(path) {
-                // es module
-                if (
+                    dep = path.node.arguments[0].value;
+                } else if (
+                    path.node.type === 'ImportDeclaration' &&
                     path.node.source &&
                     path.node.source.value
                 ) {
-                    let dep = path.node.source.value;
+                    dep = path.node.source.value;
+                } else {
+                    return;
+                }
 
-                    let dr = new DependencyResolver(self.resolve, self.meta);
+                let dr = new DependencyResolver(self.resolve, self.meta);
 
-                    let meta = dr.resolveDep(dep, mdl, {needFindExt: true});
-                    let resolved = dr.getResolved(meta.lib, meta.source, meta.target, mdl);
+                let {source, pret, lib} = dr.resolveDep(dep, mdl, {needFindExt: true});
+                let ouputPath = dr.getOutputPath(source, pret, mdl);
+                let resolved = dr.getResolved(lib, source, ouputPath, mdl);
 
-                    libs.push({
-                        src: meta.source,
-                        pret: meta.pret,
-                        $$meta: meta,
-                        reference: {
-                            $$ASTPath: path,
-                            $$category: 'ast',
-                            resolved,
-                        },
-                    });
+                libs.push({
+                    src: source,
+                    pret: pret,
+                    meta: {
+                        source, ouputPath,
+                    },
+                    reference: {
+                        $$ASTPath: path,
+                        $$category: 'ast',
+                        resolved,
+                    },
+                });
 
-                    // replace source node
-                    // path.get('source').replaceWith(t.stringLiteral(resolved));
+                if (path.node.type === 'CallExpression') {
+                    path.replaceWithSourceString(`require(${resolved})`);
+                } else {
+                    path.get('source').replaceWith(t.stringLiteral(resolved));
                 }
             },
         });

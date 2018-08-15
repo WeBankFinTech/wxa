@@ -52,17 +52,13 @@ class Compiler {
         // 加载编译器
         const configs = getConfig();
         schedule.set('wxaConfigs', configs || {});
-        schedule.toggleMounting(true);
 
         // mount compilers
         const defaultCompilers = [];
         const usedCompilers = Array.from(new Set(defaultCompilers.concat(configs.use || [])));
 
         return compilerLoader
-        .mount(usedCompilers, configs.compilers||{})
-        .then(()=>{
-            schedule.toggleMounting(false);
-        });
+        .mount(usedCompilers, configs.compilers||{});
     }
     watch(cmd) {
         if (this.isWatching) return;
@@ -110,11 +106,13 @@ class Compiler {
         logger.infoNow('Compile', 'AT: '+new Date().toLocaleString(), void(0));
 
         // find app.js、 app.wxa first
-        let appJSON = this.src+path.sep+'app.json';
-        let appJS = this.src+path.sep+'app.js';
-        let wxaJSON = this.src+path.sep+'app'+this.ext;
+        let appJSON = path.join(this.current, this.src, 'app.json');
+        let appJS = path.join(this.current, this.src, 'app.js');
+        let wxaJSON = path.join(this.current, this.src, 'app'+this.ext);
         let isWXA = false;
-        if (!isFile(appJSON) && isFile(wxaJSON)) {
+        if (isFile(appJSON)) {
+            isWXA = false;
+        } else if (!isFile(appJSON) && isFile(wxaJSON)) {
             isWXA = true;
         } else {
             logger.errorNow('不存在app.json或app.wxa文件!');
@@ -136,7 +134,7 @@ class Compiler {
                         code: readFile(appJS),
                     },
                     config: {
-                        code: require(appJSON),
+                        code: readFile(appJSON),
                     },
                 });
             }
