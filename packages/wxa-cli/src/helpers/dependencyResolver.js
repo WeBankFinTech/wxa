@@ -21,8 +21,6 @@ class DependencyResolver {
     resolveDep(lib, mdl, {needFindExt=false}={}) {
         let opath = path.parse(mdl.src);
 
-        let resolved = lib;
-        let target = '';
         let source = '';
         let ext = '';
 
@@ -33,25 +31,17 @@ class DependencyResolver {
 
         if (pret.isRelative || pret.isAPPAbsolute) {
             source = pret.isAPPAbsolute ? path.join(this.meta.src, lib) : path.join(opath.dir, lib);
-            if (mdl.isNpm) {
-                target = path.join(this.npmPath, path.relative(this.modulesPath, source));
-            } else {
-                let otarget = path.parse(getDistPath(source, void(0), this.meta.src, this.meta.dist));
-                target = otarget.dir+path.sep+otarget.base;
-            }
         } else if (pret.isNodeModule) {
             source = path.join(this.modulesPath, lib);
-            target = path.join(this.npmPath, lib);
             ext = '';
         } else if (pret.isWXALib) {
             source = path.join(this.meta.current, this.meta.src, '_wxa', pret.name);
-            target = path.join(this.meta.current, this.meta.dist, '_wxa', pret.name);
             ext = /\.js$/.test(pret.name) ? '' : '.js';
 
-            return {lib, target: target+ext, source: source+ext};
+            return {lib, source: source+ext};
         } else if (pret.isPlugin || pret.isURI) {
             // url module
-            return {lib, target: null, source: lib, pret};
+            return {lib, source: lib, pret};
         } else {
             throw new Error('不支持的路径类型'+lib);
         }
@@ -88,15 +78,34 @@ class DependencyResolver {
             ext = '';
         }
         source += ext;
-        target += ext;
         lib += ext;
 
         return {
-            target,
             source,
             pret,
             lib,
         };
+    }
+
+    getOutputPath(source, pret, mdl) {
+        if (pret.isRelative || pret.isAPPAbsolute || pret.isNodeModule) {
+            let relative;
+            let opath = path.parse(source);
+
+            if (path.relative(this.meta.current, opath.dir).indexOf('node_modules') === 0) {
+                relative = path.relative(path.join(this.meta.current, 'node_modules'), opath.dir);
+                relative = path.join('npm', relative);
+            } else {
+                relative = path.relative(path.join(this.meta.current, this.meta.src), opath.dir);
+            }
+
+            return path.join(this.meta.current, this.meta.dist, relative, opath.base);
+        } else if (pret.isPlugin || pret.isURI) {
+            // url module
+            return null;
+        } else {
+            throw new Error('不支持的路径类型'+mdl.src);
+        }
     }
 
     getResolved(lib, source, target, mdl) {
