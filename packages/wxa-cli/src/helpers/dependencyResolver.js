@@ -5,7 +5,7 @@ import findRoot from 'find-root';
 import resolveAlias from '../helpers/alias';
 import debugPKG from 'debug';
 
-let debug = debugPKG('DependencyResolver');
+let debug = debugPKG('WXA:DependencyResolver');
 
 class DependencyResolver {
     constructor(resolve, meta) {
@@ -29,6 +29,8 @@ class DependencyResolver {
 
         let pret = new PathParser().parse(lib);
 
+        debug('%s path pret %o', lib, pret);
+
         if (pret.isRelative || pret.isAPPAbsolute) {
             source = pret.isAPPAbsolute ? path.join(this.meta.src, lib) : path.join(opath.dir, lib);
         } else if (pret.isNodeModule) {
@@ -38,7 +40,7 @@ class DependencyResolver {
             source = path.join(this.meta.current, this.meta.src, '_wxa', pret.name);
             ext = /\.js$/.test(pret.name) ? '' : '.js';
 
-            return {lib, source: source+ext};
+            return {lib, source: source+ext, pret};
         } else if (pret.isPlugin || pret.isURI) {
             // url module
             return {lib, source: lib, pret};
@@ -88,7 +90,7 @@ class DependencyResolver {
     }
 
     getOutputPath(source, pret, mdl) {
-        if (pret.isRelative || pret.isAPPAbsolute || pret.isNodeModule) {
+        if (pret.isRelative || pret.isAPPAbsolute || pret.isNodeModule || pret.isWXALib) {
             let relative;
             let opath = path.parse(source);
 

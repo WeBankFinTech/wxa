@@ -1,7 +1,7 @@
-export default function(code, category, path) {
+export default function(code, category='', path) {
     let temp = `
-        var wrapWxa = require('$wxa://wxa_wrap').default;
-        wrapWxa(exports, ${category}, ${path});
+        var wrapWxa = require('wxa://wxa_wrap').default;
+        wrapWxa(exports, "${category.toUpperCase()}", "${path}");
 
         ${code}
     `;

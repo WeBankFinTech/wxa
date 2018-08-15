@@ -41,6 +41,7 @@ export default class ASTManager {
                     path.node.arguments.length
                 ) {
                     dep = path.node.arguments[0].value;
+                    debug('callExpression %s', dep);
                 } else if (
                     path.node.type === 'ImportDeclaration' &&
                     path.node.source &&
@@ -54,14 +55,15 @@ export default class ASTManager {
                 let dr = new DependencyResolver(self.resolve, self.meta);
 
                 let {source, pret, lib} = dr.resolveDep(dep, mdl, {needFindExt: true});
-                let ouputPath = dr.getOutputPath(source, pret, mdl);
-                let resolved = dr.getResolved(lib, source, ouputPath, mdl);
+                let outputPath = dr.getOutputPath(source, pret, mdl);
+                let resolved = dr.getResolved(lib, source, outputPath, mdl);
 
+                debug('%s output\'s resolved is %s', dep, resolved);
                 libs.push({
                     src: source,
                     pret: pret,
                     meta: {
-                        source, ouputPath,
+                        source, outputPath,
                     },
                     reference: {
                         $$ASTPath: path,
@@ -71,7 +73,8 @@ export default class ASTManager {
                 });
 
                 if (path.node.type === 'CallExpression') {
-                    path.replaceWithSourceString(`require(${resolved})`);
+                    console.log(resolved);
+                    path.replaceWithSourceString(`require("${resolved}")`);
                 } else {
                     path.get('source').replaceWith(t.stringLiteral(resolved));
                 }

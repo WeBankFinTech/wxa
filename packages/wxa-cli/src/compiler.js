@@ -141,7 +141,6 @@ class Compiler {
 
             let ret = await p();
             let rst = ret.rst || ret;
-            delete rst.template;
 
             let appConfigs = JSON.parse(rst.config.code);
             // mount to schedule.
@@ -150,7 +149,7 @@ class Compiler {
                 src: wxaJSON,
                 rst: rst,
                 type: 'wxa',
-                category: 'app',
+                category: 'App',
                 pret: defaultPret,
             }]);
 
