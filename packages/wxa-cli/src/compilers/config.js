@@ -1,5 +1,8 @@
 import {readFile} from '../utils';
 import logger from '../helpers/logger';
+import debugPKG from 'debug';
+
+let debug = debugPKG('WXA:ConfigCompiler');
 
 export default class ConfigCompiler {
     parse(filepath, code) {
@@ -7,8 +10,9 @@ export default class ConfigCompiler {
 
         if (code == null) {
             logger.errorNow(`文件不存在, ${filepath}`);
-            return Promise.reject();
+            return Promise.reject(null);
         }
+        // debug('code, %O', JSON.parse(code));
 
         return Promise.resolve({config: JSON.parse(code)});
     }

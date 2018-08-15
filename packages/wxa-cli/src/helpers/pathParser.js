@@ -30,7 +30,7 @@ export default class PathParser {
             ret.isAPPAbsolute = true;
         } else if (validUrl.is_uri(x)) { // components from plugin or uri
             if (x.indexOf('plugin://') === 0) ret.isPlugin = true;
-            else if (x.indexOf('@wxa://') === 0) (ret.isWXALib = true, ret.name = x.slice(8));
+            else if (x.indexOf('wxa://') === 0) (ret.isWXALib = true, ret.name = x.slice(6));
             else ret.isURI = true;
         } else {
             logger.error('Path Error', '无法解析的路径类型: '+x);

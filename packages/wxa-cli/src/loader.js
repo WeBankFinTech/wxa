@@ -87,10 +87,10 @@ class CompilerLoader {
         this.modulePath = path.join(this.current, 'node_modules');
     }
     get(type='') {
-        // if (this.map[type] == null) {
-        //     logger.errorNow(`未知的编译器类型: ${type}, 请尝试安装对应的编译器（@wxa/compiler-${type}?）后并添加到wxa.config.js文件配置后，重新构建`);
-        //     process.exit(0);
-        // }
+        if (this.map[type] == null) {
+            logger.errorNow(`未知的编译器类型: ${type}, 请尝试安装对应的编译器（@wxa/compiler-${type}?）后并添加到wxa.config.js文件配置后，重新构建`);
+            process.exit(0);
+        }
 
         type = type.replace(/^\./, '');
 

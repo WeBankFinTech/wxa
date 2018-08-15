@@ -194,9 +194,12 @@ class Schedule extends EventEmitter {
                 },
             };
 
+            // debug('before transform %O', dep);
+
             let ret = await amazingCache(cacheParams, this.options.cache && code);
 
-            debug('transform succ %O', ret);
+            debug('%o transform succ %O', dep, ret);
+            if (ret == null) throw new Error('编译失败');
 
             // todo: app.js or app.wxa will do compile twice.
             // drop template from app.wxa
@@ -208,6 +211,8 @@ class Schedule extends EventEmitter {
 
             if (ret.rst) {
                 dep.rst = ret.rst;
+                // app.wxa do not have template to compile.
+                if (dep.category && dep.category.toUpperCase() === 'APP') delete dep.rst.template;
 
                 this.$$parseRST(dep);
             }
@@ -320,7 +325,10 @@ class Schedule extends EventEmitter {
     tryWrapWXA(dep) {
         if (dep.type === 'wxa') return;
 
-        if (~['app', 'component', 'page'].indexOf(dep.category) && dep.type === 'js') {
+        if (
+            ~['app', 'component', 'page'].indexOf(dep.category ? dep.category.toLowerCase() : '') &&
+            dep.type === 'js'
+        ) {
             if (dep.code == null) dep.code= readFile(dep.src);
 
             if (dep.code == null) dep.code = '';
