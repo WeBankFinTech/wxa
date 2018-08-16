@@ -41,7 +41,7 @@ export default class ASTManager {
                     path.node.arguments.length
                 ) {
                     dep = path.node.arguments[0].value;
-                    debug('callExpression %s', dep);
+                    debug('callExpression %s %O', dep, mdl);
                 } else if (
                     path.node.type === 'ImportDeclaration' &&
                     path.node.source &&
@@ -58,7 +58,7 @@ export default class ASTManager {
                 let outputPath = dr.getOutputPath(source, pret, mdl);
                 let resolved = dr.getResolved(lib, source, outputPath, mdl);
 
-                debug('%s output\'s resolved is %s', dep, resolved);
+                debug('%s output\'s resolved is %s output path is %s, and source is %s', dep, resolved, outputPath, source);
                 libs.push({
                     src: source,
                     pret: pret,
@@ -71,16 +71,23 @@ export default class ASTManager {
                         resolved,
                     },
                 });
-
-                if (path.node.type === 'CallExpression') {
-                    console.log(resolved);
-                    path.replaceWithSourceString(`require("${resolved}")`);
-                } else {
-                    path.get('source').replaceWith(t.stringLiteral(resolved));
-                }
             },
         });
 
+        libs.forEach((lib)=>{
+            try {
+                if (lib.reference.$$ASTPath) {
+                    let path = lib.reference.$$ASTPath;
+                    if (path.node.type === 'CallExpression') {
+                        path.replaceWithSourceString(`require("${lib.reference.resolved}")`);
+                    } else {
+                        path.get('source').replaceWith(t.stringLiteral(lib.reference.resolved));
+                    }
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        });
         debug('dependencies libs %O', libs);
         return libs;
     }
