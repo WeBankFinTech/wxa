@@ -22,7 +22,7 @@ export default class CScript {
         this.dist = dist;
         this.ext = ext;
 
-        this.$sourceType = 'script';
+        this.$sourceType = (ext||'').replace(/^\./, '') === 'wxs' ? 'wxs' : 'script';
         this.options = options || {};
         this.code = '';
         let configs = getConfig();
