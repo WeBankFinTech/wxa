@@ -2,6 +2,9 @@ import * as NODE from '../const/node';
 import path from 'path';
 import DependencyResolver from '../helpers/dependencyResolver';
 import PathParser from '../helpers/pathParser';
+import debugPKG from 'debug';
+
+let debug = debugPKG('WXA:XMLManager');
 
 // const SOURCE_ATTR = ['src', 'href'];
 // const STYLE_
@@ -17,29 +20,41 @@ class XMLManager {
 
         let libs = this.walkXML(mdl.xml, mdl);
 
+        debug('libs in xml %O', libs);
+
         return libs;
     }
 
     walkXML(xml, mdl) {
+        debug('walk xml start %s', xml.nodeType);
         let libs = [];
         // ignore comment
         if (xml.nodeType === NODE.COMMENT_NODE) return libs;
 
         if (xml.nodeType === NODE.ELEMENT_NODE) {
             // element p view
+            debug('xml %O', xml);
             libs = libs.concat(this.walkAttr(xml.attributes, mdl));
-        } else if (xml.childNodes && xml.childNodes.length) {
+        }
+
+        if (xml.childNodes) {
             libs = libs.concat(Array.prototype.slice.call(xml.childNodes).reduce((ret, child)=>{
                 return ret.concat(this.walkXML(child, mdl));
             }, []));
-        } else {
-            return libs;
         }
+
+        return libs;
     }
 
     walkAttr(attributes, mdl) {
         let libs = [];
-        for (let attr of attributes) {
+        debug('attributes walk %o', attributes);
+        for (let name in attributes) {
+            if (!attributes.hasOwnProperty(name)) continue;
+
+            let attr = attributes[name];
+
+            debug('attribute %O', attr);
             switch (attr.nodeName) {
                 case 'src':
                 case 'href': {
@@ -66,34 +81,40 @@ class XMLManager {
                     // add parentNode to it.
                     subLibs = subLibs.map((lib)=>(lib.$$AttrNode=attr, lib));
                     // normalize dependencies.
-                    libs.concat(subLibs);
+                    libs = libs.concat(subLibs);
                 }
 
                 default: {
                 }
             }
         }
+        debug('attributes walk end libs %o', libs);
+        return libs;
     }
 
     resolveStyle(str, mdl) {
         let libs = [];
-
+        debug('style resolve start');
         str.replace(
             /(?:\/\*[\s\S]*?\*\/|(?:[^\\:]|^)\/\/.*)|(\.)?url\(['"]?([\w\d_\-\.\/@]+)['"]?\)/igm,
             (match, point, lib)=>{
+                debug('style lib %s', lib);
                 // a.require()
                 if (point) return match;
                 // ignore comment
                 if (point == null && lib == null) return match;
+                let dr = new DependencyResolver(this.resolve, this.meta);
 
-                let dr = new DependencyResolver(this.current, this.resolve, this.meta);
-
-                let meta = dr.resolveDep(lib, mdl);
+                let {source, pret} = dr.resolveDep(lib, mdl);
+                let outputPath = dr.getOutputPath(source, pret, mdl);
+                let resolved = dr.getResolved(lib, source, outputPath, mdl);
 
                 libs.push({
-                    src: meta.source,
-                    pret: meta.pret,
-                    $$meta: meta,
+                    src: source,
+                    pret: pret,
+                    meta: {
+                        source, outputPath,
+                    },
                     reference: {
                         $$style: str,
                         $$match: match,
@@ -101,7 +122,9 @@ class XMLManager {
                     },
                 });
 
-                return match;
+                debug('libs %O', libs);
+
+                return resolved;
             }
         );
 
