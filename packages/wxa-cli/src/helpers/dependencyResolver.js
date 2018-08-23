@@ -111,6 +111,9 @@ class DependencyResolver {
     }
 
     getResolved(lib, source, target, mdl) {
+        // if Plugin resource or remote url do not change resolved path.
+        if (target == null) return lib;
+
         let resolved = '';
         let opath = path.parse(mdl.src);
         let ext = path.extname(source);

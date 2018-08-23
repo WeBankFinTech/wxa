@@ -194,8 +194,6 @@ class Schedule extends EventEmitter {
                 },
             };
 
-            // debug('before transform %O', dep);
-
             let ret = await amazingCache(cacheParams, this.options.cache && code);
 
             debug('%o transform succ %O', dep, ret);
@@ -271,6 +269,7 @@ class Schedule extends EventEmitter {
     $$parseXML(mdl) {
         let deps = new XMLManager(this.wxaConfigs.resolve||{}, this.meta).parse(mdl);
 
+        debug('xml dependencies %o', deps);
         // analysis deps;
         mdl.childNotes = mdl.childNotes || [];
         deps.forEach((dep)=>{
