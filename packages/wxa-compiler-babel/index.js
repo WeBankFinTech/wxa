@@ -1,4 +1,5 @@
-import {transformSync} from 'babel-core';
+import {transform} from 'babel-core';
+// import {transformSync} from '@babel/core';
 import fs from 'fs';
 import path from 'path';
 
@@ -26,7 +27,7 @@ class BabelCompiler {
             return Promise.resolve(content);
         } else {
             try {
-                let rst = transformSync(content, {
+                let rst = transform(content, {
                     ...configs,
                     filename: opath.base
                 });
