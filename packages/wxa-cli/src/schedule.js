@@ -3,13 +3,14 @@ import path from 'path';
 import bar from './helpers/progressBar';
 import logger from './helpers/logger';
 import {EventEmitter} from 'events';
-import compilerLoader from './loader';
+import loader from './loader';
 import ASTManager from './ast/index';
 import XMLManager from './xml/index';
 import COLOR from './const/color';
 import debugPKG from 'debug';
 import defaultPret from './const/defaultPret';
 import wrapWxa from './helpers/wrapWxa';
+import compiler from './compilers/index';
 
 /**
  * todo:
@@ -100,7 +101,7 @@ class Schedule extends EventEmitter {
                 try {
                     this.$pageArray.push({
                         src: wxaPage,
-                        type: 'wxa',
+                        sourceType: 'wxa',
                         category: 'Page',
                         pagePath: page,
                         pret: defaultPret,
@@ -114,7 +115,7 @@ class Schedule extends EventEmitter {
                     if (isFile(p)) {
                         this.$pageArray.push({
                             src: p,
-                            type: ext,
+                            sourceType: ext,
                             category: 'Page',
                             pagePath: page,
                             pret: defaultPret,
@@ -134,7 +135,7 @@ class Schedule extends EventEmitter {
         let libs = this.meta.libs.map((file)=>{
             let libDep = {
                 src: path.join(this.meta.current, this.meta.src, '_wxa', file),
-                type: 'js',
+                sourceType: 'js',
                 $from: path.join(this.meta.libSrc, file),
                 category: 'Lib',
                 pret: defaultPret,
@@ -172,34 +173,34 @@ class Schedule extends EventEmitter {
     }
 
     async $parse(dep) {
-        let compiler = compilerLoader.get(dep.type || path.extname(dep.src));
-        debug('compiler %o', compiler);
+        // loader use custom compiler to load resource.
+        await loader.compile(dep);
 
         // try to wrap wxa every app and page
         this.tryWrapWXA(dep);
 
         try {
-            let code = dep.code || readFile(dep.src) || false;
+            let code = dep.code || void(0);
 
-            let cacheParams = {
-                source: code,
-                options: {
-                    configs: {
-                        ast: true,
-                        ...(compiler.configs || {}),
-                    },
-                },
-                transform: (code, options)=>{
-                    return compiler.parse(code, options.configs, dep.src, dep.type || path.extname(dep.src));
-                },
-            };
+            // Todo: conside if cache is necessary here.
+            // let cacheParams = {
+            //     source: code,
+            //     options: {
+            //         configs: {
+            //             ast: true,
+            //         },
+            //     },
+            //     transform: (code, options)=>{
+            //         return compiler.parse(code, options.configs, dep.src, dep.sourceType || path.extname(dep.src));
+            //     },
+            // };
 
-            let ret = await amazingCache(cacheParams, this.options.cache && code);
+            let ret = await compiler.parse(code, {}, dep.src, dep.sourceType || dep.compileTo || path.extname(dep.src));
 
             debug('%o transform succ %O', dep, ret);
             if (ret == null) throw new Error('编译失败');
 
-            // todo: app.js or app.wxa will do compile twice.
+            // Todo: app.js or app.wxa will do compile twice.
             // drop template from app.wxa
             if (ret.rst && dep.category === 'app') delete ret.rst.template;
 
@@ -322,11 +323,11 @@ class Schedule extends EventEmitter {
     }
 
     tryWrapWXA(dep) {
-        if (dep.type === 'wxa') return;
+        if (dep.sourceType === 'wxa') return;
 
         if (
             ~['app', 'component', 'page'].indexOf(dep.category ? dep.category.toLowerCase() : '') &&
-            dep.type === 'js'
+            dep.sourceType === 'js'
         ) {
             if (dep.code == null) dep.code= readFile(dep.src);
 

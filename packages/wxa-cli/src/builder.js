@@ -6,6 +6,7 @@ import chokidar from 'chokidar';
 import schedule from './schedule';
 import logger from './helpers/logger';
 import compilerLoader from './loader';
+import compiler from './compilers/index';
 import debugPKG from 'debug';
 import {green} from 'chalk';
 import defaultPret from './const/defaultPret';
@@ -14,7 +15,7 @@ import Generator from './generator';
 
 let debug = debugPKG('WXA:Compiler');
 
-class Compiler {
+class Builder {
     constructor(src, dist, ext) {
         this.current = process.cwd();
         this.src = src || 'src';
@@ -48,17 +49,14 @@ class Compiler {
 
         return refs;
     }
-    init() {
+    init(cmd) {
         // 加载编译器
         const configs = getConfig();
         schedule.set('wxaConfigs', configs || {});
 
-        // mount compilers
-        const defaultCompilers = [];
-        const usedCompilers = Array.from(new Set(defaultCompilers.concat(configs.use || [])));
-
+        // mount loader
         return compilerLoader
-        .mount(usedCompilers, configs.compilers||{});
+        .mount(configs.use, cmd);
     }
     watch(cmd) {
         if (this.isWatching) return;
@@ -119,14 +117,12 @@ class Compiler {
         }
 
         try {
-            await this.init();
+            // initial loader.
+            await this.init(cmd);
 
-            // debug('compiler loader init map %O', compilerLoader.map);
-
+            // read entry file.
             let p;
             if (isWXA) {
-                let compiler = compilerLoader.get('wxa');
-
                 p = ()=>compiler.parse(void(0), void(0), wxaJSON, 'wxa');
             } else {
                 p = ()=>Promise.resolve({
@@ -155,7 +151,7 @@ class Compiler {
 
             // do dependencies analysis.
             await schedule.doDPA();
-            debug('schedule dependencies Tree %O', schedule.$indexOfModule);
+            debug('schedule dependencies Tree is %O', schedule.$indexOfModule);
 
             // module optimize, dependencies merge, minor.
             let optimizer = new Optimizer(schedule.wxaConfigs.resolve, schedule.meta);
@@ -183,4 +179,4 @@ class Compiler {
 }
 
 
-export default Compiler;
+export default Builder;
