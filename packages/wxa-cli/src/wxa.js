@@ -1,5 +1,5 @@
 import commander from 'commander';
-import Compiler from './compiler';
+import Builder from './builder';
 import chalk from 'chalk';
 // import {info, error, warn} from './utils';
 import logger from './helpers/logger';
@@ -20,7 +20,7 @@ commander
     .action((cmd)=>{
         // console.log(cmd);
         logger.infoNow('Hello', `This is ${chalk.keyword('orange')('wxa@'+version)}, Running in ${chalk.keyword('orange')(process.env.NODE_ENV || 'development')}`);
-        new Compiler().build(cmd);
+        new Builder().build(cmd);
     });
 
 commander
@@ -42,22 +42,22 @@ commander
         let toolcli = new Toolcli();
         switch (action) {
             case 'open': {
-                toolcli.open(cmd).catch((e)=>error(e));
+                toolcli.open(cmd).catch((e)=>(e));
                 break;
             }
             case 'login': {
-                toolcli.login().catch((e)=>error(e));
+                toolcli.login().catch((e)=>(e));
                 break;
             }
             case 'preview': {
-                toolcli.preview(cmd).catch((e)=>error(e));
+                toolcli.preview(cmd).catch((e)=>(e));
                 break;
             }
             case 'upload': {
-                toolcli.upload(cmd).catch((e)=>error(e));
+                toolcli.upload(cmd).catch((e)=>(e));
                 break;
             }
-            default: warn('无效的命令');
+            default: ('无效的命令');
         }
     });
 
