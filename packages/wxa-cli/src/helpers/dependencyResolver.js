@@ -19,34 +19,11 @@ class DependencyResolver {
     }
 
     resolveDep(lib, mdl, {needFindExt=false}={}) {
-        let opath = path.parse(mdl.src);
+        // let opath = path.parse(mdl.src);
 
-        let source = '';
         let ext = '';
 
-        // resolve alias;
-        if (this.resolve.alias && !mdl.isNpm) lib = resolveAlias(lib, this.resolve.alias, mdl.src);
-
-        let pret = new PathParser().parse(lib);
-
-        debug('%s path pret %o', lib, pret);
-
-        if (pret.isRelative || pret.isAPPAbsolute) {
-            source = pret.isAPPAbsolute ? path.join(this.meta.src, lib) : path.join(opath.dir, lib);
-        } else if (pret.isNodeModule) {
-            source = path.join(this.modulesPath, lib);
-            ext = '';
-        } else if (pret.isWXALib) {
-            source = path.join(this.meta.current, this.meta.src, '_wxa', pret.name);
-            ext = /\.js$/.test(pret.name) ? '' : '.js';
-
-            return {lib, source: source+ext, pret};
-        } else if (pret.isPlugin || pret.isURI) {
-            // url module
-            return {lib, source: lib, pret};
-        } else {
-            throw new Error('不支持的路径类型'+lib);
-        }
+        let {pret, source} = this.$resolve(lib, mdl);
 
         // 处理无后缀情况
         // ext = path.extname(source);
@@ -89,6 +66,36 @@ class DependencyResolver {
         };
     }
 
+    $resolve(lib, mdl) {
+        let opath = path.parse(mdl.src);
+
+        let source = '';
+        let ext = '';
+        // resolve alias;
+        if (this.resolve.alias && !mdl.isNpm) lib = resolveAlias(lib, this.resolve.alias, mdl.src);
+
+        let pret = new PathParser().parse(lib);
+
+        debug('%s path pret %o', lib, pret);
+
+        if (pret.isRelative || pret.isAPPAbsolute) {
+            source = pret.isAPPAbsolute ? path.join(this.meta.src, lib) : path.join(opath.dir, lib);
+        } else if (pret.isNodeModule) {
+            source = path.join(this.modulesPath, lib);
+            ext = '';
+        } else if (pret.isWXALib) {
+            source = path.join(this.meta.current, this.meta.src, '_wxa', pret.name+ext);
+            ext = /\.js$/.test(pret.name) ? '' : '.js';
+        } else if (pret.isPlugin || pret.isURI) {
+            // url module
+            source = lib;
+        } else {
+            throw new Error('不支持的路径类型'+lib);
+        }
+
+        return {lib, source, pret};
+    }
+
     getOutputPath(source, pret, mdl) {
         if (pret.isRelative || pret.isAPPAbsolute || pret.isNodeModule || pret.isWXALib) {
             let relative;
@@ -116,7 +123,6 @@ class DependencyResolver {
 
         let resolved = '';
         let opath = path.parse(mdl.src);
-        let ext = path.extname(source);
 
         // modify path with lib.
         // always require relative path of file.
@@ -130,7 +136,7 @@ class DependencyResolver {
                 if (lib[0] === '.' && lib[1] === '.') resolved = './'+resolved;
             }
         } else {
-            resolved = path.relative(getDistPath(opath, ext, this.meta.src, this.meta.dist), target).split(path.sep).join('/').replace(/^\.\.\//, './');
+            resolved = path.relative(getDistPath(opath, void(0), this.meta.src, this.meta.dist), target).split(path.sep).join('/').replace(/^\.\.\//, './');
         }
         // 转化windowd的\\，修复path, relative需要向上一级目录的缺陷
         resolved = resolved.replace(/\\/g, '/');

@@ -8,6 +8,7 @@ import CSSManager from '../resolvers/css/index';
 import defaultPret from '../const/defaultPret';
 import debugPKG from 'debug';
 import path from 'path';
+import ComponentManager from '../resolvers/component';
 
 let debug = debugPKG('WXA:Compilers');
 
@@ -42,9 +43,10 @@ class Compiler {
         // drop template from app.wxa
         if (ret.rst && mdl.category === 'app') delete ret.rst.template;
 
-        if (typeof ret === 'string') {
-            mdl.code = ret;
-        }
+        // support not ever happened.
+        // if (typeof ret === 'string') {
+        //     mdl.code = ret;
+        // }
 
         if (ret.rst) {
             mdl.rst = ret.rst;
@@ -67,7 +69,16 @@ class Compiler {
             children.push(this.$$parseAST(mdl));
         }
 
-        if (ret.config) mdl.config = ret.config;
+        if (ret.css) {
+            mdl.css = ret.css;
+
+            children.push(this.$$parseCSS(mdl));
+        }
+
+        if (ret.json) {
+            mdl.json = ret.json;
+            this.$$parseJSON(mdl);
+        }
 
         return children;
     }
@@ -85,7 +96,7 @@ class Compiler {
 
             case 'css':
             case 'wxss': {
-                return new CSSCompiler().parse(filepath, code, configs);
+                return Promise.resolve({css: code});
             }
 
             case 'wxml': {
@@ -142,6 +153,29 @@ class Compiler {
         debug('xml dependencies %o', deps);
         // analysis deps;
         return deps;
+    }
+
+    $$parseCSS(mdl) {
+        let deps = new CSSManager(this.wxaConfigs.resolve || {}, this.meta).parse(mdl);
+
+        debug('css dependencies %o', deps);
+        return deps;
+    }
+
+    $$parseJSON(mdl) {
+        let category = mdl.category ? mdl.category.toLowerCase() : '';
+        if (
+            !~['app', 'component', 'page'].indexOf(category)
+        ) {
+            // normal json file or empty json file doesn't need to be resolved.
+            return;
+        }
+
+        // Todo: global component
+        // if (category === 'app') {}
+
+        // Page or Component resolve
+        return new ComponentManager(this.resolve, this.meta).parse(mdl);
     }
 }
 
