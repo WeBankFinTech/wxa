@@ -14,6 +14,6 @@ export default class ConfigCompiler {
         }
         // debug('code, %O', JSON.parse(code));
 
-        return Promise.resolve({config: JSON.parse(code)});
+        return Promise.resolve({json: JSON.parse(code)});
     }
 }

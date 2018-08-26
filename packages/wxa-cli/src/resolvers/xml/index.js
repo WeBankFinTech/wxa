@@ -1,7 +1,7 @@
 import * as NODE from '../../const/node';
 import path from 'path';
 import DependencyResolver from '../../helpers/dependencyResolver';
-import PathParser from '../../helpers/pathParser';
+import CSSManager from '../css/index';
 import debugPKG from 'debug';
 
 let debug = debugPKG('WXA:XMLManager');
@@ -76,7 +76,7 @@ class XMLManager {
                 }
 
                 case 'style': {
-                    let subLibs = this.resolveStyle(attr.nodeValue, mdl);
+                    let subLibs = CSSManager.resolveStyle(attr.nodeValue, mdl);
 
                     // add parentNode to it.
                     subLibs = subLibs.map((lib)=>(lib.$$AttrNode=attr, lib));
@@ -89,45 +89,6 @@ class XMLManager {
             }
         }
         debug('attributes walk end libs %o', libs);
-        return libs;
-    }
-
-    resolveStyle(str, mdl) {
-        let libs = [];
-        debug('style resolve start');
-        str.replace(
-            /(?:\/\*[\s\S]*?\*\/|(?:[^\\:]|^)\/\/.*)|(\.)?url\(['"]?([\w\d_\-\.\/@]+)['"]?\)/igm,
-            (match, point, lib)=>{
-                debug('style lib %s', lib);
-                // a.require()
-                if (point) return match;
-                // ignore comment
-                if (point == null && lib == null) return match;
-                let dr = new DependencyResolver(this.resolve, this.meta);
-
-                let {source, pret} = dr.resolveDep(lib, mdl);
-                let outputPath = dr.getOutputPath(source, pret, mdl);
-                let resolved = dr.getResolved(lib, source, outputPath, mdl);
-
-                libs.push({
-                    src: source,
-                    pret: pret,
-                    meta: {
-                        source, outputPath,
-                    },
-                    reference: {
-                        $$style: str,
-                        $$match: match,
-                        $$category: 'xml',
-                    },
-                });
-
-                debug('libs %O', libs);
-
-                return resolved;
-            }
-        );
-
         return libs;
     }
 }

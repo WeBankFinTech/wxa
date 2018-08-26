@@ -91,7 +91,7 @@ class Schedule extends EventEmitter {
         }
 
         // pages spread
-        let exts = Object.keys(compilerLoader.map);
+        let exts = ['.wxml', '.wxss', '.js', '.json'];
         pages.forEach((page)=>{
             // wxa file
             let wxaPage = path.join(this.current, this.src, page+this.meta.wxaExt);
