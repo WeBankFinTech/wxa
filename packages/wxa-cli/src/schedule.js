@@ -4,8 +4,6 @@ import bar from './helpers/progressBar';
 import logger from './helpers/logger';
 import {EventEmitter} from 'events';
 import loader from './loader';
-import ASTManager from './ast/index';
-import XMLManager from './xml/index';
 import COLOR from './const/color';
 import debugPKG from 'debug';
 import defaultPret from './const/defaultPret';
@@ -180,8 +178,6 @@ class Schedule extends EventEmitter {
         this.tryWrapWXA(dep);
 
         try {
-            let code = dep.code || void(0);
-
             // Todo: conside if cache is necessary here.
             // let cacheParams = {
             //     source: code,
@@ -195,41 +191,10 @@ class Schedule extends EventEmitter {
             //     },
             // };
 
-            let ret = await compiler.parse(code, {}, dep.src, dep.sourceType || dep.compileTo || path.extname(dep.src));
+            let childNodes = await compiler.parse(dep);
 
-            debug('%o transform succ %O', dep, ret);
-            if (ret == null) throw new Error('编译失败');
-
-            // Todo: app.js or app.wxa will do compile twice.
-            // drop template from app.wxa
-            if (ret.rst && dep.category === 'app') delete ret.rst.template;
-
-            if (typeof ret === 'string') {
-                dep.code = ret;
-            }
-
-            if (ret.rst) {
-                dep.rst = ret.rst;
-                // app.wxa do not have template to compile.
-                if (dep.category && dep.category.toUpperCase() === 'APP') delete dep.rst.template;
-
-                this.$$parseRST(dep);
-            }
-
-            if (ret.xml) {
-                dep.xml = ret.xml;
-
-                this.$$parseXML(dep);
-            }
-
-            if (ret.ast) {
-                // only allow babel-ast
-                dep.ast = ret.ast;
-
-                this.$$parseAST(dep);
-            }
-
-            if (ret.config) dep.config = ret.config;
+            debug('childNodes', childNodes);
+            childNodes.forEach((node)=>this.findOrAddDependency(node, dep));
 
             dep.color = COLOR.COMPILED;
             // tick event
@@ -240,43 +205,6 @@ class Schedule extends EventEmitter {
             // logger.errorNow('编译失败', e);
             debug('编译失败 %O', e);
         }
-    }
-
-    $$parseRST(mdl) {
-        // spread mdl with child nodes
-        mdl.childNotes = mdl.childNotes || [];
-        Object.keys(mdl.rst).forEach((key)=>{
-            let dep = mdl.rst[key];
-            // wxa file pret object should as same as his parent node.
-            dep.pret = mdl.pret || defaultPret;
-            dep.category = mdl.category || '';
-            dep.pagePath = mdl.pagePath || void(0);
-            let child = this.findOrAddDependency(dep, mdl);
-            mdl.childNotes.push(child);
-        });
-    }
-
-    $$parseAST(mdl) {
-        let deps = new ASTManager(this.wxaConfigs.resolve||{}, this.meta).parse(mdl);
-
-        // analysis deps;
-        mdl.childNotes = mdl.childNotes || [];
-        deps.forEach((dep)=>{
-            let child = this.findOrAddDependency(dep, mdl);
-            mdl.childNotes.push(child);
-        });
-    }
-
-    $$parseXML(mdl) {
-        let deps = new XMLManager(this.wxaConfigs.resolve||{}, this.meta).parse(mdl);
-
-        debug('xml dependencies %o', deps);
-        // analysis deps;
-        mdl.childNotes = mdl.childNotes || [];
-        deps.forEach((dep)=>{
-            let child = this.findOrAddDependency(dep, mdl);
-            mdl.childNotes.push(child);
-        });
     }
 
     findOrAddDependency(dep, mdl) {
