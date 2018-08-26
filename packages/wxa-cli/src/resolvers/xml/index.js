@@ -1,7 +1,7 @@
-import * as NODE from '../const/node';
+import * as NODE from '../../const/node';
 import path from 'path';
-import DependencyResolver from '../helpers/dependencyResolver';
-import PathParser from '../helpers/pathParser';
+import DependencyResolver from '../../helpers/dependencyResolver';
+import PathParser from '../../helpers/pathParser';
 import debugPKG from 'debug';
 
 let debug = debugPKG('WXA:XMLManager');

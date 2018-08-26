@@ -3,11 +3,11 @@ import * as t from '@babel/types';
 import template from '@babel/template';
 import generate from '@babel/generator';
 import path from 'path';
-import PathParser from '../helpers/pathParser';
-import {getDistPath, isFile, readFile, isDir} from '../utils';
+import PathParser from '../../helpers/pathParser';
+import {getDistPath, isFile, readFile, isDir} from '../../utils';
 import findRoot from 'find-root';
-import resolveAlias from '../helpers/alias';
-import DependencyResolver from '../helpers/dependencyResolver';
+import resolveAlias from '../../helpers/alias';
+import DependencyResolver from '../../helpers/dependencyResolver';
 import debugPKG from 'debug';
 
 let debug = debugPKG('WXA:ASTManager');
