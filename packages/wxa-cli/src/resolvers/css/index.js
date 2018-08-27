@@ -15,10 +15,10 @@ export default class CSSManager {
 
         if (mdl.css == null) return [];
 
-        return CSSManager.resolveStyle(mdl.css, mdl);
+        return this.resolveStyle(mdl.css, mdl);
     }
 
-    static resolveStyle(str, mdl) {
+    resolveStyle(str, mdl) {
         let libs = [];
         debug('style resolve start');
         str.replace(

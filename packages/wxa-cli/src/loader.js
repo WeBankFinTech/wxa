@@ -13,7 +13,7 @@ class CompilerLoader {
         this.loaders = [];
     }
 
-    mount(useLoaders, cmdOptions) {
+    mount(useLoaders=[], cmdOptions) {
         let coms = useLoaders.map((loader)=>{
             let Loader;
             let uri;

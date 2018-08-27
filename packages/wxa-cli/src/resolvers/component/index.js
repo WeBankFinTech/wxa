@@ -2,6 +2,9 @@ import DependencyResolver from '../../helpers/dependencyResolver';
 import PathParser from '../../helpers/pathParser';
 import logger from '../../helpers/logger';
 import {isFile} from '../../utils';
+import debugPKG from 'debug';
+
+let debug = debugPKG('WXA:ComponentManager');
 
 export default class ComponentManager {
     constructor(resolve, meta) {
@@ -12,10 +15,11 @@ export default class ComponentManager {
     }
 
     parse(mdl) {
-        if (mdl.json == null) return [];
+        debug('module to parse %O', mdl);
+        if (mdl.json == null || mdl.json.usingComponents == null) return [];
 
+        debug('coms %O', Object.keys(mdl.json.usingComponents));
         if (
-            mdl.json.usingComponents ||
             Object.keys(mdl.json.usingComponents).length === 0
         ) {
             return [];
@@ -23,6 +27,7 @@ export default class ComponentManager {
 
         let childNodes = this.resolveComponents(mdl.json.usingComponents, mdl);
 
+        debug('component childNodes %O', childNodes);
         return childNodes;
     }
 
@@ -34,7 +39,7 @@ export default class ComponentManager {
             try {
                 let {source, pret} = dr.$resolve(com, mdl);
                 let outputPath = dr.getOutputPath(source, pret, mdl);
-                let resolved = dr.getResolved(com, source, mdl);
+                let resolved = dr.getResolved(com, source, outputPath, mdl);
 
                 if (pret.isPlugin || pret.isURI) return ret;
 
@@ -53,6 +58,7 @@ export default class ComponentManager {
                             ret.push({
                                 src,
                                 pret,
+                                category: 'Component',
                                 meta: {
                                     source: src, outputPath,
                                 },
@@ -64,8 +70,10 @@ export default class ComponentManager {
                 }
 
                 coms[alias] = resolved;
+                return ret;
             } catch (e) {
                 logger.warn(e);
+                debug(e);
                 return ret;
             }
         }, []);

@@ -12,8 +12,9 @@ import {green} from 'chalk';
 import defaultPret from './const/defaultPret';
 import Optimizer from './optimizer';
 import Generator from './generator';
+import Compiler from './compilers/index';
 
-let debug = debugPKG('WXA:Compiler');
+let debug = debugPKG('WXA:Builder');
 
 class Builder {
     constructor(src, dist, ext) {
@@ -121,9 +122,18 @@ class Builder {
             await this.init(cmd);
 
             // read entry file.
+            let entryMdl = {
+                src: wxaJSON,
+                type: 'wxa',
+                category: 'App',
+                pret: defaultPret,
+            };
             let p;
             if (isWXA) {
-                p = ()=>compiler.parse(void(0), void(0), wxaJSON, 'wxa');
+                p = ()=>{
+                    let compiler = new Compiler(schedule.wxaConfigs.resolve, schedule.meta);
+                    return compiler.$parse(void(0), void(0), wxaJSON, 'wxa', entryMdl);
+                };
             } else {
                 p = ()=>Promise.resolve({
                     script: {
@@ -137,17 +147,12 @@ class Builder {
 
             let ret = await p();
             let rst = ret.rst || ret;
+            entryMdl.rst = rst;
 
             let appConfigs = JSON.parse(rst.config.code);
             // mount to schedule.
             schedule.set('appConfigs', appConfigs);
-            schedule.set('$pageArray', [{
-                src: wxaJSON,
-                rst: rst,
-                type: 'wxa',
-                category: 'App',
-                pret: defaultPret,
-            }]);
+            schedule.set('$pageArray', [entryMdl]);
 
             // do dependencies analysis.
             await schedule.doDPA();
