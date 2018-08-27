@@ -76,7 +76,8 @@ class XMLManager {
                 }
 
                 case 'style': {
-                    let subLibs = CSSManager.resolveStyle(attr.nodeValue, mdl);
+                    let CM = new CSSManager(this.resolve, this.meta);
+                    let subLibs = CM.resolveStyle(attr.nodeValue, mdl);
 
                     // add parentNode to it.
                     subLibs = subLibs.map((lib)=>(lib.$$AttrNode=attr, lib));

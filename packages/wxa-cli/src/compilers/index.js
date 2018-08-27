@@ -21,13 +21,17 @@ const jsOptions = {
  *
  * @class EmptyCompiler
  */
-class Compiler {
-    constructor(cwd) {
-        this.current = cwd;
+export default class Compiler {
+    constructor(resolve, meta) {
+        this.current = meta.current;
         this.configs = {};
+        this.resolve = resolve;
+        this.meta = meta;
     }
 
     async parse(mdl) {
+        debug('module to parse %O', mdl);
+
         let children = [];
         let code = mdl.code || void(0);
         let type = mdl.sourceType || mdl.compileTo || path.extname(mdl.src);
@@ -38,6 +42,9 @@ class Compiler {
         };
 
         let ret = await this.$parse(code, options[type], mdl.src, type, mdl);
+
+        debug('parse ret %O %O', mdl, ret);
+        if (ret == null) return [];
 
         // Todo: app.js or app.wxa will do compile twice.
         // drop template from app.wxa
@@ -53,31 +60,31 @@ class Compiler {
             // app.wxa do not have template to compile.
             if (mdl.category && mdl.category.toUpperCase() === 'APP') delete mdl.rst.template;
 
-            children.push(this.$$parseRST(mdl));
+            children = children.concat(this.$$parseRST(mdl));
         }
 
         if (ret.xml) {
             mdl.xml = ret.xml;
 
-            children.push(this.$$parseXML(mdl));
+            children = children.concat(this.$$parseXML(mdl));
         }
 
         if (ret.ast) {
             // only allow babel-ast
             mdl.ast = ret.ast;
 
-            children.push(this.$$parseAST(mdl));
+            children = children.concat(this.$$parseAST(mdl));
         }
 
         if (ret.css) {
             mdl.css = ret.css;
 
-            children.push(this.$$parseCSS(mdl));
+            children = children.concat(this.$$parseCSS(mdl));
         }
 
         if (ret.json) {
             mdl.json = ret.json;
-            this.$$parseJSON(mdl);
+            children = children.concat(this.$$parseJSON(mdl));
         }
 
         return children;
@@ -141,14 +148,14 @@ class Compiler {
     }
 
     $$parseAST(mdl) {
-        let deps = new ASTManager(this.wxaConfigs.resolve||{}, this.meta).parse(mdl);
+        let deps = new ASTManager(this.resolve||{}, this.meta).parse(mdl);
 
         // analysis deps;
         return deps;
     }
 
     $$parseXML(mdl) {
-        let deps = new XMLManager(this.wxaConfigs.resolve||{}, this.meta).parse(mdl);
+        let deps = new XMLManager(this.resolve||{}, this.meta).parse(mdl);
 
         debug('xml dependencies %o', deps);
         // analysis deps;
@@ -156,7 +163,7 @@ class Compiler {
     }
 
     $$parseCSS(mdl) {
-        let deps = new CSSManager(this.wxaConfigs.resolve || {}, this.meta).parse(mdl);
+        let deps = new CSSManager(this.resolve || {}, this.meta).parse(mdl);
 
         debug('css dependencies %o', deps);
         return deps;
@@ -178,5 +185,3 @@ class Compiler {
         return new ComponentManager(this.resolve, this.meta).parse(mdl);
     }
 }
-
-export default new Compiler();

@@ -8,7 +8,7 @@ import COLOR from './const/color';
 import debugPKG from 'debug';
 import defaultPret from './const/defaultPret';
 import wrapWxa from './helpers/wrapWxa';
-import compiler from './compilers/index';
+import Compiler from './compilers/index';
 
 /**
  * todo:
@@ -153,12 +153,12 @@ class Schedule extends EventEmitter {
 
     $doDPA() {
         let tasks = [];
-        while (this.$depPending.length) {
+        // while (this.$depPending.length) {
             let dep = this.$depPending.shift();
 
             debug('file to parse %O', dep);
             tasks.push(this.$parse(dep));
-        }
+        // }
 
         return Promise.all(tasks).then((succ)=>{
             if (this.$depPending.length === 0) {
@@ -190,7 +190,8 @@ class Schedule extends EventEmitter {
             //         return compiler.parse(code, options.configs, dep.src, dep.sourceType || path.extname(dep.src));
             //     },
             // };
-
+            debug('dep to process %O', dep);
+            let compiler = new Compiler(this.wxaConfigs.resolve, this.meta);
             let childNodes = await compiler.parse(dep);
 
             debug('childNodes', childNodes);
@@ -199,8 +200,6 @@ class Schedule extends EventEmitter {
             dep.color = COLOR.COMPILED;
             // tick event
             this.emit('tick', dep);
-            // continue
-            // this.$doDPA();
         } catch (e) {
             // logger.errorNow('编译失败', e);
             debug('编译失败 %O', e);
