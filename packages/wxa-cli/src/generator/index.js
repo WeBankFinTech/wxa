@@ -1,5 +1,5 @@
 import path from 'path';
-import ASTManager from '../ast';
+import ASTManager from '../resolvers/ast/index';
 import {writeFile, getDistPath, readFile} from '../utils';
 import debugPKG from 'debug';
 import DependencyResolver from '../helpers/dependencyResolver';
