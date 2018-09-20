@@ -58,6 +58,7 @@ class Schedule extends EventEmitter {
                         ...configs.resolve,
                     };
                 }
+                configs.target = configs.target || 'wxa';
                 wxaConfigs = configs;
             },
         });

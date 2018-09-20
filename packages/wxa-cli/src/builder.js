@@ -167,7 +167,7 @@ class Builder {
             await Promise.all(optimizeTasks);
 
             // module dest, dependencies copy,
-            let generator = new Generator(schedule.wxaConfigs.resolve, schedule.meta);
+            let generator = new Generator(schedule.wxaConfigs.resolve, schedule.meta, schedule.wxaConfigs);
             let generateTasks = schedule.$indexOfModule.map((mdl)=>{
                 return generator.do(mdl);
             });
