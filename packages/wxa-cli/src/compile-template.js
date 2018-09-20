@@ -1,9 +1,11 @@
 import {getDistPath, writeFile, readFile, info, error} from './utils';
 import {amazingCache} from './utils';
-import {AsyncSeriesHook} from 'tapable'
+import {AsyncSeriesHook} from 'tapable';
 import compilerLoader from './loader';
 import path from 'path';
 import logger from './helpers/logger';
+import schedule from './schedule';
+import PathParser from './helpers/pathParser';
 
 export default class CTemplate {
     constructor(src, dist, ext, options) {
@@ -19,6 +21,30 @@ export default class CTemplate {
             optimizeAssets: new AsyncSeriesHook(['opath', 'compilation']),
         };
     }
+    resolveDeps(content, opath) {
+        return content.replace(
+            // /([\.][\t\n\s]*)?require\([']([\w\d_\-\.\/@]+)['"]\)/ig,
+            /(?:\/\*[\s\S]*?\*\/|(?:[^\\:]|^)\/\/.*)|(\.)?src\s*=\s*['"]([\w\d_\-\.\/@]+)['"]/igm,
+
+            (match, point, lib)=>{
+                // a.require()
+                if (point) return match;
+                // ignore comment
+                if (point == null && lib == null) return match;
+
+                let pret = new PathParser().parse(lib);
+
+                if (pret.isRelative || pret.isAbsolute) {
+                    let source = pret.isRelative ? path.join(opath.dir, lib) : path.join(this.src, lib);
+
+                    schedule.addTask(path.parse(source));
+                }
+
+                return match;
+        });
+        // return content;
+    }
+
     compile(rst, opath) {
         if (typeof rst === 'string') {
             let filepath = path.join(opath.dir, opath.base);
@@ -38,23 +64,26 @@ export default class CTemplate {
             },
         }, this.options.cache).then((succ)=>{
             let code;
-            if(typeof succ === 'string') {
+            if (typeof succ === 'string') {
                 code = succ;
             } else {
                 code = succ.code;
             }
             // console.log('编译前', code);
-            this.code = code;
+            this.code = this.resolveDeps(code, path.parse(rst.src));
             this.$sourceFrom = rst.type;
             // console.log(this)
             return this.hooks.optimizeAssets.promise(opath, this).then((err)=>{
-                if(err) Promise.reject(err);
+                if (err) Promise.reject(err);
 
                 // console.log('编译后', this.code);
                 let target = getDistPath(path.parse(rst.src), 'wxml', this.src, this.dist);
                 logger.info('write', path.relative(this.current, target));
                 writeFile(target, this.code);
             });
-        }).catch((e)=>logger.errorNow('Error In: '+path.join(opath.dir, opath.base), e));
+        }).catch((e)=>{
+            console.error(e);
+            logger.errorNow('Error In: '+path.join(opath.dir, opath.base), e);
+        });
     }
 }
