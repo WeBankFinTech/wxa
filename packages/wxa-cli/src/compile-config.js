@@ -89,7 +89,7 @@ class CConfig {
             let dist = getDistPath(opath, 'json', this.src, this.dist);
             // logger.infoNow('dist', dist);
 
-            let resolved = path.relative(path.parse(dist).dir, target).replace(/\\/g, '/');
+            let resolved = './'+path.relative(path.parse(dist).dir, target).replace(/\\/g, '/');
             // logger.infoNow('resolved ', resolved);
 
             coms[key] = resolved;
