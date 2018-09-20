@@ -39,7 +39,7 @@ class Schedule extends EventEmitter {
         this[name] = value;
     }
 
-    parse(opath, rst, configs) {
+    parse(opath, rst, configs={}) {
         // console.log(count++);
         count++;
         if (rst) {
@@ -98,7 +98,7 @@ class Schedule extends EventEmitter {
                 case '.json': {
                     let cConfig = new CConfig(this.src, this.dist, this.options);
                     applyPlugins(cConfig);
-                    return cConfig.compile(void(0), opath);
+                    return cConfig.compile(void(0), opath, configs);
                 }
                 case '.wxml': {
                     let cTemplate = new CTemplate(this.src, this.dist, this.options);
