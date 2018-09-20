@@ -7,9 +7,10 @@ import DependencyResolver from '../helpers/dependencyResolver';
 let debug = debugPKG('WXA:Generator');
 
 export default class Generator {
-    constructor(resolve, meta) {
+    constructor(resolve, meta, configs) {
         this.resolve = resolve;
         this.meta = meta;
+        this.configs = configs;
     }
 
     do(mdl) {
@@ -21,6 +22,9 @@ export default class Generator {
         } else {
             outputPath = mdl.meta.outputPath;
         }
+
+        outputPath = this.tryTransFormExtension(outputPath);
+        debug('transform ext %s', outputPath);
 
         if (mdl.type === 'js' || path.extname(mdl.src) === '.js') {
             debug('do generate %O', mdl);
@@ -35,6 +39,22 @@ export default class Generator {
             writeFile(outputPath, readFile(mdl.src));
         } else if (!mdl.isAbstract) {
             writeFile(outputPath, mdl.code);
+        }
+    }
+
+    tryTransFormExtension(output) {
+        if (this.configs.target === 'wxa') {
+            // 小程序相关
+            let opath = path.parse(output);
+
+            let ext;
+            switch (opath.ext) {
+                case '.css': ext = '.wxss'; break;
+                case '.xml': ext = '.wxml'; break;
+                default: ext = opath.ext;
+            }
+
+            return opath.dir + path.sep + opath.name + ext;
         }
     }
 }

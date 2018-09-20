@@ -81,7 +81,7 @@ class CompilerLoader {
 
             if (test.test(mdl.src)) {
                 try {
-                    let {compileTo, content, ...rest} = await loader.parse(mdl.src, code, cmdOptions);
+                    let {compileTo, content, ...rest} = await loader.parse(mdl.src, code, cmdOptions, mdl);
 
                     // Todo: Multi loader with one string.
                     // resource transform is normal. ig. sass->css ts->js
