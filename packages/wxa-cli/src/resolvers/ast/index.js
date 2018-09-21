@@ -56,7 +56,7 @@ export default class ASTManager {
 
                 let {source, pret, lib} = dr.resolveDep(dep, mdl, {needFindExt: true});
                 let outputPath = dr.getOutputPath(source, pret, mdl);
-                let resolved = dr.getResolved(lib, source, outputPath, mdl);
+                let resolved = dr.getResolved(lib, outputPath, mdl);
 
                 debug('%s output\'s resolved is %s output path is %s, and source is %s', dep, resolved, outputPath, source);
                 libs.push({

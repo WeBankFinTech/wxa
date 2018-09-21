@@ -3,6 +3,7 @@ import PathParser from '../../helpers/pathParser';
 import logger from '../../helpers/logger';
 import {isFile} from '../../utils';
 import debugPKG from 'debug';
+import schedule from '../../schedule';
 
 let debug = debugPKG('WXA:ComponentManager');
 
@@ -16,7 +17,19 @@ export default class ComponentManager {
 
     parse(mdl) {
         debug('module to parse %O', mdl);
-        if (mdl.json == null || mdl.json.usingComponents == null) return [];
+
+        if (mdl.json == null) return [];
+
+        // merge global components from app.json
+        if (mdl.category && mdl.category.toLowerCase() === 'page') {
+            debug('merge global component and page components %O', mdl);
+            mdl.json.usingComponents = {
+                ...schedule.appConfigs.usingComponents,
+                ...mdl.json.usingComponents,
+            };
+        }
+
+        if (mdl.json.usingComponents == null) return [];
 
         debug('coms %O', Object.keys(mdl.json.usingComponents));
         if (
@@ -28,6 +41,8 @@ export default class ComponentManager {
         let childNodes = this.resolveComponents(mdl.json.usingComponents, mdl);
 
         debug('component childNodes %O', childNodes);
+
+        mdl.code = JSON.stringify(mdl.json, void(0), 4);
         return childNodes;
     }
 
@@ -37,9 +52,9 @@ export default class ComponentManager {
             let dr = new DependencyResolver(this.resolve, this.meta);
 
             try {
-                let {source, pret} = dr.$resolve(com, mdl);
+                let {lib, source, pret} = dr.$resolve(com, mdl);
                 let outputPath = dr.getOutputPath(source, pret, mdl);
-                let resolved = dr.getResolved(com, source, outputPath, mdl);
+                let resolved = dr.getResolved(lib, outputPath, mdl);
 
                 if (pret.isPlugin || pret.isURI) return ret;
 

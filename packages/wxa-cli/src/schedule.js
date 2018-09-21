@@ -66,13 +66,23 @@ class Schedule extends EventEmitter {
         this.$pageArray = []; // denpendencies
         this.$indexOfModule = []; // all module
         this.$isMountingCompiler = false; // if is mounting compiler, all task will be blocked.
+
+        // save all app configurations for compile time.
+        // such as global components.
+        this.app = {};
+
+        // load from path/to/project/src/app.json
+        this.appConfigs = {};
+
+        // global components, all page level instance will merge global components with them.
+        // this.app.globalComponents = {};
     }
 
     set(name, value) {
         this[name] = value;
     }
 
-    doDPA() {
+    async doDPA() {
         if (
             this.appConfigs == null ||
             !this.appConfigs.pages ||
@@ -149,6 +159,29 @@ class Schedule extends EventEmitter {
         this.$indexOfModule = [].concat(libs, this.$pageArray);
         debug('depPending %o', this.$depPending);
         debug('DPA started');
+
+        // app.wxa, or app.js should allways parse first.
+        // if (!this.$isAppEntryParsed) {
+        //     debug('App Entry is parsing');
+        //     let appEntryIndex = this.$depPending.findIndex((entry)=>entry.category==='App');
+        //     let [appEntry] = this.$depPending.splice(appEntryIndex, 1);
+
+        //     await this.$parse(appEntry);
+
+        //     debug('App Entry is parsed');
+        //     debug('App JSON js parsing');
+
+        //     // find json and parse it.
+        //     let appJSONIndex = this.$depPending.findIndex((entry)=>entry.category==='App'&&entry.type==='json');
+        //     let [appJSON] = this.$depPending.splice(appJSONIndex, 1);
+
+        //     await this.$parse(appJSON);
+
+        //     debug('App JSON js parsed');
+
+        //     this.$isAppEntryParsed = true;
+        // }
+
         return this.$doDPA();
     }
 
