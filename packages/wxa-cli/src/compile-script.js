@@ -47,6 +47,37 @@ export default class CScript {
         return content;
     }
 
+    scanComment(code, opath, options) {
+        // match comment string like:
+        // WXA_SOURCE_SRC= [../abc/cdb/hehe.js, ajijfidaf.s]
+        return code.replace(
+            /(\.)?WXA_SOURCE_SRC\s*=\s*\[([\w\d_\-\.\/@\'\"\s\,]+)\]/igm,
+            (match, point, arr)=> {
+                if (point) return match;
+
+                let source = arr.split(/[\'\"\,\s]/);
+
+                let set = new Set(source);
+
+                set.forEach((lib)=>{
+                    if (lib == null || lib === '') return;
+
+                    let pret = new PathParser().parse(lib);
+                    let source;
+                    if (pret.isRelative) {
+                        source = path.join(opath.dir, lib);
+                    } else if (pret.isAbsolute) {
+                        source = path.join(this.current, this.src, lib);
+                    }
+
+                    if (source == void(0)) return;
+
+                    schedule.addTask(path.parse(source), void(0), options);
+                });
+            }
+        );
+    }
+
     resolveDeps(code, type, opath) {
         return code.replace(
             // /([\.][\t\n\s]*)?require\([']([\w\d_\-\.\/@]+)['"]\)/ig,
@@ -56,7 +87,10 @@ export default class CScript {
             // a.require()
             if (point) return match;
             // ignore comment
-            if (point == null && lib == null) return match;
+            if (point == null && lib == null) {
+                this.scanComment(match, opath, {type});
+                return match;
+            }
 
             let resolved = lib;
             let target = '', source = '', ext = '', needCopy = false;
@@ -67,13 +101,12 @@ export default class CScript {
                     let value = this.alias[key];
                     let aliasReg = new RegExp(`(^${key}$)|(^${key}\/.*$)`, 'gm');
                     if (aliasReg.test(lib)) {
-                        // console.log('find alias');
+                        // logger.infoNow('find alias', lib);
                         let tar = lib.replace(new RegExp(key, 'g'), value);
-                        let otar = path.parse(tar);
+                        // logger.infoNow('parsed lib', tar);
                         // calc relative path base cwd;
-                        tar = path.join(path.relative(tar, opath.dir), otar.base);
-                        lib = tar
-                                .replace(/(^\.\.\/)|(^\.\.\\\\)/, './')
+                        tar = path.relative(opath.dir, tar);
+                        lib = './'+tar
                                 .replace(/\\/g, '/');
                     }
                 });
