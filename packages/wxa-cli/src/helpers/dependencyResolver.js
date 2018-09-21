@@ -84,6 +84,7 @@ class DependencyResolver {
             source = path.join(this.modulesPath, lib);
             ext = '';
         } else if (pret.isWXALib) {
+            // polyfill from wxa cli.
             source = path.join(this.meta.current, this.meta.src, '_wxa', pret.name+ext);
             ext = /\.js$/.test(pret.name) ? '' : '.js';
         } else if (pret.isPlugin || pret.isURI) {
@@ -117,31 +118,41 @@ class DependencyResolver {
         }
     }
 
-    getResolved(lib, source, target, mdl) {
+    getResolved(lib, libOutputPath, mdl) {
         // if Plugin resource or remote url do not change resolved path.
-        if (target == null) return lib;
+        if (libOutputPath == null) return lib;
 
         let resolved = '';
-        let opath = path.parse(mdl.src);
+        // let opath = path.parse(mdl.src);
+
+        let fileOutputPath = (
+            mdl.meta &&
+            mdl.meta.outputPath ||
+            getDistPath(path.parse(mdl.src), void(0), this.meta.src, this.meta.dist)
+        );
+
+        resolved = './'+path.relative(path.parse(fileOutputPath).dir, libOutputPath);
+
+        return resolved.replace(/\\/g, '/');
 
         // modify path with lib.
         // always require relative path of file.
         // such as 'redux', expect to be something like this '../../redux/index.js'.
-        if (mdl.isNpm) {
-            if (lib[0] !== '.') {
-                // dependencies from node_modules
-                resolved = path.join(path.relative(opath.dir, this.modulesPath), lib);
-            } else {
-                // relative path
-                if (lib[0] === '.' && lib[1] === '.') resolved = './'+resolved;
-            }
-        } else {
-            resolved = path.relative(getDistPath(opath, void(0), this.meta.src, this.meta.dist), target).split(path.sep).join('/').replace(/^\.\.\//, './');
-        }
+        // if (mdl.isNpm) {
+        //     if (lib[0] !== '.') {
+        //         // dependencies from node_modules
+        //         resolved = path.join(path.relative(opath.dir, this.modulesPath), lib);
+        //     } else {
+        //         // relative path
+        //         if (lib[0] === '.' && lib[1] === '.') resolved = './'+lib;
+        //     }
+        // } else {
+        //     resolved = path.relative(getDistPath(opath, void(0), this.meta.src, this.meta.dist), output).split(path.sep).join('/').replace(/^\.\.\//, './');
+        // }
         // 转化windowd的\\，修复path, relative需要向上一级目录的缺陷
-        resolved = resolved.replace(/\\/g, '/');
+        // resolved = resolved.replace(/\\/g, '/');
 
-        return resolved;
+        // return resolved;
     }
 
     getPkgConfig(lib) {

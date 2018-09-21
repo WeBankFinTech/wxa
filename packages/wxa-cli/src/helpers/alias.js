@@ -9,11 +9,13 @@ export default function resolveAlias(lib, alias, filepath) {
         let value = alias[key];
         let aliasReg = new RegExp(`(^${key}$)|(^${key}\/.*$)`, 'gm');
         if (aliasReg.test(lib)) {
+            // logger.infoNow('find alias', lib);
             let tar = lib.replace(new RegExp(key, 'g'), value);
-            let otar = path.parse(tar);
+            // logger.infoNow('parsed lib', tar);
             // calc relative path base cwd;
-            tar = path.join(path.relative(tar, opath.dir), otar.base);
-            lib = tar.split(path.sep).join('/').replace(/^\.\.\//, './');
+            tar = path.relative(opath.dir, tar);
+            lib = './'+tar
+                    .replace(/\\/g, '/');
         }
     });
 

@@ -23,17 +23,17 @@ export default class CSSManager {
         debug('style resolve start');
         str.replace(
             /(?:\/\*[\s\S]*?\*\/|(?:[^\\:]|^)\/\/.*)|(\.)?url\(['"]?([\w\d_\-\.\/@]+)['"]?\)/igm,
-            (match, point, lib)=>{
+            (match, point, dep)=>{
                 debug('style lib %s', lib);
                 // a.require()
                 if (point) return match;
                 // ignore comment
-                if (point == null && lib == null) return match;
+                if (point == null && dep == null) return match;
                 let dr = new DependencyResolver(this.resolve, this.meta);
 
-                let {source, pret} = dr.resolveDep(lib, mdl);
+                let {lib, source, pret} = dr.resolveDep(dep, mdl);
                 let outputPath = dr.getOutputPath(source, pret, mdl);
-                let resolved = dr.getResolved(lib, source, outputPath, mdl);
+                let resolved = dr.getResolved(lib, outputPath, mdl);
 
                 libs.push({
                     src: source,

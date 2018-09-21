@@ -60,8 +60,9 @@ class XMLManager {
                 case 'href': {
                     let dr = new DependencyResolver(this.current, this.resolve, this.meta);
 
-                    let meta = dr.resolveDep(attr.nodeValue, mdl);
-                    let resolved = dr.getResolved(meta.lib, meta.source, meta.target, mdl);
+                    let {lib, source, pret} = dr.resolveDep(attr.nodeValue, mdl);
+                    let libOutputPath = dr.getOutputPath(source, pret, mdl);
+                    let resolved = dr.getResolved(lib, libOutputPath, mdl);
 
                     libs.push({
                         absPath: meta.source,
