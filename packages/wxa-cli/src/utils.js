@@ -114,35 +114,6 @@ export function copy(opath, ext, src, dist) {
     });
 }
 
-export function encode(content, start, end, pmap, amap) {
-    start = start || 0;
-    end = end || content.length;
-
-    let buffer = [];
-    pmap = pmap || ['<', '&', '"'];
-    amap = amap || ['&lt;', '&amp;', '&quot;'];
-
-    for (let i=0, len=content.length; i < len; i++) {
-        if (i < start || i > end) {
-            buffer.push(content[i]);
-        } else {
-            let idx = pmap.indexOf(content[i]);
-            buffer.push(idx === -1 ? content[i] : amap[idx]);
-        }
-    }
-
-    return buffer.join('');
-}
-
-export function decode(content, pmap, amap) {
-    pmap = pmap || ['<', '&', '"'];
-    amap = amap || ['&lt;', '&amp;', '&quot;'];
-    let reg = new RegExp(`(${amap[0]}|${amap[1]}|${amap[2]})`, 'ig');
-    return content.replace(reg, (match, m) => {
-        return pmap[amap.indexOf(m)];
-    });
-}
-
 export function amazingCache(params, needCache) {
     let defaultOpts = {
         directory: true,

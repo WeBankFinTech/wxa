@@ -28,16 +28,17 @@ class CompilerLoader {
             if (uri.indexOf('/') === 0) {
                 // 绝对路径
                 Loader = require(uri).default;
+                debug('loader %O', Loader);
             } else {
                 let compilerName = '@wxa/compiler-'+uri;
                 try {
                     Loader = require(path.join(this.modulePath, compilerName)).default;
                 } catch (e) {
                     logger.errorNow('未安装的编译器：'+compilerName);
-                    logger.infoNow('Install', `尝试安装${compilerName}`);
+                    logger.infoNow('Install', `尝试安装${compilerName}中`);
                     return npmManager.install(compilerName).then((succ)=>{
                         logger.infoNow('Success', `安装${compilerName}成功`);
-
+x;
                         try {
                             Loader = require(path.join(this.modulePath, compilerName)).default;
                         } catch (e) {
@@ -58,6 +59,7 @@ class CompilerLoader {
         .then((succ)=>{
             succ.forEach(({Loader, uri, loader, cmdOptions})=>{
                 try {
+                    debug('loader started');
                     let options = loader.options || {};
                     let instance = new Loader(this.current, options);
                     let test = loader.test || instance.test;
@@ -68,33 +70,51 @@ class CompilerLoader {
                         test, loader: instance, options, cmdOptions,
                     });
                 } catch (e) {
+                    debug('挂载compiler %s 失败原因：%O', uri, e);
                     logger.errorNow(`挂载compiler ${uri} 错误, 请检查依赖是否有正确安装`, e);
                 }
             });
         });
     }
 
+    promiseSerial(funs) {
+        return funs.reduce((promise, fun)=>{
+            return promise.then((result)=>fun().then(Array.prototype.concat.bind(result)));
+        }, Promise.resolve([]));
+    }
+
     async compile(mdl) {
-        for (let task of this.loaders) {
-            let code = mdl.code || void(0);
+        let tasks = [];
+
+        let fn = async (task, mdl)=>{
             let {loader, test, cmdOptions} = task;
 
+
             if (test.test(mdl.src)) {
+                debug('%s loader is working ', loader);
                 try {
-                    let {compileTo, content, ...rest} = await loader.parse(mdl.src, code, cmdOptions, mdl);
+                    let {compileTo, code, ...rest} = await loader.parse(mdl, cmdOptions);
 
                     // Todo: Multi loader with one string.
                     // resource transform is normal. ig. sass->css ts->js
                     mdl.compileTo = compileTo || path.extname(mdl.src).slice(1);
-                    mdl.code = content;
-                    mdl.restResource = rest;
+                    mdl.code = code;
+                    // mdl.restResource = rest;
                 } catch (e) {
+                    debug('parse Error %O', e);
+                    console.log(e);
                     logger.errorNow(`Error `, e);
                 }
             }
+        };
+
+        for (let task of this.loaders) {
+            tasks.push(()=>fn(task, mdl));
         }
 
-        return mdl;
+        // serial promise, cause all loader that match extensions should execute one by one.
+        await this.promiseSerial(tasks);
+        debug('finish with module %O', mdl);
     }
 }
 

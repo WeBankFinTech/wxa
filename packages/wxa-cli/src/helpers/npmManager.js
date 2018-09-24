@@ -1,6 +1,6 @@
 import {exec} from 'child_process';
 
-class NpmManager {
+export class NpmManager {
     constructor() {
         this.npm = 'npm';
         this.category = '-D';
@@ -35,3 +35,4 @@ class NpmManager {
 }
 
 export default new NpmManager();
+
