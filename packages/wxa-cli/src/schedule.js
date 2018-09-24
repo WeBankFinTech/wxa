@@ -205,7 +205,7 @@ class Schedule extends EventEmitter {
     }
 
     async $parse(dep) {
-        // loader use custom compiler to load resource.
+        // loader: use custom compiler to load resource.
         await loader.compile(dep);
 
         // try to wrap wxa every app and page

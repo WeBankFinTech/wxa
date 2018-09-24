@@ -50,10 +50,13 @@ class Builder {
 
         return refs;
     }
-    init(cmd) {
+    async init(cmd) {
         // 加载编译器
         const configs = getConfig();
         schedule.set('wxaConfigs', configs || {});
+
+        // Todo: custome package manager, such as yarn.
+        // npmManager.setup(category)
 
         // mount loader
         return compilerLoader

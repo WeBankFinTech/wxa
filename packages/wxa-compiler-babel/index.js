@@ -1,11 +1,12 @@
-import {transformSync} from '@babel/core';
+import {transform, transformFile} from '@babel/core';
 import fs from 'fs';
 import path from 'path';
+import debugPKG from 'debug';
 
-class BabelCompiler {
+let debug = debugPKG('WXA:BABEL_Loader')
+
+class BabelLoader {
     constructor(cwd, configs) {
-        if (BabelCompiler.prototype.instance) return BabelCompiler.prototype.instance;
-        BabelCompiler.prototype.instance = this;
         this.current = cwd;
         // get configuration from .babelrc, package.json or wxa.config.js
         this.configs = null;
@@ -20,17 +21,49 @@ class BabelCompiler {
         if (this.configs == null) this.configs = configs.babel || {};
     }
 
-    parse(content, configs, opath) {
-        if (configs == null) configs = this.configs;
+    transform(type, ...args) {
+        let map = new Map([['transform', transform], ['transformFile', transformFile]]);
+        console.log(map.get(type))
+
+        return new Promise((resolve, reject)=>{
+            map.get(type).call(null, ...args, function(err, result){
+                if(err) reject(err);
+
+                resolve(result)
+            });
+        })
+    }
+
+
+    async parse(mdl, cmdOptions) {
+        debug('transform started %O', mdl);
+
+        let {src, code} = mdl;
+
+        let configs = this.configs;
+        let type = 'transform';
+        let opath = path.parse(src);
+
+        if(code == null) {
+            type = 'transformFile';
+        }
+
         if(opath && this.checkIgnore(opath, configs.ignore)) {
-            return Promise.resolve(content);
+            return Promise.resolve(code);
         } else {
             try {
-                let rst = transformSync(content, {
+                let ret = await this.transform(type, code || src, {
                     ...configs,
                     filename: opath.base
                 });
-                return Promise.resolve(rst);
+
+                console.log(ret.code);
+
+                mdl.code = ret.code;
+                mdl.sourceMap = ret.map;
+
+                debug('transform succ %s', ret.code);
+                return Promise.resolve({ret, code: ret.code, compileTo: 'js'});
             } catch (e) {
                 return Promise.reject(e);
             }
@@ -64,4 +97,4 @@ class BabelCompiler {
     }
 }
 
-export default BabelCompiler;
+export default BabelLoader;

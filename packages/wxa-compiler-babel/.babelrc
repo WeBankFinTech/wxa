@@ -1,5 +1,9 @@
 {
-    "presets": ["env"],
-    "plugins": ["transform-object-rest-spread", "transform-class-properties"]
+    "presets": [["@babel/preset-env", {
+        "useBuiltIns": "usage",
+        "targets": {
+            "node": "8"
+        }
+    }]]
 }
   
