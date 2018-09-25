@@ -23,9 +23,10 @@ class BabelLoader {
 
     transform(type, ...args) {
         let map = new Map([['transform', transform], ['transformFile', transformFile]]);
-        console.log(map.get(type))
+        // console.log(map.get(type))
 
         return new Promise((resolve, reject)=>{
+            debug('arguments %O', args)
             map.get(type).call(null, ...args, function(err, result){
                 if(err) reject(err);
 
@@ -49,15 +50,13 @@ class BabelLoader {
         }
 
         if(opath && this.checkIgnore(opath, configs.ignore)) {
-            return Promise.resolve(code);
+            return Promise.resolve({code});
         } else {
             try {
                 let ret = await this.transform(type, code || src, {
                     ...configs,
                     filename: opath.base
                 });
-
-                console.log(ret.code);
 
                 mdl.code = ret.code;
                 mdl.sourceMap = ret.map;

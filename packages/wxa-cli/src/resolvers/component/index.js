@@ -64,7 +64,7 @@ export default class ComponentManager {
                         src: source+this.meta.wxaExt,
                         category: 'Component',
                         pret,
-                        sourceType: 'wxa',
+                        type: 'wxa',
                     });
                 } else {
                     this.extensions.forEach((ext)=>{

@@ -27,7 +27,7 @@ class DependencyResolver {
 
         // 处理无后缀情况
         // ext = path.extname(source);
-        if (!isFile(source)) {
+        if (!isFile(source) && !pret.isWXALib) {
             // not support resolve extension.
             if (!needFindExt) throw new Error('文件不存在');
 
@@ -85,8 +85,8 @@ class DependencyResolver {
             ext = '';
         } else if (pret.isWXALib) {
             // polyfill from wxa cli.
-            source = path.join(this.meta.current, this.meta.src, '_wxa', pret.name+ext);
             ext = /\.js$/.test(pret.name) ? '' : '.js';
+            source = path.join(this.meta.current, this.meta.src, '_wxa', pret.name+ext);
         } else if (pret.isPlugin || pret.isURI) {
             // url module
             source = lib;
