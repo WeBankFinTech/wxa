@@ -7,6 +7,9 @@ export default function(exports, type, path) {
         },
         set(x) {
             this.$value = x;
+
+            if (x == null) return;
+
             wxa.launch(type, x, path);
         },
     });

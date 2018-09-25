@@ -11,6 +11,9 @@ exports.default = function (exports, type, path) {
         },
         set: function set(x) {
             this.$value = x;
+
+            if (x == null) return;
+
             _core.wxa.launch(type, x, path);
         }
     });

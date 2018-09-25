@@ -1,11 +1,10 @@
 import debounce from 'lodash/debounce';
 import mixin from './mixin';
 import {hooksName} from './hook';
+import {wxa} from '../wxa';
 
-const plugins = [];
-let launch = function(instance) {
+let launch = function(instance, pagePath) {
     let vm = instance;
-
 
     vm = mixin(vm);
 
@@ -31,19 +30,17 @@ let launch = function(instance) {
         });
     }
     // 允许添加自定义方法
-    plugins.forEach((plugin)=>{
+    wxa.$$plugins.forEach((plugin)=>{
         plugin.fn.call(null, plugin.options, 'Page').call(null, vm, 'Page');
     });
 
+    let _pagePath = pagePath.replace(/^\//, '');
+    wxa.$$pageMap.set(_pagePath, vm);
+
+    console.log('====', vm);
     Page(vm);
 };
-let use = function(plugin, options) {
-    plugins.push({
-        fn: plugin,
-        options,
-    });
-};
+
 export default {
     launch,
-    use,
 };
