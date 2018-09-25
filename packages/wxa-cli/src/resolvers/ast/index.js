@@ -9,6 +9,7 @@ import findRoot from 'find-root';
 import resolveAlias from '../../helpers/alias';
 import DependencyResolver from '../../helpers/dependencyResolver';
 import debugPKG from 'debug';
+import logger from '../../helpers/logger';
 
 let debug = debugPKG('WXA:ASTManager');
 
@@ -52,25 +53,29 @@ export default class ASTManager {
                     return;
                 }
 
-                let dr = new DependencyResolver(self.resolve, self.meta);
+                try {
+                    let dr = new DependencyResolver(self.resolve, self.meta);
 
-                let {source, pret, lib} = dr.resolveDep(dep, mdl, {needFindExt: true});
-                let outputPath = dr.getOutputPath(source, pret, mdl);
-                let resolved = dr.getResolved(lib, outputPath, mdl);
+                    let {source, pret, lib} = dr.resolveDep(dep, mdl, {needFindExt: true});
+                    let outputPath = dr.getOutputPath(source, pret, mdl);
+                    let resolved = dr.getResolved(lib, outputPath, mdl);
 
-                debug('%s output\'s resolved is %s output path is %s, and source is %s', dep, resolved, outputPath, source);
-                libs.push({
-                    src: source,
-                    pret: pret,
-                    meta: {
-                        source, outputPath,
-                    },
-                    reference: {
-                        $$ASTPath: path,
-                        $$category: 'ast',
-                        resolved,
-                    },
-                });
+                    debug('%s output\'s resolved is %s output path is %s, and source is %s', dep, resolved, outputPath, source);
+                    libs.push({
+                        src: source,
+                        pret: pret,
+                        meta: {
+                            source, outputPath,
+                        },
+                        reference: {
+                            $$ASTPath: path,
+                            $$category: 'ast',
+                            resolved,
+                        },
+                    });
+                } catch (e) {
+                    logger.log('resolve fail', e);
+                }
             },
         });
 

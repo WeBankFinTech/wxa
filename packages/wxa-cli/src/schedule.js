@@ -110,7 +110,7 @@ class Schedule extends EventEmitter {
                 try {
                     this.$pageArray.push({
                         src: wxaPage,
-                        sourceType: 'wxa',
+                        type: 'wxa',
                         category: 'Page',
                         pagePath: page,
                         pret: defaultPret,
@@ -124,7 +124,7 @@ class Schedule extends EventEmitter {
                     if (isFile(p)) {
                         this.$pageArray.push({
                             src: p,
-                            sourceType: ext,
+                            type: ext,
                             category: 'Page',
                             pagePath: page,
                             pret: defaultPret,
@@ -144,7 +144,7 @@ class Schedule extends EventEmitter {
         let libs = this.meta.libs.map((file)=>{
             let libDep = {
                 src: path.join(this.meta.current, this.meta.src, '_wxa', file),
-                sourceType: 'js',
+                type: 'js',
                 $from: path.join(this.meta.libSrc, file),
                 category: 'Lib',
                 pret: defaultPret,
@@ -221,7 +221,7 @@ class Schedule extends EventEmitter {
             //         },
             //     },
             //     transform: (code, options)=>{
-            //         return compiler.parse(code, options.configs, dep.src, dep.sourceType || path.extname(dep.src));
+            //         return compiler.parse(code, options.configs, dep.src, dep.type || path.extname(dep.src));
             //     },
             // };
             debug('dep to process %O', dep);
@@ -284,15 +284,15 @@ class Schedule extends EventEmitter {
     }
 
     tryWrapWXA(dep) {
-        if (dep.sourceType === 'wxa') return;
+        if (dep.type === 'wxa') return;
 
         if (
             ~['app', 'component', 'page'].indexOf(dep.category ? dep.category.toLowerCase() : '') &&
-            dep.sourceType === 'js'
+            dep.type === 'js'
         ) {
-            if (dep.code == null) dep.code= readFile(dep.src);
+            // if (dep.code == null) dep.code= readFile(dep.src);
 
-            if (dep.code == null) dep.code = '';
+            // if (dep.code == null) dep.code = '';
 
             dep.code = wrapWxa(dep.code, dep.category, dep.pagePath);
             debug('wrap dependencies %O', dep);
