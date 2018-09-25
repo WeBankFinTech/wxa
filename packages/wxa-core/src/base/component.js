@@ -1,4 +1,5 @@
 import mixin from './mixin';
+import {wxa} from '../wxa';
 
 const plugins = [];
 const notCopy = ['properties', 'data', 'methods', 'behaviors', 'created', 'attached', 'ready', 'moved', 'detached', 'relations', 'options'];
@@ -10,7 +11,7 @@ let launch = function(instance) {
     // 自定义组件支持methods方式定义组件，不需要迁移methods
 
     // 允许添加自定义方法
-    plugins.forEach((plugin)=>{
+    wxa.$$plugins.forEach((plugin)=>{
         plugin.fn.call(null, plugin.options, 'Component').call(null, vm, 'Component');
     });
 

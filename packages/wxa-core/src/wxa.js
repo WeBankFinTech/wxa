@@ -29,42 +29,56 @@ import {
  */
 class Wxa {
     constructor() {
-        this.use.app = app.use;
-        this.use.page = page.use;
-        this.use.component = component.use;
-        this.launch = {
-            app(instance) {
-                return app.launch(instance);
-            },
-            page(instance) {
-                return page.launch(instance);
-            },
-            component(instance) {
-                return component.launch(instance);
-            },
+        // pages map, store the vm object.
+        this.$$pageMap = new Map();
+
+        // plugins map, store all register plugins.
+        this.$$plugins = [];
+
+        // launcher map, launch app, page, component
+        let launcherMap = new Map([['app', app.launch], ['page', page.launch], ['component', component.launch]]);
+
+        // launch API:
+        // wxa.launch('App', class Main{})
+        // wxa.launchPage(class Index{}, 'pages/index')
+        // wxa.launch.component(class Popup{})
+        this.launch = function(type, vm, pagePath) {
+            let _type = type.toLowerCase();
+            return launcherMap.get(_type).call(null, vm, pagePath);
         };
+        this.launch.app = this.launchApp;
+        this.launch.page = this.launchPage;
+        this.launch.component = this.launchComponent;
+
+        // global configuration function
+        // addNoPromiseApi to prevent promisify wrongly.
         this.addNoPromiseApi = addNoPromiseApi;
+
+        // set up fetch queue max concurrency request.
         this.setMaxRequest = setMaxRequest;
+        // set up fetch cached request expired time, default: 500ms
+        // which mean you can't post same request in 500ms multi time.
         this.setRequestExpiredTime = setRequestExpiredTime;
     }
     launchApp(instance) {
         return app.launch(instance);
     }
-    launchPage(instance) {
-        return page.launch(instance);
+    launchPage(instance, pagePath) {
+        return page.launch(instance, pagePath);
     }
     launchComponent(instance) {
         return component.launch(instance);
     }
     use(plugin, options) {
-        app.use(plugin, options);
-        page.use(plugin, options);
-        component.use(plugin, options);
+        this.$$plugins.push({
+            fn: plugin,
+            options,
+        });
     }
 }
 
 export const wxa = new Wxa();
-export * from './utils/decorators';
+export * from './decorators/index';
 export const wxapi = wxapiFn(wx);
 export {
     storage,

@@ -6,7 +6,7 @@
     "scripts": {
         "prebuild": "sh prebuild.sh",
         "build": "webpack src/wxa.js --output-path ./dist/ --optimize-minimize",
-        "dev": "npm run prebuild && webpack src/wxa.js --output-path ./example/src/ -w --optimize-minimize",
+        "dev": "npm run prebuild && webpack src/wxa.js --output-path ./dist/ -w --debug --devtool inline-source-map --output-pathinfo",
         "test": "jest",
         "cover": "jest --coverage",
         "travis": "npm run cover",

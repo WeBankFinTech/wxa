@@ -4,27 +4,14 @@ import {hooksName} from './hook';
 const plugins = [];
 let launch = function(instance) {
     let vm = instance;
-    // if (typeof instance === 'function') {
-    //     let obj = new instance();
-
-    //     obj.methods = obj.methods || {};
-    //     Object.getOwnPropertyNames(instance.prototype).forEach((key)=>{
-    //         if (
-    //             ['constructor', 'mixins'].indexOf(key) === -1 &&
-    //             hooksName.indexOf(key) === -1
-    //         ) {
-    //             obj.methods[key] = instance.prototype[key];
-    //         }
-    //     });
-
-    //     vm = obj;
-    // }
 
     vm = mixin(vm);
 
     // 复制methods
     if (vm.methods != null && typeof vm.methods === 'object') {
+        console.log(vm);
         Object.keys(vm.methods).forEach((key)=>{
+            console.log(key, Object.getOwnPropertyDescriptor(vm.__proto__, key));
             vm[key] = vm.methods[key];
         });
     }
@@ -40,14 +27,6 @@ let launch = function(instance) {
     App(vm);
 };
 
-let use = function(plugin, options) {
-    plugins.push({
-        fn: plugin,
-        options,
-    });
-};
-
 export default {
     launch,
-    use,
 };
