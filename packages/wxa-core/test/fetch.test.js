@@ -16,7 +16,7 @@ describe('fetch api', ()=>{
 
         await expect(fetch('/users/5', {}, {}, 'get')).resolves.toEqual(wrapStatusCode({name: 'Paul'}));
 
-        await expect(fetch('/users/6', {}, {}, 'post')).rejects.toThrow();
+        await expect(fetch('/users/6', {}, {}, 'post')).rejects.toMatchSnapshot();
     });
 
     test('404', async ()=>{

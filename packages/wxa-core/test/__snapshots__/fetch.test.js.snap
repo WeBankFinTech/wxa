@@ -1,0 +1,8 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`fetch api normal 1`] = `
+Object {
+  "error": "User with 6 not found.",
+  "statusCode": 200,
+}
+`;

@@ -75,7 +75,7 @@ export default class ComponentManager {
                                 pret,
                                 category: 'Component',
                                 meta: {
-                                    source: src, outputPath,
+                                    source: src, outputPath: outputPath+ext,
                                 },
                             });
                         } else if (ext === '.json') {

@@ -2,22 +2,22 @@ import promisify from './promisify';
 /**
  * promise化微信的api
  */
-let wxapi = {};
+let _wxapi = {};
 let noPromiseApi = ['getUpdateManager'];
 let isInit = false;
 
 export default function wxapi(wx) {
-    if (isInit) return wxapi;
+    if (isInit) return _wxapi;
     else {
         Object.keys(wx).forEach((key)=>{
             // 同步方法
             if ( /^create.+/.test(key) || /.*Sync$/.test(key) || noPromiseApi.indexOf(key) > -1) {
-                wxapi[key] = wx[key];
+                _wxapi[key] = wx[key];
             } else {
-                wxapi[key] = promisify(wx[key], key);
+                _wxapi[key] = promisify(wx[key], key);
             }
         });
-        return wxapi;
+        return _wxapi;
     }
 };
 
