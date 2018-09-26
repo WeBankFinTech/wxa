@@ -120,7 +120,8 @@ function Throttle(first=1000, options={}) {
         let {descriptor} = methodDescriptor;
 
         let fn = descriptor.value;
-        descriptor.value = debounce(fn, ...args);
+        // console.log(...args);
+        descriptor.value = throttle(fn, ...args);
 
         return {
             ...methodDescriptor,

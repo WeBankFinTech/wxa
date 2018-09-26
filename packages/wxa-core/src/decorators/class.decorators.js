@@ -34,7 +34,7 @@ const Page = (classDescriptor)=>{
     classDescriptor = Eventbus(classDescriptor);
     classDescriptor = GetApp(classDescriptor);
     classDescriptor = Fetch(classDescriptor);
-    console.log(classDescriptor);
+    // console.log(classDescriptor);
     return classDescriptor;
 };
 
@@ -45,7 +45,7 @@ const App = (classDescriptor)=> {
     classDescriptor = Router(classDescriptor);
     classDescriptor = Eventbus(classDescriptor);
     classDescriptor = Fetch(classDescriptor);
-    console.log(classDescriptor);
+    // console.log(classDescriptor);
     return classDescriptor;
 };
 
