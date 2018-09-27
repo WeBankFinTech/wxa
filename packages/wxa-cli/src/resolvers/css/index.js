@@ -25,13 +25,16 @@ export default class CSSManager {
         let libs = [];
         debug('style resolve start');
         let code = str.replace(
-            /(?:\/\*[\s\S]*?\*\/|(?:[^\\:]|^)\/\/.*)|(\.)?url\(['"]?([\w\d_\-\.\/@]+)['"]?\)/igm,
-            (match, point, dep)=>{
+            /(?:\/\*[\s\S]*?\*\/|(?:[^\\:]|^)\/\/.*)|(\.)?url\(['"]?([\w\d_\-\.\/@]+)['"]?\)|@import\s+['"]?([\w\d_\-\.\/@]+)['"]?/igm,
+            (match, point, dep, importCSS)=>{
                 debug('style lib %s', lib);
                 // a.require()
                 if (point) return match;
                 // ignore comment
-                if (point == null && dep == null) return match;
+                if (point == null && dep == null && importCSS == null) return match;
+
+                dep = dep || importCSS;
+
                 let dr = new DependencyResolver(this.resolve, this.meta);
 
                 let {lib, source, pret} = dr.resolveDep(dep, mdl);
