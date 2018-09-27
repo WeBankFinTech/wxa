@@ -26,16 +26,7 @@ export default class Generator {
         outputPath = this.tryTransFormExtension(outputPath);
         debug('transform ext %s', outputPath);
 
-        if (mdl.type === 'js' || path.extname(mdl.src) === '.js') {
-            debug('do generate %O', mdl);
-            let {code, map} = new ASTManager(this.resolve, this.meta).generate(mdl);
-
-
-            debug('output path %s', outputPath);
-            writeFile(outputPath, code);
-        } else if (mdl.type === 'wxml' || path.extname(mdl.src) === 'wxml') {
-            writeFile(outputPath, mdl.xml.toString());
-        } else if (mdl.isFile) {
+        if (mdl.isFile) {
             writeFile(outputPath, readFile(mdl.src));
         } else if (!mdl.isAbstract) {
             writeFile(outputPath, mdl.code);

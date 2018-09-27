@@ -133,9 +133,11 @@ class Builder {
             };
             let p;
             if (isWXA) {
-                p = ()=>{
+                p = async ()=>{
                     let compiler = new Compiler(schedule.wxaConfigs.resolve, schedule.meta);
-                    return compiler.$parse(void(0), void(0), wxaJSON, 'wxa', entryMdl);
+                    let {wxa} = await compiler.$parse(void(0), void(0), wxaJSON, 'wxa', entryMdl);
+
+                    return wxa;
                 };
             } else {
                 p = ()=>Promise.resolve({

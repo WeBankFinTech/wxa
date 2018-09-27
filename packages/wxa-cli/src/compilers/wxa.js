@@ -8,7 +8,9 @@ export default class WxaCompiler {
     parse(filepath) {
         let wxa = this.resolveWxa(filepath);
 
-        return wxa == null ? Promise.reject(null) : Promise.resolve({rst: wxa});
+        return wxa == null ?
+        Promise.reject(null) :
+        Promise.resolve({wxa, kind: 'wxa'});
     }
 
     resolveWxa(filepath) {

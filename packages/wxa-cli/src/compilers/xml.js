@@ -14,7 +14,10 @@ export default class XmlCompiler {
             return Promise.reject();
         }
 
-        return Promise.resolve(this.resolveXml(filepath, code));
+        return Promise.resolve({
+            ...this.resolveXml(filepath, code),
+            kind: 'xml',
+        });
     }
 
     resolveXml(filepath, code) {

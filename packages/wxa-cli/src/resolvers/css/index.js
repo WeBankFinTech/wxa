@@ -11,17 +11,20 @@ export default class CSSManager {
     }
 
     parse(mdl) {
-        debug('parse start');
+        debug('parse start %O', mdl);
 
         if (mdl.css == null) return [];
 
-        return this.resolveStyle(mdl.css, mdl);
+        let {libs: deps, code} = this.resolveStyle(mdl.css, mdl);
+
+        mdl.code = code;
+        return deps;
     }
 
     resolveStyle(str, mdl) {
         let libs = [];
         debug('style resolve start');
-        str.replace(
+        let code = str.replace(
             /(?:\/\*[\s\S]*?\*\/|(?:[^\\:]|^)\/\/.*)|(\.)?url\(['"]?([\w\d_\-\.\/@]+)['"]?\)/igm,
             (match, point, dep)=>{
                 debug('style lib %s', lib);
@@ -54,6 +57,6 @@ export default class CSSManager {
             }
         );
 
-        return libs;
+        return {libs, code};
     }
 }
