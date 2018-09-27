@@ -2,6 +2,7 @@ import 'babel-polyfill';
 
 import {getConfig, getFiles, readFile, isFile} from './utils';
 import path from 'path';
+import crypto from 'crypto';
 import chokidar from 'chokidar';
 import schedule from './schedule';
 import logger from './helpers/logger';
@@ -75,18 +76,31 @@ class Builder {
             if (this.isWatchReady && ['change', 'add'].indexOf(event)>-1 && !this.queue[filepath]) {
                 console.log(event, filepath);
                 let mdl = schedule.$indexOfModule.find((module)=>module.src===filepath);
+                let isChange = true;
+                // module with code;
+                if (mdl.code) {
+                    let content = readFile(mdl.src);
+                    let md5 = crypto.createHash('md5').update(content).digest('hex');
 
-                schedule.$depPending.push(mdl);
-                let changedDeps = await schedule.$doDPA();
+                    mdl.code = content;
+                    isChange = mdl.hash !== md5;
+                }
 
-                let generator = new Generator(schedule.wxaConfigs.resolve, schedule.meta, schedule.wxaConfigs);
-                let generateTasks = changedDeps.map((mdl)=>{
-                    return generator.do(mdl);
-                });
+                if (isChange) {
+                    schedule.$depPending.push(mdl);
+                    let changedDeps = await schedule.$doDPA();
 
-                await Promise.all(generateTasks);
+                    let generator = new Generator(schedule.wxaConfigs.resolve, schedule.meta, schedule.wxaConfigs);
+                    let generateTasks = changedDeps.map((mdl)=>{
+                        return generator.do(mdl);
+                    });
 
-                logger.message('Compile', '编译完成', true);
+                    await Promise.all(generateTasks);
+
+                    logger.message('Compile', '编译完成', true);
+                } else {
+                    logger.message('Complete', '文件无变化', true);
+                }
                 // cmd.file = path.join('..', filepath);
                 // // schedule
                 // logger.message(event, filepath, true);
