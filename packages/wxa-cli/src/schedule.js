@@ -9,6 +9,7 @@ import debugPKG from 'debug';
 import defaultPret from './const/defaultPret';
 import wrapWxa from './helpers/wrapWxa';
 import Compiler from './compilers/index';
+import crypto from 'crypto';
 
 /**
  * todo:
@@ -233,6 +234,8 @@ class Schedule extends EventEmitter {
             childNodes.forEach((node)=>this.findOrAddDependency(node, dep));
 
             dep.color = COLOR.COMPILED;
+            // calculate md5 for code
+            if (dep.code) dep.hash = crypto.createHash('md5').update(dep.code).digest('hex');
             // tick event
             this.emit('tick', dep);
             return dep;
@@ -243,6 +246,9 @@ class Schedule extends EventEmitter {
     }
 
     findOrAddDependency(dep, mdl) {
+        // calc hash
+        if (dep.code) dep.hash = crypto.createHash('md5').update(dep.code).digest('hex');
+
         // circle referrence.
         dep.reference = dep.reference || {};
         dep.reference.parent = mdl;
@@ -250,7 +256,7 @@ class Schedule extends EventEmitter {
         // pret backup
         dep.pret = dep.pret || defaultPret;
 
-        let indexedModule = this.$indexOfModule.find((module)=>module.src===dep.src);
+        let indexedModuleIdx = this.$indexOfModule.findIndex((module)=>module.src===dep.src);
         let child = {
             ...dep,
             color: COLOR.INIT,
@@ -260,7 +266,8 @@ class Schedule extends EventEmitter {
             $pret: dep.pret,
         };
 
-        if (indexedModule) {
+        if (indexedModuleIdx) {
+            let indexedModule = this.$indexOfModule[indexedModuleIdx];
             let ref = dep.reference;
 
             // merge from.
@@ -275,10 +282,13 @@ class Schedule extends EventEmitter {
                 indexedModule.reference = ref;
             }
 
-            child = indexedModule;
 
-            if (this.mode === 'watch') {
+            if (this.mode === 'watch' && indexedModule.hash !== child.hash) {
                 this.$depPending.push(child);
+
+                this.$indexOfModule.splice(indexedModuleIdx, 1, child);
+            } else {
+                child = indexedModule;
             }
         } else if (!child.isPlugin) {
             // plugin do not resolve dependencies.
