@@ -59,16 +59,16 @@ class XMLManager {
             switch (attr.nodeName) {
                 case 'src':
                 case 'href': {
-                    let dr = new DependencyResolver(this.current, this.resolve, this.meta);
+                    let dr = new DependencyResolver(this.resolve, this.meta);
 
                     let {lib, source, pret} = dr.resolveDep(attr.nodeValue, mdl);
                     let libOutputPath = dr.getOutputPath(source, pret, mdl);
                     let resolved = dr.getResolved(lib, libOutputPath, mdl);
 
                     libs.push({
-                        absPath: source,
+                        src: source,
                         pret: pret,
-                        $$meta: {source, outputPath: libOutputPath},
+                        meta: {source, outputPath: libOutputPath},
                         reference: {
                             $$AttrNode: attr,
                             $$category: 'xml',
@@ -77,6 +77,8 @@ class XMLManager {
                     });
 
                     attr.nodeValue = resolved;
+
+                    break;
                 }
 
                 case 'style': {
@@ -89,6 +91,8 @@ class XMLManager {
                     libs = libs.concat(subLibs);
 
                     attr.nodeValue = code;
+
+                    break;
                 }
 
                 default: {

@@ -95,12 +95,10 @@ export function getDistPath(opath, ext, src, dist) {
     return path.join(current, dist, relative, opath.name+ext);
 }
 
-export function copy(opath, ext, src, dist) {
+export function copy(from, to) {
     return new Promise((resolve, reject)=>{
-        let target = getDistPath(opath, ext, src, dist);
-        writeFile(target, readFile(path.join(opath.dir, opath.base)));
-        let readable = fs.createReadStream(path.join(opath.dir, opath.base));
-        let writeable = fs.createWriteStream(target);
+        let readable = fs.createReadStream(from);
+        let writeable = fs.createWriteStream(to);
         readable.pipe(writeable);
         readable.on('error', (e)=>{
             reject(e);
