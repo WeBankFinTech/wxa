@@ -134,25 +134,6 @@ class DependencyResolver {
         resolved = './'+path.relative(path.parse(fileOutputPath).dir, libOutputPath);
 
         return resolved.replace(/\\/g, '/');
-
-        // modify path with lib.
-        // always require relative path of file.
-        // such as 'redux', expect to be something like this '../../redux/index.js'.
-        // if (mdl.isNpm) {
-        //     if (lib[0] !== '.') {
-        //         // dependencies from node_modules
-        //         resolved = path.join(path.relative(opath.dir, this.modulesPath), lib);
-        //     } else {
-        //         // relative path
-        //         if (lib[0] === '.' && lib[1] === '.') resolved = './'+lib;
-        //     }
-        // } else {
-        //     resolved = path.relative(getDistPath(opath, void(0), this.meta.src, this.meta.dist), output).split(path.sep).join('/').replace(/^\.\.\//, './');
-        // }
-        // 转化windowd的\\，修复path, relative需要向上一级目录的缺陷
-        // resolved = resolved.replace(/\\/g, '/');
-
-        // return resolved;
     }
 
     getPkgConfig(lib) {

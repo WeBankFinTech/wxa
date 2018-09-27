@@ -1,6 +1,6 @@
 import path from 'path';
 import ASTManager from '../resolvers/ast/index';
-import {writeFile, getDistPath, readFile} from '../utils';
+import {writeFile, getDistPath, readFile, copy} from '../utils';
 import debugPKG from 'debug';
 import DependencyResolver from '../helpers/dependencyResolver';
 
@@ -27,7 +27,7 @@ export default class Generator {
         debug('transform ext %s', outputPath);
 
         if (mdl.isFile) {
-            writeFile(outputPath, readFile(mdl.src));
+            copy(mdl.src, outputPath);
         } else if (!mdl.isAbstract) {
             writeFile(outputPath, mdl.code);
         }

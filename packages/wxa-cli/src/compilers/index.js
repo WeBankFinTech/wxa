@@ -134,7 +134,7 @@ export default class Compiler {
             case 'file': {
                 // just copy.
                 mdl.isFile = true;
-                return Promise.resolve();
+                return Promise.resolve({kind: 'file'});
             }
 
             default: {
