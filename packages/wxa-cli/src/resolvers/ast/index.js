@@ -94,6 +94,9 @@ export default class ASTManager {
             }
         });
         debug('dependencies libs %O', libs);
+
+        // generate module code.
+        mdl.code = this.generate(mdl).code;
         return libs;
     }
 

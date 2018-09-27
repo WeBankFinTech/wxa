@@ -20,6 +20,8 @@ export default class ComponentManager {
 
         if (mdl.json == null) return [];
 
+        mdl.code = JSON.stringify(mdl.json, void(0), 4);
+
         // merge global components from app.json
         if (mdl.category && mdl.category.toLowerCase() === 'page') {
             debug('merge global component and page components %O', mdl);

@@ -9,6 +9,7 @@ import defaultPret from '../const/defaultPret';
 import debugPKG from 'debug';
 import path from 'path';
 import ComponentManager from '../resolvers/component';
+import {readFile} from '../utils';
 
 let debug = debugPKG('WXA:Compilers');
 
@@ -33,7 +34,7 @@ export default class Compiler {
         debug('module to parse %O', mdl);
 
         let children = [];
-        let code = mdl.code || void(0);
+        let content = mdl.code || readFile(mdl.src);
         let type = mdl.type || mdl.compileTo || path.extname(mdl.src);
         type = type.replace(/^\.*/, '');
 
@@ -41,50 +42,57 @@ export default class Compiler {
             'js': jsOptions,
         };
 
-        let ret = await this.$parse(code, options[type], mdl.src, type, mdl);
+        let {kind, ...rest} = await this.$parse(content, options[type], mdl.src, type, mdl);
 
-        debug('parse ret %O %O', mdl, ret);
-        if (ret == null) return [];
-
+        debug('kind %s, rest %o', kind, rest);
         // Todo: app.js or app.wxa will do compile twice.
         // drop template from app.wxa
-        if (ret.rst && mdl.category === 'app') delete ret.rst.template;
+        // if (mdl.category === 'app') delete code.template;
 
         // support not ever happened.
         // if (typeof ret === 'string') {
         //     mdl.code = ret;
         // }
+        mdl.kind = kind;
 
-        if (ret.rst) {
-            mdl.rst = ret.rst;
-            // app.wxa do not have template to compile.
-            if (mdl.category && mdl.category.toUpperCase() === 'APP') delete mdl.rst.template;
+        switch (kind) {
+            case 'wxa': {
+                mdl.rst = rest.wxa;
+                // app.wxa do not have template to compile.
+                if (mdl.category && mdl.category.toUpperCase() === 'APP') delete mdl.rst.template;
 
-            children = children.concat(this.$$parseRST(mdl));
-        }
+                children = children.concat(this.$$parseRST(mdl));
+                break;
+            }
 
-        if (ret.xml) {
-            mdl.xml = ret.xml;
+            case 'xml': {
+                mdl.xml = rest.xml;
 
-            children = children.concat(this.$$parseXML(mdl));
-        }
+                children = children.concat(this.$$parseXML(mdl));
+                break;
+            }
 
-        if (ret.ast) {
-            // only allow babel-ast
-            mdl.ast = ret.ast;
+            case 'js': {
+                // only allow babel-ast
+                mdl.ast = rest.ast;
 
-            children = children.concat(this.$$parseAST(mdl));
-        }
+                children = children.concat(this.$$parseAST(mdl));
+                break;
+            }
 
-        if (ret.css) {
-            mdl.css = ret.css;
+            case 'css': {
+                mdl.css = rest.css;
 
-            children = children.concat(this.$$parseCSS(mdl));
-        }
+                children = children.concat(this.$$parseCSS(mdl));
+                break;
+            }
 
-        if (ret.json) {
-            mdl.json = ret.json;
-            children = children.concat(this.$$parseJSON(mdl));
+            case 'json': {
+                mdl.json = rest.json;
+
+                children = children.concat(this.$$parseJSON(mdl));
+                break;
+            }
         }
 
         return children;
@@ -103,7 +111,7 @@ export default class Compiler {
 
             case 'css':
             case 'wxss': {
-                return Promise.resolve({css: code});
+                return Promise.resolve({css: code, kind: 'css'});
             }
 
             case 'wxml': {

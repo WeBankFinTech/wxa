@@ -20,8 +20,9 @@ class XMLManager {
 
         let libs = this.walkXML(mdl.xml, mdl);
 
-        debug('libs in xml %O', libs);
+        debug('libs in xml %O %O', mdl.xml, libs);
 
+        mdl.code = mdl.xml.toString();
         return libs;
     }
 
@@ -65,25 +66,29 @@ class XMLManager {
                     let resolved = dr.getResolved(lib, libOutputPath, mdl);
 
                     libs.push({
-                        absPath: meta.source,
-                        pret: meta.pret,
-                        $$meta: meta,
+                        absPath: source,
+                        pret: pret,
+                        $$meta: {source, outputPath: libOutputPath},
                         reference: {
                             $$AttrNode: attr,
                             $$category: 'xml',
                             resolved,
                         },
                     });
+
+                    attr.nodeValue = resolved;
                 }
 
                 case 'style': {
                     let CM = new CSSManager(this.resolve, this.meta);
-                    let subLibs = CM.resolveStyle(attr.nodeValue, mdl);
+                    let {libs: subLibs, code} = CM.resolveStyle(attr.nodeValue, mdl);
 
                     // add parentNode to it.
                     subLibs = subLibs.map((lib)=>(lib.$$AttrNode=attr, lib));
                     // normalize dependencies.
                     libs = libs.concat(subLibs);
+
+                    attr.nodeValue = code;
                 }
 
                 default: {

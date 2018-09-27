@@ -6,7 +6,7 @@
     "scripts": {
         "prebuild": "sh prebuild.sh",
         "build": "webpack src/index.js --output-path ./dist/ --optimize-minimize",
-        "dev": "npm run prebuild && webpack src/index.js --output-path ./dist/ -w",
+        "dev": "npm run prebuild && webpack src/index.js --output-path /Users/wenzetian/Documents/web/webank/miniprogram/test-vant/vant/node_modules/@wxa/core/src -w",
         "test": "jest --no-cache",
         "cover": "jest --coverage",
         "travis": "npm run cover",
