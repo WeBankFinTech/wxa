@@ -13,6 +13,7 @@ import defaultPret from './const/defaultPret';
 import Optimizer from './optimizer';
 import Generator from './generator';
 import Compiler from './compilers/index';
+import {AsyncParallelHook} from 'tapable';
 
 let debug = debugPKG('WXA:Builder');
 
@@ -25,30 +26,10 @@ class Builder {
         this.isWatching = false;
         this.isWatchReady = false;
         this.queue = {};
-    }
-    // 找到引用的src文件
-    findReference(file) {
-        let files = getFiles(this.src);
 
-        let refs = [];
-
-        let reg = new RegExp('\\'+this.ext+'$');
-
-        files = files.filter((f)=>reg.test(f));
-
-        files.forEach((f)=>{
-            let opath = path.parse(path.join(this.current, this.src, f));
-            // console.log(opath);
-            let content = readFile(opath);
-
-            content.replace(/<(script|template|style)\s.*src\s*src=\s*['"](.*)['"]/ig, (match, tag, srcpath)=>{
-                if (path.join(opath.dir, srcpath) === path.join(this.current, src, file)) {
-                    refs.push(f);
-                }
-            });
-        });
-
-        return refs;
+        this.hook = {
+            done: new AsyncParallelHook(['dependencies']),
+        };
     }
     async init(cmd) {
         // 加载编译器
@@ -62,6 +43,18 @@ class Builder {
         return compilerLoader
         .mount(configs.use, cmd);
     }
+    filterModule(arr) {
+        return arr.reduce((ret, dep)=>{
+            if (
+                !/src\/_wxa/.test(dep.src)
+            ) {
+                ret.push(dep.src);
+            }
+
+
+            return ret;
+        }, []);
+    }
     watch(cmd) {
         if (this.isWatching) return;
         this.isWatching = true;
@@ -69,21 +62,38 @@ class Builder {
         // set mode
         schedule.set('mode', 'watch');
 
-        chokidar.watch(`.${path.sep}${this.src}`, {
+        let files = this.filterModule(schedule.$indexOfModule);
+        console.log(files);
+
+        let watch = chokidar.watch(files, {
             awaitWriteFinish: {
                 stabilityThreshold: 300,
                 pollInterval: 100,
             },
         })
-        .on('all', (event, filepath)=>{
+        .on('all', async (event, filepath)=>{
             if (this.isWatchReady && ['change', 'add'].indexOf(event)>-1 && !this.queue[filepath]) {
-                cmd.file = path.join('..', filepath);
-                // schedule
-                logger.message(event, filepath, true);
-                this.queue[filepath] = event;
-                cmd.category = event;
-                this.build(cmd);
-                setTimeout(()=>this.queue[filepath]=false, 500);
+                console.log(event, filepath);
+                let mdl = schedule.$indexOfModule.find((module)=>module.src===filepath);
+
+                schedule.$depPending.push(mdl);
+                let changedDeps = await schedule.$doDPA();
+
+                let generator = new Generator(schedule.wxaConfigs.resolve, schedule.meta, schedule.wxaConfigs);
+                let generateTasks = changedDeps.map((mdl)=>{
+                    return generator.do(mdl);
+                });
+
+                await Promise.all(generateTasks);
+
+                logger.message('Compile', '编译完成', true);
+                // cmd.file = path.join('..', filepath);
+                // // schedule
+                // logger.message(event, filepath, true);
+                // this.queue[filepath] = event;
+                // cmd.category = event;
+                // this.build(cmd);
+                // setTimeout(()=>this.queue[filepath]=false, 500);
             }
         })
         .on('ready', (event, filepath)=>{
@@ -92,18 +102,9 @@ class Builder {
         });
     }
     async build(cmd) {
-        let config = getConfig();
-
-        config.source = this.src;
-        config.dist = this.dist;
-        config.ext = this.ext;
-
-        let file = cmd.file;
-        let files = file ? [file] : getFiles(this.src);
-
         schedule.set('src', this.src);
         schedule.set('dist', this.dist);
-        schedule.set('options', cmd);
+        schedule.set('cmdOptions', cmd);
 
         logger.infoNow('Compile', 'AT: '+new Date().toLocaleString(), void(0));
 
@@ -180,11 +181,13 @@ class Builder {
             await Promise.all(generateTasks);
 
             // done.
+            await this.hook.done.promise(schedule.$indexOfModule);
+
+            console.log(cmd);
+            if (cmd.watch) this.watch();
         } catch (e) {
             console.error(e);
         }
-
-        if (cmd.category) delete cmd.category;
     }
 }
 

@@ -74,8 +74,8 @@ class Schedule extends EventEmitter {
         // load from path/to/project/src/app.json
         this.appConfigs = {};
 
-        // global components, all page level instance will merge global components with them.
-        // this.app.globalComponents = {};
+        // cmd options
+        this.cmdOptions = {};
     }
 
     set(name, value) {
@@ -194,12 +194,13 @@ class Schedule extends EventEmitter {
             tasks.push(this.$parse(dep));
         // }
 
-        return Promise.all(tasks).then((succ)=>{
+        return Promise.all(tasks).then(async (succ)=>{
             if (this.$depPending.length === 0) {
                 // dependencies resolve complete
                 return Promise.resolve(succ);
             } else {
-                return this.$doDPA();
+                let sub = await this.$doDPA();
+                return succ.concat(sub);
             }
         });
     }
@@ -234,6 +235,7 @@ class Schedule extends EventEmitter {
             dep.color = COLOR.COMPILED;
             // tick event
             this.emit('tick', dep);
+            return dep;
         } catch (e) {
             // logger.errorNow('编译失败', e);
             debug('编译失败 %O', e);
@@ -274,6 +276,10 @@ class Schedule extends EventEmitter {
             }
 
             child = indexedModule;
+
+            if (this.mode === 'watch') {
+                this.$depPending.push(child);
+            }
         } else if (!child.isPlugin) {
             // plugin do not resolve dependencies.
             this.$depPending.push(child);
