@@ -35,7 +35,7 @@ export default class Compiler {
 
         let children = [];
         let content = mdl.code || readFile(mdl.src);
-        let type = mdl.type || mdl.compileTo || path.extname(mdl.src);
+        let type = mdl.type || path.extname(mdl.src);
         type = type.replace(/^\.*/, '');
 
         const options = {
@@ -138,7 +138,8 @@ export default class Compiler {
             }
 
             default: {
-                return Promise.reject(`未识别的文件类型%{type}, 请检查是否添加指定的loader`);
+                // return Promise.reject(`未识别的文件类型%{type}, 请检查是否添加指定的loader`);
+                return Promise.resolve({kind: 'other'});
             }
         }
     }

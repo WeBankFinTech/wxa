@@ -38,7 +38,7 @@ class CompilerLoader {
                     logger.infoNow('Install', `尝试安装${compilerName}中`);
                     return npmManager.install(compilerName).then((succ)=>{
                         logger.infoNow('Success', `安装${compilerName}成功`);
-x;
+
                         try {
                             Loader = require(path.join(this.modulePath, compilerName)).default;
                         } catch (e) {
@@ -97,7 +97,7 @@ x;
 
                     // Todo: Multi loader with one string.
                     // resource transform is normal. ig. sass->css ts->js
-                    mdl.compileTo = compileTo || path.extname(mdl.src).slice(1);
+                    // mdl.compileTo = compileTo || path.extname(mdl.src).slice(1);
                     mdl.code = code;
                     // mdl.restResource = rest;
                 } catch (e) {
