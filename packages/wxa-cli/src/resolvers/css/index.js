@@ -56,7 +56,7 @@ export default class CSSManager {
 
                 debug('libs %O', libs);
 
-                return resolved;
+                return match.replace(dep, resolved);
             }
         );
 

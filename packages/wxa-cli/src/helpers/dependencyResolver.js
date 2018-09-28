@@ -85,8 +85,9 @@ class DependencyResolver {
             ext = '';
         } else if (pret.isWXALib) {
             // polyfill from wxa cli.
-            ext = /\.js$/.test(pret.name) ? '' : '.js';
-            source = path.join(this.meta.current, this.meta.src, '_wxa', pret.name+ext);
+            ext = /\.\w+$/.test(pret.name) ? '' : '.js';
+            pret.ext = ext;
+            source = path.join(this.meta.libSrc, pret.name+ext);
         } else if (pret.isPlugin || pret.isURI) {
             // url module
             source = lib;
@@ -100,7 +101,9 @@ class DependencyResolver {
     getOutputPath(source, pret, mdl) {
         if (pret.isRelative || pret.isAPPAbsolute || pret.isNodeModule || pret.isWXALib) {
             let relative;
-            let opath = path.parse(source);
+            let opath = pret.isWXALib ?
+            path.parse(path.join(this.meta.current, this.meta.src, '_wxa', pret.name+pret.ext)) :
+            path.parse(source);
 
             if (path.relative(this.meta.current, opath.dir).indexOf('node_modules') === 0) {
                 relative = path.relative(path.join(this.meta.current, 'node_modules'), opath.dir);

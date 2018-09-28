@@ -5,6 +5,7 @@ import logger from './helpers/logger';
 import {EventEmitter} from 'events';
 import loader from './loader';
 import COLOR from './const/color';
+import ROOT from './const/root';
 import debugPKG from 'debug';
 import defaultPret from './const/defaultPret';
 import wrapWxa from './helpers/wrapWxa';
@@ -65,6 +66,7 @@ class Schedule extends EventEmitter {
         });
 
         this.$pageArray = []; // denpendencies
+        this.$depPending = []; // pending dependencies
         this.$indexOfModule = []; // all module
         this.$isMountingCompiler = false; // if is mounting compiler, all task will be blocked.
 
@@ -81,6 +83,10 @@ class Schedule extends EventEmitter {
 
     set(name, value) {
         this[name] = value;
+    }
+
+    addEntryPoint(mdl) {
+        return this.findOrAddDependency(mdl, ROOT);
     }
 
     async doDPA() {
@@ -109,13 +115,16 @@ class Schedule extends EventEmitter {
             let wxaPage = path.join(this.current, this.src, page+this.meta.wxaExt);
             if (isFile(wxaPage)) {
                 try {
-                    this.$pageArray.push({
+                    let page = this.addEntryPoint({
+                        code: readFile(wxaPage),
                         src: wxaPage,
                         type: 'wxa',
                         category: 'Page',
                         pagePath: page,
                         pret: defaultPret,
                     });
+
+                    this.$pageArray.push(page);
                 } catch (e) {
                     console.error(e);
                 }
@@ -123,13 +132,16 @@ class Schedule extends EventEmitter {
                 exts.forEach((ext)=>{
                     let p = path.join(this.current, this.src, page+ext);
                     if (isFile(p)) {
-                        this.$pageArray.push({
+                        let page = this.addEntryPoint({
+                            code: readFile(p),
                             src: p,
                             type: ext,
                             category: 'Page',
                             pagePath: page,
                             pret: defaultPret,
                         });
+
+                        this.$pageArray.push(page);
                     }
                 });
             }
@@ -142,22 +154,23 @@ class Schedule extends EventEmitter {
         }
 
         // lib compile
-        let libs = this.meta.libs.map((file)=>{
-            let libDep = {
-                src: path.join(this.meta.current, this.meta.src, '_wxa', file),
-                type: 'js',
-                $from: path.join(this.meta.libSrc, file),
-                category: 'Lib',
-                pret: defaultPret,
-            };
+        let libs = [];
+        // let libs = this.meta.libs.map((file)=>{
+        //     let libDep = {
+        //         src: path.join(this.meta.current, this.meta.src, '_wxa', file),
+        //         type: 'js',
+        //         $from: path.join(this.meta.libSrc, file),
+        //         category: 'Lib',
+        //         pret: defaultPret,
+        //     };
 
-            libDep.code = readFile(libDep.$from);
+        //     libDep.code = readFile(libDep.$from);
 
-            return libDep;
-        });
+        //     return libDep;
+        // });
 
-        this.$depPending = [].concat(libs, this.$pageArray);
-        this.$indexOfModule = [].concat(libs, this.$pageArray);
+        // this.$depPending = [].concat(libs, this.$pageArray);
+        // this.$indexOfModule = [].concat(libs, this.$pageArray);
         debug('depPending %o', this.$depPending);
         debug('DPA started');
 
@@ -235,7 +248,7 @@ class Schedule extends EventEmitter {
 
             dep.color = COLOR.COMPILED;
             // calculate md5 for code
-            if (dep.code) dep.hash = crypto.createHash('md5').update(dep.code).digest('hex');
+            // if (dep.code) dep.hash = crypto.createHash('md5').update(dep.code).digest('hex');
             // tick event
             this.emit('tick', dep);
             return dep;
@@ -246,8 +259,10 @@ class Schedule extends EventEmitter {
     }
 
     findOrAddDependency(dep, mdl) {
+        debug('Find Dependencies started');
         // calc hash
         if (dep.code) dep.hash = crypto.createHash('md5').update(dep.code).digest('hex');
+        debug('Dep HASH: %s', dep.hash);
 
         // circle referrence.
         dep.reference = dep.reference || {};
@@ -256,7 +271,8 @@ class Schedule extends EventEmitter {
         // pret backup
         dep.pret = dep.pret || defaultPret;
 
-        let indexedModuleIdx = this.$indexOfModule.findIndex((module)=>module.src===dep.src);
+        let indexedModuleIdx = this.$indexOfModule.findIndex((file)=>file.src===dep.src);
+        debug('Find index of moduleList %s', indexedModuleIdx);
         let child = {
             ...dep,
             color: COLOR.INIT,
@@ -266,9 +282,10 @@ class Schedule extends EventEmitter {
             $pret: dep.pret,
         };
 
-        if (indexedModuleIdx) {
+        if (indexedModuleIdx > -1) {
             let indexedModule = this.$indexOfModule[indexedModuleIdx];
             let ref = dep.reference;
+            debug('Find out module HASH is %s %O', indexedModule.hash, indexedModule);
 
             // merge from.
             if (Array.isArray(indexedModule.reference)) {
@@ -284,6 +301,7 @@ class Schedule extends EventEmitter {
 
 
             if (this.mode === 'watch' && indexedModule.hash !== child.hash) {
+                debug('WATCH MODE and HASH is Changed');
                 this.$depPending.push(child);
 
                 this.$indexOfModule.splice(indexedModuleIdx, 1, child);
