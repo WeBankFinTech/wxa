@@ -66,7 +66,7 @@ class Builder {
         let files = this.filterModule(schedule.$indexOfModule);
         console.log(files);
 
-        let watch = chokidar.watch(files, {
+        this.watcher = chokidar.watch(files, {
             awaitWriteFinish: {
                 stabilityThreshold: 300,
                 pollInterval: 100,
@@ -75,8 +75,10 @@ class Builder {
         .on('all', async (event, filepath)=>{
             if (this.isWatchReady && ['change', 'add'].indexOf(event)>-1 && !this.queue[filepath]) {
                 console.log(event, filepath);
+                debug('WATCH file changed %s', filepath);
                 let mdl = schedule.$indexOfModule.find((module)=>module.src===filepath);
                 let isChange = true;
+                debug('Changed Module %O', mdl);
                 // module with code;
                 if (mdl.code) {
                     let content = readFile(mdl.src);
@@ -84,6 +86,7 @@ class Builder {
 
                     mdl.code = content;
                     isChange = mdl.hash !== md5;
+                    debug('OLD HASH %s, NEW HASH %s', mdl.hash, md5);
                 }
 
                 if (isChange) {
@@ -114,6 +117,17 @@ class Builder {
             this.isWatchReady = true;
             logger.message('Watch', '准备完毕，开始监听文件', true);
         });
+
+        let h = (code)=>{
+            this.watcher.close();
+            logger.messageNow('Exit', `正在关闭Wxa(${code})`);
+            process.exit(0);
+        };
+        process.on('exit', h);
+        process.on('uncaughtException', h);
+        process.on('SIGINT', h);
+        process.on('uncaughtException', h);
+        process.on('SIGHUP', h);
     }
     async build(cmd) {
         schedule.set('src', this.src);
@@ -172,7 +186,7 @@ class Builder {
             let appConfigs = JSON.parse(rst.config.code);
             // mount to schedule.
             schedule.set('appConfigs', appConfigs);
-            schedule.set('$pageArray', [entryMdl]);
+            schedule.set('$pageArray', [schedule.addEntryPoint(entryMdl)]);
 
             // do dependencies analysis.
             await schedule.doDPA();
