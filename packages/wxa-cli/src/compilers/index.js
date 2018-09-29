@@ -102,7 +102,7 @@ export default class Compiler {
         switch (type) {
             case 'wxa': {
                 mdl.isAbstract = true;
-                return new WxaCompiler().parse(filepath);
+                return new WxaCompiler(this.resolve, this.meta).parse(filepath);
             }
 
             case 'js': {
