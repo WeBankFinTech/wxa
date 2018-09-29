@@ -14,6 +14,8 @@ export default class Generator {
     }
 
     do(mdl) {
+        if (mdl.isAbstract) return;
+
         debug('module to generate %O', mdl);
         let outputPath;
         if (!mdl.meta || !mdl.meta.outputPath) {
@@ -25,10 +27,11 @@ export default class Generator {
 
         outputPath = this.tryTransFormExtension(outputPath);
         debug('transform ext %s', outputPath);
+        mdl.meta.accOutputPath = outputPath;
 
         if (mdl.isFile) {
             copy(mdl.src, outputPath);
-        } else if (!mdl.isAbstract) {
+        } else {
             writeFile(outputPath, mdl.code);
         }
     }

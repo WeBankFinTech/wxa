@@ -73,7 +73,7 @@ class Builder {
             },
         })
         .on('all', async (event, filepath)=>{
-            if (this.isWatchReady && ['change', 'add'].indexOf(event)>-1 && !this.queue[filepath]) {
+            if (this.isWatchReady && ['change'].indexOf(event)>-1 && !this.queue[filepath]) {
                 console.log(event, filepath);
                 debug('WATCH file changed %s', filepath);
                 let mdl = schedule.$indexOfModule.find((module)=>module.src===filepath);
@@ -101,6 +101,17 @@ class Builder {
                     await Promise.all(generateTasks);
 
                     logger.message('Compile', '编译完成', true);
+
+                    let newFiles = this.filterModule(schedule.$indexOfModule);
+                    let unlinkFiles = files.filter((oldFilePath)=>!~newFiles.indexOf(oldFilePath));
+                    let addFiles = newFiles.filter((filePath)=>!~files.indexOf(filePath));
+
+                    // unwatch deleted file add watch to new Files;
+                    debug('addFiles %O, unlinkFiles %O', addFiles, unlinkFiles);
+                    this.watcher.add(addFiles);
+                    this.watcher.unwatch(unlinkFiles);
+
+                    files = newFiles;
                 } else {
                     logger.message('Complete', '文件无变化', true);
                 }
@@ -129,6 +140,7 @@ class Builder {
         process.on('uncaughtException', h);
         process.on('SIGHUP', h);
     }
+
     async build(cmd) {
         schedule.set('src', this.src);
         schedule.set('dist', this.dist);

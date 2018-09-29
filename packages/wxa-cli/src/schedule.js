@@ -11,6 +11,7 @@ import defaultPret from './const/defaultPret';
 import wrapWxa from './helpers/wrapWxa';
 import Compiler from './compilers/index';
 import crypto from 'crypto';
+import {unlinkSync} from 'fs';
 
 /**
  * todo:
@@ -244,8 +245,14 @@ class Schedule extends EventEmitter {
             let childNodes = await compiler.parse(dep);
 
             debug('childNodes', childNodes);
-            childNodes.forEach((node)=>this.findOrAddDependency(node, dep));
+            let children = childNodes.map((node)=>this.findOrAddDependency(node, dep));
 
+            // if watch mode, use childNodes to clean up the dep tree.
+            // update each module's childnodes, then according to reference unlink file.
+            this.cleanUpChildren(children, dep);
+
+            // cover new childNodes
+            dep.childNodes = new Set(children);
             dep.color = COLOR.COMPILED;
             // calculate md5 for code
             // if (dep.code) dep.hash = crypto.createHash('md5').update(dep.code).digest('hex');
@@ -256,6 +263,42 @@ class Schedule extends EventEmitter {
             // logger.errorNow('编译失败', e);
             debug('编译失败 %O', e);
         }
+    }
+
+    cleanUpChildren(newChildren, mdl) {
+        debug('clean up module %O', mdl);
+        if (mdl.childNodes == null) return;
+
+        mdl.childNodes.forEach((oldChild)=>{
+            if (!~newChildren.findIndex((item)=>item.src === oldChild.src)) {
+                // child node not used, update reference.
+                debug('denpendencies clean up started');
+
+                if (oldChild.reference == null) {
+                    debug('Error: old child node\'s reference is no find %O', oldChild );
+                    return;
+                }
+
+                let idxOfParent = oldChild.reference.findIndex((ref)=>ref.parent.src === mdl.src);
+
+                if (idxOfParent === -1) {
+                    debug('Error: do not find parent module');
+                    return;
+                }
+
+                oldChild.reference.splice(idxOfParent, 1);
+
+                if (oldChild.reference.length === 0) {
+                    debug('useless module find %s', oldChild.src);
+
+                    // nested clean children
+                    this.cleanUpChildren([], oldChild);
+                    // unlink module
+                    oldChild.meta && unlinkSync(oldChild.meta.accOutputPath);
+                    this.$indexOfModule.splice(this.$indexOfModule.findIndex((mdl)=>mdl.src===oldChild.src), 1);
+                }
+            }
+        });
     }
 
     findOrAddDependency(dep, mdl) {
@@ -280,6 +323,7 @@ class Schedule extends EventEmitter {
             isPlugin: dep.pret.isPlugin,
             $target: dep.target,
             $pret: dep.pret,
+            reference: [dep.reference],
         };
 
         if (indexedModuleIdx > -1) {
@@ -291,6 +335,9 @@ class Schedule extends EventEmitter {
             if (Array.isArray(indexedModule.reference)) {
                 indexedModule.reference.push(ref);
             } else if (typeof indexedModule.reference === 'object') {
+                // dead code theorily
+                debug('dead code execute');
+
                 indexedModule.reference = [
                     indexedModule.reference,
                     ref,
@@ -302,9 +349,11 @@ class Schedule extends EventEmitter {
 
             if (this.mode === 'watch' && indexedModule.hash !== child.hash) {
                 debug('WATCH MODE and HASH is Changed');
-                this.$depPending.push(child);
+                let newChild = {...indexedModule, ...child};
+                this.$depPending.push(newChild);
 
-                this.$indexOfModule.splice(indexedModuleIdx, 1, child);
+                this.$indexOfModule.splice(indexedModuleIdx, 1, newChild);
+                child = newChild;
             } else {
                 child = indexedModule;
             }

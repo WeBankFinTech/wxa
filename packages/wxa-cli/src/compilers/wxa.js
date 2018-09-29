@@ -3,8 +3,14 @@ import {readFile, error, isFile, isEmpty} from '../utils';
 import {DOMParser} from 'xmldom';
 import Coder from '../helpers/coder';
 import logger from '../helpers/logger';
+import DependencyResolver from '../helpers/dependencyResolver';
+import defaultPret from '../const/defaultPret';
 
 export default class WxaCompiler {
+    constructor(resolve, meta) {
+        this.resolve = resolve;
+        this.meta = meta;
+    }
     parse(filepath) {
         let wxa = this.resolveWxa(filepath);
 
@@ -115,6 +121,15 @@ export default class WxaCompiler {
                 }
 
                 rstTypeObject.$from = filepath;
+
+                // calc meta object.
+                let dr = new DependencyResolver(this.resolve, this.meta);
+                let outputPath = dr.getOutputPath(rstTypeObject.src, defaultPret, rst);
+
+                rstTypeObject.meta = {
+                    source: rstTypeObject.src,
+                    outputPath,
+                };
             }
         });
 
