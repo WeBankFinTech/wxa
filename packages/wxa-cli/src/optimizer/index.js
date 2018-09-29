@@ -10,12 +10,12 @@ export default class Optimizer {
         this.meta = meta;
         this.resolve = resolve;
 
-        this.hook = {
+        this.hooks = {
             optimizeAssets: new AsyncSeriesHook(['compilation']),
         };
     }
 
     do(dep) {
-        return this.hook.optimizeAssets.promise(dep);
+        return this.hooks.optimizeAssets.promise(dep);
     }
 }

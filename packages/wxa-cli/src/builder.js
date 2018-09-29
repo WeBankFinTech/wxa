@@ -1,6 +1,6 @@
 import 'babel-polyfill';
 
-import {getConfig, getFiles, readFile, isFile} from './utils';
+import {getConfig, readFile, isFile, applyPlugins} from './utils';
 import path from 'path';
 import crypto from 'crypto';
 import chokidar from 'chokidar';
@@ -94,11 +94,8 @@ class Builder {
                     let changedDeps = await schedule.$doDPA();
 
                     let generator = new Generator(schedule.wxaConfigs.resolve, schedule.meta, schedule.wxaConfigs);
-                    let generateTasks = changedDeps.map((mdl)=>{
-                        return generator.do(mdl);
-                    });
 
-                    await Promise.all(generateTasks);
+                    await this.optimizeAndGenerate(changedDeps);
 
                     logger.message('Compile', '编译完成', true);
 
@@ -204,27 +201,39 @@ class Builder {
             await schedule.doDPA();
             debug('schedule dependencies Tree is %O', schedule.$indexOfModule);
 
-            // module optimize, dependencies merge, minor.
-            let optimizer = new Optimizer(schedule.wxaConfigs.resolve, schedule.meta);
-            let optimizeTasks = schedule.$indexOfModule.map((dep)=>{
-                return optimizer.do(dep);
-            });
-
-            await Promise.all(optimizeTasks);
-
-            // module dest, dependencies copy,
-            let generator = new Generator(schedule.wxaConfigs.resolve, schedule.meta, schedule.wxaConfigs);
-            let generateTasks = schedule.$indexOfModule.map((mdl)=>{
-                return generator.do(mdl);
-            });
-
-            await Promise.all(generateTasks);
+            await this.optimizeAndGenerate(schedule.$indexOfModule);
 
             // done.
             await this.hook.done.promise(schedule.$indexOfModule);
 
             console.log(cmd);
             if (cmd.watch) this.watch();
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    async optimizeAndGenerate(list) {
+        try {
+            // module optimize, dependencies merge, minor.
+            let optimizer = new Optimizer(schedule.wxaConfigs.resolve, schedule.meta);
+            applyPlugins(schedule.wxaConfigs.plugins, optimizer);
+
+            let optimizeTasks = list.map((dep)=>{
+                return optimizer.do(dep);
+            });
+
+            await Promise.all(optimizeTasks).catch((e)=>{
+                console.error(e);
+            });
+
+            // module dest, dependencies copy,
+            let generator = new Generator(schedule.wxaConfigs.resolve, schedule.meta, schedule.wxaConfigs);
+            let generateTasks = list.map((mdl)=>{
+                return generator.do(mdl);
+            });
+
+            await Promise.all(generateTasks);
         } catch (e) {
             console.error(e);
         }
