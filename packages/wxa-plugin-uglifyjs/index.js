@@ -11,12 +11,20 @@ module.exports = class UglifyjsPlugins {
         }, options);
     }
     apply(compiler) {
-        compiler.hooks.optimizeAssets.tapAsync('uglifyjsPlugin', (opath, compilation, next) => {
-            this.run(compilation, opath, next);
+        if(compiler.hooks == null || compiler.hooks.optimizeAssets == null) return;
+
+        compiler.hooks.optimizeAssets.tapAsync('uglifyjsPlugin', (compilation, next) => {
+            this.run(compilation, next);
         });
     }
-    run(compilation, opath, next) {
-        if(!this.configs.test.test(compilation.$sourceType||compilation.ext)) return next(null);
+    run(compilation, next) {
+        let opath = path.parse(compilation.src);
+        if(
+            compilation.meta == null ||
+            !this.configs.test.test(compilation.meta.source)
+        ) {
+            return next(null);
+        }
 
         if (this.checkIgnore(opath, this.configs.ignore)) return next(null);
 
