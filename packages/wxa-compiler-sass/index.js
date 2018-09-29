@@ -1,6 +1,8 @@
 import sass from 'node-sass';
 import path from 'path';
+import debugPKG from 'debug'
 
+let debug = debugPKG('WXA:SASS-Loader')
 class SassCompiler {
     constructor(cwd, compilers) {
         if (SassCompiler.prototype.instance) return SassCompiler.prototype.instance;
@@ -17,24 +19,34 @@ class SassCompiler {
         if(this.configs == null) this.configs = compilers.sass || {};
     }
 
-    parse(content, configs, filepath) {
+    async parse(mdl, cmdConfigs) {
+        debug('sass module parse started %O', mdl);
+
+        let configs  = this.configs;
         return new Promise((resolve, reject)=>{
             sass.render({
                 ...configs,
-                data: content,
-                file: filepath
-            }, (err, res)=>{
-                if (err) reject(err);
-                else resolve(res.css.toString());
+                data: mdl.code || null,
+                file: mdl.src
+            }, (err, ret)=>{
+                if (err) {
+                    debug('transform error %O', err);
+                    return reject(err);
+                }
+
+                mdl.code = ret.css.toString();
+
+                // custom outputPath
+                if(mdl.meta) {
+                    let source = path.parse(mdl.meta.source);
+                    mdl.meta.source = source.dir + path.sep + source.name + '.css';
+
+                    let output = path.parse(mdl.meta.outputPath);
+                    mdl.meta.outputPath = output.dir + path.sep + output.name + '.css'
+                }
+                resolve({ret, code: mdl.code});
             });
         });
-    }
-
-    mount(map) {
-        map['scss'] = this;
-        map['sass'] = this;
-        map['css'] = this;
-        return map;
     }
 }
 

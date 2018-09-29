@@ -62,7 +62,7 @@ class BabelLoader {
                 mdl.sourceMap = ret.map;
 
                 debug('transform succ %s', ret.code);
-                return Promise.resolve({ret, code: ret.code, compileTo: 'js'});
+                return Promise.resolve({ret, code: ret.code});
             } catch (e) {
                 return Promise.reject(e);
             }
@@ -90,10 +90,6 @@ class BabelLoader {
         return path.replace(/\\/g, '/');
     }
 
-    mount(map) {
-        map['js'] = this;
-        return map;
-    }
 }
 
 export default BabelLoader;

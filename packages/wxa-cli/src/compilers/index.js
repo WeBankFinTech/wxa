@@ -35,7 +35,7 @@ export default class Compiler {
 
         let children = [];
         let content = mdl.code || readFile(mdl.src);
-        let type = mdl.type || path.extname(mdl.src);
+        let type = mdl.type || path.extname(mdl.meta.source);
         type = type.replace(/^\.*/, '');
 
         const options = {
