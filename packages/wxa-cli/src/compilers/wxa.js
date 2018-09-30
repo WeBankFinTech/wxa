@@ -133,6 +133,13 @@ export default class WxaCompiler {
             }
         });
 
+        rst = Object.keys(rst).reduce((ret, key)=>{
+            if (rst[key].src && rst[key].code !== '') {
+                ret[key] = rst[key];
+            }
+            return ret;
+        }, {});
+
         return rst;
     }
 
