@@ -46,6 +46,16 @@ export class Wxa {
         // set up fetch cached request expired time, default: 500ms
         // which mean you can't post same request in 500ms multi time.
         this.setRequestExpiredTime = setRequestExpiredTime;
+
+        // debug mode
+        // use console to print debug message
+        this.IS_DEBUG = false;
+    }
+    setDebugMode(val) {
+        this.IS_DEBUG = !!val;
+        if (this.IS_DEBUG) {
+            console.info(this);
+        }
     }
     launchApp(instance) {
         let vm = instance;
