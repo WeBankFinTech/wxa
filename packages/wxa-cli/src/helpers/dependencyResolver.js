@@ -56,7 +56,7 @@ class DependencyResolver {
         } else {
             ext = '';
         }
-        source += ext;
+        source = path.resolve(source+ext);
         lib += ext;
 
         return {

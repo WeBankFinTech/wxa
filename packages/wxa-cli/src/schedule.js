@@ -12,6 +12,7 @@ import wrapWxa from './helpers/wrapWxa';
 import Compiler from './compilers/index';
 import crypto from 'crypto';
 import {unlinkSync} from 'fs';
+import DependencyResolver from './helpers/dependencyResolver';
 
 /**
  * todo:
@@ -41,6 +42,8 @@ class Schedule extends EventEmitter {
             libSrc: path.join(__dirname, '../lib-dist'),
             libs: ['wxa_wrap.js'],
         };
+
+        this.APP_CONFIG_PATH = path.join(this.current, this.src, 'app.json');
 
         this.max = 5;
 
@@ -91,111 +94,13 @@ class Schedule extends EventEmitter {
     }
 
     async doDPA() {
-        if (
-            this.appConfigs == null ||
-            !this.appConfigs.pages ||
-            !this.appConfigs.pages.length
-        ) {
-            logger.errorNow('app页面配置缺失, 请检查app.json的pages配置项');
-        }
-
-        let pages = this.appConfigs.pages;
-        // multi packages process.
-        if (this.appConfigs.subPackages) {
-            let subPages = this.appConfigs.subPackages.reduce((subPkgs, pkg)=>{
-                return subPkgs.concat(pkg.pages.map((subpath)=>pkg.root+'/'+subpath));
-            }, []);
-
-            pages = pages.concat(subPages);
-        }
-
-        // pages spread
-        let exts = ['.wxml', '.wxss', '.js', '.json'];
-        pages.forEach((page)=>{
-            // wxa file
-            let wxaPage = path.join(this.current, this.src, page+this.meta.wxaExt);
-            if (isFile(wxaPage)) {
-                try {
-                    let page = this.addEntryPoint({
-                        code: readFile(wxaPage),
-                        src: wxaPage,
-                        type: 'wxa',
-                        category: 'Page',
-                        pagePath: page,
-                        pret: defaultPret,
-                    });
-
-                    this.$pageArray.push(page);
-                } catch (e) {
-                    console.error(e);
-                }
-            } else {
-                exts.forEach((ext)=>{
-                    let p = path.join(this.current, this.src, page+ext);
-                    if (isFile(p)) {
-                        let page = this.addEntryPoint({
-                            code: readFile(p),
-                            src: p,
-                            type: ext,
-                            category: 'Page',
-                            pagePath: page,
-                            pret: defaultPret,
-                        });
-
-                        this.$pageArray.push(page);
-                    }
-                });
-            }
-        });
-        console.log(this.$pageArray);
-
-        if (!this.$pageArray.length) {
-            logger.errorNow('找不到可编译的页面');
+        if (!this.$depPending.length) {
+            logger.errorNow('找不到可编译的入口文件');
             return;
         }
 
-        // lib compile
-        let libs = [];
-        // let libs = this.meta.libs.map((file)=>{
-        //     let libDep = {
-        //         src: path.join(this.meta.current, this.meta.src, '_wxa', file),
-        //         type: 'js',
-        //         $from: path.join(this.meta.libSrc, file),
-        //         category: 'Lib',
-        //         pret: defaultPret,
-        //     };
-
-        //     libDep.code = readFile(libDep.$from);
-
-        //     return libDep;
-        // });
-
-        // this.$depPending = [].concat(libs, this.$pageArray);
-        // this.$indexOfModule = [].concat(libs, this.$pageArray);
         debug('depPending %o', this.$depPending);
         debug('DPA started');
-
-        // app.wxa, or app.js should allways parse first.
-        // if (!this.$isAppEntryParsed) {
-        //     debug('App Entry is parsing');
-        //     let appEntryIndex = this.$depPending.findIndex((entry)=>entry.category==='App');
-        //     let [appEntry] = this.$depPending.splice(appEntryIndex, 1);
-
-        //     await this.$parse(appEntry);
-
-        //     debug('App Entry is parsed');
-        //     debug('App JSON js parsing');
-
-        //     // find json and parse it.
-        //     let appJSONIndex = this.$depPending.findIndex((entry)=>entry.category==='App'&&entry.type==='json');
-        //     let [appJSON] = this.$depPending.splice(appJSONIndex, 1);
-
-        //     await this.$parse(appJSON);
-
-        //     debug('App JSON js parsed');
-
-        //     this.$isAppEntryParsed = true;
-        // }
 
         return this.$doDPA();
     }
@@ -254,8 +159,15 @@ class Schedule extends EventEmitter {
             // cover new childNodes
             dep.childNodes = new Set(children);
             dep.color = COLOR.COMPILED;
-            // calculate md5 for code
-            // if (dep.code) dep.hash = crypto.createHash('md5').update(dep.code).digest('hex');
+
+            // if module is app.json, then add Page entry points.
+            if (dep.src === this.APP_CONFIG_PATH) {
+                this.appConfigs = dep.json;
+                debug('app configs is Changed, %O', dep.json);
+
+                this.addPageEntryPoint();
+            }
+
             // tick event
             this.emit('tick', dep);
             return dep;
@@ -379,6 +291,91 @@ class Schedule extends EventEmitter {
 
             dep.code = wrapWxa(dep.code, dep.category, dep.pagePath);
             debug('wrap dependencies %O', dep);
+        }
+    }
+
+    addPageEntryPoint() {
+        // ToDo: drop entry point and clean up children after page entry point update.
+        if (
+            this.appConfigs == null ||
+            !this.appConfigs.pages ||
+            !this.appConfigs.pages.length
+        ) {
+            logger.errorNow('app页面配置缺失, 请检查app.json的pages配置项');
+        }
+
+        let pages = this.appConfigs.pages;
+        // multi packages process.
+        if (this.appConfigs.subPackages) {
+            let subPages = this.appConfigs.subPackages.reduce((subPkgs, pkg)=>{
+                return subPkgs.concat(pkg.pages.map((subpath)=>pkg.root+'/'+subpath));
+            }, []);
+
+            pages = pages.concat(subPages);
+        }
+
+        let tryPush = (page)=>{
+            let idx = this.$pageArray.filter((p)=>p.src===page.src);
+            if (idx > -1) {
+                this.$pageArray.splice(idx, 1, page);
+            } else {
+                this.$pageArray.push(page);
+            }
+        };
+
+        // pages spread
+        let exts = ['.wxml', '.wxss', '.js', '.json'];
+        pages.forEach((page)=>{
+            // wxa file
+            let wxaPage = path.join(this.current, this.src, page+this.meta.wxaExt);
+
+            let dr = new DependencyResolver(schedule.wxaConfigs.resolve, schedule.meta);
+
+            if (isFile(wxaPage)) {
+                try {
+                    let page = this.addEntryPoint({
+                        code: readFile(wxaPage),
+                        src: wxaPage,
+                        category: 'Page',
+                        pagePath: page,
+                        pret: defaultPret,
+                        isAbstract: true,
+                        meta: {
+                            source: wxaPage,
+                        },
+                    });
+
+                    tryPush(page);
+                } catch (e) {
+                    console.error(e);
+                }
+            } else {
+                exts.forEach((ext)=>{
+                    let p = path.join(this.current, this.src, page+ext);
+                    if (isFile(p)) {
+                        let outputPath = dr.getOutputPath(p, defaultPret, ROOT);
+                        let page = this.addEntryPoint({
+                            code: readFile(p),
+                            src: p,
+                            category: 'Page',
+                            pagePath: page,
+                            pret: defaultPret,
+                            meta: {
+                                source: p,
+                                outputPath,
+                            },
+                        });
+
+                        tryPush(page);
+                    }
+                });
+            }
+        });
+        // console.log(this.$pageArray);
+
+        if (!this.$pageArray.length) {
+            logger.errorNow('找不到可编译的页面');
+            return;
         }
     }
 }

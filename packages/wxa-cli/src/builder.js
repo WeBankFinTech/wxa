@@ -2,6 +2,7 @@ import 'babel-polyfill';
 
 import {getConfig, readFile, isFile, applyPlugins} from './utils';
 import path from 'path';
+import fs from 'fs';
 import crypto from 'crypto';
 import chokidar from 'chokidar';
 import schedule from './schedule';
@@ -15,20 +16,25 @@ import Optimizer from './optimizer';
 import Generator from './generator';
 import Compiler from './compilers/index';
 import {AsyncParallelHook} from 'tapable';
+import DependencyResolver from './helpers/dependencyResolver';
+import root from './const/root';
 
 let debug = debugPKG('WXA:Builder');
 
 class Builder {
-    constructor(src, dist, ext) {
+    constructor() {
         this.current = process.cwd();
-        this.src = src || 'src';
-        this.dist = dist || 'dist';
-        this.ext = ext || '.wxa';
+        this.src = 'src';
+        this.dist = 'dist';
+        this.ext = '.wxa';
+
         this.isWatching = false;
         this.isWatchReady = false;
-        this.queue = {};
 
-        this.hook = {
+        this.appJSON = path.join(this.current, this.src, 'app.json');
+        this.wxaJSON = path.join(this.current, this.src, 'app'+this.ext);
+
+        this.hooks = {
             done: new AsyncParallelHook(['dependencies']),
         };
     }
@@ -56,6 +62,8 @@ class Builder {
             return ret;
         }, []);
     }
+
+
     watch(cmd) {
         if (this.isWatching) return;
         this.isWatching = true;
@@ -73,7 +81,7 @@ class Builder {
             },
         })
         .on('all', async (event, filepath)=>{
-            if (this.isWatchReady && ['change'].indexOf(event)>-1 && !this.queue[filepath]) {
+            if (this.isWatchReady && ~['change'].indexOf(event)) {
                 console.log(event, filepath);
                 debug('WATCH file changed %s', filepath);
                 let mdl = schedule.$indexOfModule.find((module)=>module.src===filepath);
@@ -90,10 +98,14 @@ class Builder {
                 }
 
                 if (isChange) {
-                    schedule.$depPending.push(mdl);
-                    let changedDeps = await schedule.$doDPA();
-
-                    let generator = new Generator(schedule.wxaConfigs.resolve, schedule.meta, schedule.wxaConfigs);
+                    let changedDeps;
+                    // if (this.appJSON === mdl.src || this.wxaJSON === mdl.src) {
+                        // let appConfigs = mdl.src === mdl.
+                        // schedule.set('appConfigs', appConfigs);
+                    // } else {
+                        schedule.$depPending.push(mdl);
+                        changedDeps = await schedule.$doDPA();
+                    // }
 
                     await this.optimizeAndGenerate(changedDeps);
 
@@ -112,16 +124,9 @@ class Builder {
                 } else {
                     logger.message('Complete', '文件无变化', true);
                 }
-                // cmd.file = path.join('..', filepath);
-                // // schedule
-                // logger.message(event, filepath, true);
-                // this.queue[filepath] = event;
-                // cmd.category = event;
-                // this.build(cmd);
-                // setTimeout(()=>this.queue[filepath]=false, 500);
             }
         })
-        .on('ready', (event, filepath)=>{
+        .on('ready', ()=>{
             this.isWatchReady = true;
             logger.message('Watch', '准备完毕，开始监听文件', true);
         });
@@ -144,58 +149,11 @@ class Builder {
         schedule.set('cmdOptions', cmd);
 
         logger.infoNow('Compile', 'AT: '+new Date().toLocaleString(), void(0));
-
-        // find app.js、 app.wxa first
-        let appJSON = path.join(this.current, this.src, 'app.json');
-        let appJS = path.join(this.current, this.src, 'app.js');
-        let wxaJSON = path.join(this.current, this.src, 'app'+this.ext);
-        let isWXA = false;
-        if (isFile(appJSON)) {
-            isWXA = false;
-        } else if (!isFile(appJSON) && isFile(wxaJSON)) {
-            isWXA = true;
-        } else {
-            logger.errorNow('不存在app.json或app.wxa文件!');
-        }
-
         try {
             // initial loader.
             await this.init(cmd);
 
-            // read entry file.
-            let entryMdl = {
-                src: wxaJSON,
-                type: 'wxa',
-                category: 'App',
-                pret: defaultPret,
-            };
-            let p;
-            if (isWXA) {
-                p = async ()=>{
-                    let compiler = new Compiler(schedule.wxaConfigs.resolve, schedule.meta);
-                    let {wxa} = await compiler.$parse(void(0), void(0), wxaJSON, 'wxa', entryMdl);
-
-                    return wxa;
-                };
-            } else {
-                p = ()=>Promise.resolve({
-                    script: {
-                        code: readFile(appJS),
-                    },
-                    config: {
-                        code: readFile(appJSON),
-                    },
-                });
-            }
-
-            let ret = await p();
-            let rst = ret.rst || ret;
-            entryMdl.rst = rst;
-
-            let appConfigs = JSON.parse(rst.config.code);
-            // mount to schedule.
-            schedule.set('appConfigs', appConfigs);
-            schedule.set('$pageArray', [schedule.addEntryPoint(entryMdl)]);
+            this.handleEntry();
 
             // do dependencies analysis.
             await schedule.doDPA();
@@ -204,9 +162,9 @@ class Builder {
             await this.optimizeAndGenerate(schedule.$indexOfModule);
 
             // done.
-            await this.hook.done.promise(schedule.$indexOfModule);
+            await this.hooks.done.promise(schedule.$indexOfModule);
 
-            console.log(cmd);
+            // console.log(cmd);
             if (cmd.watch) this.watch();
         } catch (e) {
             console.error(e);
@@ -237,6 +195,39 @@ class Builder {
         } catch (e) {
             console.error(e);
         }
+    }
+
+    handleEntry(mdl) {
+        let entry = schedule.wxaConfigs.entry || [];
+        if (!Array.isArray(entry)) throw new Error('Entry Point is not array!');
+
+        let isAPP = (filepath)=>/app\./.test(filepath);
+        // default entry
+        if (!entry.length) {
+            let files = fs.readdirSync(path.join(this.current, this.src));
+
+            entry = files
+            .filter((f)=>fs.statSync(path.join(this.current, this.src, f)).isFile)
+            .filter((f)=>isAPP(f))
+            .map((f)=>path.join(this.current, this.src, f));
+        }
+
+        entry.forEach((point)=>{
+            point = path.isAbsolute(point) ? point : path.join(this.current, point);
+
+            let dr = new DependencyResolver(schedule.wxaConfigs.resolve, schedule.meta);
+            let outputPath = dr.getOutputPath(point, defaultPret, root);
+
+            schedule.addEntryPoint({
+                src: point,
+                pret: defaultPret,
+                category: isAPP(point) ? 'App' : 'Entry',
+                meta: {
+                    source: point,
+                    outputPath,
+                },
+            });
+        });
     }
 }
 
