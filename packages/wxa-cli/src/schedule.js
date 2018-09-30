@@ -326,6 +326,7 @@ class Schedule extends EventEmitter {
         // pages spread
         let exts = ['.wxml', '.wxss', '.js', '.json'];
         pages.forEach((page)=>{
+            // console.log(page);
             // wxa file
             let wxaPage = path.join(this.current, this.src, page+this.meta.wxaExt);
 
@@ -333,7 +334,7 @@ class Schedule extends EventEmitter {
 
             if (isFile(wxaPage)) {
                 try {
-                    let page = this.addEntryPoint({
+                    let pagePoint = this.addEntryPoint({
                         code: readFile(wxaPage),
                         src: wxaPage,
                         category: 'Page',
@@ -345,7 +346,7 @@ class Schedule extends EventEmitter {
                         },
                     });
 
-                    tryPush(page);
+                    tryPush(pagePoint);
                 } catch (e) {
                     console.error(e);
                 }
@@ -354,7 +355,7 @@ class Schedule extends EventEmitter {
                     let p = path.join(this.current, this.src, page+ext);
                     if (isFile(p)) {
                         let outputPath = dr.getOutputPath(p, defaultPret, ROOT);
-                        let page = this.addEntryPoint({
+                        let pagePoint = this.addEntryPoint({
                             code: readFile(p),
                             src: p,
                             category: 'Page',
@@ -366,7 +367,7 @@ class Schedule extends EventEmitter {
                             },
                         });
 
-                        tryPush(page);
+                        tryPush(pagePoint);
                     }
                 });
             }
