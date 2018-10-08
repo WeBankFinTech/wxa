@@ -55,6 +55,7 @@ export class Wxa {
         this.IS_DEBUG = !!val;
         if (this.IS_DEBUG) {
             console.info(this);
+            console.warn('WXA is in Debug mode, please close debug mode in production.');
         }
     }
     launchApp(instance) {

@@ -86,7 +86,6 @@ describe('wxa decorator', ()=>{
         expect(i.router.switch).not.toBeFalsy();
         expect(i.router.go).not.toBeFalsy();
         expect(i.router.goBack).not.toBeFalsy();
-        expect(i.router.close).not.toBeFalsy();
     });
 
     test('mount page', ()=>{

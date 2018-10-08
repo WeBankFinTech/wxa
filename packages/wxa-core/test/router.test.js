@@ -1,56 +1,71 @@
-global.getApp = function() {
-    return {};
-};
-global.getCurrentPages = function() {
-    return [{}];
-};
-
 import {
     default as Router,
 } from '../src/utils/router';
 
-test('router', ()=>{
-    let navigateTo = jest.fn();
-    let redirectTo = jest.fn();
-    let reLaunch = jest.fn();
-    let switchTab = jest.fn();
-    let navigateBack = jest.fn();
+import {wxa} from '../src/wxa';
 
-    global.wx = {
-        navigateBack,
-        switchTab,
-        reLaunch,
-        redirectTo,
-        navigateTo,
-    };
+describe('router', ()=>{
+    test('fn call', ()=>{
+        let navigateTo = jest.fn();
+        let redirectTo = jest.fn();
+        let reLaunch = jest.fn();
+        let switchTab = jest.fn();
+        let navigateBack = jest.fn();
 
-    let router = new Router();
+        global.wx = {
+            navigateBack,
+            switchTab,
+            reLaunch,
+            redirectTo,
+            navigateTo,
+        };
 
-    router.push('abc');
+        let router = new Router();
 
-    expect(navigateTo).toHaveBeenCalled();
-    expect(navigateTo.mock.calls[0][0]).toMatchObject({url: 'abc', success: expect.any(Function), fail: expect.any(Function)});
+        router.push('abc');
 
-    router.replace('aa');
-    expect(redirectTo).toHaveBeenCalled();
-    expect(redirectTo.mock.calls[0][0]).toMatchObject({url: 'aa', success: expect.any(Function), fail: expect.any(Function)});
+        expect(navigateTo).toHaveBeenCalled();
+        expect(navigateTo.mock.calls[0][0]).toMatchObject({url: 'abc', success: expect.any(Function), fail: expect.any(Function)});
 
-    router.reLaunch('b');
-    expect(reLaunch).toHaveBeenCalled();
-    expect(reLaunch.mock.calls[0][0]).toMatchObject({url: 'b', success: expect.any(Function), fail: expect.any(Function)});
+        router.replace('aa');
+        expect(redirectTo).toHaveBeenCalled();
+        expect(redirectTo.mock.calls[0][0]).toMatchObject({url: 'aa', success: expect.any(Function), fail: expect.any(Function)});
 
-    router.switch('c');
-    expect(switchTab).toHaveBeenCalled();
-    expect(switchTab.mock.calls[0][0]).toMatchObject({url: 'c', success: expect.any(Function), fail: expect.any(Function)});
+        router.reLaunch('b');
+        expect(reLaunch).toHaveBeenCalled();
+        expect(reLaunch.mock.calls[0][0]).toMatchObject({url: 'b', success: expect.any(Function), fail: expect.any(Function)});
 
-    router.go(-1);
-    router.goBack();
-    expect(navigateBack.mock.calls[0][0]).toMatchObject({delta: 1});
-    expect(navigateBack.mock.calls[1][0]).toMatchObject({delta: 1});
+        router.switch('c');
+        expect(switchTab).toHaveBeenCalled();
+        expect(switchTab.mock.calls[0][0]).toMatchObject({url: 'c', success: expect.any(Function), fail: expect.any(Function)});
 
-    router.close();
-    expect(navigateBack.mock.calls[2][0]).toMatchObject({delta: 1});
+        router.go(-1);
+        router.goBack();
+        expect(navigateBack.mock.calls[0][0]).toMatchObject({delta: 1});
+        expect(navigateBack.mock.calls[1][0]).toMatchObject({delta: 1});
 
-    expect(router.get()).toMatchObject({});
+        expect(router.get()).toMatchObject({});
+    });
+
+    test('relative path', ()=>{
+        let preExec = jest.fn();
+        // wxa.setDebugMode(true);
+        wxa.launchPage({
+            beforeRouteEnter: preExec,
+        }, 'pages/index/login');
+
+        wxa.launchPage({
+            beforeRouteEnter: preExec,
+        }, 'pages/login');
+
+
+        let router = new Router();
+
+        router.push('./login');
+        expect(preExec).toHaveBeenCalled();
+
+        router.replace('../login');
+        expect(preExec).toHaveBeenCalledTimes(2);
+    });
 });
 
