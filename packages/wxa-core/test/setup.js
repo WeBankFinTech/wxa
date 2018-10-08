@@ -9,5 +9,9 @@ global.getApp = function() {
     return {};
 };
 global.getCurrentPages = function() {
-    return [{}];
+    return [{route: 'pages/index/index'}];
 };
+
+global.Page = ()=>{};
+global.Component = ()=>{};
+global.App = ()=>{};
