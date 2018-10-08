@@ -124,6 +124,7 @@ class Logger {
             );
         }
         console.info(chalk.greenBright(err.message));
+        console.error(err);
         console.info('\n');
     }
 }
