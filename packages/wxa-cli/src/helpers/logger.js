@@ -23,7 +23,7 @@ class Logger {
         bar.clean();
 
         if (msg) {
-            console.log('\n');
+            // console.log('\n');
             console.error(chalk.redBright(msg));
             notifier.notify({
                 title: 'WXA ERROR',
@@ -34,6 +34,7 @@ class Logger {
         }
         if (err) this.showError(err);
 
+        console.log('\n');
         return this;
     }
 
@@ -120,12 +121,15 @@ class Logger {
 
             console.info(
                 chalk.bgRedBright(`[${err.name}]`),
+                err.file || '',
                 line ? `line: ${line} column: ${column}` : ''
             );
         }
-        console.info(chalk.greenBright(err.message));
-        console.error(err);
-        console.info('\n');
+        if (err.message) {
+            console.info(chalk.redBright(err.message));
+        } else {
+            console.error(err);
+        }
     }
 }
 

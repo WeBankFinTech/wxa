@@ -3,14 +3,14 @@ import PathParser from '../../helpers/pathParser';
 import logger from '../../helpers/logger';
 import {isFile} from '../../utils';
 import debugPKG from 'debug';
-import schedule from '../../schedule';
 
 let debug = debugPKG('WXA:ComponentManager');
 
 export default class ComponentManager {
-    constructor(resolve, meta) {
+    constructor(resolve, meta, appConfigs) {
         this.resolve = resolve;
         this.meta = meta;
+        this.appConfigs = appConfigs;
 
         this.extensions = ['.wxml', '.wxss', '.js', '.json'];
     }
@@ -26,7 +26,7 @@ export default class ComponentManager {
         if (mdl.category && mdl.category.toLowerCase() === 'page') {
             debug('merge global component and page components %O', mdl);
             mdl.json.usingComponents = {
-                ...schedule.appConfigs.usingComponents,
+                ...this.appConfigs.usingComponents,
                 ...mdl.json.usingComponents,
             };
         }
