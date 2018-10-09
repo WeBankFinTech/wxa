@@ -5,10 +5,9 @@ import path from 'path';
 import fs from 'fs';
 import crypto from 'crypto';
 import chokidar from 'chokidar';
-import schedule from './schedule';
+import Schedule from './schedule';
 import logger from './helpers/logger';
 import compilerLoader from './loader';
-import compiler from './compilers/index';
 import debugPKG from 'debug';
 import {green} from 'chalk';
 import defaultPret from './const/defaultPret';
@@ -22,10 +21,10 @@ import root from './const/root';
 let debug = debugPKG('WXA:Builder');
 
 class Builder {
-    constructor() {
+    constructor(src, dist) {
         this.current = process.cwd();
-        this.src = 'src';
-        this.dist = 'dist';
+        this.src = src || 'src';
+        this.dist = dist || 'dist';
         this.ext = '.wxa';
 
         this.isWatching = false;
@@ -37,11 +36,14 @@ class Builder {
         this.hooks = {
             done: new AsyncParallelHook(['dependencies']),
         };
+
+        this.schedule = new Schedule(this.src, this.dist, this.ext);
     }
+
     async init(cmd) {
         // 加载编译器
         const configs = getConfig();
-        schedule.set('wxaConfigs', configs || {});
+        this.schedule.set('wxaConfigs', configs || {});
 
         // Todo: custome package manager, such as yarn.
         // npmManager.setup(category)
@@ -50,6 +52,7 @@ class Builder {
         return compilerLoader
         .mount(configs.use, cmd);
     }
+
     filterModule(arr) {
         return arr.reduce((ret, dep)=>{
             if (
@@ -63,16 +66,15 @@ class Builder {
         }, []);
     }
 
-
     watch(cmd) {
         if (this.isWatching) return;
         this.isWatching = true;
 
         // set mode
-        schedule.set('mode', 'watch');
+        this.schedule.set('mode', 'watch');
 
-        let files = this.filterModule(schedule.$indexOfModule);
-        console.log(files);
+        let files = this.filterModule(this.schedule.$indexOfModule);
+        // console.log(files);
 
         this.watcher = chokidar.watch(files, {
             awaitWriteFinish: {
@@ -82,9 +84,9 @@ class Builder {
         })
         .on('all', async (event, filepath)=>{
             if (this.isWatchReady && ~['change'].indexOf(event)) {
-                console.log(event, filepath);
+                logger.message(event, filepath);
                 debug('WATCH file changed %s', filepath);
-                let mdl = schedule.$indexOfModule.find((module)=>module.src===filepath);
+                let mdl = this.schedule.$indexOfModule.find((module)=>module.src===filepath);
                 let isChange = true;
                 debug('Changed Module %O', mdl);
                 // module with code;
@@ -101,17 +103,19 @@ class Builder {
                     let changedDeps;
                     // if (this.appJSON === mdl.src || this.wxaJSON === mdl.src) {
                         // let appConfigs = mdl.src === mdl.
-                        // schedule.set('appConfigs', appConfigs);
+                        // this.schedule.set('appConfigs', appConfigs);
                     // } else {
-                        schedule.$depPending.push(mdl);
-                        changedDeps = await schedule.$doDPA();
-                    // }
+                    try {
+                        this.schedule.$depPending.push(mdl);
+                        changedDeps = await this.schedule.$doDPA();
+                        await this.optimizeAndGenerate(changedDeps);
+                        logger.message('Compile', '编译完成', true);
+                    } catch (e) {
+                        logger.errorNow('编译失败', e);
+                    }
 
-                    await this.optimizeAndGenerate(changedDeps);
 
-                    logger.message('Compile', '编译完成', true);
-
-                    let newFiles = this.filterModule(schedule.$indexOfModule);
+                    let newFiles = this.filterModule(this.schedule.$indexOfModule);
                     let unlinkFiles = files.filter((oldFilePath)=>!~newFiles.indexOf(oldFilePath));
                     let addFiles = newFiles.filter((filePath)=>!~files.indexOf(filePath));
 
@@ -144,9 +148,7 @@ class Builder {
     }
 
     async build(cmd) {
-        schedule.set('src', this.src);
-        schedule.set('dist', this.dist);
-        schedule.set('cmdOptions', cmd);
+        this.schedule.set('cmdOptions', cmd);
 
         logger.infoNow('Compile', 'AT: '+new Date().toLocaleString(), void(0));
         try {
@@ -156,26 +158,28 @@ class Builder {
             this.handleEntry();
 
             // do dependencies analysis.
-            await schedule.doDPA();
-            debug('schedule dependencies Tree is %O', schedule.$indexOfModule);
+            await this.schedule.doDPA();
+            debug('schedule dependencies Tree is %O', this.schedule.$indexOfModule);
 
-            await this.optimizeAndGenerate(schedule.$indexOfModule);
+            await this.optimizeAndGenerate(this.schedule.$indexOfModule);
 
             // done.
-            await this.hooks.done.promise(schedule.$indexOfModule);
+            await this.hooks.done.promise(this.schedule.$indexOfModule);
 
+            logger.infoNow('Done', 'AT: '+new Date().toLocaleString(), void(0));
             // console.log(cmd);
-            if (cmd.watch) this.watch();
         } catch (e) {
-            console.error(e);
+            logger.errorNow('编译失败', e);
         }
+
+        if (cmd.watch) this.watch();
     }
 
     async optimizeAndGenerate(list) {
         try {
             // module optimize, dependencies merge, minor.
-            let optimizer = new Optimizer(schedule.wxaConfigs.resolve, schedule.meta);
-            applyPlugins(schedule.wxaConfigs.plugins, optimizer);
+            let optimizer = new Optimizer(this.schedule.wxaConfigs.resolve, this.schedule.meta);
+            applyPlugins(this.schedule.wxaConfigs.plugins, optimizer);
 
             let optimizeTasks = list.map((dep)=>{
                 return optimizer.do(dep);
@@ -186,7 +190,7 @@ class Builder {
             });
 
             // module dest, dependencies copy,
-            let generator = new Generator(schedule.wxaConfigs.resolve, schedule.meta, schedule.wxaConfigs);
+            let generator = new Generator(this.schedule.wxaConfigs.resolve, this.schedule.meta, this.schedule.wxaConfigs);
             let generateTasks = list.map((mdl)=>{
                 return generator.do(mdl);
             });
@@ -198,7 +202,7 @@ class Builder {
     }
 
     handleEntry(mdl) {
-        let entry = schedule.wxaConfigs.entry || [];
+        let entry = this.schedule.wxaConfigs.entry || [];
         if (!Array.isArray(entry)) throw new Error('Entry Point is not array!');
 
         let isAPP = (filepath)=>/app\./.test(filepath);
@@ -215,10 +219,10 @@ class Builder {
         entry.forEach((point)=>{
             point = path.isAbsolute(point) ? point : path.join(this.current, point);
 
-            let dr = new DependencyResolver(schedule.wxaConfigs.resolve, schedule.meta);
+            let dr = new DependencyResolver(this.schedule.wxaConfigs.resolve, this.schedule.meta);
             let outputPath = dr.getOutputPath(point, defaultPret, root);
 
-            schedule.addEntryPoint({
+            this.schedule.addEntryPoint({
                 src: point,
                 pret: defaultPret,
                 category: isAPP(point) ? 'App' : 'Entry',

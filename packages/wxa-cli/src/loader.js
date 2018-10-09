@@ -102,8 +102,8 @@ class CompilerLoader {
                     // mdl.restResource = rest;
                 } catch (e) {
                     debug('parse Error %O', e);
-                    console.log(e);
-                    logger.errorNow(`Error `, e);
+                    // logger.errorNow(`Error `, e);
+                    throw e;
                 }
             }
         };

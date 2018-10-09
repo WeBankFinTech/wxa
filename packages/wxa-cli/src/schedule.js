@@ -14,11 +14,6 @@ import crypto from 'crypto';
 import {unlinkSync} from 'fs';
 import DependencyResolver from './helpers/dependencyResolver';
 
-/**
- * todo:
- *  1. full control compile task
- */
-let count = 0;
 let debug = debugPKG('WXA:Schedule');
 
 class Schedule extends EventEmitter {
@@ -126,13 +121,13 @@ class Schedule extends EventEmitter {
     }
 
     async $parse(dep) {
-        // loader: use custom compiler to load resource.
-        await loader.compile(dep);
-
-        // try to wrap wxa every app and page
-        this.tryWrapWXA(dep);
-
         try {
+            // loader: use custom compiler to load resource.
+            await loader.compile(dep);
+
+            // try to wrap wxa every app and page
+            this.tryWrapWXA(dep);
+
             // Todo: conside if cache is necessary here.
             // let cacheParams = {
             //     source: code,
@@ -146,7 +141,7 @@ class Schedule extends EventEmitter {
             //     },
             // };
             debug('dep to process %O', dep);
-            let compiler = new Compiler(this.wxaConfigs.resolve, this.meta);
+            let compiler = new Compiler(this.wxaConfigs.resolve, this.meta, this.appConfigs);
             let childNodes = await compiler.parse(dep);
 
             debug('childNodes', childNodes);
@@ -174,6 +169,7 @@ class Schedule extends EventEmitter {
         } catch (e) {
             // logger.errorNow('编译失败', e);
             debug('编译失败 %O', e);
+            throw e;
         }
     }
 
@@ -330,7 +326,7 @@ class Schedule extends EventEmitter {
             // wxa file
             let wxaPage = path.join(this.current, this.src, page+this.meta.wxaExt);
 
-            let dr = new DependencyResolver(schedule.wxaConfigs.resolve, schedule.meta);
+            let dr = new DependencyResolver(this.wxaConfigs.resolve, this.meta);
 
             if (isFile(wxaPage)) {
                 try {
@@ -380,6 +376,5 @@ class Schedule extends EventEmitter {
         }
     }
 }
-const schedule = new Schedule();
 
-export default schedule;
+export default Schedule;

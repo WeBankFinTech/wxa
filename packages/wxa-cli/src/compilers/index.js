@@ -23,11 +23,12 @@ const jsOptions = {
  * @class EmptyCompiler
  */
 export default class Compiler {
-    constructor(resolve, meta) {
+    constructor(resolve, meta, appConfigs) {
         this.current = meta.current;
         this.configs = {};
         this.resolve = resolve;
         this.meta = meta;
+        this.appConfigs = appConfigs;
     }
 
     async parse(mdl) {
@@ -191,6 +192,6 @@ export default class Compiler {
         // if (category === 'app') {}
 
         // Page or Component resolve
-        return new ComponentManager(this.resolve, this.meta).parse(mdl);
+        return new ComponentManager(this.resolve, this.meta, this.appConfigs).parse(mdl);
     }
 }
