@@ -92,6 +92,7 @@ class Builder {
                 // module with code;
                 if (mdl.code) {
                     let content = readFile(mdl.src);
+                    debug('changed content %s', content);
                     let md5 = crypto.createHash('md5').update(content).digest('hex');
 
                     mdl.code = content;

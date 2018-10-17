@@ -121,6 +121,11 @@ class Schedule extends EventEmitter {
     }
 
     async $parse(dep) {
+        // calc hash
+        // cause not every module is actually exists, we can not promise all module has hash here.
+        let content = dep.code ? dep.code : readFile(dep.src);
+        if (content) dep.hash = crypto.createHash('md5').update(content).digest('hex');
+        debug('Dep HASH: %s', dep.hash);
         try {
             // loader: use custom compiler to load resource.
             await loader.compile(dep);
@@ -211,9 +216,6 @@ class Schedule extends EventEmitter {
 
     findOrAddDependency(dep, mdl) {
         debug('Find Dependencies started');
-        // calc hash
-        if (dep.code) dep.hash = crypto.createHash('md5').update(dep.code).digest('hex');
-        debug('Dep HASH: %s', dep.hash);
 
         // circle referrence.
         dep.reference = dep.reference || {};
