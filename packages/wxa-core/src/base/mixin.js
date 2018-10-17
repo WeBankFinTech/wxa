@@ -25,7 +25,7 @@ let copyMethodsFromClass = (vm)=>{
     return vm;
 };
 
-export default function mixin(vm) {
+export default function mixin(vm, globalMixin=[]) {
     if (vm == null) return {};
 
     vm = copyMethodsFromClass(vm);
@@ -36,11 +36,12 @@ export default function mixin(vm) {
     let mixins = vm.mixins || [];
     delete vm.mixins;
 
+    mixins = mixins.concat(globalMixin);
     mixins.push(vm);
     // nested mixins copy
     mixins = mixins.map((item)=>{
         // never call handle vm again, or may cost endless loop
-        if (item === vm) return item;
+        if (item == null || item === vm) return item;
 
         if (item.mixins) return mixin(item);
 

@@ -7,7 +7,7 @@ import {
 } from './utils/fetch';
 
 // default component field
-const notCopy = ['properties', 'data', 'methods', 'behaviors', 'created', 'attached', 'ready', 'moved', 'detached', 'relations', 'options'];
+const notCopy = ['properties', 'data', 'methods', 'behaviors', 'created', 'attached', 'ready', 'moved', 'detached', 'relations', 'options', 'lifetimes', 'pageLifetimes', 'definitionFilter'];
 /**
  * wxa core class function.
  * launchApp, launchPage, launchComponent.
@@ -50,6 +50,10 @@ export class Wxa {
         // debug mode
         // use console to print debug message
         this.IS_DEBUG = false;
+
+        // globalMixins
+        // every Page, Component will receive these guys.
+        this.$$globalMixins = [];
     }
     setDebugMode(val) {
         this.IS_DEBUG = !!val;
@@ -85,7 +89,7 @@ export class Wxa {
     launchPage(instance, pagePath) {
         let vm = instance;
 
-        vm = mixin(vm);
+        vm = mixin(vm, this.$$globalMixins);
 
         vm.$go = debounce(function(e) {
             let {currentTarget: {dataset: {path, type}}} = e;
@@ -121,9 +125,7 @@ export class Wxa {
     launchComponent(instance) {
         let vm = instance;
 
-        // 微信自定义组件支持使用behaviors，不需要mixins
-        vm = mixin(vm);
-        // 自定义组件支持methods方式定义组件，不需要迁移methods
+        vm = mixin(vm, this.$$globalMixins);
 
         // 允许添加自定义方法
         this.$$plugins.forEach((plugin)=>{
@@ -153,6 +155,11 @@ export class Wxa {
         };
 
         Component(vm);
+    }
+    mixin(obj) {
+        if (obj == null) return;
+
+        this.$$globalMixins.push(obj);
     }
     use(plugin, options) {
         this.$$plugins.push({
