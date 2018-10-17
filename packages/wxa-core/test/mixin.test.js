@@ -113,4 +113,49 @@ describe('mixin', ()=>{
         expect(common.onShow).toHaveBeenCalled();
         expect(onShow).toHaveBeenCalled();
     });
+
+    test('special handle onShareAppMessage', ()=>{
+        class M {
+            onShareAppMessage() {
+                return {
+                    a: 1,
+                };
+            }
+        }
+
+        class Page {
+            mixins = [M, null]
+
+            onShareAppMessage() {
+                return {
+                    a: 2,
+                };
+            }
+        }
+
+        let dvm = mixin(Page);
+
+        expect(dvm.onShareAppMessage()).toMatchObject({
+            a: 2,
+        });
+    });
+
+    test('copy methods from prototype', ()=>{
+        class M {
+            constructor() {}
+            foo() {}
+        }
+
+        class Page {
+            mixins = [M]
+
+            boo() {}
+        }
+
+        let dvm = mixin(Page);
+
+        expect(dvm.methods.foo).not.toBeFalsy();
+        expect(dvm.methods.boo).not.toBeFalsy();
+        expect(dvm.methods.hasOwnProperty('constructor')).toBeFalsy();
+    });
 });
