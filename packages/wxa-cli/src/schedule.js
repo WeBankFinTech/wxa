@@ -3,7 +3,7 @@ import path from 'path';
 import bar from './helpers/progressBar';
 import logger from './helpers/logger';
 import {EventEmitter} from 'events';
-import loader from './loader';
+// import loader from './loader';
 import COLOR from './const/color';
 import ROOT from './const/root';
 import debugPKG from 'debug';
@@ -17,9 +17,10 @@ import DependencyResolver from './helpers/dependencyResolver';
 let debug = debugPKG('WXA:Schedule');
 
 class Schedule extends EventEmitter {
-    constructor() {
+    constructor(loader) {
         super();
         this.current = process.cwd();
+        this.loader = loader;
         this.pending = [];
         this.waiting = [];
         this.finished = [];
@@ -123,7 +124,7 @@ class Schedule extends EventEmitter {
         debug('Dep HASH: %s', dep.hash);
         try {
             // loader: use custom compiler to load resource.
-            await loader.compile(dep);
+            await this.loader.compile(dep);
 
             // try to wrap wxa every app and page
             this.tryWrapWXA(dep);
@@ -169,6 +170,7 @@ class Schedule extends EventEmitter {
         } catch (e) {
             // logger.errorNow('编译失败', e);
             debug('编译失败 %O', e);
+            console.error(e);
             throw e;
         }
     }

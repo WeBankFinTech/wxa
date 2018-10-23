@@ -67,12 +67,12 @@ class DependencyResolver {
     }
 
     $resolve(lib, mdl) {
-        let opath = path.parse(mdl.src);
+        let opath = path.parse(mdl.meta.source);
 
         let source = '';
         let ext = '';
         // resolve alias;
-        if (this.resolve.alias && !mdl.isNpm) lib = resolveAlias(lib, this.resolve.alias, mdl.src);
+        if (this.resolve.alias && !mdl.isNpm) lib = resolveAlias(lib, this.resolve.alias, mdl.meta.source);
 
         let pret = new PathParser().parse(lib);
 

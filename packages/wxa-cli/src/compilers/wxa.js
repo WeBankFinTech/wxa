@@ -11,18 +11,18 @@ export default class WxaCompiler {
         this.resolve = resolve;
         this.meta = meta;
     }
-    parse(filepath) {
-        let wxa = this.resolveWxa(filepath);
+    parse(filepath, code) {
+        let wxa = this.resolveWxa(filepath, code);
 
         return wxa == null ?
         Promise.reject(null) :
         Promise.resolve({wxa, kind: 'wxa'});
     }
 
-    resolveWxa(filepath) {
+    resolveWxa(filepath, code) {
         let xml;
 
-        let content = readFile(filepath);
+        let content = code || readFile(filepath);
 
         if (content == null) {
             error('打开文件失败:'+filepath);

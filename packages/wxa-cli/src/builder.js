@@ -10,7 +10,7 @@ import debugPKG from 'debug';
 
 import Schedule from './schedule';
 import logger from './helpers/logger';
-import compilerLoader from './loader';
+import CompilerLoader from './loader';
 import defaultPret from './const/defaultPret';
 import Optimizer from './optimizer';
 import Generator from './generator';
@@ -68,8 +68,8 @@ class Builder {
         // npmManager.setup(category)
 
         // mount loader
-        return compilerLoader
-        .mount(this.wxaConfigs.use, cmd);
+        this.loader = new CompilerLoader(this.current);
+        return this.loader.mount(this.wxaConfigs.use, cmd);
     }
 
     filterModule(arr) {
@@ -176,14 +176,14 @@ class Builder {
         }
         await this.hooks.beforeRun.promise(this);
 
-        this.schedule = new Schedule();
+        this.schedule = new Schedule(this.loader);
         this.schedule.set('cmdOptions', cmd);
         this.schedule.set('wxaConfigs', this.wxaConfigs || {});
 
         debug('builder wxaConfigs is %O', this.wxaConfigs);
         debug('schedule options is %O', this.schedule);
         try {
-            await this.handleEntry();
+            await this.handleEntry(cmd);
         } catch (error) {
             logger.errorNow('编译入口参数有误', error);
         }
@@ -210,6 +210,7 @@ class Builder {
             logger.infoNow('Done', 'AT: '+new Date().toLocaleString(), void(0));
         } catch (e) {
             logger.errorNow('编译失败', e);
+            // throw e;
         }
     }
 
@@ -239,7 +240,7 @@ class Builder {
         }
     }
 
-    async handleEntry(mdl) {
+    async handleEntry(cmd) {
         let entry = this.schedule.wxaConfigs.entry || [];
         if (!Array.isArray(entry)) throw new Error('Entry Point is not array!');
 
@@ -261,10 +262,32 @@ class Builder {
         debug('entry after globby %O', entry);
 
         entry.forEach((point)=>{
+            let mdl = {};
             point = path.isAbsolute(point) ? point : path.join(this.current, point);
+
+            if (cmd.multi) {
+                let matchedPoint = Object.keys(this.wxaConfigs.thirdParty.point).find((key)=>new RegExp(key).test(point));
+                // console.log(matchedPoint);
+
+                if (matchedPoint) {
+                    mdl.src = this.wxaConfigs.thirdParty.point[matchedPoint];
+                    mdl.code = readFile(this.wxaConfigs.thirdParty.point[matchedPoint]);
+                }
+            }
 
             let dr = new DependencyResolver(this.schedule.wxaConfigs.resolve, this.schedule.meta);
             let outputPath = dr.getOutputPath(point, defaultPret, root);
+
+            debug('entry point %O', {
+                src: point,
+                pret: defaultPret,
+                category: isAPP(point) ? 'App' : 'Entry',
+                meta: {
+                    source: point,
+                    outputPath,
+                },
+                ...mdl,
+            });
 
             this.schedule.addEntryPoint({
                 src: point,
@@ -274,6 +297,7 @@ class Builder {
                     source: point,
                     outputPath,
                 },
+                ...mdl,
             });
         });
     }
