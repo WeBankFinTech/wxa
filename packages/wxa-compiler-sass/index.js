@@ -27,7 +27,7 @@ class SassCompiler {
             sass.render({
                 ...configs,
                 data: mdl.code || null,
-                file: mdl.src
+                file: mdl.meta.source
             }, (err, ret)=>{
                 if (err) {
                     debug('transform error %O', err);

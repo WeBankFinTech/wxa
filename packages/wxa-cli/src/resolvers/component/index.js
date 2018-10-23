@@ -66,6 +66,9 @@ export default class ComponentManager {
                         src: source+this.meta.wxaExt,
                         category: 'Component',
                         pret,
+                        meta: {
+                            source: source+this.meta.wxaExt,
+                        },
                         type: 'wxa',
                     });
                 } else {

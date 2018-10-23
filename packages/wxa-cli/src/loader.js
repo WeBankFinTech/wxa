@@ -118,6 +118,6 @@ class CompilerLoader {
     }
 }
 
-const compilerLoader = new CompilerLoader(process.cwd());
+// const compilerLoader = new CompilerLoader(process.cwd());
 
-export default compilerLoader;
+export default CompilerLoader;

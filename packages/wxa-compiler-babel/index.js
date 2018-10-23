@@ -39,7 +39,7 @@ class BabelLoader {
     async parse(mdl, cmdOptions) {
         debug('transform started %O', mdl);
 
-        let {src, code} = mdl;
+        let {meta: {source: src}, code} = mdl;
 
         let configs = this.configs;
         let type = 'transform';

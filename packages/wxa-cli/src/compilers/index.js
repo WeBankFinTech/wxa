@@ -43,7 +43,7 @@ export default class Compiler {
             'js': jsOptions,
         };
 
-        let {kind, ...rest} = await this.$parse(content, options[type], mdl.src, type, mdl);
+        let {kind, ...rest} = await this.$parse(content, options[type], mdl.meta.source, type, mdl);
 
         debug('kind %s, rest %o', kind, rest);
         // Todo: app.js or app.wxa will do compile twice.
@@ -103,7 +103,7 @@ export default class Compiler {
         switch (type) {
             case 'wxa': {
                 mdl.isAbstract = true;
-                return new WxaCompiler(this.resolve, this.meta).parse(filepath);
+                return new WxaCompiler(this.resolve, this.meta).parse(filepath, code);
             }
 
             case 'js': {
@@ -185,11 +185,8 @@ export default class Compiler {
             !~['app', 'component', 'page'].indexOf(category)
         ) {
             // normal json file or empty json file doesn't need to be resolved.
-            return;
+            return [];
         }
-
-        // Todo: global component
-        // if (category === 'app') {}
 
         // Page or Component resolve
         return new ComponentManager(this.resolve, this.meta, this.appConfigs).parse(mdl);
