@@ -17,7 +17,7 @@ import DependencyResolver from './helpers/dependencyResolver';
 let debug = debugPKG('WXA:Schedule');
 
 class Schedule extends EventEmitter {
-    constructor(src, dist, ext) {
+    constructor() {
         super();
         this.current = process.cwd();
         this.pending = [];
@@ -25,20 +25,13 @@ class Schedule extends EventEmitter {
         this.finished = [];
         this.npmOrLocal = [];
 
-        this.src = src || 'src';
-        this.dist = dist || 'dist';
-        this.wxaExt = ext || '.wxa';
-
         this.meta = {
             current: this.current,
-            src: this.src,
-            dist: this.dist,
-            wxaExt: this.wxaExt,
+            wxaExt: 'wxa',
             libSrc: path.join(__dirname, '../lib-dist'),
             libs: ['wxa_wrap.js'],
+            context: path.join(this.current, 'src'),
         };
-
-        this.APP_CONFIG_PATH = path.join(this.current, this.src, 'app.json');
 
         this.max = 5;
 
@@ -53,14 +46,16 @@ class Schedule extends EventEmitter {
                 return wxaConfigs;
             },
             set(configs) {
-                if (!configs.resolve || !configs.resolve.extensions) {
-                    configs.resolve = {
-                        extensions: ['.js', '.json'],
-                        ...configs.resolve,
-                    };
-                }
-                configs.target = configs.target || 'wxa';
                 wxaConfigs = configs;
+
+                this.APP_CONFIG_PATH = wxaConfigs.resolve.appConfigPath;
+
+                this.meta = {
+                    ...this.meta,
+                    wxaExt: wxaConfigs.resolve.wxaExt,
+                    context: wxaConfigs.context,
+                    output: wxaConfigs.output,
+                };
             },
         });
 
@@ -163,7 +158,7 @@ class Schedule extends EventEmitter {
             // if module is app.json, then add Page entry points.
             if (dep.src === this.APP_CONFIG_PATH) {
                 this.appConfigs = dep.json;
-                debug('app configs is Changed, %O', dep.json);
+                debug('app configs is %O', dep.json);
 
                 this.addPageEntryPoint();
             }
@@ -326,8 +321,9 @@ class Schedule extends EventEmitter {
         pages.forEach((page)=>{
             // console.log(page);
             // wxa file
-            let wxaPage = path.join(this.current, this.src, page+this.meta.wxaExt);
+            let wxaPage = path.join(this.meta.context, page+this.meta.wxaExt);
 
+            debug('page %s %s', wxaPage, page);
             let dr = new DependencyResolver(this.wxaConfigs.resolve, this.meta);
 
             if (isFile(wxaPage)) {
@@ -350,7 +346,8 @@ class Schedule extends EventEmitter {
                 }
             } else {
                 exts.forEach((ext)=>{
-                    let p = path.join(this.current, this.src, page+ext);
+                    let p = path.join(this.meta.context, page+ext);
+
                     if (isFile(p)) {
                         let outputPath = dr.getOutputPath(p, defaultPret, ROOT);
                         let pagePoint = this.addEntryPoint({

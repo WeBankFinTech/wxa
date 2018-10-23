@@ -3,10 +3,6 @@ import * as t from '@babel/types';
 import template from '@babel/template';
 import generate from '@babel/generator';
 import path from 'path';
-import PathParser from '../../helpers/pathParser';
-import {getDistPath, isFile, readFile, isDir} from '../../utils';
-import findRoot from 'find-root';
-import resolveAlias from '../../helpers/alias';
 import DependencyResolver from '../../helpers/dependencyResolver';
 import debugPKG from 'debug';
 import logger from '../../helpers/logger';
@@ -21,8 +17,8 @@ export default class ASTManager {
         this.resolve = resolve;
         this.meta = meta;
 
-        this.modulesPath = path.join(meta.current, 'node_modules', path.sep);
-        this.npmPath = path.join(meta.current, meta.dist, 'npm', path.sep);
+        this.modulesPath = path.join(meta.current, 'node_modules');
+        this.npmPath = path.join(meta.output.path, 'npm');
     }
 
     parse(mdl) {

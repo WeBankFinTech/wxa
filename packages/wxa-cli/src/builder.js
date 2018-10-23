@@ -1,56 +1,75 @@
 import 'babel-polyfill';
 
-import {getConfig, readFile, isFile, applyPlugins} from './utils';
+import {readFile, applyPlugins} from './utils';
 import path from 'path';
 import fs from 'fs';
 import crypto from 'crypto';
 import chokidar from 'chokidar';
+import globby from 'globby';
+import debugPKG from 'debug';
+
 import Schedule from './schedule';
 import logger from './helpers/logger';
 import compilerLoader from './loader';
-import debugPKG from 'debug';
-import {green} from 'chalk';
 import defaultPret from './const/defaultPret';
 import Optimizer from './optimizer';
 import Generator from './generator';
-import Compiler from './compilers/index';
-import {AsyncParallelHook} from 'tapable';
+import {AsyncParallelHook, SyncBailHook, AsyncSeriesHook} from 'tapable';
 import DependencyResolver from './helpers/dependencyResolver';
 import root from './const/root';
 
 let debug = debugPKG('WXA:Builder');
 
 class Builder {
-    constructor(src, dist) {
+    constructor(wxaConfigs) {
         this.current = process.cwd();
-        this.src = src || 'src';
-        this.dist = dist || 'dist';
-        this.ext = '.wxa';
+        this.wxaConfigs = wxaConfigs;
 
+        // default wxa configurations.
+        if (!this.wxaConfigs.resolve || !this.wxaConfigs.resolve.extensions) {
+            // wxa context, absolute path in wxa application will use this
+            this.wxaConfigs.context = this.wxaConfigs.context || path.resolve(this.current, 'src');
+
+            this.wxaConfigs.resolve = {
+                wxaExt: '.wxa',
+                extensions: ['.js', '.json'],
+                appConfigPath: path.join(this.wxaConfigs.context, 'app.json'),
+                ...this.wxaConfigs.resolve,
+            };
+
+            this.wxaConfigs.output = {
+                path: path.join(this.wxaConfigs.context, 'dist'),
+                ...this.wxaConfigs.output,
+            };
+
+            this.wxaConfigs.target = this.wxaConfigs.target || 'wxa';
+        }
+
+        if (this.wxaConfigs.resolve.wxaExt[0] !== '.') this.wxaConfigs.resolve.wxaExt = '.'+this.wxaConfigs.resolve.wxaExt;
+
+
+        // chokidar options.
         this.isWatching = false;
         this.isWatchReady = false;
 
-        this.appJSON = path.join(this.current, this.src, 'app.json');
-        this.wxaJSON = path.join(this.current, this.src, 'app'+this.ext);
+        this.appJSON = path.join(this.wxaConfigs.context, 'app.json');
+        this.wxaJSON = path.join(this.wxaConfigs.context, 'app'+this.wxaConfigs.resolve.ext);
 
         this.hooks = {
+            entryOption: new SyncBailHook(['entry']),
+            beforeRun: new AsyncSeriesHook(['compiler']),
+            run: new AsyncSeriesHook(['compiler']),
             done: new AsyncParallelHook(['dependencies']),
         };
-
-        this.schedule = new Schedule(this.src, this.dist, this.ext);
     }
 
     async init(cmd) {
-        // 加载编译器
-        const configs = getConfig();
-        this.schedule.set('wxaConfigs', configs || {});
-
         // Todo: custome package manager, such as yarn.
         // npmManager.setup(category)
 
         // mount loader
         return compilerLoader
-        .mount(configs.use, cmd);
+        .mount(this.wxaConfigs.use, cmd);
     }
 
     filterModule(arr) {
@@ -149,14 +168,35 @@ class Builder {
     }
 
     async build(cmd) {
-        this.schedule.set('cmdOptions', cmd);
+        try {
+            // initial loader and entry options.
+            await this.init(cmd);
+        } catch (e) {
+            logger.errorNow('挂载失败', e);
+        }
+        await this.hooks.beforeRun.promise(this);
 
+        this.schedule = new Schedule();
+        this.schedule.set('cmdOptions', cmd);
+        this.schedule.set('wxaConfigs', this.wxaConfigs || {});
+
+        debug('builder wxaConfigs is %O', this.wxaConfigs);
+        debug('schedule options is %O', this.schedule);
+        try {
+            await this.handleEntry();
+        } catch (error) {
+            logger.errorNow('编译入口参数有误', error);
+        }
+
+        await this.run();
+
+        if (cmd.watch) this.watch();
+    }
+
+    async run() {
         logger.infoNow('Compile', 'AT: '+new Date().toLocaleString(), void(0));
         try {
-            // initial loader.
-            await this.init(cmd);
-
-            this.handleEntry();
+            await this.hooks.run.promise(this);
 
             // do dependencies analysis.
             await this.schedule.doDPA();
@@ -168,12 +208,9 @@ class Builder {
             await this.hooks.done.promise(this.schedule.$indexOfModule);
 
             logger.infoNow('Done', 'AT: '+new Date().toLocaleString(), void(0));
-            // console.log(cmd);
         } catch (e) {
             logger.errorNow('编译失败', e);
         }
-
-        if (cmd.watch) this.watch();
     }
 
     async optimizeAndGenerate(list) {
@@ -202,7 +239,7 @@ class Builder {
         }
     }
 
-    handleEntry(mdl) {
+    async handleEntry(mdl) {
         let entry = this.schedule.wxaConfigs.entry || [];
         if (!Array.isArray(entry)) throw new Error('Entry Point is not array!');
 
@@ -216,6 +253,12 @@ class Builder {
             .filter((f)=>isAPP(f))
             .map((f)=>path.join(this.current, this.src, f));
         }
+
+        entry = this.hooks.entryOption.call(entry) || entry;
+        debug('entry after hooks %O', entry);
+
+        entry = await globby(entry);
+        debug('entry after globby %O', entry);
 
         entry.forEach((point)=>{
             point = path.isAbsolute(point) ? point : path.join(this.current, point);
