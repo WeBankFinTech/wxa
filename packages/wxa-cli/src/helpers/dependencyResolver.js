@@ -13,7 +13,7 @@ class DependencyResolver {
         this.meta = meta;
 
         this.modulesPath = path.join(this.meta.current, 'node_modules', path.sep);
-        this.npmPath = path.join(this.meta.current, meta.dist, 'npm', path.sep);
+        this.npmPath = path.join(this.meta.output.path, 'npm', path.sep);
 
         debug('constructor options %o', this);
     }
@@ -34,7 +34,7 @@ class DependencyResolver {
             // start resolve extension
             let pext = this.resolve.extensions.find((ext)=>isFile(source+ext));
             // 非完整后缀的路径
-            if (isFile(source+this.meta.ext)) ext = '.js'; // .wxa的文件转js
+            if (isFile(source+this.meta.wxaExt)) ext = '.js'; // .wxa的文件转js
             else if (pext) ext = pext;
             else if (isDir(source) && isFile(source+path.sep+'index.js')) ext = path.sep+'index.js';
             else {
@@ -79,7 +79,7 @@ class DependencyResolver {
         debug('%s path pret %o', lib, pret);
 
         if (pret.isRelative || pret.isAPPAbsolute) {
-            source = pret.isAPPAbsolute ? path.join(this.meta.src, lib) : path.join(opath.dir, lib);
+            source = pret.isAPPAbsolute ? path.join(this.meta.context, lib) : path.join(opath.dir, lib);
         } else if (pret.isNodeModule) {
             source = path.join(this.modulesPath, lib);
             ext = '';
@@ -100,19 +100,11 @@ class DependencyResolver {
 
     getOutputPath(source, pret, mdl) {
         if (pret.isRelative || pret.isAPPAbsolute || pret.isNodeModule || pret.isWXALib) {
-            let relative;
             let opath = pret.isWXALib ?
-            path.parse(path.join(this.meta.current, this.meta.src, '_wxa', pret.name+pret.ext)) :
+            path.parse(path.join(this.meta.context, '_wxa', pret.name+pret.ext)) :
             path.parse(source);
 
-            if (path.relative(this.meta.current, opath.dir).indexOf('node_modules') === 0) {
-                relative = path.relative(path.join(this.meta.current, 'node_modules'), opath.dir);
-                relative = path.join('npm', relative);
-            } else {
-                relative = path.relative(path.join(this.meta.current, this.meta.src), opath.dir);
-            }
-
-            return path.join(this.meta.current, this.meta.dist, relative, opath.base);
+            return this.getDistPath(opath);
         } else if (pret.isPlugin || pret.isURI) {
             // url module
             return null;
@@ -131,7 +123,7 @@ class DependencyResolver {
         let fileOutputPath = (
             mdl.meta &&
             mdl.meta.outputPath ||
-            getDistPath(path.parse(mdl.src), void(0), this.meta.src, this.meta.dist)
+            this.getDistPath(path.parse(mdl.src))
         );
 
         resolved = './'+path.relative(path.parse(fileOutputPath).dir, libOutputPath);
@@ -150,6 +142,20 @@ class DependencyResolver {
         }
 
         return content;
+    }
+
+    getDistPath(opath) {
+        let relative;
+        opath = typeof opath === 'string' ? path.parse(opath) : opath;
+
+        if (path.relative(this.meta.current, opath.dir).indexOf('node_modules') === 0) {
+            relative = path.relative(path.join(this.meta.current, 'node_modules'), opath.dir);
+            relative = path.join('npm', relative);
+        } else {
+            relative = path.relative(this.meta.context, opath.dir);
+        }
+
+        return path.join(this.meta.output.path, relative, opath.base);
     }
 }
 

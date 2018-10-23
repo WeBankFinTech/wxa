@@ -5,6 +5,7 @@ import chalk from 'chalk';
 import logger from './helpers/logger';
 import Creator from './creator';
 import Toolcli from './toolcli';
+import {applyPlugins, getConfig} from './utils';
 
 const version = require('../package.json').version;
 commander
@@ -20,7 +21,11 @@ commander
     .action((cmd)=>{
         // console.log(cmd);
         logger.infoNow('Hello', `This is ${chalk.keyword('orange')('wxa@'+version)}, Running in ${chalk.keyword('orange')(process.env.NODE_ENV || 'development')}`);
-        new Builder().build(cmd);
+        let wxaConfigs = getConfig();
+        let builder = new Builder(wxaConfigs);
+        applyPlugins(builder.wxaConfigs.plugins || [], builder);
+
+        builder.build(cmd);
     });
 
 commander
