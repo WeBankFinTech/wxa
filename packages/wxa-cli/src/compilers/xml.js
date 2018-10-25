@@ -3,7 +3,9 @@ import Coder from '../helpers/coder';
 import logger from '../helpers/logger';
 import path from 'path';
 import {readFile} from '../utils';
+import debugPKG from 'debug';
 
+let debug = debugPKG('WXA:XmlCompiler');
 
 export default class XmlCompiler {
     parse(filepath, code) {
@@ -21,9 +23,12 @@ export default class XmlCompiler {
     }
 
     resolveXml(filepath, code) {
+        debug('encode filepath %s', filepath);
         let coder = new Coder();
 
         code = coder.encodeTemplate(code, 0, code.length);
+
+        debug('encoded template %s', code);
 
         let xml = this.parseXml(path.parse(filepath)).parseFromString(code);
 
@@ -31,6 +36,9 @@ export default class XmlCompiler {
             ret += coder.decodeTemplate(node.toString());
             return ret;
         }, '');
+
+        debug('decoded template %s', code);
+
 
         return {
             xml, code,

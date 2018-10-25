@@ -103,7 +103,7 @@ class Builder {
         })
         .on('all', async (event, filepath)=>{
             if (this.isWatchReady && ~['change'].indexOf(event)) {
-                logger.message(event, filepath);
+                logger.messageNow(event, filepath);
                 debug('WATCH file changed %s', filepath);
                 let mdl = this.schedule.$indexOfModule.find((module)=>module.src===filepath);
                 let isChange = true;
@@ -130,6 +130,7 @@ class Builder {
                         changedDeps = await this.schedule.$doDPA();
                         await this.optimizeAndGenerate(changedDeps);
                         logger.message('Compile', '编译完成', true);
+                        debug('schedule dependencies Tree is %O', this.schedule.$indexOfModule);
                     } catch (e) {
                         logger.errorNow('编译失败', e);
                     }
@@ -146,7 +147,7 @@ class Builder {
 
                     files = newFiles;
                 } else {
-                    logger.message('Complete', '文件无变化', true);
+                    logger.messageNow('Complete', '文件无变化', true);
                 }
             }
         })
@@ -188,19 +189,20 @@ class Builder {
             logger.errorNow('编译入口参数有误', error);
         }
 
-        await this.run();
+        await this.run(cmd);
 
         if (cmd.watch) this.watch();
     }
 
-    async run() {
-        logger.infoNow('Compile', 'AT: '+new Date().toLocaleString(), void(0));
+    async run(cmd) {
+        logger.infoNow('Build', `Project: ${this.wxaConfigs.$name || 'Default'} `+'AT: '+new Date().toLocaleString(), void(0));
         try {
             await this.hooks.run.promise(this);
 
             // do dependencies analysis.
             await this.schedule.doDPA();
             debug('schedule dependencies Tree is %O', this.schedule.$indexOfModule);
+            debug('createClass reference %O', this.schedule.$indexOfModule.find((mdl)=>mdl.src.match(new RegExp('/Users/wenzetian/Documents/web/webank/miniprogram/test-vant/vant/node_modules/@babel/runtime/helpers/createClass.js'))).reference);
 
             await this.optimizeAndGenerate(this.schedule.$indexOfModule);
 
