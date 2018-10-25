@@ -20,7 +20,7 @@ commander
     .option('-N, --no-cache', '不使用缓存')
     .option('-m, --multi', '三方开发模式，一次编译出多个项目')
     .option('-p, --project <project>', '三方开发模式，单独指定需要编译监听的项目')
-    .action((cmd)=>{
+    .action(async (cmd)=>{
         // console.log(cmd);
         logger.infoNow('Hello', `This is ${chalk.keyword('orange')('wxa@'+version)}, Running in ${chalk.keyword('orange')(process.env.NODE_ENV || 'development')}`);
         let wxaConfigs = getConfig();
@@ -28,30 +28,33 @@ commander
         if (cmd.multi && wxaConfigs.thirdParty && wxaConfigs.thirdParty.length) {
             // third party development
 
-            let newBuilder = (instance)=> {
+            let newBuilder = async (instance)=> {
                 // overide third party options.
                 instance.wxaConfigs = instance.wxaConfigs || {};
                 instance.wxaConfigs.thirdParty = instance;
 
-                let subWxaConfigs = Object.assign({}, wxaConfigs, instance.wxaConfigs);
+                let subWxaConfigs = Object.assign({}, wxaConfigs, instance.wxaConfigs, {$name: instance.name});
                 // console.log(subWxaConfigs);
 
                 let builder = new Builder(subWxaConfigs);
                 applyPlugins(builder.wxaConfigs.plugins || [], builder);
 
-                builder.build(cmd);
+                await builder.build(cmd);
             };
 
             if (cmd.project) {
-                // specify project to compile
-                let project = wxaConfigs.thirdParty.find((instance)=>instance.name===cmd.project);
+                cmd.project.split(',').forEach((project)=>{
+                    console.log(project);
+                    // specify project to compile
+                    project = wxaConfigs.thirdParty.find((instance)=>instance.name===project);
 
-                if (!project) {
-                    logger.errorNow('找不到指定的项目，请检查wxa.config.js中的三方配置');
-                    process.exit(0);
-                } else {
-                    newBuilder(project);
-                }
+                    if (!project) {
+                        logger.errorNow('找不到指定的项目，请检查wxa.config.js中的三方配置');
+                        process.exit(0);
+                    } else {
+                        newBuilder(project);
+                    }
+                });
             } else {
                 // compile and watch all projects.
                 wxaConfigs.thirdParty.forEach((instance)=>{

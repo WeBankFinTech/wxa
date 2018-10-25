@@ -70,7 +70,8 @@ export default class ASTManager {
                         },
                     });
                 } catch (e) {
-                    logger.error('resolve fail', e);
+                    logger.errorNow('resolve fail', e);
+                    debug('resolve fail %O', e);
                 }
             },
         });

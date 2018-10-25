@@ -1,5 +1,6 @@
 import * as NODE from '../../const/node';
 import path from 'path';
+import Coder from '../../helpers/coder';
 import DependencyResolver from '../../helpers/dependencyResolver';
 import CSSManager from '../css/index';
 import debugPKG from 'debug';
@@ -22,7 +23,11 @@ class XMLManager {
 
         debug('libs in xml %O %O', mdl.xml, libs);
 
-        mdl.code = mdl.xml.toString();
+        mdl.code = Array.prototype.slice.call(mdl.xml.childNodes||[]).reduce((ret, node)=>{
+            ret += new Coder().decodeTemplate(node.toString());
+            return ret;
+        }, '');
+
         return libs;
     }
 

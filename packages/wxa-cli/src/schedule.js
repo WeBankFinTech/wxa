@@ -62,7 +62,7 @@ class Schedule extends EventEmitter {
 
         this.$pageArray = []; // denpendencies
         this.$depPending = []; // pending dependencies
-        this.$indexOfModule = []; // all module
+        this.$indexOfModule = [ROOT]; // all module
         this.$isMountingCompiler = false; // if is mounting compiler, all task will be blocked.
 
         // save all app configurations for compile time.
@@ -81,7 +81,11 @@ class Schedule extends EventEmitter {
     }
 
     addEntryPoint(mdl) {
-        return this.findOrAddDependency(mdl, ROOT);
+        let child = this.findOrAddDependency(mdl, ROOT);
+
+        if (!~ROOT.childNodes.findIndex((mdl)=>mdl.src===child.src)) ROOT.childNodes.push(child);
+
+        return child;
     }
 
     async doDPA() {
@@ -161,7 +165,10 @@ class Schedule extends EventEmitter {
                 this.appConfigs = dep.json;
                 debug('app configs is %O', dep.json);
 
-                this.addPageEntryPoint();
+                let oldPages = this.$pageArray.slice(0);
+                let newPages = this.addPageEntryPoint();
+                // console.log(newPages, oldPages);
+                this.cleanUpPages(newPages, oldPages);
             }
 
             // tick event
@@ -190,6 +197,7 @@ class Schedule extends EventEmitter {
                 }
 
                 let idxOfParent = oldChild.reference.findIndex((ref)=>ref.parent.src === mdl.src);
+                debug('find index %s', idxOfParent);
 
                 if (idxOfParent === -1) {
                     debug('Error: do not find parent module');
@@ -198,7 +206,9 @@ class Schedule extends EventEmitter {
 
                 oldChild.reference.splice(idxOfParent, 1);
 
-                if (oldChild.reference.length === 0) {
+                debug('oldChild %O', oldChild);
+
+                if (oldChild.reference.length === 0 && !oldChild.isROOT) {
                     debug('useless module find %s', oldChild.src);
 
                     // nested clean children
@@ -207,6 +217,28 @@ class Schedule extends EventEmitter {
                     oldChild.meta && unlinkSync(oldChild.meta.accOutputPath);
                     this.$indexOfModule.splice(this.$indexOfModule.findIndex((mdl)=>mdl.src===oldChild.src), 1);
                 }
+            }
+        });
+    }
+
+    cleanUpPages(newPages, oldPages) {
+        let droppedPages = oldPages.filter((oldPage)=>newPages.findIndex((page)=>page.src===oldPage.src)===-1);
+
+        droppedPages.forEach((droppedPage)=>{
+            debug('dropped page %O', droppedPage);
+            // nested clean up children module
+            this.cleanUpChildren([], droppedPage);
+
+            // drop page from pageArray;
+            let idxOfPage = this.$pageArray.findIndex((page)=>page.src===droppedPage.src);
+            if (idxOfPage>-1) this.$pageArray.splice(idxOfPage, 1);
+
+            // drop module from index
+            let idxOfModule = this.$indexOfModule.findIndex((mdl)=>mdl.src===droppedPage.src);
+            if (idxOfModule>-1) this.$indexOfModule.splice(idxOfModule, 1);
+
+            if (droppedPage.meta && !droppedPage.isAbstract) {
+                unlinkSync(droppedPage.meta.accOutputPath);
             }
         });
     }
@@ -232,6 +264,11 @@ class Schedule extends EventEmitter {
             $pret: dep.pret,
             reference: [dep.reference],
         };
+
+        if (!child.isFile) {
+            let content = child.code || readFile(child.src);
+            child.hash = crypto.createHash('md5').update(content).digest('hex');
+        }
 
         if (indexedModuleIdx > -1) {
             let indexedModule = this.$indexOfModule[indexedModuleIdx];
@@ -320,7 +357,7 @@ class Schedule extends EventEmitter {
 
         // pages spread
         let exts = ['.wxml', '.wxss', '.js', '.json'];
-        pages.forEach((page)=>{
+        let newPages = pages.reduce((ret, page)=>{
             // console.log(page);
             // wxa file
             let wxaPage = path.join(this.meta.context, page+this.meta.wxaExt);
@@ -342,7 +379,7 @@ class Schedule extends EventEmitter {
                         },
                     });
 
-                    tryPush(pagePoint);
+                    return ret.concat([pagePoint]);
                 } catch (e) {
                     console.error(e);
                 }
@@ -364,17 +401,17 @@ class Schedule extends EventEmitter {
                             },
                         });
 
-                        tryPush(pagePoint);
+                        ret.push(pagePoint);
                     }
                 });
-            }
-        });
-        // console.log(this.$pageArray);
 
-        if (!this.$pageArray.length) {
-            logger.errorNow('找不到可编译的页面');
-            return;
-        }
+                return ret;
+            }
+        }, []);
+
+        newPages.forEach((pagePoint)=>tryPush(pagePoint));
+
+        return newPages;
     }
 }
 
