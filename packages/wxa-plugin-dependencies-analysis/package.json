@@ -1,0 +1,38 @@
+{
+  "name": "@wxa/plugin-dependencies-analysis",
+  "version": "1.0.0",
+  "description": "dependencies analysis plugin for wxa",
+  "scripts": {
+    "start": "babel src --out-dir dist && webpack --config webpack.config.js && node dist/server.js",
+    "dev:client": "webpack-dev-server",
+    "dev:server": "babel src --out-dir dist && node dist/server.js"
+  },
+  "keywords": [
+    "wxa",
+    "dependencies",
+    "analysis"
+  ],
+  "author": "han",
+  "license": "",
+  "dependencies": {
+    "@babel/polyfill": "^7.0.0",
+    "d3": "^5.7.0",
+    "koa": "^2.5.3",
+    "koa-static": "^5.0.0",
+    "react": "^16.5.2",
+    "react-dom": "^16.5.2",
+    "ws": "^6.1.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.1.2",
+    "@babel/core": "^7.1.2",
+    "@babel/preset-env": "^7.1.0",
+    "@babel/preset-react": "^7.0.0",
+    "@babel/register": "^7.0.0",
+    "babel-loader": "^8.0.4",
+    "html-webpack-plugin": "^3.2.0",
+    "webpack": "^4.20.2",
+    "webpack-cli": "^3.1.2",
+    "webpack-dev-server": "^3.1.9"
+  }
+}
