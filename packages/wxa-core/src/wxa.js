@@ -1,3 +1,6 @@
+// polyfill
+import './polyfill/bind';
+
 import app from './base/app';
 import page from './base/page';
 import component from './base/component';
