@@ -43,7 +43,7 @@ commander
             // third party development
             if (cmd.project) {
                 cmd.project.split(',').forEach((project)=>{
-                    console.log(project);
+                    // console.log(project);
                     // specify project to compile
                     project = wxaConfigs.thirdParty.find((instance)=>instance.name===project);
 
@@ -57,7 +57,7 @@ commander
             } else {
                 // compile and watch all projects.
                 wxaConfigs.thirdParty.forEach((instance)=>{
-                    newBuilder(instance, cmd);
+                    newBuilder(instance, {...cmd, watch: false});
                 });
             }
         } else {
