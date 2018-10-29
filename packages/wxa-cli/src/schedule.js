@@ -123,7 +123,7 @@ class Schedule extends EventEmitter {
     async $parse(dep) {
         // calc hash
         // cause not every module is actually exists, we can not promise all module has hash here.
-        let content = dep.code ? dep.code : readFile(dep.src);
+        let content = dep.content ? dep.content : readFile(dep.src);
         if (content) dep.hash = crypto.createHash('md5').update(content).digest('hex');
         debug('Dep HASH: %s', dep.hash);
         try {
@@ -134,17 +134,6 @@ class Schedule extends EventEmitter {
             this.tryWrapWXA(dep);
 
             // Todo: conside if cache is necessary here.
-            // let cacheParams = {
-            //     source: code,
-            //     options: {
-            //         configs: {
-            //             ast: true,
-            //         },
-            //     },
-            //     transform: (code, options)=>{
-            //         return compiler.parse(code, options.configs, dep.src, dep.type || path.extname(dep.src));
-            //     },
-            // };
             debug('dep to process %O', dep);
             let compiler = new Compiler(this.wxaConfigs.resolve, this.meta, this.appConfigs);
             let childNodes = await compiler.parse(dep);
@@ -368,7 +357,7 @@ class Schedule extends EventEmitter {
             if (isFile(wxaPage)) {
                 try {
                     let pagePoint = this.addEntryPoint({
-                        code: readFile(wxaPage),
+                        content: readFile(wxaPage),
                         src: wxaPage,
                         category: 'Page',
                         pagePath: page,
@@ -390,7 +379,7 @@ class Schedule extends EventEmitter {
                     if (isFile(p)) {
                         let outputPath = dr.getOutputPath(p, defaultPret, ROOT);
                         let pagePoint = this.addEntryPoint({
-                            code: readFile(p),
+                            content: readFile(p),
                             src: p,
                             category: 'Page',
                             pagePath: page,

@@ -23,30 +23,35 @@ class SassCompiler {
         debug('sass module parse started %O', mdl);
 
         let configs  = this.configs;
+
+        let ret = await this.render(mdl.content || null, mdl.meta.source, configs);
+        
+        mdl.code = ret.css.toString();
+
+        // custom outputPath
+        if(mdl.meta) {
+            let source = path.parse(mdl.meta.source);
+            mdl.meta.source = source.dir + path.sep + source.name + '.css';
+
+            let output = path.parse(mdl.meta.outputPath);
+            mdl.meta.outputPath = output.dir + path.sep + output.name + '.css'
+        }
+
+        return {ret, code: mdl.code};
+    }
+
+    render(data, filepath, configs) {
         return new Promise((resolve, reject)=>{
             sass.render({
                 ...configs,
-                data: mdl.code || null,
-                file: mdl.meta.source
+                data,
+                file: filepath
             }, (err, ret)=>{
-                if (err) {
-                    debug('transform error %O', err);
-                    return reject(err);
-                }
+                if(err) return reject(err);
 
-                mdl.code = ret.css.toString();
-
-                // custom outputPath
-                if(mdl.meta) {
-                    let source = path.parse(mdl.meta.source);
-                    mdl.meta.source = source.dir + path.sep + source.name + '.css';
-
-                    let output = path.parse(mdl.meta.outputPath);
-                    mdl.meta.outputPath = output.dir + path.sep + output.name + '.css'
-                }
-                resolve({ret, code: mdl.code});
-            });
-        });
+                return resolve(ret);
+            })
+        })
     }
 }
 

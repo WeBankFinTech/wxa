@@ -150,6 +150,7 @@ export default class Compiler {
         return Object.keys(mdl.rst).map((key)=>{
             let dep = Object.assign({}, mdl.rst[key]);
             // wxa file pret object should as same as his parent node.
+            dep.content = mdl.rst[key].code;
             dep.pret = mdl.pret || defaultPret;
             dep.category = mdl.category || '';
             dep.pagePath = mdl.pagePath || void(0);

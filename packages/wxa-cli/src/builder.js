@@ -202,7 +202,7 @@ class Builder {
             // do dependencies analysis.
             await this.schedule.doDPA();
             debug('schedule dependencies Tree is %O', this.schedule.$indexOfModule);
-            debug('createClass reference %O', this.schedule.$indexOfModule.find((mdl)=>mdl.src.match(new RegExp('/Users/wenzetian/Documents/web/webank/miniprogram/test-vant/vant/node_modules/@babel/runtime/helpers/createClass.js'))).reference);
+            // debug('createClass reference %O', this.schedule.$indexOfModule.find((mdl)=>mdl.src.match(new RegExp('/Users/wenzetian/Documents/web/webank/miniprogram/test-vant/vant/node_modules/@babel/runtime/helpers/createClass.js'))).reference);
 
             await this.optimizeAndGenerate(this.schedule.$indexOfModule);
 
@@ -212,7 +212,7 @@ class Builder {
             logger.infoNow('Done', 'AT: '+new Date().toLocaleString(), void(0));
         } catch (e) {
             logger.errorNow('编译失败', e);
-            // throw e;
+            throw e;
         }
     }
 
