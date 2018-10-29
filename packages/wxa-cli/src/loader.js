@@ -93,13 +93,11 @@ class CompilerLoader {
             if (test.test(mdl.src)) {
                 debug('%s loader is working ', loader);
                 try {
-                    let {compileTo, code, ...rest} = await loader.parse(mdl, cmdOptions);
+                    let {code, ...rest} = await loader.parse(mdl, cmdOptions);
 
-                    // Todo: Multi loader with one string.
-                    // resource transform is normal. ig. sass->css ts->js
-                    // mdl.compileTo = compileTo || path.extname(mdl.src).slice(1);
+                    // Todo: Multi loader with one string
                     mdl.code = code;
-                    // mdl.restResource = rest;
+                    mdl.restResource = rest;
                 } catch (e) {
                     debug('parse Error %O', e);
                     // logger.errorNow(`Error `, e);
