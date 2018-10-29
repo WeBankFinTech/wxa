@@ -20,28 +20,27 @@ commander
     .option('-N, --no-cache', '不使用缓存')
     .option('-m, --multi', '三方开发模式，一次编译出多个项目')
     .option('-p, --project <project>', '三方开发模式，单独指定需要编译监听的项目')
+    .option('--max-watch-project <max>', '三方开发模式，最多同时监听几个项目, default: 3')
     .action(async (cmd)=>{
         // console.log(cmd);
         logger.infoNow('Hello', `This is ${chalk.keyword('orange')('wxa@'+version)}, Running in ${chalk.keyword('orange')(process.env.NODE_ENV || 'development')}`);
         let wxaConfigs = getConfig();
         // console.log(cmd);
+        let newBuilder = async (instance, cmdOptions)=> {
+            // overide third party options.
+            instance.wxaConfigs = instance.wxaConfigs || {};
+            instance.wxaConfigs.thirdParty = instance;
+
+            let subWxaConfigs = Object.assign({}, wxaConfigs, instance.wxaConfigs, {$name: instance.name});
+
+            let builder = new Builder(subWxaConfigs);
+            applyPlugins(builder.wxaConfigs.plugins || [], builder);
+
+            await builder.build(cmdOptions);
+        };
+
         if (cmd.multi && wxaConfigs.thirdParty && wxaConfigs.thirdParty.length) {
             // third party development
-
-            let newBuilder = async (instance)=> {
-                // overide third party options.
-                instance.wxaConfigs = instance.wxaConfigs || {};
-                instance.wxaConfigs.thirdParty = instance;
-
-                let subWxaConfigs = Object.assign({}, wxaConfigs, instance.wxaConfigs, {$name: instance.name});
-                // console.log(subWxaConfigs);
-
-                let builder = new Builder(subWxaConfigs);
-                applyPlugins(builder.wxaConfigs.plugins || [], builder);
-
-                await builder.build(cmd);
-            };
-
             if (cmd.project) {
                 cmd.project.split(',').forEach((project)=>{
                     console.log(project);
@@ -52,21 +51,18 @@ commander
                         logger.errorNow('找不到指定的项目，请检查wxa.config.js中的三方配置');
                         process.exit(0);
                     } else {
-                        newBuilder(project);
+                        newBuilder(project, cmd);
                     }
                 });
             } else {
                 // compile and watch all projects.
                 wxaConfigs.thirdParty.forEach((instance)=>{
-                    newBuilder(instance);
+                    newBuilder(instance, cmd);
                 });
             }
         } else {
             // normal build.
-            let builder = new Builder(wxaConfigs);
-            applyPlugins(builder.wxaConfigs.plugins || [], builder);
-
-            builder.build(cmd);
+            newBuilder(wxaConfigs, cmd);
         }
     });
 

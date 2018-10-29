@@ -1,6 +1,6 @@
 import 'babel-polyfill';
 
-import {readFile, applyPlugins} from './utils';
+import {readFile, applyPlugins, isFile} from './utils';
 import path from 'path';
 import fs from 'fs';
 import crypto from 'crypto';
@@ -187,6 +187,7 @@ class Builder {
             await this.handleEntry(cmd);
         } catch (error) {
             logger.errorNow('编译入口参数有误', error);
+            throw error;
         }
 
         await this.run(cmd);
@@ -211,8 +212,8 @@ class Builder {
 
             logger.infoNow('Done', 'AT: '+new Date().toLocaleString(), void(0));
         } catch (e) {
+            console.error(e);
             logger.errorNow('编译失败', e);
-            throw e;
         }
     }
 
@@ -291,7 +292,7 @@ class Builder {
                 ...mdl,
             });
 
-            this.schedule.addEntryPoint({
+            mdl = {
                 src: point,
                 pret: defaultPret,
                 category: isAPP(point) ? 'App' : 'Entry',
@@ -300,7 +301,13 @@ class Builder {
                     outputPath,
                 },
                 ...mdl,
-            });
+            };
+
+            if (isFile(mdl.src)) {
+                this.schedule.addEntryPoint(mdl);
+            } else {
+                throw new Error(`入口文件不存在 ${mdl.src}`);
+            }
         });
     }
 }
