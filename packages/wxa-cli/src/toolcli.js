@@ -1,6 +1,6 @@
 import path from 'path';
 import {exec} from 'child_process';
-import {getConfig, info} from './utils';
+import {getConfig} from './utils';
 
 class Toolcli {
     constructor(src, dist) {
@@ -32,7 +32,7 @@ class Toolcli {
                 }
                 resolve(stout);
             }).stdout.on('data', (msg)=>{
-                info('upload', msg);
+                console.log('upload', msg);
             });
         });
     }
