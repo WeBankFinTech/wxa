@@ -1,4 +1,5 @@
 import path from 'path';
+import findNpmModule from './helpers/findNpmModule';
 import logger from './helpers/logger';
 import npmManager from './helpers/npmManager';
 import debugPKG from 'debug';
@@ -9,6 +10,7 @@ class CompilerLoader {
     constructor(cwd) {
         this.current = cwd;
 
+        this.modulePath = path.join(this.current, 'node_modules');
         // all loader in queue.
         this.loaders = [];
     }
@@ -32,15 +34,19 @@ class CompilerLoader {
             } else {
                 let compilerName = '@wxa/compiler-'+uri;
                 try {
-                    Loader = require(path.join(this.modulePath, compilerName)).default;
+                    let main = findNpmModule(compilerName, this.modulePath);
+                    Loader = require(main).default;
+                    console.log(Loader);
                 } catch (e) {
+                    console.error(e);
                     logger.errorNow('未安装的编译器：'+compilerName);
                     logger.infoNow('Install', `尝试安装${compilerName}中`);
                     return npmManager.install(compilerName).then((succ)=>{
                         logger.infoNow('Success', `安装${compilerName}成功`);
 
                         try {
-                            Loader = require(path.join(this.modulePath, compilerName)).default;
+                            let main = findNpmModule(compilerName, this.modulePath);
+                            Loader = require(main).default;
                         } catch (e) {
                             logger.errorNow('找不到编译器，请手动安装依赖！');
                             process.exit(0);
@@ -65,7 +71,7 @@ class CompilerLoader {
                     let test = loader.test || instance.test;
 
                     if (test == null) throw new Error('Invalid loader config in ', JSON.stringify(loader));
-
+                    console.log(instance);
                     this.loaders.push({
                         test, loader: instance, options, cmdOptions,
                     });
@@ -91,7 +97,7 @@ class CompilerLoader {
 
 
             if (test.test(mdl.src)) {
-                debug('%s loader is working ', loader);
+                debug('loader is working %O, dep %O', loader, mdl);
                 try {
                     let {code, ...rest} = await loader.parse(mdl, cmdOptions);
 
