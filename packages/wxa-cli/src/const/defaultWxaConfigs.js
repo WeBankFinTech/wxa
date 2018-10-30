@@ -18,7 +18,7 @@ export default class DefaultWxaConfigs {
                     '@': path.join(this.cwd, 'src'),
                 },
             },
-            entry: [path.resolve(this.cwd, 'src/app*')],
+            entry: [path.resolve(this.cwd, 'src/app*'), path.resolve(this.cwd, 'src/project.config.json')],
             output: {
                 path: path.resolve(this.cwd, 'dist'),
             },
@@ -26,11 +26,11 @@ export default class DefaultWxaConfigs {
                 {
                     test: /\.js$|\.wxs$/,
                     name: 'babel',
-                 },
-                 {
-                     test: /\.sass|\.scss/,
-                     name: 'sass',
-                 },
+                },
+                {
+                    test: /\.sass|\.scss/,
+                    name: 'sass',
+                },
             ],
         };
     }
