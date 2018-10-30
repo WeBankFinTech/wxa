@@ -14,16 +14,16 @@ class Creator {
         }
         exec(`git clone ${full} ${name}`, function(err, stdout, stderr) {
             if (err) {
-                logger.errorNow(err);
+                logger.error(err);
             } else {
                 exec(`rm -rf ./${name}/.git`);
 
-                logger.infoNow('clone', `成功下载 ${full}`);
+                logger.info('clone', `成功下载 ${full}`);
                 let filepath = path.join(process.cwd(), `${name}/package.json`);
                 let pkg = require(filepath);
                 pkg.name = name;
                 fs.writeFileSync(filepath, JSON.stringify(pkg, null, 4));
-                logger.infoNow('success', '新建成功');
+                logger.info('success', '新建成功');
             }
         });
     }

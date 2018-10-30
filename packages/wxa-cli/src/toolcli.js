@@ -36,22 +36,22 @@ class Toolcli {
 
         switch (action) {
             case 'open': {
-                this.open(cmd).catch((e)=>logger.errorNow(e));
+                this.open(cmd).catch((e)=>logger.error(e));
                 break;
             }
             case 'login': {
-                this.login().catch((e)=>logger.errorNow(e));
+                this.login().catch((e)=>logger.error(e));
                 break;
             }
             case 'preview': {
-                this.preview(projectPath, cmd).catch((e)=>logger.errorNow(e));
+                this.preview(projectPath, cmd).catch((e)=>logger.error(e));
                 break;
             }
             case 'upload': {
-                this.upload(projectPath, cmd).catch((e)=>logger.errorNow(e));
+                this.upload(projectPath, cmd).catch((e)=>logger.error(e));
                 break;
             }
-            default: logger.warnNow('无效的命令');
+            default: logger.warn('无效的命令');
         }
     }
 

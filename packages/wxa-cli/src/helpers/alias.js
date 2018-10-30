@@ -9,9 +9,9 @@ export default function resolveAlias(lib, alias, filepath) {
         let value = alias[key];
         let aliasReg = new RegExp(`(^${key}$)|(^${key}\/.*$)`, 'gm');
         if (aliasReg.test(lib)) {
-            // logger.infoNow('find alias', lib);
+            // logger.info('find alias', lib);
             let tar = lib.replace(new RegExp(key, 'g'), value);
-            // logger.infoNow('parsed lib', tar);
+            // logger.info('parsed lib', tar);
             // calc relative path base cwd;
             tar = path.relative(opath.dir, tar);
             lib = './'+tar

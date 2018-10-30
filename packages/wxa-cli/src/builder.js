@@ -84,36 +84,32 @@ class Builder {
         })
         .on('all', async (event, filepath)=>{
             if (this.isWatchReady && ~['change'].indexOf(event)) {
-                logger.messageNow(event, filepath);
+                logger.warn(event, filepath);
                 debug('WATCH file changed %s', filepath);
                 let mdl = this.schedule.$indexOfModule.find((module)=>module.src===filepath);
                 let isChange = true;
                 debug('Changed Module %O', mdl);
                 // module with code;
-                if (mdl.code) {
+                if (!mdl.isFile) {
                     let content = readFile(mdl.src);
                     debug('changed content %s', content);
                     let md5 = crypto.createHash('md5').update(content).digest('hex');
 
-                    mdl.code = content;
+                    mdl.content = content;
                     isChange = mdl.hash !== md5;
                     debug('OLD HASH %s, NEW HASH %s', mdl.hash, md5);
                 }
 
                 if (isChange) {
                     let changedDeps;
-                    // if (this.appJSON === mdl.src || this.wxaJSON === mdl.src) {
-                        // let appConfigs = mdl.src === mdl.
-                        // this.schedule.set('appConfigs', appConfigs);
-                    // } else {
                     try {
                         this.schedule.$depPending.push(mdl);
                         changedDeps = await this.schedule.$doDPA();
                         await this.optimizeAndGenerate(changedDeps);
-                        logger.message('Compile', '编译完成', true);
+                        logger.log('Done', '编译完成');
                         debug('schedule dependencies Tree is %O', this.schedule.$indexOfModule);
                     } catch (e) {
-                        logger.errorNow('编译失败', e);
+                        logger.error('编译失败', e);
                     }
 
 
@@ -128,18 +124,18 @@ class Builder {
 
                     files = newFiles;
                 } else {
-                    logger.messageNow('Complete', '文件无变化', true);
+                    logger.info(`文件无变化(${mdl.hash})`);
                 }
             }
         })
         .on('ready', ()=>{
             this.isWatchReady = true;
-            logger.message('Watch', '准备完毕，开始监听文件', true);
+            logger.log('Watch', '准备完毕，开始监听文件');
         });
 
         let h = (code)=>{
             this.watcher.close();
-            logger.messageNow('Exit', `正在关闭Wxa(${code})`);
+            logger.warn('Exit', `正在关闭Wxa(${code})`);
             process.exit(0);
         };
         process.on('exit', h);
@@ -154,7 +150,7 @@ class Builder {
             // initial loader and entry options.
             await this.init(cmd);
         } catch (e) {
-            logger.errorNow('挂载失败', e);
+            logger.error('挂载失败', e);
         }
         await this.hooks.beforeRun.promise(this);
 
@@ -167,7 +163,7 @@ class Builder {
         try {
             await this.handleEntry(cmd);
         } catch (error) {
-            logger.errorNow('编译入口参数有误', error);
+            logger.error('编译入口参数有误', error);
             throw error;
         }
 
@@ -177,7 +173,7 @@ class Builder {
     }
 
     async run(cmd) {
-        logger.infoNow('Build', `Project: ${this.wxaConfigs.$name || 'Default'} `+'AT: '+new Date().toLocaleString(), void(0));
+        logger.info('Building', `Project: ${this.wxaConfigs.$name || 'Default'} `+'AT: '+new Date().toLocaleString());
         try {
             await this.hooks.run.promise(this);
 
@@ -191,10 +187,9 @@ class Builder {
             // done.
             await this.hooks.done.promise(this.schedule.$indexOfModule);
 
-            logger.infoNow('Done', 'AT: '+new Date().toLocaleString(), void(0));
+            logger.log('Done', 'AT: '+new Date().toLocaleString());
         } catch (e) {
-            console.error(e);
-            logger.errorNow('编译失败', e);
+            logger.error('编译失败', e);
         }
     }
 

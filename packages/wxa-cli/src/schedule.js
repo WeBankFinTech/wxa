@@ -13,6 +13,7 @@ import Compiler from './compilers/index';
 import crypto from 'crypto';
 import {unlinkSync} from 'fs';
 import DependencyResolver from './helpers/dependencyResolver';
+import ProgressTextBar from './helpers/progressTextBar';
 
 let debug = debugPKG('WXA:Schedule');
 
@@ -64,6 +65,7 @@ class Schedule extends EventEmitter {
         this.$depPending = []; // pending dependencies
         this.$indexOfModule = [ROOT]; // all module
         this.$isMountingCompiler = false; // if is mounting compiler, all task will be blocked.
+        this.progress = new ProgressTextBar(this.current, wxaConfigs);
 
         // save all app configurations for compile time.
         // such as global components.
@@ -90,7 +92,7 @@ class Schedule extends EventEmitter {
 
     async doDPA() {
         if (!this.$depPending.length) {
-            logger.errorNow('找不到可编译的入口文件');
+            logger.error('找不到可编译的入口文件');
             return;
         }
 
@@ -112,6 +114,7 @@ class Schedule extends EventEmitter {
         return Promise.all(tasks).then(async (succ)=>{
             if (this.$depPending.length === 0) {
                 // dependencies resolve complete
+                this.progress.clean();
                 return Promise.resolve(succ);
             } else {
                 let sub = await this.$doDPA();
@@ -127,6 +130,7 @@ class Schedule extends EventEmitter {
         if (content) dep.hash = crypto.createHash('md5').update(content).digest('hex');
         debug('Dep HASH: %s', dep.hash);
         try {
+            this.progress.draw(dep.src);
             // loader: use custom compiler to load resource.
             await this.loader.compile(dep);
 
@@ -164,9 +168,8 @@ class Schedule extends EventEmitter {
             this.emit('tick', dep);
             return dep;
         } catch (e) {
-            // logger.errorNow('编译失败', e);
+            console.log('\n');
             debug('编译失败 %O', e);
-            console.error(e);
             throw e;
         }
     }
@@ -255,7 +258,7 @@ class Schedule extends EventEmitter {
         };
 
         if (!child.isFile) {
-            let content = child.code || readFile(child.src);
+            let content = child.content || readFile(child.src);
             child.hash = crypto.createHash('md5').update(content).digest('hex');
         }
 
@@ -322,7 +325,7 @@ class Schedule extends EventEmitter {
             !this.appConfigs.pages ||
             !this.appConfigs.pages.length
         ) {
-            logger.errorNow('app页面配置缺失, 请检查app.json的pages配置项');
+            logger.error('app页面配置缺失, 请检查app.json的pages配置项');
         }
 
         let pages = this.appConfigs.pages;
@@ -370,7 +373,7 @@ class Schedule extends EventEmitter {
 
                     return ret.concat([pagePoint]);
                 } catch (e) {
-                    console.error(e);
+                    logger.error(e);
                 }
             } else {
                 exts.forEach((ext)=>{

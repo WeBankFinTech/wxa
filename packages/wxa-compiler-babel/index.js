@@ -56,6 +56,8 @@ class BabelLoader {
         }
 
         if (this.configs == null) this.configs = configs.babel || {};
+
+        this.configs.ignore = this.configs.ignore || ["node_modules"];
     }
 
     transform(type, ...args) {

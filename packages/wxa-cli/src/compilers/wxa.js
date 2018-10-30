@@ -147,12 +147,12 @@ export default class WxaCompiler {
         return new DOMParser({
             errorHandler: {
                 warn(x) {
-                    logger.errorNow('XML警告:'+(opath.dir+path.sep+opath.base));
-                    logger.warnNow(x);
+                    logger.error('XML警告:'+(opath.dir+path.sep+opath.base));
+                    logger.warn(x);
                 },
                 error(x) {
-                    logger.errorNow('XML错误:'+(opath.dir+path.sep+opath.base));
-                    logger.errorNow(x);
+                    logger.error('XML错误:'+(opath.dir+path.sep+opath.base));
+                    logger.error(x);
                 },
             },
         });
