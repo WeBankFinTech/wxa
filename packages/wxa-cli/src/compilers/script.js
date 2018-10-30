@@ -10,7 +10,7 @@ export default class scriptCompiler {
     parse(filepath, code, configs) {
         if (code == null) code = readFile(filepath);
 
-        if (code == null) logger.errorNow(`文件不存在, ${filepath}`);
+        if (code == null) logger.error(`文件不存在, ${filepath}`);
 
         let ast;
         try {
@@ -23,7 +23,7 @@ export default class scriptCompiler {
                 ...configs,
             });
         } catch (e) {
-            logger.errorNow('编译失败', e);
+            logger.error('编译失败', e);
             return Promise.reject(e);
         }
 

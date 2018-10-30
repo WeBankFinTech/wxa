@@ -9,7 +9,7 @@ export default class ConfigCompiler {
         if (code == null) code = readFile(filepath);
 
         if (code == null) {
-            logger.errorNow(`文件不存在, ${filepath}`);
+            logger.error(`文件不存在, ${filepath}`);
             return Promise.reject(null);
         }
         // debug('code, %O', JSON.parse(code));

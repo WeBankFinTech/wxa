@@ -56,7 +56,7 @@ commander
     .option('--max-watch-project <max>', '三方开发模式，最多同时监听几个项目, default: 3')
     .action(async (cmd)=>{
         // console.log(cmd);
-        logger.infoNow('Hello', `This is ${chalk.keyword('orange')('wxa@'+version)}, Running in ${chalk.keyword('orange')(process.env.NODE_ENV || 'development')}`);
+        logger.info('Hey', `This is ${chalk.keyword('orange')('wxa@'+version)}, Running in ${chalk.keyword('orange')(process.env.NODE_ENV || 'development')}`);
         let wxaConfigs = getWxaConfigs();
         // console.log(cmd);
         let newBuilder = wrapWxaConfigs((subWxaConfigs, cmdOptions)=>{
@@ -75,7 +75,7 @@ commander
                     project = wxaConfigs.thirdParty.find((instance)=>instance.name===project);
 
                     if (!project) {
-                        logger.errorNow('找不到指定的项目，请检查wxa.config.js中的三方配置');
+                        logger.error('找不到指定的项目，请检查wxa.config.js中的三方配置');
                         process.exit(0);
                     } else {
                         newBuilder(wxaConfigs, project, cmd);
@@ -139,7 +139,7 @@ commander
                     project = wxaConfigs.thirdParty.find((instance)=>instance.name===project);
 
                     if (!project) {
-                        logger.errorNow('找不到指定的项目，请检查wxa.config.js中的三方配置');
+                        logger.error('找不到指定的项目，请检查wxa.config.js中的三方配置');
                         process.exit(0);
                     } else {
                         newCli(wxaConfigs, project, cmd);

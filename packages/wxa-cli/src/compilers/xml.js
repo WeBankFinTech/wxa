@@ -12,7 +12,7 @@ export default class XmlCompiler {
         if (code == null) code = readFile(filepath);
 
         if (code == null) {
-            logger.errorNow(`文件不存在, ${filepath}`);
+            logger.error(`文件不存在, ${filepath}`);
             return Promise.reject();
         }
 
@@ -49,12 +49,12 @@ export default class XmlCompiler {
         return new DOMParser({
             errorHandler: {
                 warn(x) {
-                    logger.errorNow('XML警告:'+(opath.dir+path.sep+opath.base));
-                    logger.warnNow(x);
+                    logger.error('XML警告:'+(opath.dir+path.sep+opath.base));
+                    logger.warn(x);
                 },
                 error(x) {
-                    logger.errorNow('XML错误:'+(opath.dir+path.sep+opath.base));
-                    logger.errorNow(x);
+                    logger.error('XML错误:'+(opath.dir+path.sep+opath.base));
+                    logger.error(x);
                 },
             },
         });
