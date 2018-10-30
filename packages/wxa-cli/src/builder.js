@@ -26,27 +26,8 @@ class Builder {
         this.wxaConfigs = wxaConfigs;
 
         // default wxa configurations.
-        if (!this.wxaConfigs.resolve || !this.wxaConfigs.resolve.extensions) {
-            // wxa context, absolute path in wxa application will use this
-            this.wxaConfigs.context = this.wxaConfigs.context || path.resolve(this.current, 'src');
-
-            this.wxaConfigs.resolve = {
-                wxaExt: '.wxa',
-                extensions: ['.js', '.json'],
-                appConfigPath: path.join(this.wxaConfigs.context, 'app.json'),
-                ...this.wxaConfigs.resolve,
-            };
-
-            this.wxaConfigs.output = {
-                path: path.join(this.wxaConfigs.context, 'dist'),
-                ...this.wxaConfigs.output,
-            };
-
-            this.wxaConfigs.target = this.wxaConfigs.target || 'wxa';
-        }
-
+        this.wxaConfigs.resolve.appConfigPath = path.join(this.wxaConfigs.context, 'app.json');
         if (this.wxaConfigs.resolve.wxaExt[0] !== '.') this.wxaConfigs.resolve.wxaExt = '.'+this.wxaConfigs.resolve.wxaExt;
-
 
         // chokidar options.
         this.isWatching = false;

@@ -1,4 +1,6 @@
 import commander from 'commander';
+import deepmerge from 'deepmerge';
+import DefaultWxaConfigs from './const/defaultWxaConfigs';
 import Builder from './builder';
 import chalk from 'chalk';
 // import {info, error, warn} from './utils';
@@ -8,6 +10,20 @@ import Toolcli from './toolcli';
 import {applyPlugins, getConfig} from './utils';
 
 const version = require('../package.json').version;
+
+let getWxaConfigs = ()=>{
+    let custom = {};
+
+    try {
+        custom = getConfig();
+    } catch (e) {
+        // no custom wxa configs here.
+    }
+
+    let defaultWxaConfigs = new DefaultWxaConfigs(process.cwd());
+    return deepmerge(defaultWxaConfigs.get(), custom, {arrayMerge: (destinationArray, sourceArray, options)=>sourceArray});
+};
+
 commander
     .version(version, '-v, --version')
     .usage('[command] <options ...>');
@@ -24,14 +40,18 @@ commander
     .action(async (cmd)=>{
         // console.log(cmd);
         logger.infoNow('Hello', `This is ${chalk.keyword('orange')('wxa@'+version)}, Running in ${chalk.keyword('orange')(process.env.NODE_ENV || 'development')}`);
-        let wxaConfigs = getConfig();
+        let wxaConfigs = getWxaConfigs();
         // console.log(cmd);
         let newBuilder = async (instance, cmdOptions)=> {
             // overide third party options.
-            instance.wxaConfigs = instance.wxaConfigs || {};
-            instance.wxaConfigs.thirdParty = instance;
-
-            let subWxaConfigs = Object.assign({}, wxaConfigs, instance.wxaConfigs, {$name: instance.name});
+            let subWxaConfigs;
+            if (instance) {
+                instance.wxaConfigs = instance.wxaConfigs || {};
+                instance.wxaConfigs.thirdParty = instance;
+                subWxaConfigs = Object.assign({}, wxaConfigs, instance.wxaConfigs, {$name: instance.name});
+            } else {
+                subWxaConfigs = Object.assign({}, wxaConfigs, {$name: 'Default'});
+            }
 
             let builder = new Builder(subWxaConfigs);
             applyPlugins(builder.wxaConfigs.plugins || [], builder);
@@ -62,7 +82,7 @@ commander
             }
         } else {
             // normal build.
-            newBuilder(wxaConfigs, cmd);
+            newBuilder(void(0), cmd);
         }
     });
 
@@ -82,26 +102,66 @@ commander
     .option('-m, --desc <desc>', '上传代码时的备注')
     .option('--ver <ver>', '版本号')
     .action((action, cmd)=>{
-        let toolcli = new Toolcli();
-        switch (action) {
-            case 'open': {
-                toolcli.open(cmd).catch((e)=>(e));
-                break;
+        let wxaConfigs = getWxaConfigs();
+
+        let newCli = (instance, cmd)=>{
+            // overide third party options.
+            instance.wxaConfigs = instance.wxaConfigs || {};
+            instance.wxaConfigs.thirdParty = instance;
+            let subWxaConfigs = Object.assign({}, wxaConfigs, instance.wxaConfigs, {$name: instance.name});
+
+            let cli = new Toolcli(subWxaConfigs);
+
+            cli.run(cmd);
+        };
+
+        if (cmd.multi && wxaConfigs.thirdParty && wxaConfigs.thirdParty.length && cmd.action !== 'open') {
+            // third party development
+            if (cmd.project) {
+                cmd.project.split(',').forEach((project)=>{
+                    // console.log(project);
+                    // specify project to compile
+                    project = wxaConfigs.thirdParty.find((instance)=>instance.name===project);
+
+                    if (!project) {
+                        logger.errorNow('找不到指定的项目，请检查wxa.config.js中的三方配置');
+                        process.exit(0);
+                    } else {
+                        newCli(project, cmd);
+                    }
+                });
+            } else {
+                // compile and watch all projects.
+                wxaConfigs.thirdParty.forEach((instance)=>{
+                    newCli(instance, {...cmd});
+                });
             }
-            case 'login': {
-                toolcli.login().catch((e)=>(e));
-                break;
-            }
-            case 'preview': {
-                toolcli.preview(cmd).catch((e)=>(e));
-                break;
-            }
-            case 'upload': {
-                toolcli.upload(cmd).catch((e)=>(e));
-                break;
-            }
-            default: ('无效的命令');
+        } else {
+            // normal build.
+            newCli(void(0), cmd);
         }
+
+
+        // let toolcli = new Toolcli();
+        // switch (action) {
+        //     case 'open': {
+        //         toolcli.open(cmd).catch((e)=>(e));
+        //         break;
+        //     }
+        //     case 'login': {
+        //         toolcli.login().catch((e)=>(e));
+        //         break;
+        //     }
+        //     case 'preview': {
+        //         toolcli.preview(cmd).catch((e)=>(e));
+        //         break;
+        //     }
+        //     case 'upload': {
+        //         toolcli.upload(cmd).catch((e)=>(e));
+        //         break;
+        //     }
+        //     default: ('无效的命令');
+        // }
     });
 
 commander.parse(process.argv);
