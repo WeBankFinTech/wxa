@@ -6,7 +6,6 @@ global.getCurrentPages = function() {
 };
 
 import {
-    GetApp,
     Router,
     Eventbus,
     Wxapi,
@@ -28,14 +27,6 @@ import {
 } from '../src/decorators/index';
 
 describe('wxa decorator', ()=>{
-    test('mount app to class', ()=>{
-        @GetApp
-        class T {}
-        let i = new T();
-
-        expect(i.app).not.toBeFalsy();
-    });
-
     test('mount eventbus to class', ()=>{
         @Eventbus
         class T {}

@@ -1,4 +1,4 @@
-import {classFactory} from './helpers';
+import {classFactory, methodDescriptorGenerator} from './helpers';
 import promisify from '../utils/promisify';
 import {eventbus} from '../utils/eventbus';
 import {router} from '../utils/router';
@@ -12,7 +12,6 @@ import mixin from '../base/mixin';
 
 // Class Decorators.
 const Eventbus = classFactory('eventbus', eventbus);
-const GetApp = classFactory('app', getApp());
 const Router = classFactory('router', router);
 const Wxapi = classFactory('wxapi', wxapi(wx));
 const Storage = classFactory('storage', storage);
@@ -32,10 +31,15 @@ const Page = (classDescriptor)=>{
     classDescriptor = Wxapi(classDescriptor);
     classDescriptor = Router(classDescriptor);
     classDescriptor = Eventbus(classDescriptor);
-    classDescriptor = GetApp(classDescriptor);
     classDescriptor = Fetch(classDescriptor);
-    // console.log(classDescriptor);
-    return classDescriptor;
+
+    let {elements} = classDescriptor;
+
+    // 兼容wxa1.0 还是挂载一个app对象到每个页面实例
+    return {
+        ...classDescriptor,
+        elements: elements.concat([methodDescriptorGenerator('app', getApp())]),
+    };
 };
 
 const App = (classDescriptor)=> {
@@ -52,7 +56,6 @@ const App = (classDescriptor)=> {
 export {
     Page,
     App,
-    GetApp,
     Storage,
     Wxapi,
     Router,
