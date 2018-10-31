@@ -8,7 +8,7 @@
 		"lint-staged": "^7.1.3"
 	},
 	"scripts": {
-		"publish-next": "lerna publish --npm-tag=next --canary --ignore @wxa/form",
+		"publish-next": "lerna publish --npm-tag=next --canary --ignore @wxa/form --ignore @wxa/plugin-dependencies-analysis",
 		"commit": "git-cz"
 	},
 	"lint-staged": {
