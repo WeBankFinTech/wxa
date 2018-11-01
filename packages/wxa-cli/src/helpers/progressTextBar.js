@@ -13,12 +13,12 @@ class ProgressBar {
         });
     }
 
-    draw(url) {
+    draw(url, type='Compiling') {
         let name = path.relative(this.cwd, url);
 
         this.clean();
         process.stdout.write(
-            `${greenBright('Compiling')}: ${name}`
+            `${greenBright(type)}: ${name}`
         );
     }
 
