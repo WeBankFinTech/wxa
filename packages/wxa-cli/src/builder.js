@@ -17,6 +17,7 @@ import Generator from './generator';
 import {AsyncParallelHook, SyncBailHook, AsyncSeriesHook} from 'tapable';
 import DependencyResolver from './helpers/dependencyResolver';
 import root from './const/root';
+import ProgressTextBar from './helpers/progressTextBar';
 
 let debug = debugPKG('WXA:Builder');
 
@@ -36,11 +37,13 @@ class Builder {
         this.appJSON = path.join(this.wxaConfigs.context, 'app.json');
         this.wxaJSON = path.join(this.wxaConfigs.context, 'app'+this.wxaConfigs.resolve.ext);
 
+        this.progress = new ProgressTextBar(this.current, this.wxaConfigs);
+
         this.hooks = {
             entryOption: new SyncBailHook(['entry']),
             beforeRun: new AsyncSeriesHook(['compiler']),
             run: new AsyncSeriesHook(['compiler']),
-            done: new AsyncParallelHook(['dependencies']),
+            done: new AsyncParallelHook(['compilation']),
         };
     }
 
@@ -185,7 +188,7 @@ class Builder {
             await this.optimizeAndGenerate(this.schedule.$indexOfModule);
 
             // done.
-            await this.hooks.done.promise(this.schedule.$indexOfModule);
+            await this.hooks.done.promise(this.schedule);
 
             logger.log('Done', 'AT: '+new Date().toLocaleString());
         } catch (e) {
@@ -200,21 +203,27 @@ class Builder {
             applyPlugins(this.schedule.wxaConfigs.plugins, optimizer);
 
             let optimizeTasks = list.map((dep)=>{
+                this.progress.draw(dep.src, 'Optimizing');
                 return optimizer.do(dep);
             });
 
             await Promise.all(optimizeTasks).catch((e)=>{
+                this.progress.clean();
                 console.error(e);
             });
 
+            this.progress.clean();
             // module dest, dependencies copy,
             let generator = new Generator(this.schedule.wxaConfigs.resolve, this.schedule.meta, this.schedule.wxaConfigs);
             let generateTasks = list.map((mdl)=>{
+                this.progress.draw(mdl.src, 'Generating');
                 return generator.do(mdl);
             });
 
             await Promise.all(generateTasks);
+            this.progress.clean();
         } catch (e) {
+            this.progress.clean();
             console.error(e);
         }
     }

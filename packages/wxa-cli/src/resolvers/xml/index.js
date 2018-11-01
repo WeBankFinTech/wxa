@@ -4,6 +4,7 @@ import Coder from '../../helpers/coder';
 import DependencyResolver from '../../helpers/dependencyResolver';
 import CSSManager from '../css/index';
 import debugPKG from 'debug';
+import logger from '../../helpers/logger';
 
 let debug = debugPKG('WXA:XMLManager');
 
@@ -64,24 +65,29 @@ class XMLManager {
             switch (attr.nodeName) {
                 case 'src':
                 case 'href': {
-                    let dr = new DependencyResolver(this.resolve, this.meta);
+                    try {
+                        let dr = new DependencyResolver(this.resolve, this.meta);
 
-                    let {lib, source, pret} = dr.resolveDep(attr.nodeValue, mdl);
-                    let libOutputPath = dr.getOutputPath(source, pret, mdl);
-                    let resolved = dr.getResolved(lib, libOutputPath, mdl);
+                        let {lib, source, pret} = dr.resolveDep(attr.nodeValue, mdl);
+                        let libOutputPath = dr.getOutputPath(source, pret, mdl);
+                        let resolved = dr.getResolved(lib, libOutputPath, mdl);
 
-                    libs.push({
-                        src: source,
-                        pret: pret,
-                        meta: {source, outputPath: libOutputPath},
-                        reference: {
-                            $$AttrNode: attr,
-                            $$category: 'xml',
-                            resolved,
-                        },
-                    });
+                        libs.push({
+                            src: source,
+                            pret: pret,
+                            meta: {source, outputPath: libOutputPath},
+                            reference: {
+                                $$AttrNode: attr,
+                                $$category: 'xml',
+                                resolved,
+                            },
+                        });
 
-                    attr.nodeValue = resolved;
+                        attr.nodeValue = resolved;
+                    } catch (e) {
+                        console.log('');
+                        logger.warn(`${attr.nodeValue} `, '找不到文件, 或者文件路径为动态路径');
+                    }
 
                     break;
                 }
