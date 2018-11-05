@@ -16,6 +16,8 @@
         "sourceType": "module"
     },
     "rules": {
+        "prefer-rest-params": "warn",
+        "no-extend-native": "warn",
         "no-const-assign": "warn",
         "no-this-before-super": "warn",
         "no-undef": "warn",

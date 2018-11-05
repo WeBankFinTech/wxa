@@ -3,7 +3,7 @@ import promisify from './promisify';
  * promise化微信的api
  */
 let _wxapi = {};
-let noPromiseApi = ['getUpdateManager'];
+let noPromiseApi = ['getUpdateManager', 'nextTick'];
 let isInit = false;
 
 export default function wxapi(wx) {
@@ -11,7 +11,12 @@ export default function wxapi(wx) {
     else {
         Object.keys(wx).forEach((key)=>{
             // 同步方法
-            if ( /^create.+/.test(key) || /.*Sync$/.test(key) || noPromiseApi.indexOf(key) > -1) {
+            if (
+                /^create.+/.test(key) ||
+                /.*Sync$/.test(key) ||
+                /^on.+/.test(key) ||
+                noPromiseApi.indexOf(key) > -1
+            ) {
                 _wxapi[key] = wx[key];
             } else {
                 _wxapi[key] = promisify(wx[key], key);

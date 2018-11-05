@@ -1,3 +1,5 @@
+import './polyfill/bind';
+
 import debounce from 'lodash/debounce';
 import diff from './diff/diff';
 import mixin from './base/mixin';

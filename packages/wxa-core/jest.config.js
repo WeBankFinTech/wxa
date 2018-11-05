@@ -4,6 +4,7 @@ module.exports = {
     'collectCoverage': true,
     'coveragePathIgnorePatterns': [
         '<rootDir>/src/utils/deep-merge.js',
+        '<rootDir>/src/polyfill/*',
         '<rootDir>/test/setup.js',
     ],
     'testMatch': ['**/test/**/*.test.js'],
