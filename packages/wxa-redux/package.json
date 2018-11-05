@@ -27,8 +27,11 @@
     },
     "homepage": "https://github.com/Genuifx/wxa-redux#readme",
     "dependencies": {
+        "@wxa/core": "^2.0.0-alpha.e7e06c46",
+        "deep-object-diff": "^1.1.0",
+        "flat": "^4.1.0",
         "redux": "^3.7.2",
-        "shallowequal": "^1.0.2"
+        "shallowequal": "^1.1.0"
     },
     "devDependencies": {
         "babel-cli": "^6.26.0",
@@ -36,7 +39,7 @@
         "babel-plugin-transform-class-properties": "^6.24.1",
         "babel-plugin-transform-object-rest-spread": "^6.26.0",
         "babel-preset-env": "^1.6.1",
-        "jest": "^22.0.6"
+        "jest": "^23.6.0"
     },
     "jest": {
         "coverageDirectory": "./coverage/",
