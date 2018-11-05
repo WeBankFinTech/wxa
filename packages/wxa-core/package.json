@@ -20,8 +20,8 @@
     "repository": "https://github.com/Genuifx/wxa.git",
     "devDependencies": {
         "@babel/core": "^7.1.0",
-        "@babel/plugin-proposal-decorators": "^7.1.0",
         "@babel/plugin-proposal-class-properties": "^7.1.0",
+        "@babel/plugin-proposal-decorators": "^7.1.0",
         "@babel/preset-env": "^7.1.0",
         "babel-core": "^7.0.0-bridge.0",
         "babel-eslint": "^10.0.0",
@@ -31,7 +31,7 @@
         "cz-conventional-changelog": "^2.1.0",
         "eslint": "^4.19.1",
         "eslint-config-google": "^0.9.1",
-        "eslint-plugin-jest": "^21.22.1",
+        "eslint-plugin-jest": "^21.27.1",
         "husky": "^0.14.3",
         "jest": "^23.6.0",
         "lint-staged": "^6.1.1",

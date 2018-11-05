@@ -15,8 +15,18 @@ export default function(newData) {
         return false;
     };
 
-    let diffValue = diff(this.data, newData);
+    // filter data without __webviewId__ from this.data
+    let oldData = Object.keys(newData).reduce((prev, key)=>{
+        if (key === '__webviewId__') return prev;
 
-    return flatten(this.data, newData, diffValue);
+        if (this.data.hasOwnProperty(key)) {
+            prev[key] = this.data[key];
+        };
+        return prev;
+    }, {});
+
+    let diffValue = diff(oldData, newData);
+
+    return flatten(oldData, newData, diffValue);
 }
 
