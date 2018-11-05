@@ -49,7 +49,7 @@ export default class XmlCompiler {
         return new DOMParser({
             errorHandler: {
                 warn(x) {
-                    logger.error('XML警告:'+(opath.dir+path.sep+opath.base));
+                    logger.warn('XML警告:'+(opath.dir+path.sep+opath.base));
                     logger.warn(x);
                 },
                 error(x) {

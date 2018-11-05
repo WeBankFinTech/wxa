@@ -199,7 +199,7 @@ class Builder {
     async optimizeAndGenerate(list) {
         try {
             // module optimize, dependencies merge, minor.
-            let optimizer = new Optimizer(this.schedule.wxaConfigs.resolve, this.schedule.meta);
+            let optimizer = new Optimizer(this.wxaConfigs);
             applyPlugins(this.schedule.wxaConfigs.plugins, optimizer);
 
             let optimizeTasks = list.map((dep)=>{
