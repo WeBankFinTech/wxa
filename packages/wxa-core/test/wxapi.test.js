@@ -13,12 +13,20 @@ describe('wxapi', ()=>{
             getUpdateManager() {
 
             },
+            onNetworkStatusChange() {
+
+            },
+            nextTick() {
+
+            },
         };
 
         let w = wxapi(wx);
 
         expect(w.getSystemInfoSync()).toBeFalsy();
         expect(w.getUpdateManager()).toBeFalsy();
+        expect(w.onNetworkStatusChange()).toBeFalsy();
+        expect(w.nextTick()).toBeFalsy();
     });
 
     test('async api', ()=>{
