@@ -106,10 +106,10 @@ export class Wxa {
             trailing: false,
         });
 
-        vm.$diff = function(newData) {
+        vm.$diff = function(newData, cb) {
             let data = diff.bind(this)(newData);
             // console.log(data);
-            this.setData(data);
+            this.setData(data, cb);
         };
 
         if (vm.methods != null && typeof vm.methods === 'object') {
@@ -133,6 +133,11 @@ export class Wxa {
         let vm = instance;
 
         vm = mixin(vm, this.$$globalMixins);
+
+        vm.$diff = function(newData, cb) {
+            let data = diff.bind(this)(newData);
+            this.setData(data, cb);
+        };
 
         // 允许添加自定义方法
         this.$$plugins.forEach((plugin)=>{
