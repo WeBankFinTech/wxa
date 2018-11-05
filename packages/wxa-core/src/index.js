@@ -12,6 +12,8 @@ import delay from 'lodash/delay';
 import message from './utils/message';
 import toast from './utils/toast';
 
+import diff from './diff/diff';
+
 export * from './wxa';
 export * from './decorators/index';
 export const wxapi = wxapiFn(wx);
@@ -29,4 +31,6 @@ export {
 
     message,
     toast,
+
+    diff,
 };
