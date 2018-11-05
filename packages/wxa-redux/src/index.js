@@ -1,13 +1,16 @@
 import mapState from './mapState'
+import {diff} from '@wxa/core'
 import {
     createStore,
     applyMiddleware
 } from 'redux'
 
-let mountRedux = function (originMount) {
+let mountRedux = function (originHook) {
     return function (...args) {
+        this.$$reduxDiff = diff.bind(this);
         if(this.store) {
             this.unsubscribe = this.store.subscribe((...args) => {
+                // Object updated && page is showing
                 if(this.$isCurrentPage) {
                     let newState = this.store.getState();
                     let source = this.$storeLastState;
@@ -16,12 +19,13 @@ let mountRedux = function (originMount) {
                     if (data !== null) {
                         // 有效state
                         this.$storeLastState = newState;
-                        this.setData(data);
+                        let diffData = this.$$reduxDiff(data);
+                        this.setData(diffData);
                     }
                 }
             });
         }
-        if (originMount) originMount.apply(this, args);
+        if (originHook) originHook.apply(this, args);
     }
 }
 
@@ -45,8 +49,7 @@ export const wxaRedux = ({
             if (middlewares) args.push(applyMiddleware(...middlewares));
             vm.store = createStore.apply(null, args);
         } else if (type === 'Page') {
-            if (vm.app == null) throw new Error('wxa-redux需要使用@GetApp修饰符');
-            vm.store = vm.app.store;
+            vm.store = getApp().store;
             let {
                 onLoad,
                 onShow,
@@ -57,7 +60,10 @@ export const wxaRedux = ({
             vm.onShow = function (...args) {
                 this.$isCurrentPage = true;
                 let data = mapState(this.mapState, this.store.getState(), this.$storeLastState);
-                if (data != null) this.setData(data);
+                if (data != null) {
+                    let diffData = this.$$reduxDiff(data)
+                    this.setData(diffData)
+                };
                 if (onShow) onShow.apply(this, args);
             }
             vm.onHide = function (...args) {
@@ -72,12 +78,8 @@ export const wxaRedux = ({
                 detached
             } = vm;
             vm.created = function (...args) {
-                if (this.app == null) {
-                    process.env.NODE_ENV !== 'production' && console.warn('组件未注入app实例，无法使用Redux')
-                } else {
-                    this.store = this.app.store;
-                    if (created) created.apply(this, args);
-                }
+                this.store = getApp().store;
+                if (created) created.apply(this, args);
             }
             vm.$isCurrentPage = true;
             vm.attached = mountRedux(attached);
