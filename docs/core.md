@@ -400,7 +400,7 @@ class UserInfo {
 @Utils
 class T {
     foo() {
-        let dateStr = this.utils.formateDate(Date.now());
+        let dateStr = this.utils.formatDate(Date.now());
         
         // .... other control
     }
