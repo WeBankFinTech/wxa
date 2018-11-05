@@ -5,6 +5,7 @@ describe('get diff flatten data with this.data', ()=>{
     let ob = {
         data: {
             name: 'iveswen',
+            hey: 'guys',
         },
     };
 
@@ -26,5 +27,11 @@ describe('get diff flatten data with this.data', ()=>{
         expect(diff(ob.data)).toBeFalsy();
         expect(diff(null)).toBeFalsy();
         expect(diff('')).toBeFalsy();
+    });
+
+    test('correct output', ()=>{
+        expect(bindDiff({name: 'genuifx'})).toMatchObject({name: 'genuifx'});
+        expect(bindDiff({name: 'genuifx', __webviewId__: void(0)})).toMatchObject({name: 'genuifx'});
+        expect(bindDiff({name: 'genuifx', toString: ()=>{}})).toMatchObject({name: 'genuifx'});
     });
 });

@@ -106,9 +106,9 @@ export class Wxa {
             trailing: false,
         });
 
-        vm.$diff = function(...args) {
-            let data = diff.bind(this)(...args);
-            console.log(data);
+        vm.$diff = function(newData) {
+            let data = diff.bind(this)(newData);
+            // console.log(data);
             this.setData(data);
         };
 
