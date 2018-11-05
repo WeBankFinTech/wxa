@@ -1,4 +1,5 @@
 import debounce from 'lodash/debounce';
+import diff from './diff/diff';
 import mixin from './base/mixin';
 import {addNoPromiseApi} from './utils/wxapi';
 import {
@@ -104,6 +105,12 @@ export class Wxa {
             leading: true,
             trailing: false,
         });
+
+        vm.$diff = function(...args) {
+            let data = diff.bind(this)(...args);
+            console.log(data);
+            this.setData(data);
+        };
 
         if (vm.methods != null && typeof vm.methods === 'object') {
             Object.keys(vm.methods).forEach((key)=>{
