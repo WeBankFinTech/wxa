@@ -5,10 +5,8 @@ import {AsyncSeriesHook} from 'tapable';
 let debug = debugPKG('WXA:Optimizer');
 
 export default class Optimizer {
-    constructor(resolve, meta) {
-        debug('optimizer constructor, %o %o ', resolve, meta);
-        this.meta = meta;
-        this.resolve = resolve;
+    constructor(wxaConfigs) {
+        this.wxaConfigs = wxaConfigs;
 
         this.hooks = {
             optimizeAssets: new AsyncSeriesHook(['compilation']),
@@ -16,7 +14,12 @@ export default class Optimizer {
     }
 
     do(dep) {
-        if (dep.pret && dep.pret.isNodeModule) dep.code = this.hackNodeMoudule(dep.meta.source, dep.code);
+        // if compile to mini-program, process.env will not available, so we have to replace it.
+        if (this.wxaConfigs.target === 'wxa' && dep.code) {
+            dep.code = dep.code.replace(/process\.env\.NODE_ENV/g, JSON.stringify(process.env.NODE_ENV));
+        }
+
+        if (dep.meta && new RegExp(`node_modules${path.sep}`).test(dep.meta.source)) dep.code = this.hackNodeMoudule(dep.meta.source, dep.code);
 
         return this.hooks.optimizeAssets.promise(dep);
     }
@@ -24,7 +27,6 @@ export default class Optimizer {
     hackNodeMoudule(filepath, code) {
         let opath = path.parse(filepath);
         // inspired by wepy
-        code = code.replace(/process\.env\.NODE_ENV/g, JSON.stringify(process.env.NODE_ENV));
         switch (opath.base) {
             case 'lodash.js':
             case '_root.js':

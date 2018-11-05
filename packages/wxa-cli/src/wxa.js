@@ -9,17 +9,24 @@ import chalk from 'chalk';
 import logger from './helpers/logger';
 import Creator from './creator';
 import Toolcli from './toolcli';
-import {applyPlugins, getConfig} from './utils';
+import {applyPlugins, getConfig, isFile} from './utils';
 
 const version = require('../package.json').version;
 
 let getWxaConfigs = ()=>{
     let custom = {};
+    let configPath = path.join(process.cwd(), 'wxa.config.js');
 
-    try {
-        custom = getConfig();
-    } catch (e) {
-        // no custom wxa configs here.
+    if (isFile(configPath)) {
+        try {
+            custom = getConfig();
+        } catch (e) {
+            // no custom wxa configs here.
+            logger.error('Error', e);
+            process.exit(0);
+        }
+    } else {
+        logger.log('Configuration', '没有配置文件，正在使用默认配置');
     }
 
     let defaultWxaConfigs = new DefaultWxaConfigs(process.cwd());
@@ -58,7 +65,7 @@ commander
         // console.log(cmd);
         logger.info('Hey', `This is ${chalk.keyword('orange')('wxa@'+version)}, Running in ${chalk.keyword('orange')(process.env.NODE_ENV || 'development')}`);
         let wxaConfigs = getWxaConfigs();
-        // console.log(cmd);
+        // console.log(wxaConfigs);
         let newBuilder = wrapWxaConfigs((subWxaConfigs, cmdOptions)=>{
             let builder = new Builder(subWxaConfigs);
             applyPlugins(builder.wxaConfigs.plugins || [], builder);
@@ -94,12 +101,50 @@ commander
     });
 
 commander
-    .command('create <template> <projectname>')
+    .command('create')
     .description('新建模板')
-    .option('--prefix', '模板地址前缀 默认：https://github.com/Genuifx')
-    .action((template, projectname, cmd)=>{
-        // console.log(template, projectname);
-        new Creator(cmd).clone(template, projectname);
+    .action(async (cmd)=>{
+        logger.info('Hey', `This is ${chalk.keyword('orange')('wxa@'+version)}, Running in ${chalk.keyword('orange')(process.env.NODE_ENV || 'development')}`);
+        logger.info('Creating', '新建项目中😋');
+
+        let opts = await inquirer.prompt([
+            {
+                type: 'input',
+                name: 'projectName',
+                message: '输入项目名',
+                validate: (input)=>{
+                    return !(input == null || input === '');
+                },
+            },
+            {
+                type: 'list',
+                name: 'template',
+                message: '选择模板',
+                default: 'base',
+                choices: [
+                    {
+                        name: '基础模板，默认配置文件',
+                        value: 'base',
+                    },
+                    {
+                        name: 'Redux模板，使用redux管理全局状态',
+                        value: 'redux',
+                    },
+                    {
+                        name: 'Vant模板, 使用有赞ui加速小程序开发',
+                        value: 'vant',
+                    },
+                    {
+                        name: 'Echart模板, 使用echart开发小程序图表',
+                        value: 'echart',
+                    },
+                ],
+            },
+        ]);
+
+        console.log(opts);
+
+        new Creator(cmd).run(opts);
     });
 
 commander
