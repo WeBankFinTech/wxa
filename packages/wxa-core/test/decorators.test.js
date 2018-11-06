@@ -32,37 +32,37 @@ describe('wxa decorator', ()=>{
         class T {}
         let i = new T();
 
-        expect(i.eventbus).not.toBeFalsy();
+        expect(i.$eventbus).not.toBeFalsy();
     });
 
     test('mount wxapi', ()=>{
         @Wxapi
         class T {};
 
-        expect(new T().wxapi).not.toBeFalsy();
+        expect(new T().$wxapi).not.toBeFalsy();
     });
 
     test('mount storage', ()=>{
         @Storage
         class T {};
 
-        expect(new T().storage).not.toBeFalsy();
+        expect(new T().$storage).not.toBeFalsy();
     });
 
     test('mount fetch', ()=>{
         @Fetch
         class T {};
 
-        expect(new T().fetch).not.toBeFalsy();
+        expect(new T().$fetch).not.toBeFalsy();
     });
 
     test('mount Utils', ()=>{
         @Utils
         class T {};
 
-        expect(new T().utils).not.toBeFalsy();
-        expect(new T().utils.formatDate).not.toBeFalsy();
-        expect(new T().utils.trim).not.toBeFalsy();
+        expect(new T().$utils).not.toBeFalsy();
+        expect(new T().$utils.formatDate).not.toBeFalsy();
+        expect(new T().$utils.trim).not.toBeFalsy();
     });
 
     test('mount router to class', ()=>{
@@ -70,13 +70,13 @@ describe('wxa decorator', ()=>{
         class T {}
         let i = new T();
 
-        expect(i.router.push).not.toBeFalsy();
-        expect(i.router.replace).not.toBeFalsy();
-        expect(i.router.get).not.toBeFalsy();
-        expect(i.router.reLaunch).not.toBeFalsy();
-        expect(i.router.switch).not.toBeFalsy();
-        expect(i.router.go).not.toBeFalsy();
-        expect(i.router.goBack).not.toBeFalsy();
+        expect(i.$router.push).not.toBeFalsy();
+        expect(i.$router.replace).not.toBeFalsy();
+        expect(i.$router.get).not.toBeFalsy();
+        expect(i.$router.reLaunch).not.toBeFalsy();
+        expect(i.$router.switch).not.toBeFalsy();
+        expect(i.$router.go).not.toBeFalsy();
+        expect(i.$router.goBack).not.toBeFalsy();
     });
 
     test('mount page', ()=>{
@@ -84,13 +84,13 @@ describe('wxa decorator', ()=>{
         class T {}
 
         let i = new T();
-        expect(i.utils).not.toBeFalsy();
-        expect(i.storage).not.toBeFalsy();
-        expect(i.eventbus).not.toBeFalsy();
-        expect(i.wxapi).not.toBeFalsy();
-        expect(i.router).not.toBeFalsy();
-        expect(i.app).not.toBeFalsy();
-        expect(i.fetch).not.toBeFalsy();
+        expect(i.$utils).not.toBeFalsy();
+        expect(i.$storage).not.toBeFalsy();
+        expect(i.$eventbus).not.toBeFalsy();
+        expect(i.$wxapi).not.toBeFalsy();
+        expect(i.$router).not.toBeFalsy();
+        expect(i.$app).not.toBeFalsy();
+        expect(i.$fetch).not.toBeFalsy();
     });
 
     test('mount app', ()=>{
@@ -98,12 +98,12 @@ describe('wxa decorator', ()=>{
         class T {}
 
         let i = new T();
-        expect(i.utils).not.toBeFalsy();
-        expect(i.storage).not.toBeFalsy();
-        expect(i.eventbus).not.toBeFalsy();
-        expect(i.wxapi).not.toBeFalsy();
-        expect(i.router).not.toBeFalsy();
-        expect(i.fetch).not.toBeFalsy();
+        expect(i.$utils).not.toBeFalsy();
+        expect(i.$storage).not.toBeFalsy();
+        expect(i.$eventbus).not.toBeFalsy();
+        expect(i.$wxapi).not.toBeFalsy();
+        expect(i.$router).not.toBeFalsy();
+        expect(i.$fetch).not.toBeFalsy();
     });
 });
 

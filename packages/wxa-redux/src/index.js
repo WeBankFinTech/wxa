@@ -8,17 +8,17 @@ import {
 let mountRedux = function (originHook) {
     return function (...args) {
         this.$$reduxDiff = diff.bind(this);
-        if(this.store) {
-            this.unsubscribe = this.store.subscribe((...args) => {
+        if(this.$store) {
+            this.$unsubscribe = this.$store.subscribe((...args) => {
                 // Object updated && page is showing
-                if(this.$isCurrentPage) {
-                    let newState = this.store.getState();
-                    let source = this.$storeLastState;
+                if(this.$$isCurrentPage) {
+                    let newState = this.$store.getState();
+                    let source = this.$$storeLastState;
                     let data = mapState(this.mapState, newState, source);
     
                     if (data !== null) {
                         // 有效state
-                        this.$storeLastState = newState;
+                        this.$$storeLastState = newState;
                         let diffData = this.$$reduxDiff(data);
                         this.setData(diffData);
                     }
@@ -31,9 +31,9 @@ let mountRedux = function (originHook) {
 
 let unmountRedux = function (originUnmount) {
     return function (...args) {
-        if (this.unsubscribe) {
-            this.unsubscribe();
-            this.unsubscribe = null;
+        if (this.$unsubscribe) {
+            this.$unsubscribe();
+            this.$unsubscribe = null;
         }
         if (originUnmount) originUnmount.apply(this, args);
     }
@@ -47,9 +47,9 @@ export const wxaRedux = ({
         if (type === 'App') {
             let args = [reducers];
             if (middlewares) args.push(applyMiddleware(...middlewares));
-            vm.store = createStore.apply(null, args);
+            vm.$store = createStore.apply(null, args);
         } else if (type === 'Page') {
-            vm.store = getApp().store;
+            vm.$store = getApp().$store;
             let {
                 onLoad,
                 onShow,
@@ -58,8 +58,8 @@ export const wxaRedux = ({
             } = vm;
             vm.onLoad = mountRedux(onLoad);
             vm.onShow = function (...args) {
-                this.$isCurrentPage = true;
-                let data = mapState(this.mapState, this.store.getState(), this.$storeLastState);
+                this.$$isCurrentPage = true;
+                let data = mapState(this.mapState, this.$store.getState(), this.$$storeLastState);
                 if (data != null) {
                     let diffData = this.$$reduxDiff(data)
                     this.setData(diffData)
@@ -67,7 +67,7 @@ export const wxaRedux = ({
                 if (onShow) onShow.apply(this, args);
             }
             vm.onHide = function (...args) {
-                this.$isCurrentPage = false;
+                this.$$isCurrentPage = false;
                 if (onHide) onHide.apply(this, args);
             }
             vm.onUnload = unmountRedux(onUnload);
@@ -78,7 +78,7 @@ export const wxaRedux = ({
                 detached
             } = vm;
             vm.created = function (...args) {
-                this.store = getApp().store;
+                this.$store = getApp().$store;
                 if (created) created.apply(this, args);
             }
             vm.$isCurrentPage = true;
