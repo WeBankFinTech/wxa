@@ -11,17 +11,17 @@ import fetch from '../utils/fetch';
 import mixin from '../base/mixin';
 
 // Class Decorators.
-const Eventbus = classFactory('eventbus', eventbus);
-const Router = classFactory('router', router);
-const Wxapi = classFactory('wxapi', wxapi(wx));
-const Storage = classFactory('storage', storage);
-const Utils = classFactory('utils', {
+const Eventbus = classFactory('$eventbus', eventbus);
+const Router = classFactory('$router', router);
+const Wxapi = classFactory('$wxapi', wxapi(wx));
+const Storage = classFactory('$storage', storage);
+const Utils = classFactory('$utils', {
     debounce,
     promisify,
     throttle,
     ...helpers,
 });
-const Fetch = classFactory('fetch', fetch);
+const Fetch = classFactory('$fetch', fetch);
 const Mixins = (...args)=>classFactory('mixins', [mixin({mixins: args})]);
 
 // Page and App level class Decorators.
@@ -38,7 +38,7 @@ const Page = (classDescriptor)=>{
     // 兼容wxa1.0 还是挂载一个app对象到每个页面实例
     return {
         ...classDescriptor,
-        elements: elements.concat([methodDescriptorGenerator('app', getApp())]),
+        elements: elements.concat([methodDescriptorGenerator('$app', getApp())]),
     };
 };
 

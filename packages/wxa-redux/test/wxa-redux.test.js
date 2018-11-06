@@ -48,7 +48,7 @@ test('mount redux store and middlewares', ()=>{
 
     reduxFnMW(vm2);
 
-    expect(vm.store).not.toBeNull();
+    expect(vm.$store).not.toBeNull();
     expect(mw.mock.calls.length).toBe(1);
 });
 
@@ -81,9 +81,9 @@ describe('Page', ()=>{
     
         reduxFnPage(page);
     
-        expect(page.unsubscribe).toBeFalsy();
+        expect(page.$unsubscribe).toBeFalsy();
         page.onLoad();
-        expect(page.unsubscribe).toBeDefined();
+        expect(page.$unsubscribe).toBeDefined();
     });
 
     test('call with default function', ()=>{
@@ -111,17 +111,17 @@ describe('Page', ()=>{
         expect(onShow.mock.calls.length).toBe(0);
         page.onShow();
         expect(onShow.mock.calls.length).toBe(1);
-        expect(page.$isCurrentPage).toBe(true);
+        expect(page.$$isCurrentPage).toBe(true);
         
         expect(onHide.mock.calls.length).toBe(0);
         page.onHide();
         expect(onHide.mock.calls.length).toBe(1);
-        expect(page.$isCurrentPage).toBe(false);
+        expect(page.$$isCurrentPage).toBe(false);
         
         expect(onUnload.mock.calls.length).toBe(0);
         page.onUnload();
         expect(onUnload.mock.calls.length).toBe(1);
-        expect(page.unsubscribe).toBeNull();
+        expect(page.$unsubscribe).toBeNull();
 
     })
 
@@ -140,7 +140,7 @@ describe('Page', ()=>{
 
          page.store.dispatch({type: 'add', payload: 'test+1'});
          expect(page.data).toBeFalsy();
-         expect(app.store.getState().todo.length).toBe(1);
+         expect(app.$store.getState().todo.length).toBe(1);
          
          page.onShow();
          page.store.dispatch({type: 'add', payload: 'test+2'});
@@ -150,12 +150,12 @@ describe('Page', ()=>{
 
          page.store.dispatch({type: 'del', payload: 'test+3'});
          expect(page.data.todoList.length).toBe(3);
-         expect(app.store.getState().todo.length).toBe(3);
+         expect(app.$store.getState().todo.length).toBe(3);
          
          page.onHide();
          page.store.dispatch({type: 'add', payload: 'test+2'});
          expect(page.data.todoList.length).toBe(3);
-         expect(app.store.getState().todo.length).toBe(4);
+         expect(app.$store.getState().todo.length).toBe(4);
          
          page.onShow();
          page.onShow();
@@ -174,17 +174,9 @@ describe('Page', ()=>{
         reduxFnPage(page);
         page.onLoad();
         page.onShow();
-        page.store.dispatch({type: 'add', payload: 'test+1'});
+        page.$store.dispatch({type: 'add', payload: 'test+1'});
         expect(page.data).toBeFalsy();
     })
-
-    test('throw error while not mount app', ()=>{
-        let page = {};
-
-        expect(()=>{
-            reduxFnPage(page)
-        }).toThrowErrorMatchingSnapshot();
-    });
 
 });
 
@@ -206,14 +198,14 @@ describe('Component', ()=>{
         let q = {scene: 110};
 
         reduxFnComponent(com);
-        expect(com.store).not.toBeNull();
+        expect(com.$store).not.toBeNull();
         com.created(q);
         expect(created.mock.calls.length).toBe(1);
         expect(created).toHaveBeenCalledWith(q);
 
         reduxFnComponent(comWithoutApp);
         comWithoutApp.attached();
-        expect(comWithoutApp.unsubscribe).toBeFalsy();
+        expect(comWithoutApp.$unsubscribe).toBeFalsy();
     });
 
     test('dispatch data to component', ()=>{
@@ -237,28 +229,16 @@ describe('Component', ()=>{
         com.attached();
         expect(attached.mock.calls.length).toBe(1);
         expect(com.data).toBeFalsy();
-        expect(com.unsubscribe).not.toBeFalsy();
+        expect(com.$unsubscribe).not.toBeFalsy();
 
-        com.store.dispatch({type: 'add', payload: 'testcom'});
+        com.$store.dispatch({type: 'add', payload: 'testcom'});
         expect(com.data.todoList.length).toBe(1);
-        com.store.dispatch({type: 'add', payload: 'testcom'});
-        com.store.dispatch({type: 'add', payload: 'testcom'});
+        com.$store.dispatch({type: 'add', payload: 'testcom'});
+        com.$store.dispatch({type: 'add', payload: 'testcom'});
         expect(com.data.todoList.length).toBe(3);
         expect(com.data.first).not.toBeFalsy();
 
         com.detached();
-        expect(com.unsubscribe).toBeNull();
+        expect(com.$unsubscribe).toBeNull();
     })
-
-    test('console warn while not mount app', ()=>{
-        let com = {};
-        global.console = {
-            warn: jest.fn()
-        }
-
-        reduxFnComponent(com);
-        com.created();
-
-        expect(global.console.warn.mock.calls.length).toBe(1);
-    });
 })
