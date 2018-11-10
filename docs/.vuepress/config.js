@@ -10,14 +10,14 @@ module.exports = {
             lang: 'zh-CN',
             selectText: '选择语言',
             label: '简体中文',
-            description: 'wxa | 方便的小程序开发框架',
+            description: 'wxa | AOP小程序框架',
         },
-        '/lang/english/': {
-            lang: 'en-US',
-            label: 'English',
-            selectText: 'Languages',
-            description: 'wxa | Wechat mini program framework'
-        }
+        // '/lang/english/': {
+        //     lang: 'en-US',
+        //     label: 'English',
+        //     selectText: 'Languages',
+        //     description: 'wxa | Wechat mini program framework'
+        // }
     },
     themeConfig: {
         repo: 'genuifx/wxa',
@@ -25,6 +25,7 @@ module.exports = {
         docsDir: 'docs',
         editLinks: true,
         editLinkText: '帮助我们改善此页面！',
+        sidebarDepth: 3,
         locales: {
             '/': {
                 lang: 'zh-CN',
@@ -33,25 +34,14 @@ module.exports = {
                 description: 'wxa | 方便的小程序开发框架',
                 algolia: {},
                 editLinkText: '在 GitHub 上编辑此页',
+                lastUpdated: '上次编辑时间',
+                sidebarDepth: 4,
                 nav: [
                     {text: '指南', link: '/guide/'},
-                    {text: 'API', link: '/core'},
+                    {text: 'CORE', link: '/core/'},
                     {text: '命令行工具', link: '/cli'},
                 ],
             },
-            '/lang/english/': {
-                lang: 'en-US',
-                label: 'English',
-                selectText: 'Languages',
-                description: 'wxa | mini program framework',
-                algolia: {},
-                editLinkText: 'Edit this page on GitHub',
-                nav: [
-                    {text: 'Guide', link: '/lang/english/guide'},
-                    {text: 'API', link: '/lang/english/core'},
-                    {text: 'CLI', link: '/lang/english/cli'},
-                ],
-            }
         },
         sidebar: {
             '/guide/': [
@@ -63,6 +53,20 @@ module.exports = {
                 'component',
                 'plugin',
                 'editor'
+            ],
+            '/core/': [
+                'global',
+                {
+                    title: '装饰器',
+                    collapse: false,
+                    children: [
+                        '/core/decorators/class',
+                        '/core/decorators/methods',
+                    ]
+                },
+                'hook',
+                'feature',
+                'other'
             ]
         },
         evergreen: true
