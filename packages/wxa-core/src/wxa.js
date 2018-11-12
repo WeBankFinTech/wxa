@@ -74,7 +74,7 @@ export class Wxa {
         if (vm.methods != null && typeof vm.methods === 'object') {
             // console.log(vm);
             Object.keys(vm.methods).forEach((key)=>{
-                console.log(key, Object.getOwnPropertyDescriptor(vm.__proto__, key));
+                // console.log(key, Object.getOwnPropertyDescriptor(vm.__proto__, key));
                 vm[key] = vm.methods[key];
             });
         }
@@ -98,8 +98,8 @@ export class Wxa {
             let {currentTarget: {dataset: {path, type}}} = e;
             let category = 'push';
             if (type) category = type;
-            if (this.router) {
-                this.router[category](path);
+            if (this.$router) {
+                this.$router[category](path);
             } else {
                 console.warn('router未挂载');
             }

@@ -5,6 +5,9 @@ global.getCurrentPages = function() {
     return [{}];
 };
 
+jest.useFakeTimers();
+
+
 import {
     Router,
     Eventbus,
@@ -22,6 +25,8 @@ import {
     Once,
     Delay,
     Lock,
+
+    Loading,
 
     Mixins,
 } from '../src/decorators/index';
@@ -109,7 +114,6 @@ describe('wxa decorator', ()=>{
 
 let originConsole = console;
 
-jest.useFakeTimers();
 
 describe('lodash decorators', ()=>{
     test('deprecate decorator', ()=>{
@@ -129,36 +133,20 @@ describe('lodash decorators', ()=>{
     test('debounce function', ()=>{
         let counter1 = jest.fn();
         let counter2 = jest.fn();
-        class T {
-            @Debounce()
-            foo() {
-                counter1();
-            }
 
-            @Debounce(1000)
-            boo() {
-                counter2();
-            }
-        }
+        let {descriptor: {value: dc1}} = Debounce()({descriptor: {value: ()=>counter1()}});
 
-        let i = new T();
-        i.foo();
-        i.foo();
-        i.foo();
+        let {descriptor: {value: dc2}} = Debounce(1000)({descriptor: {value: ()=>counter2()}});
+
+        dc1();
+        dc1();
+        dc1();
 
         expect(counter1).toHaveBeenCalledTimes(1);
 
-        jest.runAllTimers();
-        expect(counter1).toHaveBeenCalledTimes(1);
-
-        i.foo();
-        jest.runAllTimers();
-        i.foo();
-        expect(counter1).toHaveBeenCalledTimes(3);
-
-        i.boo();
-        i.boo();
-        i.boo();
+        dc2();
+        dc2();
+        dc2();
         expect(counter2).toHaveBeenCalledTimes(1);
     });
 
@@ -367,6 +355,61 @@ describe('lodash decorators', ()=>{
 
         expect(instance.reject().catch(()=>{}).then).not.toBeFalsy();
         expect(c3).toHaveBeenCalledTimes(1);
+    });
+});
+
+describe('loading Decorators', ()=>{
+    let showLoading = jest.fn();
+    let showNavigationBarLoading = jest.fn();
+    let hideLoading = jest.fn();
+    let hideNavigationBarLoading = jest.fn();
+
+    wx.showLoading = showLoading;
+    wx.showNavigationBarLoading = showNavigationBarLoading;
+    wx.hideLoading = hideLoading;
+    wx.hideNavigationBarLoading = hideNavigationBarLoading;
+
+    test('1. loading', ()=>{
+        let {descriptor: {value: dc1}} = Loading()({descriptor: {value: ()=>{}}});
+
+        dc1();
+        expect(showLoading).toHaveBeenCalledTimes(1);
+        expect(hideLoading).toHaveBeenCalledTimes(1);
+
+        let {descriptor: {value: dc2}} = Loading(void(0), 'bar')({descriptor: {value: ()=>{}}});
+        dc2();
+        expect(showNavigationBarLoading).toHaveBeenCalledTimes(1);
+        expect(hideNavigationBarLoading).toHaveBeenCalledTimes(1);
+    });
+
+    test('2. promise loading', async ()=>{
+        let {descriptor: {value: dc1}} = Loading()({descriptor: {value: ()=>Promise.resolve()}});
+
+        await dc1();
+
+        expect(showLoading).toHaveBeenCalledTimes(2);
+        expect(hideLoading).toHaveBeenCalledTimes(2);
+
+        let {descriptor: {value: dc2}} = Loading(void(0), 'bar')({descriptor: {value: ()=>Promise.resolve()}});
+
+        await dc2();
+        expect(showNavigationBarLoading).toHaveBeenCalledTimes(2);
+        expect(hideNavigationBarLoading).toHaveBeenCalledTimes(2);
+    });
+
+    test('3. reject promise loading', async ()=>{
+        let {descriptor: {value: dc1}} = Loading()({descriptor: {value: ()=>Promise.reject()}});
+
+        await dc1();
+
+        expect(showLoading).toHaveBeenCalledTimes(3);
+        expect(hideLoading).toHaveBeenCalledTimes(3);
+
+        let {descriptor: {value: dc2}} = Loading(void(0), 'bar')({descriptor: {value: ()=>Promise.reject()}});
+
+        await dc2();
+        expect(showNavigationBarLoading).toHaveBeenCalledTimes(3);
+        expect(hideNavigationBarLoading).toHaveBeenCalledTimes(3);
     });
 });
 

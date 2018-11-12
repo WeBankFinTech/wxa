@@ -1,3 +1,4 @@
+import {wxa} from './wxa';
 import {default as wxapiFn} from './utils/wxapi';
 import {storage} from './utils/storage';
 import {router} from './utils/router';
@@ -14,7 +15,6 @@ import toast from './utils/toast';
 
 import diff from './diff/diff';
 
-export * from './wxa';
 export * from './decorators/index';
 export const wxapi = wxapiFn(wx);
 export {
@@ -33,4 +33,6 @@ export {
     toast,
 
     diff,
+
+    wxa,
 };

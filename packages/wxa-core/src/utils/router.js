@@ -80,6 +80,10 @@ export default class Router {
     goBack() {
         return this.go(-1);
     }
+
+    close() {
+        return this.wxapi.navigateBackMiniProgram();
+    }
 }
 
 export const router = new Router();
