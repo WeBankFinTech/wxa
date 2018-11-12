@@ -247,6 +247,7 @@ class Builder {
         debug('entry after hooks %O', entry);
 
         entry = await globby(entry);
+        entry = entry.map((item)=>item.replace(/\//g, path.sep))
         debug('entry after globby %O', entry);
 
         entry.forEach((point)=>{
