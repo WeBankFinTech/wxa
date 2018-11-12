@@ -93,16 +93,21 @@ class XMLManager {
                 }
 
                 case 'style': {
-                    let CM = new CSSManager(this.resolve, this.meta);
-                    let {libs: subLibs, code} = CM.resolveStyle(attr.nodeValue, mdl);
+                    try {
+                        let CM = new CSSManager(this.resolve, this.meta);
+                        let {libs: subLibs, code} = CM.resolveStyle(attr.nodeValue, mdl);
+    
+                        // add parentNode to it.
+                        subLibs = subLibs.map((lib)=>(lib.$$AttrNode=attr, lib));
+                        // normalize dependencies.
+                        libs = libs.concat(subLibs);
+    
+                        attr.nodeValue = code;
 
-                    // add parentNode to it.
-                    subLibs = subLibs.map((lib)=>(lib.$$AttrNode=attr, lib));
-                    // normalize dependencies.
-                    libs = libs.concat(subLibs);
-
-                    attr.nodeValue = code;
-
+                    } catch(e) {
+                        logger.error(e)
+                    }
+ 
                     break;
                 }
 

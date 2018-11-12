@@ -19,7 +19,7 @@ export default class Optimizer {
             dep.code = dep.code.replace(/process\.env\.NODE_ENV/g, JSON.stringify(process.env.NODE_ENV));
         }
 
-        if (dep.meta && new RegExp(`node_modules${path.sep}`).test(dep.meta.source)) dep.code = this.hackNodeMoudule(dep.meta.source, dep.code);
+        if (dep.meta && dep.meta.source.indexOf(`node_modules${path.sep}`) !== -1) dep.code = this.hackNodeMoudule(dep.meta.source, dep.code);
 
         return this.hooks.optimizeAssets.promise(dep);
     }

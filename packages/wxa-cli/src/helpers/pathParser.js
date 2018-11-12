@@ -4,7 +4,7 @@ import validUrl from 'valid-url';
 
 export default class PathParser {
     constructor() {
-        this.pkgReg = /^[^/]([\w\-\_\d@\.]*\/?)+$/;
+        this.pkgReg = /^[@\w\_]+(\/[\w\-\_\d@\.]+)+$/;
     }
 
     parse(x) {
