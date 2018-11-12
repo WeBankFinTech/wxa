@@ -38,21 +38,21 @@ describe('page mount', ()=>{
         jest.runAllTimers();
         expect(warn.mock.calls.length).toBe(1);
 
-        instance.router = {
+        instance.$router = {
             push: jest.fn(),
             replace: jest.fn(),
         };
 
         instance.$go(e);
         jest.runAllTimers();
-        expect(instance.router.push.mock.calls.length).toBe(1);
-        expect(instance.router.push.mock.calls[0][0]).toBe('/pages/index/index');
+        expect(instance.$router.push.mock.calls.length).toBe(1);
+        expect(instance.$router.push.mock.calls[0][0]).toBe('/pages/index/index');
 
         let e2 = {currentTarget: {dataset: {path: '/pages/index/index', type: 'replace'}}};
 
         instance.$go(e2);
         jest.runAllTimers();
-        expect(instance.router.replace.mock.calls.length).toBe(1);
+        expect(instance.$router.replace.mock.calls.length).toBe(1);
     });
 
     test('empty obj should not with shareMessage', ()=>{

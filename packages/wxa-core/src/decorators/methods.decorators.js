@@ -2,7 +2,6 @@ import once from 'lodash/once';
 import delay from 'lodash/delay';
 import debounce from 'lodash/debounce';
 import throttle from 'lodash/throttle';
-import {descriptorGenerator} from './helpers';
 
 /**
  * mark methods to deprecate. while developer call it, print a warning text to console
@@ -91,11 +90,11 @@ function Time(name, ...rest) {
 }
 /**
  * debounce function with delay.
- * @param {number} [delay=100]
+ * @param {number} [delay=300]
  * @param {Object} [options={leading: true, trailing: false}]
  * @return {any}
  */
-function Debounce(delay=100, options={leading: true, trailing: false}) {
+function Debounce(delay=300, options={leading: true, trailing: false}) {
     let d = (methodDescriptor, args)=>{
         let {descriptor} = methodDescriptor;
 
@@ -203,8 +202,61 @@ function Lock(methodDescriptor) {
     };
 }
 
+/**
+ * specify if show loading while execute the function.
+ *
+ * @param {String} tips
+ * @param {String} type
+ *
+ * @return {Function}
+ */
+export default function Loading(tips='Loading', type='loading') {
+    return function(methodDescriptor) {
+        let {descriptor} = methodDescriptor;
+
+        let map = {
+            loading: {
+                show: wx.showLoading,
+                hide: wx.hideLoading,
+            },
+            bar: {
+                show: wx.showNavigationBarLoading,
+                hide: wx.hideNavigationBarLoading,
+            },
+        };
+
+        let loader = map[type];
+        let fn = descriptor.value;
+
+        descriptor.value = function(...args) {
+            loader.show({title: tips, mask: true});
+
+            let ret = fn.call(this, ...args);
+
+            if (ret && ret.then) {
+                ret.then((succ)=>{
+                    loader.hide();
+                    return succ;
+                }, (fail)=>{
+                    loader.hide();
+                    return Promise.reject(fail);
+                });
+            } else {
+                loader.hide();
+            }
+        };
+
+        return {
+            ...methodDescriptor,
+            descriptor,
+        };
+    };
+}
+
+
 export {
     Lock,
+    Loading,
     Delay,
     Once,
     Throttle,

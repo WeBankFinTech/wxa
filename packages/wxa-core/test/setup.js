@@ -4,10 +4,16 @@ global.wx = {
             obj.success && obj.success();
         }, 1000);
     },
+    showLoading() {},
+    hideLoading() {},
+    showNavigationBarLoading() {},
+    hideNavigationBarLoading() {},
 };
+
 global.getApp = function() {
     return {};
 };
+
 global.getCurrentPages = function() {
     return [{route: 'pages/index/index'}];
 };
