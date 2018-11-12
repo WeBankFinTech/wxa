@@ -86,6 +86,16 @@ export default class Index {
 
 开发第三方的组件或者多人合作情况下，标识某些方法即将遗弃。继续调用该方法会有一个warning。
 
+## Loading
+- **调用方式**
+    - `@Loading( tips, type )`
+- **参数**
+    - **tips**: `String` loading的文案提示 **Default** `Loading`
+    - **type**: `String` 类型，可以指定使用导航栏loading动画或者界面loading动画 **Default** `loading`
+- **用例**: 
+
+自动显示loading动画。有两种类型`loading`或`bar`，分别是界面的loading动画及导航栏的动画。
+
 ## Lock
 - **调用方式**
     - `@Lock`
