@@ -184,6 +184,18 @@ class UserInfo {
 }
 ```
 
+## Mixins
+- **调用方式**
+    - `@Mixins( [mixin]+ )`
+- **参数**
+    - **mixin** 混合对象，可以为Object或者Class。
+- **用例**: 
+
+混合多个对象或Class的方法，数据，生命周期到当前App/页面/组件类。data将会做一次deep merge，方法按顺序覆盖，生命周期函数则按顺序执行。
+- **参考**:
+
+指南：对象混合
+
 ## Router
 简洁的路由API，用于跳转小程序路由页面。
 
