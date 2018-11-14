@@ -39,7 +39,30 @@ module.exports = {
                 nav: [
                     {text: '指南', link: '/guide/'},
                     {text: 'CORE', link: '/core/'},
-                    {text: '命令行工具', link: '/cli'},
+                    {text: 'CLI', link: '/cli/'},
+                    {
+                        text: '插件',
+                        items: [
+                            {
+                                text: 'CORE',
+                                items: [
+                                    {text: 'Form', link: '/plugin/core/form'},
+                                    {text: 'Watch', link: '/plugin/core/watch'},
+                                    {text: 'Redux', link: '/plugin/core/redux'},
+                                ]
+                            },
+                            {
+                                text: 'CLI',
+                                items: [
+                                    {text: 'copy', link: '/plugin/cli/copy'},
+                                    {text: 'Dependencies Analysis', link: '/plugin/cli/da'},
+                                    {text: 'postcss', link: '/plugin/cli/postcss'},
+                                    {text: 'replace', link: '/plugin/cli/replace'},
+                                    {text: 'uglifyjs', link: '/plugin/cli/uglifyjs'},
+                                ]
+                            }
+                        ]
+                    }
                 ],
             },
         },
@@ -55,6 +78,7 @@ module.exports = {
                 'editor'
             ],
             '/core/': [
+                '',
                 'global',
                 {
                     title: '装饰器',
@@ -67,6 +91,13 @@ module.exports = {
                 'hook',
                 'feature',
                 'other'
+            ],
+            '/cli/': [
+                '',
+                'build',
+                'create',
+                'tool',
+                'configuration'
             ]
         },
         evergreen: true
