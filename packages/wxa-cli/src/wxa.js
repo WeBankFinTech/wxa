@@ -55,12 +55,12 @@ commander
 commander
     .command('build')
     .description('编译项目')
-    .option('--verbose', '更加详细的log')
+    // .option('--verbose', '更加详细的log')
     .option('-w, --watch', '监听文件改动')
     .option('-N, --no-cache', '不使用缓存')
     .option('-m, --multi', '三方开发模式，一次编译出多个项目')
     .option('-p, --project <project>', '三方开发模式，单独指定需要编译监听的项目')
-    .option('--max-watch-project <max>', '三方开发模式，最多同时监听几个项目, default: 3')
+    // .option('--max-watch-project <max>', '三方开发模式，最多同时监听几个项目, default: 3')
     .action(async (cmd)=>{
         // console.log(cmd);
         logger.info('Hey', `This is ${chalk.keyword('orange')('wxa@'+version)}, Running in ${chalk.keyword('orange')(process.env.NODE_ENV || 'development')}`);
@@ -161,21 +161,28 @@ commander
             cli.run(cmd);
         });
 
-        if (cmd.multi && wxaConfigs.thirdParty && wxaConfigs.thirdParty.length && cmd.action === 'upload') {
-            let options = await inquirer.prompt([
-                {
-                    type: 'input',
-                    name: 'version',
-                    message: '小程序版本号',
-                    default: require(path.join(process.cwd(), 'package.json')).version || '1.0.0',
-                },
-                {
-                    type: 'input',
-                    name: 'desc',
-                    message: '版本描述',
-                    default: '版本描述',
-                },
-            ]);
+        let question = async ()=>await inquirer.prompt([
+            {
+                type: 'input',
+                name: 'version',
+                message: '小程序版本号',
+                default: require(path.join(process.cwd(), 'package.json')).version || '1.0.0',
+            },
+            {
+                type: 'input',
+                name: 'desc',
+                message: '版本描述',
+                default: '版本描述',
+            },
+        ]);
+
+        if (
+            cmd.multi &&
+            wxaConfigs.thirdParty &&
+            wxaConfigs.thirdParty.length &&
+            cmd.action === 'upload'
+        ) {
+            let options = await question();
             cmd.options = options;
             // third party development
             if (cmd.project) {
@@ -197,6 +204,7 @@ commander
                 });
             }
         } else {
+            if (cmd.action === 'upload') cmd.options = await question();
             // normal build.
             newCli(wxaConfigs, void(0), cmd);
         }
