@@ -54,11 +54,11 @@ module.exports = {
                             {
                                 text: 'CLI',
                                 items: [
-                                    {text: 'copy', link: '/plugin/cli/copy'},
+                                    {text: 'Copy', link: '/plugin/cli/copy'},
                                     {text: 'Dependencies Analysis', link: '/plugin/cli/da'},
-                                    {text: 'postcss', link: '/plugin/cli/postcss'},
-                                    {text: 'replace', link: '/plugin/cli/replace'},
-                                    {text: 'uglifyjs', link: '/plugin/cli/uglifyjs'},
+                                    {text: 'Postcss', link: '/plugin/cli/postcss'},
+                                    {text: 'Replace', link: '/plugin/cli/replace'},
+                                    {text: 'UglifyJS', link: '/plugin/cli/uglifyjs'},
                                 ]
                             }
                         ]
