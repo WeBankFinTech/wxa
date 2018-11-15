@@ -303,16 +303,11 @@ class Schedule extends EventEmitter {
     }
 
     tryWrapWXA(dep) {
-        if (dep.type === 'wxa') return;
-
         if (
             ~['app', 'component', 'page'].indexOf(dep.category ? dep.category.toLowerCase() : '') &&
-            dep.type === 'js'
+            dep.meta && path.extname(dep.meta.source) === '.js' &&
+            /exports\.default/gm.test(dep.code)
         ) {
-            // if (dep.code == null) dep.code= readFile(dep.src);
-
-            // if (dep.code == null) dep.code = '';
-
             dep.code = wrapWxa(dep.code, dep.category, dep.pagePath);
             debug('wrap dependencies %O', dep);
         }
