@@ -18,7 +18,7 @@ module.exports = class ReplacePlugin {
     apply(compiler) {
         if(compiler.hooks == null || compiler.hooks.optimizeAssets == null) return;
 
-        compiler.hooks.optimizeAssets.tapAsync('replacePlugin', (compilation, next)=>{
+        compiler.hooks.optimizeAssets.tapAsync('ReplacePlugin', (compilation, next)=>{
             if (
                 compilation.meta && 
                 this.configs.test.test(compilation.meta.source)
