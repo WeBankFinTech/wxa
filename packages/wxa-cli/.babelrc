@@ -1,5 +1,11 @@
 {
-    "presets": ["env"],
-    "plugins": ["transform-object-rest-spread", "syntax-dynamic-import", "transform-class-properties"]
+    "presets": [["env", {
+        "useBuiltIns": true
+    }]],
+    "plugins": [
+        "transform-async-to-generator",
+        "transform-object-rest-spread",
+        "syntax-dynamic-import",
+        "transform-class-properties"
+    ]
 }
-  

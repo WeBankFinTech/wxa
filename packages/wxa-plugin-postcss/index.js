@@ -4,20 +4,27 @@ const path = require('path');
 module.exports = class PostcssPlugin {
     constructor(options = {}) {
         this.configs = Object.assign({}, {
-            test: /style/,
+            test: /\.css$|\.wxss$/,
             plugins: []
         }, options);
     }
     apply(compiler) {
-        compiler.hooks.optimizeAssets.tapAsync('PostcssPlugin', (opath, compilation, next) => {
-            this.run(compilation, opath, next);
+        if (compiler.hooks == null || compiler.hooks.optimizeAssets == null) return;
+
+        compiler.hooks.optimizeAssets.tapAsync('PostcssPlugin', (compilation, next) => {
+            if (
+                compilation.meta &&
+                this.configs.test.test(compilation.meta.source)
+            ) {
+                this.run(compilation, next);
+            } else {
+                next();
+            }
         });
     }
-    run(compilation, opath, next) {
-        if(!this.configs.test.test(compilation.$sourceType)) return next(null);
-
+    run(compilation, next) {
         postcss(this.configs.plugins)
-        .process(compilation.code, {from: opath.dir+path.sep+opath.base})
+        .process(compilation.code, {from: compilation.src})
         .then((succ)=>{
             if(succ.error) next(succ.error);
 

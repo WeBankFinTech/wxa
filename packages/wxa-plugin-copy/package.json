@@ -1,0 +1,19 @@
+{
+  "name": "@wxa/plugin-copy",
+  "version": "1.0.0",
+  "description": "copy static assets for wxa page",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "copy",
+    "wxa",
+    "plugin"
+  ],
+  "author": "Genuifx",
+  "license": "MIT",
+  "dependencies": {
+    "ncp": "^2.0.0"
+  }
+}

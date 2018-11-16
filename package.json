@@ -1,16 +1,15 @@
 {
 	"name": "wxa",
-	"version": "1.0.1",
+	"version": "1.0.0",
 	"devDependencies": {
+		"commitizen": "^3.0.4",
 		"cz-conventional-changelog": "^2.1.0",
 		"husky": "^0.14.3",
 		"lerna": "^2.9.0",
 		"lint-staged": "^7.1.3"
 	},
 	"scripts": {
-		"publish-beta-sh": "sh ./scripts/build.sh && lerna publish --npm-tag=beta --canary=beta --conventional-commits",
-		"publish-beta": "lerna publish --npm-tag=beta --canary=beta --ignore @wxa/form",
-		"publish": "lerna publish --npm-tag=latest --ignore @wxa/form --conventional-commits --cd-version=minor",
+		"publish-next": "lerna publish --npm-tag=next --canary --ignore @wxa/form --ignore @wxa/plugin-dependencies-analysis --no-git-tag-version",
 		"commit": "git-cz"
 	},
 	"lint-staged": {

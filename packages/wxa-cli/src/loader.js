@@ -1,93 +1,124 @@
 import path from 'path';
+import findNpmModule from './helpers/findNpmModule';
 import logger from './helpers/logger';
 import npmManager from './helpers/npmManager';
+import debugPKG from 'debug';
 
-/**
- * default compiler
- *
- * @class EmptyCompiler
- */
-class EmptyCompiler {
-    constructor(cwd) {
-        if (EmptyCompiler.prototype.instance) return EmptyCompiler.prototype.instance;
-        EmptyCompiler.prototype.instance = this;
-
-        this.current = cwd;
-        this.configs = {};
-    }
-    parse(content, configs, filepath) {
-        return Promise.resolve(content);
-    }
-    mount(map) {
-        map['wxml'] = this;
-        map['css'] = this;
-        map['js'] = this;
-        return map;
-    }
-}
+let debug = debugPKG('WXA:Loader');
 
 class CompilerLoader {
     constructor(cwd) {
-        this.map = {};
         this.current = cwd;
-        this.modulePath = path.join(this.current, 'node_modules');
-    }
-    get(type) {
-        if (this.map[type] == null) {
-            logger.errorNow(`未知的编译器类型: ${type}, 请尝试安装对应的编译器（@wxa/compiler-${type}?）后并添加到wxa.config.js文件配置后，重新构建`);
-            process.exit(0);
-        }
 
-        return this.map[type];
+        this.modulePath = path.join(this.current, 'node_modules');
+        // all loader in queue.
+        this.loaders = [];
     }
-    mount(usedCompilers, configs) {
-        let coms = usedCompilers.map((uri)=>{
-            let Compiler;
-            if (typeof uri === 'function') {
-                Compiler = uri;
-            } else if (uri.indexOf('/') === 0) {
+
+    mount(useLoaders=[], cmdOptions) {
+        let coms = useLoaders.map((loader)=>{
+            let Loader;
+            let uri;
+            if (typeof loader === 'object') {
+                uri = loader.name;
+            } else if (typeof loader === 'string') {
+                uri = loader;
+            } else {
+                return Promise.reject('Invalid loader config in', JSON.stringify(loader));
+            }
+
+            if (uri.indexOf('/') === 0) {
                 // 绝对路径
-                Compiler = require(uri).default;
+                Loader = require(uri).default;
+                debug('loader %O', Loader);
             } else {
                 let compilerName = '@wxa/compiler-'+uri;
                 try {
-                    Compiler = require(path.join(this.modulePath, compilerName)).default;
+                    let main = findNpmModule(compilerName, this.modulePath);
+                    Loader = require(main).default;
                 } catch (e) {
-                    logger.errorNow('未安装的编译器：'+compilerName);
-                    logger.infoNow('Install', `尝试安装${compilerName}`);
+                    console.error(e);
+                    logger.error('未安装的编译器：'+compilerName);
+                    logger.info('Install', `尝试安装${compilerName}中`);
                     return npmManager.install(compilerName).then((succ)=>{
-                        logger.infoNow('Success', `安装${compilerName}成功`);
+                        logger.info('Success', `安装${compilerName}成功`);
 
                         try {
-                            Compiler = require(path.join(this.modulePath, compilerName)).default;
+                            let main = findNpmModule(compilerName, this.modulePath);
+                            Loader = require(main).default;
                         } catch (e) {
-                            logger.errorNow('找不到编译器，请手动安装依赖！');
+                            logger.error('找不到编译器，请手动安装依赖！');
                             process.exit(0);
                         }
 
-                        return {Compiler, uri};
+                        return {Loader, uri, loader, cmdOptions};
                     }, (fail)=>{
-                        logger.errorNow(`安装编译器 ${compilerName} 失败，请尝试手动安装依赖(npm i -D ${compilerName})`, fail);
+                        logger.error(`安装编译器 ${compilerName} 失败，请尝试手动安装依赖(npm i -D ${compilerName})`, fail);
                     });
                 }
             }
-            return Promise.resolve({Compiler, uri});
+            return Promise.resolve({Loader, uri, loader, cmdOptions});
         });
 
         return Promise.all(coms)
         .then((succ)=>{
-            succ.forEach(({Compiler, uri})=>{
+            succ.forEach(({Loader, uri, loader, cmdOptions})=>{
                 try {
-                    new Compiler(this.current, configs).mount(this.map);
+                    debug('loader started');
+                    let options = loader.options || {};
+                    let instance = new Loader(this.current, options);
+                    let test = loader.test || instance.test;
+
+                    if (test == null) throw new Error('Invalid loader config in ', JSON.stringify(loader));
+                    this.loaders.push({
+                        test, loader: instance, options, cmdOptions,
+                    });
                 } catch (e) {
-                    logger.errorNow(`挂载compiler ${uri} 错误, 请检查依赖是否有正确安装`);
+                    debug('挂载compiler %s 失败原因：%O', uri, e);
+                    logger.error(`挂载compiler ${uri} 错误, 请检查依赖是否有正确安装`, e);
                 }
             });
         });
     }
+
+    promiseSerial(funs) {
+        return funs.reduce((promise, fun)=>{
+            return promise.then((result)=>fun().then(Array.prototype.concat.bind(result)));
+        }, Promise.resolve([]));
+    }
+
+    async compile(mdl) {
+        let tasks = [];
+
+        let fn = async (task, mdl)=>{
+            let {loader, test, cmdOptions} = task;
+
+
+            if (test.test(mdl.src)) {
+                debug('loader is working %O, dep %O', loader, mdl);
+                try {
+                    let {code, ...rest} = await loader.parse(mdl, cmdOptions);
+
+                    // Todo: Multi loader with one string
+                    mdl.code = code;
+                    mdl.restResource = rest;
+                } catch (e) {
+                    debug('parse Error %O', e);
+                    throw e;
+                }
+            }
+        };
+
+        for (let task of this.loaders) {
+            tasks.push(()=>fn(task, mdl));
+        }
+
+        // serial promise, cause all loader that match extensions should execute one by one.
+        await this.promiseSerial(tasks);
+        debug('finish with module %O', mdl);
+    }
 }
 
-const compilerLoader = new CompilerLoader(process.cwd());
-compilerLoader.mount([EmptyCompiler], {});
+// const compilerLoader = new CompilerLoader(process.cwd());
 
-export default compilerLoader;
+export default CompilerLoader;

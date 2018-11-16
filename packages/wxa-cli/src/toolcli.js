@@ -1,14 +1,16 @@
 import path from 'path';
 import {exec} from 'child_process';
-import {getConfig, info} from './utils';
+import logger from './helpers/logger';
+import debugPKG from 'debug';
+
+const debug = debugPKG('WXA:Toolcli');
 
 class Toolcli {
-    constructor(src, dist) {
-        this.src = src || 'src';
-        this.dist = dist || 'dist';
-        let configs = getConfig();
+    constructor(wxaConfigs) {
+        this.cwd = process.cwd();
+        this.wxaConfigs = wxaConfigs;
 
-        this.appPath = configs.wechatwebdevtools || '/Applications/wechatwebdevtools.app';
+        this.appPath = this.wxaConfigs.wechatwebdevtools || '/Applications/wechatwebdevtools.app';
         // console.log(process.platform);
         // /Applications/wechatwebdevtools.app/Contents/Resources/app.nw/bin/cli
         if (['darwin', 'win32'].indexOf(process.platform) >-1) {
@@ -24,38 +26,70 @@ class Toolcli {
         this.cli = `${this.appPath}${this.cliPath}`;
     }
 
+    async run(cmd) {
+        debug('start cli %O', cmd);
+        this.$run(this.wxaConfigs.output.path, cmd);
+    }
+
+    $run(projectPath, cmd) {
+        let {action} = cmd;
+
+        switch (action) {
+            case 'open': {
+                this.open(cmd).catch((e)=>logger.error(e));
+                break;
+            }
+            case 'login': {
+                this.login().catch((e)=>logger.error(e));
+                break;
+            }
+            case 'preview': {
+                this.preview(projectPath, cmd).catch((e)=>logger.error(e));
+                break;
+            }
+            case 'upload': {
+                this.upload(projectPath, cmd).catch((e)=>logger.error(e));
+                break;
+            }
+            default: logger.warn('无效的命令');
+        }
+    }
+
     execute(command) {
+        debug('command to execute %s', command);
         return new Promise((resolve, reject)=>{
-            exec(command, (err, stout, stderr)=>{
+            let cp = exec(command, (err, stout, stderr)=>{
                 if (err) {
                     reject(err);
                 }
                 resolve(stout);
-            }).stdout.on('data', (msg)=>{
-                info('upload', msg);
+            });
+            cp.stdout.on('data', (msg)=>{
+                console.log(msg);
+            });
+            cp.stderr.on('data', (err)=>{
+                console.log(err);
+            });
+            cp.on('close', (code)=>{
+                console.log(code);
             });
         });
     }
 
-    open(cmd) {
-        let projectMenu = process.cwd() + path.sep + this.dist;
-        if (cmd.path) projectMenu = cmd.path;
-        return this.execute(`${this.cli} -o ${projectMenu}`);
+    open(projectPath, cmd) {
+        return this.execute(`${this.cli} -o ${projectPath}`);
     }
 
     login(cmd) {
         return this.execute(`${this.cli} -l`);
     }
 
-    preview(cmd) {
-        let projectMenu = process.cwd() + path.sep + this.dist;
-        if (cmd.path) projectMenu = cmd.path;
-        return this.execute(`${this.cli} -p ${projectMenu}`);
+    preview(projectPath, cmd) {
+        return this.execute(`${this.cli} -p ${projectPath}`);
     }
-    upload(cmd) {
-        let projectMenu = process.cwd() + path.sep + this.dist;
-        if (cmd.path) projectMenu = cmd.path;
-        return this.execute(`${this.cli} -u ${cmd.ver}@${projectMenu} --upload-desc '${cmd.desc}'`);
+
+    upload(projectPath, cmd) {
+        return this.execute(`${this.cli} -u ${cmd.options.version}@${projectPath} --upload-desc '${cmd.options.desc}'`);
     }
 }
 

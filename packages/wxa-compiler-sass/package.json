@@ -24,10 +24,12 @@
     },
     "homepage": "https://github.com/Genuifx/wxa-compiler-sass#readme",
     "devDependencies": {
-        "babel-cli": "^6.26.0",
-        "babel-plugin-transform-class-properties": "^6.24.1",
-        "babel-plugin-transform-object-rest-spread": "^6.26.0",
-        "babel-preset-env": "^1.7.0"
+        "@babel/cli": "^7.0.0",
+        "@babel/core": "^7.0.0",
+        "@babel/plugin-proposal-class-properties": "^7.0.0",
+        "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
+        "@babel/preset-env": "^7.0.0",
+        "debug": "^4.0.1"
     },
     "dependencies": {
         "node-sass": "^4.9.0"

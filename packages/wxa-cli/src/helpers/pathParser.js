@@ -4,7 +4,7 @@ import validUrl from 'valid-url';
 
 export default class PathParser {
     constructor() {
-        this.pkgReg = /^[^/]([\w\-\_\d@\.]*\/?)+$/;
+        this.pkgReg = /^[@\w\_\-\d]+(\/[\w\-\_\d@\.]+)*$/;
     }
 
     parse(x) {
@@ -15,17 +15,23 @@ export default class PathParser {
             isNodeModule: false,
             isAbsolute: false,
             isURI: false,
+            isPlugin: false,
+            isWXALib: false,
         };
 
         // judge path's kind;
         if (x[0] === '.') { // require('./') require('../')
             ret.isRelative = true;
+        } else if (x[0] === '#') { // require('#') require plugin plugin require('plugin name')
+            ret.isPlugin = true;
         } else if (this.pkgReg.test(x)) { // require('@scope/pkg') require('pkg')
             ret.isNodeModule = true;
-        } else if (path.isAbsolute(x)) { // require('/abcd')
-            ret.isAbsolute = true;
-        } else if (validUrl.is_uri(x)) {
-            ret.isURI = true;
+        } else if (x[0] === '/') { // require('/abcd')
+            ret.isAPPAbsolute = true;
+        } else if (validUrl.is_uri(x)) { // components from plugin or uri
+            if (x.indexOf('plugin://') === 0) ret.isPlugin = true;
+            else if (x.indexOf('wxa://') === 0) (ret.isWXALib = true, ret.name = x.slice(6));
+            else ret.isURI = true;
         } else {
             logger.error('Path Error', '无法解析的路径类型: '+x);
         }

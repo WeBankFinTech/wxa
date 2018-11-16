@@ -1,3 +1,5 @@
+:blush::blush::blush::blush:[Documentation](https://genuifx.github.io/wxa/cli/replace.html)
+
 # wxa-plugin-replace
 
 [![NPM version](https://img.shields.io/npm/v/@wxa/plugin-replace.svg)](https://www.npmjs.com/package/@wxa/plugin-replace)
