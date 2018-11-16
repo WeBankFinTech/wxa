@@ -1,6 +1,6 @@
 module.exports = {
     title: '@wxa',
-    base: '/wxa/',
+    base: '/wxa/v0/',
     ga: 'UA-74795022-1',
     head: [
         ['link', { rel: 'icon', href: `/logo-mini.png` }],
