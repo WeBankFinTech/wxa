@@ -4,68 +4,8 @@
 [![codecov](https://codecov.io/gh/Genuifx/wxa-redux/branch/master/graph/badge.svg)](https://codecov.io/gh/Genuifx/wxa-redux)    
 
 redux for wxa.
-# Usage
-1. mount wxa-redux to wxa's instance.
 
-```javascript
-// app.wxa app.js
-import {wxa} from '@wxa/core'
-import {wxaRedux, combineReducers} from '@wxa/redux'
-import promiseMiddleware from 'redux-promise';
-
-wxa.use(wxaRedux, {
-    reducers: combineReducers(...your reducer),
-    middlewares: [promiseMiddleware]
-})
-```
-
-2. add map to your page
-
-```javascript
-// page.js
-import {Page, wxa} from '@wxa/core'
-
-@Page
-class Index {
-    mapState = {
-        todolist : (state)=>state.todo
-    }
-    methods = {
-        bindtap() {
-            // dispatch your commit here
-            this.store.dispatch({type: 'Add_todo_list', payload: 'coding today'});
-            // and your page data will auto update.
-        }
-    }
-} 
-
-wxa.launchPage(Index)
-
-```
-
-3. add map to your Component
-
-```javascript
-// component.js
-import {GetApp} from '@wxa/core'
-
-// redux need mount app to com.
-@GetApp
-class Com {
-    mapState = {
-        todolist : (state)=>state.todo
-    }
-    methods = {
-        bindtap() {
-            // dispatch your commit here
-            this.store.dispatch({type: 'Add_todo_list', payload: 'coding today'});
-            // and your page data will auto update.
-        }
-    }
-} 
-
-wxa.launchComponent(Com);
-```
+:blush::blush::blush::blush:[Documentation](https://genuifx.github.io/wxa/plugin/core/redux.html)
 
 # Technical Detail
 wxa-redux has different tasks to do according to current type.  while in App layer, wr just create a store and mount store in the app.  But in Page or Component layer, wr do a lot for users. 

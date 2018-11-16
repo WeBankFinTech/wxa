@@ -1,5 +1,5 @@
 # 快速开始
-wxa提供了一个方便好用的`cli`工具，使用cli可以从源站（github或者gitlab之类的）拉取手脚架，快速开始小程序开发
+wxa提供了一个方便好用的`cli`工具，使用cli可以从源站(目前是github)拉取手脚架，快速开始小程序开发。
 
 ::: warning 注意
 请注意node.js版本 >= 8
@@ -9,25 +9,28 @@ wxa提供了一个方便好用的`cli`工具，使用cli可以从源站（github
 ### 1. 安装cli
 ```bash
 # 全局安装@wxa/cli
-npm i -g @wxa/cli
+npm i -g @wxa/cli2
 ``` 
 
 ### 2. 创建项目
 ```bash
-# 在当前目录使用wxa-template-base手脚架，创建helloWorld项目
-wxa create base helloWorld
+# 在当前目录使用wxa-templates手脚架，创建helloWorld项目
+wxa2 create 
+```
 
-# 进入项目目录
-cd helloWorld
+按提示输入项目名，选择相应模板即可。如果下载失败了，可以从github上手动下载[模板](https://github.com/Genuifx/wxa-templates)使用。
 
-# 安装项目依赖
-npm i
+![wxa2-create](./create.png)
+
+进入项目目录，并安装依赖：
+``` bash
+cd basic && npm i
 ```
 
 ### 3. 编译项目
 ```bash
 # watch模式编译项目
-wxa build --watch
+wxa2 build --watch
 ```
 
 ### 4. 从微信开发者工具打开
@@ -47,7 +50,7 @@ wxa build --watch
 ### 1. 安装Cli
 ```bash
 # 全局安装@wxa/cli
-npm i -g @wxa/cli
+npm i -g @wxa/cli2
 ``` 
 
 ### 2. 安装项目依赖
@@ -59,7 +62,7 @@ npm i -g @wxa/cli
 # cd path/to/your/project/
 
 # 安装依赖
-npm i @wxa/core @wxa/plugin-replace @wxa/plugin-uglifyjs @wxa/compiler-babel @wxa/compiler-sass babel-eslint babel-plugin-transform-class-properties babel-plugin-transform-decorators-legacy babel-plugin-transform-export-extensions babel-plugin-transform-object-rest-spread babel-preset-env
+npm i @wxa/core @wxa/plugin-replace @wxa/plugin-uglifyjs @wxa/compiler-babel @wxa/compiler-sass babel-eslint @babel/preset-env @babel/plugin-transform-runtime @babel/runtime @babel/plugin-proposal-class-properties @babel/plugin-proposal-decorators cross-env 
 ```
 
 ### 2. 添加配置
@@ -83,22 +86,27 @@ npm i @wxa/core @wxa/plugin-replace @wxa/plugin-uglifyjs @wxa/compiler-babel @wx
             },
         },
         // 使用到的compiler
-        use: ['babel', 'sass'],
-        // compiler的配置，如果需要单独配置compiler，写在这里
-        compilers: {
-            // 下面的babel配置也可以写到.babelrc中
-            babel: {
-                "sourceMap": false,
-                "presets": ["env"],
-                "plugins": [
-                    "transform-class-properties",
-                    "transform-decorators-legacy",
-                    "transform-object-rest-spread",
-                    "transform-export-extensions"
-                ],
-                "ignore": "node_modules"
+        use: [
+            {
+                test: /\.js$|\.wxs$/,
+                name: 'babel',
+                options: {
+                    "sourceMap": false,
+                    "presets": ["@babel/preset-env"],
+                    "plugins": [
+                        ["@babel/plugin-transform-runtime", {"corejs": false, "version": "7.1.2"}],
+                        ["@babel/plugin-proposal-decorators", {"decoratorsBeforeExport": true}],
+                        ["@babel/plugin-proposal-class-properties"]
+                    ],
+                    "ignore": [
+                        "node_modules"
+                    ]
+                }
+            }, {
+                test: /\.sass$|\.scss$/,
+                name: 'sass',
             }
-        },
+        ],
         // 使用到的plugins
         plugins: [
             new ReplacePlugin({
@@ -114,7 +122,7 @@ npm i @wxa/core @wxa/plugin-replace @wxa/plugin-uglifyjs @wxa/compiler-babel @wx
 ### 3. 编译项目
 ```bash
 # watch模式编译项目
-wxa build --watch
+wxa2 build --watch
 ```
 
 ### 4. 从微信开发者工具打开

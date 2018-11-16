@@ -1,0 +1,1 @@
+dependencies analysis plugin for wxa

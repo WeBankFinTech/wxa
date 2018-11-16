@@ -5,8 +5,10 @@ global.getCurrentPages = function() {
     return [{}];
 };
 
+jest.useFakeTimers();
+
+
 import {
-    GetApp,
     Router,
     Eventbus,
     Wxapi,
@@ -24,54 +26,48 @@ import {
     Delay,
     Lock,
 
+    Loading,
+
     Mixins,
-} from '../src/utils/decorators';
+} from '../src/decorators/index';
 
 describe('wxa decorator', ()=>{
-    test('mount app to class', ()=>{
-        @GetApp
-        class T {}
-        let i = new T();
-
-        expect(i.app).not.toBeFalsy();
-    });
-
     test('mount eventbus to class', ()=>{
         @Eventbus
         class T {}
         let i = new T();
 
-        expect(i.eventbus).not.toBeFalsy();
+        expect(i.$eventbus).not.toBeFalsy();
     });
 
     test('mount wxapi', ()=>{
         @Wxapi
         class T {};
 
-        expect(new T().wxapi).not.toBeFalsy();
+        expect(new T().$wxapi).not.toBeFalsy();
     });
 
     test('mount storage', ()=>{
         @Storage
         class T {};
 
-        expect(new T().storage).not.toBeFalsy();
+        expect(new T().$storage).not.toBeFalsy();
     });
 
     test('mount fetch', ()=>{
         @Fetch
         class T {};
 
-        expect(new T().fetch).not.toBeFalsy();
+        expect(new T().$fetch).not.toBeFalsy();
     });
 
     test('mount Utils', ()=>{
         @Utils
         class T {};
 
-        expect(new T().utils).not.toBeFalsy();
-        expect(new T().utils.formatDate).not.toBeFalsy();
-        expect(new T().utils.trim).not.toBeFalsy();
+        expect(new T().$utils).not.toBeFalsy();
+        expect(new T().$utils.formatDate).not.toBeFalsy();
+        expect(new T().$utils.trim).not.toBeFalsy();
     });
 
     test('mount router to class', ()=>{
@@ -79,14 +75,13 @@ describe('wxa decorator', ()=>{
         class T {}
         let i = new T();
 
-        expect(i.router.push).not.toBeFalsy();
-        expect(i.router.replace).not.toBeFalsy();
-        expect(i.router.get).not.toBeFalsy();
-        expect(i.router.reLaunch).not.toBeFalsy();
-        expect(i.router.switch).not.toBeFalsy();
-        expect(i.router.go).not.toBeFalsy();
-        expect(i.router.goBack).not.toBeFalsy();
-        expect(i.router.close).not.toBeFalsy();
+        expect(i.$router.push).not.toBeFalsy();
+        expect(i.$router.replace).not.toBeFalsy();
+        expect(i.$router.get).not.toBeFalsy();
+        expect(i.$router.reLaunch).not.toBeFalsy();
+        expect(i.$router.switch).not.toBeFalsy();
+        expect(i.$router.go).not.toBeFalsy();
+        expect(i.$router.goBack).not.toBeFalsy();
     });
 
     test('mount page', ()=>{
@@ -94,13 +89,13 @@ describe('wxa decorator', ()=>{
         class T {}
 
         let i = new T();
-        expect(i.utils).not.toBeFalsy();
-        expect(i.storage).not.toBeFalsy();
-        expect(i.eventbus).not.toBeFalsy();
-        expect(i.wxapi).not.toBeFalsy();
-        expect(i.router).not.toBeFalsy();
-        expect(i.app).not.toBeFalsy();
-        expect(i.fetch).not.toBeFalsy();
+        expect(i.$utils).not.toBeFalsy();
+        expect(i.$storage).not.toBeFalsy();
+        expect(i.$eventbus).not.toBeFalsy();
+        expect(i.$wxapi).not.toBeFalsy();
+        expect(i.$router).not.toBeFalsy();
+        expect(i.$app).not.toBeFalsy();
+        expect(i.$fetch).not.toBeFalsy();
     });
 
     test('mount app', ()=>{
@@ -108,25 +103,22 @@ describe('wxa decorator', ()=>{
         class T {}
 
         let i = new T();
-        expect(i.utils).not.toBeFalsy();
-        expect(i.storage).not.toBeFalsy();
-        expect(i.eventbus).not.toBeFalsy();
-        expect(i.wxapi).not.toBeFalsy();
-        expect(i.router).not.toBeFalsy();
-        expect(i.fetch).not.toBeFalsy();
+        expect(i.$utils).not.toBeFalsy();
+        expect(i.$storage).not.toBeFalsy();
+        expect(i.$eventbus).not.toBeFalsy();
+        expect(i.$wxapi).not.toBeFalsy();
+        expect(i.$router).not.toBeFalsy();
+        expect(i.$fetch).not.toBeFalsy();
     });
 });
 
 let originConsole = console;
 
-jest.useFakeTimers();
 
 describe('lodash decorators', ()=>{
     test('deprecate decorator', ()=>{
         let warn = jest.fn();
-        global.console = {
-            warn,
-        };
+        global.console.warn = warn;
 
         class T {
             @Deprecate
@@ -141,37 +133,21 @@ describe('lodash decorators', ()=>{
     test('debounce function', ()=>{
         let counter1 = jest.fn();
         let counter2 = jest.fn();
-        class T {
-            @Debounce()
-            foo() {
-                counter1();
-            }
 
-            @Debounce(1000)
-            boo() {
-                counter2();
-            }
-        }
+        let {descriptor: {value: dc1}} = Debounce()({descriptor: {value: ()=>counter1()}});
 
-        let i = new T();
-        i.foo();
-        i.foo();
-        i.foo();
+        let {descriptor: {value: dc2}} = Debounce(1000)({descriptor: {value: ()=>counter2()}});
 
-        expect(counter1).toHaveBeenCalledTimes(0);
+        dc1();
+        dc1();
+        dc1();
 
-        jest.runAllTimers();
         expect(counter1).toHaveBeenCalledTimes(1);
 
-        i.foo();
-        jest.runAllTimers();
-        i.foo();
-        expect(counter1).toHaveBeenCalledTimes(2);
-
-        i.boo();
-        i.boo();
-        i.boo();
-        expect(counter2).toHaveBeenCalledTimes(0);
+        dc2();
+        dc2();
+        dc2();
+        expect(counter2).toHaveBeenCalledTimes(1);
     });
 
     test('Time function', async ()=>{
@@ -227,6 +203,8 @@ describe('lodash decorators', ()=>{
         let c1 = jest.fn();
         let c2 = jest.fn();
 
+        global.console = originConsole;
+
         class T {
             @Throttle()
             foo() {
@@ -248,9 +226,11 @@ describe('lodash decorators', ()=>{
         i.foo();
         expect(c1).toHaveBeenCalledTimes(1);
 
-        jest.advanceTimersByTime(1000);
-        i.foo();
-        expect(c1).toHaveBeenCalledTimes(1);
+        // jest.runOnlyPendingTimers(1500);
+        // i.foo();
+        // // jest.runAllTimers();
+        // expect(c1).toHaveBeenCalledTimes(2);
+
 
         i.boo();
         i.boo();
@@ -307,21 +287,21 @@ describe('lodash decorators', ()=>{
 
         class T {
             @Lock
-            async foo() {
+             foo() {
                 let f = ()=>Promise.resolve();
                 c1();
-                return await f();
+                return f();
             }
 
             @Lock
-            async reject() {
+             reject() {
                 let f = ()=>Promise.reject();
                 c3();
-                return await f();
+                return f();
             }
 
             @Lock
-            async boo() {
+             boo() {
                 let f = ()=>{
                     return new Promise((resolve, reject)=>{
                         setTimeout(()=>{
@@ -331,7 +311,7 @@ describe('lodash decorators', ()=>{
                 };
 
                 c2();
-                return await f();
+                return f();
             }
 
             @Lock
@@ -375,6 +355,61 @@ describe('lodash decorators', ()=>{
 
         expect(instance.reject().catch(()=>{}).then).not.toBeFalsy();
         expect(c3).toHaveBeenCalledTimes(1);
+    });
+});
+
+describe('loading Decorators', ()=>{
+    let showLoading = jest.fn();
+    let showNavigationBarLoading = jest.fn();
+    let hideLoading = jest.fn();
+    let hideNavigationBarLoading = jest.fn();
+
+    wx.showLoading = showLoading;
+    wx.showNavigationBarLoading = showNavigationBarLoading;
+    wx.hideLoading = hideLoading;
+    wx.hideNavigationBarLoading = hideNavigationBarLoading;
+
+    test('1. loading', ()=>{
+        let {descriptor: {value: dc1}} = Loading()({descriptor: {value: ()=>{}}});
+
+        dc1();
+        expect(showLoading).toHaveBeenCalledTimes(1);
+        expect(hideLoading).toHaveBeenCalledTimes(1);
+
+        let {descriptor: {value: dc2}} = Loading(void(0), 'bar')({descriptor: {value: ()=>{}}});
+        dc2();
+        expect(showNavigationBarLoading).toHaveBeenCalledTimes(1);
+        expect(hideNavigationBarLoading).toHaveBeenCalledTimes(1);
+    });
+
+    test('2. promise loading', async ()=>{
+        let {descriptor: {value: dc1}} = Loading()({descriptor: {value: ()=>Promise.resolve()}});
+
+        await dc1();
+
+        expect(showLoading).toHaveBeenCalledTimes(2);
+        expect(hideLoading).toHaveBeenCalledTimes(2);
+
+        let {descriptor: {value: dc2}} = Loading(void(0), 'bar')({descriptor: {value: ()=>Promise.resolve()}});
+
+        await dc2();
+        expect(showNavigationBarLoading).toHaveBeenCalledTimes(2);
+        expect(hideNavigationBarLoading).toHaveBeenCalledTimes(2);
+    });
+
+    test('3. reject promise loading', async ()=>{
+        let {descriptor: {value: dc1}} = Loading()({descriptor: {value: ()=>Promise.reject()}});
+
+        await dc1();
+
+        expect(showLoading).toHaveBeenCalledTimes(3);
+        expect(hideLoading).toHaveBeenCalledTimes(3);
+
+        let {descriptor: {value: dc2}} = Loading(void(0), 'bar')({descriptor: {value: ()=>Promise.reject()}});
+
+        await dc2();
+        expect(showNavigationBarLoading).toHaveBeenCalledTimes(3);
+        expect(hideNavigationBarLoading).toHaveBeenCalledTimes(3);
     });
 });
 

@@ -1,0 +1,33 @@
+{
+  "name": "@wxa/form",
+  "version": "0.2.0-beta.6fbe2fbd",
+  "description": "watch plugin for wxa",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "babel src --out-dir ./dist/",
+    "prepublish": "npm run build",
+    "dev": "babel --watch src --out-dir ./dist/",
+    "dev-wp": "webpack src/index.js --output-path ./dist/ -w --optimize-minimize",
+    "test": "jest"
+  },
+  "keywords": [
+    "watch",
+    "wxa"
+  ],
+  "author": "iveswen",
+  "license": "MIT",
+  "dependencies": {
+    "validator": "^10.4.0"
+  },
+  "devDependencies": {
+    "babel": "^6.23.0",
+    "babel-cli": "^6.26.0",
+    "babel-loader": "^7.1.4",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "jest": "^23.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

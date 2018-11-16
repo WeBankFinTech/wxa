@@ -1,7 +1,10 @@
+var debug = require('debug')('WXA:PLUGIN-REPLACE')
+
 module.exports = class ReplacePlugin {
     constructor(options={}) {
         this.configs = Object.assign({
             list: [],
+            test: /\.js$|\.json$|\.css$|\.wxml$/,
             flag: 'gm'    
         }, options);
         if(Array.isArray(this.configs.list)) {
@@ -13,12 +16,22 @@ module.exports = class ReplacePlugin {
         }
     }   
     apply(compiler) {
-        compiler.hooks.optimizeAssets.tapAsync('replacePlugin', (opath, compilation, next)=>{
-            this.run(opath, compilation, next);
+        if(compiler.hooks == null || compiler.hooks.optimizeAssets == null) return;
+
+        compiler.hooks.optimizeAssets.tapAsync('ReplacePlugin', (compilation, next)=>{
+            if (
+                compilation.meta && 
+                this.configs.test.test(compilation.meta.source)
+            ) {
+                debug('Plugin replace started %O', compilation)
+                this.run(compilation, next);
+            } else {
+                next();
+            }
         })
     }
-    run(opath, compilation, next) {
-        if(this.list.length) {
+    run(compilation, next) {
+        if(this.list.length && compilation.code) {
             this.list.forEach((rep)=>{
                 compilation.code = compilation.code.replace(rep.regular, rep.value);
             });

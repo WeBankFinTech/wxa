@@ -33,16 +33,6 @@ export function getConfig() {
     return config;
 }
 
-export function applyPlugins(compiler) {
-    let plugins = getConfig().plugins;
-    if (plugins == null) return;
-    // console.log(plugins);
-    if (typeof plugins !== 'object') throw new Error('wxa配置文件有误，plugins');
-    if (!Array.isArray(plugins)) plugins = [plugins];
-
-    plugins.forEach((plugin)=>plugin.apply(compiler));
-}
-
 export function readFile(p) {
     let rst = '';
     p = (typeof p === 'object') ? path.join(p.dir, p.base) : p;
@@ -95,12 +85,10 @@ export function getDistPath(opath, ext, src, dist) {
     return path.join(current, dist, relative, opath.name+ext);
 }
 
-export function copy(opath, ext, src, dist) {
+export function copy(from, to) {
     return new Promise((resolve, reject)=>{
-        let target = getDistPath(opath, ext, src, dist);
-        writeFile(target, readFile(path.join(opath.dir, opath.base)));
-        let readable = fs.createReadStream(path.join(opath.dir, opath.base));
-        let writeable = fs.createWriteStream(target);
+        let readable = fs.createReadStream(from);
+        let writeable = fs.createWriteStream(to);
         readable.pipe(writeable);
         readable.on('error', (e)=>{
             reject(e);
@@ -114,51 +102,6 @@ export function copy(opath, ext, src, dist) {
     });
 }
 
-export function encode(content, start, end, pmap, amap) {
-    start = start || 0;
-    end = end || content.length;
-
-    let buffer = [];
-    pmap = pmap || ['<', '&', '"'];
-    amap = amap || ['&lt;', '&amp;', '&quot;'];
-
-    for (let i=0, len=content.length; i < len; i++) {
-        if (i < start || i > end) {
-            buffer.push(content[i]);
-        } else {
-            let idx = pmap.indexOf(content[i]);
-            buffer.push(idx === -1 ? content[i] : amap[idx]);
-        }
-    }
-
-    return buffer.join('');
-}
-
-export function decode(content, pmap, amap) {
-    pmap = pmap || ['<', '&', '"'];
-    amap = amap || ['&lt;', '&amp;', '&quot;'];
-    let reg = new RegExp(`(${amap[0]}|${amap[1]}|${amap[2]})`, 'ig');
-    return content.replace(reg, (match, m) => {
-        return pmap[amap.indexOf(m)];
-    });
-}
-
-export function error(msg) {
-    // console.error(chalk.red(msg));
-}
-
-export function info(type, msg) {
-    // console.info(chalk.green(`[${type[0].toUpperCase()+type.slice(1)}]`), msg);
-}
-
-export function message(type, msg) {
-    // console.info(chalk.magenta(`[${type[0].toUpperCase()+type.slice(1)}]`), msg);
-}
-
-export function warn(msg) {
-    // console.warn(msg);
-}
-
 export function amazingCache(params, needCache) {
     let defaultOpts = {
         directory: true,
@@ -167,12 +110,27 @@ export function amazingCache(params, needCache) {
             'env': process.env.NODE_ENV || 'development',
         }),
     };
+    let cacheParams = Object.assign(
+        {},
+        defaultOpts,
+        params,
+    );
+
     if (needCache) {
-        return cache({...defaultOpts, ...params});
+        return cache(cacheParams);
     } else {
-        let {source, transform, options} = params;
+        let {source, transform, options} = cacheParams;
         return transform(source, options);
     }
+}
+
+export function applyPlugins(plugins, compiler) {
+    if (plugins == null) return;
+    // console.log(plugins);
+    if (typeof plugins !== 'object') throw new Error('wxa配置文件有误，plugins');
+    if (!Array.isArray(plugins)) plugins = [plugins];
+
+    plugins.forEach((plugin)=>plugin.apply(compiler));
 }
 
 export function isEmpty(n) {

@@ -1,4 +1,7 @@
 {
-    "presets": ["env"],
-    "plugins": ["transform-object-rest-spread", "syntax-dynamic-import", "transform-class-properties", "transform-decorators-legacy"]
+    "presets": ["@babel/preset-env"],
+    "plugins": [
+        ["@babel/plugin-proposal-decorators", {"decoratorsBeforeExport": true}],
+        ["@babel/plugin-proposal-class-properties"]
+    ]
 }

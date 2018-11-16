@@ -11,82 +11,77 @@ import * as helpers from './helpers';
 import fetch from './fetch';
 import mixin from '../base/mixin';
 
-// class
-function Eventbus(target) {
-    target.prototype.eventbus = eventbus;
-    return target;
-}
-
-// class
-function GetApp(target) {
-    target.prototype.app = getApp();
-    return target;
-}
-
-// class
-function Router(target) {
-    target.prototype.router = router;
-    return target;
-}
-
-// 挂载微信api
-function Wxapi(target) {
-    target.prototype.wxapi = wxapi(wx);
-    return target;
-}
-
-// storage
-function Storage(target) {
-    target.prototype.storage = storage;
-    return target;
-}
-
-function Utils(target) {
-    target.prototype.utils = {
-        debounce,
-        promisify,
-        throttle,
-
-        ...helpers,
+let methodDescriptorGenerator = (name, fn, placement='prototype')=>{
+    return {
+        [Symbol('Descriptor')]: 'Descriptor',
+        key: name,
+        kind: 'method',
+        placement,
+        descriptor: {
+            value: fn,
+            enumerable: true,
+            writeable: false,
+            configurable: false,
+        },
     };
-    return target;
-}
+};
 
-function Fetch(target) {
-    target.prototype.fetch = fetch;
+let classFactory = (name, fn)=>{
+    return function(classDescriptor) {
+        let {elements} = classDescriptor;
 
-    return target;
-}
-
-function Mixins(...args) {
-    return function(target) {
-        target.prototype.mixins = [mixin({mixins: args})];
-        return target;
+        return {
+            elements: elements.concat([methodDescriptorGenerator(name, fn)]),
+        };
     };
-}
+};
 
-function Page(target) {
-    Utils(target);
-    Storage(target);
-    Wxapi(target);
-    Router(target);
-    Eventbus(target);
-    GetApp(target);
-    Fetch(target);
+// Class Decorators.
+const Eventbus = classFactory('eventbus', eventbus);
+const GetApp = classFactory('app', getApp());
+const Router = classFactory('router', router);
+const Wxapi = classFactory('wxapi', wxapi(wx));
+const Storage = classFactory('storage', storage);
+const Utils = classFactory('utils', {
+    debounce,
+    promisify,
+    throttle,
+    ...helpers,
+});
+const Fetch = classFactory('fetch', fetch);
+const Mixins = (...args)=>classFactory('mixins', [mixin({mixins: args})]);
 
-    return target;
-}
+// Page and App level class Decorators.
+const Page = (classDescriptor)=>{
+    let elements = [];
+    elements = elements.concat(
+        Utils(classDescriptor).elements,
+        Storage(classDescriptor).elements,
+        Wxapi(classDescriptor).elements,
+        Router(classDescriptor).elements,
+        Eventbus(classDescriptor).elements,
+        GetApp(classDescriptor).elements,
+        Fetch(classDescriptor).elements
+    );
 
-function App(target) {
-    Utils(target);
-    Storage(target);
-    Eventbus(target);
-    Wxapi(target);
-    Router(target);
-    Fetch(target);
+    return {
+        elements,
+    };
+};
 
-    return target;
-}
+const App = (classDescriptor)=> {
+    let elements = [];
+    elements = elements.concat(
+        Utils(classDescriptor),
+        Storage(classDescriptor),
+        Eventbus(classDescriptor),
+        Wxapi(classDescriptor),
+        Router(classDescriptor),
+        Fetch(classDescriptor),
+    );
+
+    return {elements};
+};
 
 export {
     Page,
@@ -129,21 +124,39 @@ function Deprecate(target, key, descriptor) {
 function Time(name, ...rest) {
     let h = (target, key, descriptor)=>{
         let fn = descriptor.value;
+        let timer;
+
+        let timeStart;
+        let timeEnd;
+        if (console.time == null) {
+            timeStart = console.time;
+            timeEnd = console.timeEnd;
+        } else {
+            timeStart = ()=>{
+                timer = Date.now();
+            };
+
+            timeEnd = (name)=>{
+                let abstime = Date.now() - timer;
+
+                console.log(name, '：', abstime);
+            };
+        }
 
         descriptor.value = function(...args) {
-            console.time(name || key);
+            timeStart(name || key);
             let r = fn.apply(this, args);
 
             if (r && typeof r.then === 'function') {
                 return r.then((succ)=>{
-                    console.timeEnd(name || key);
+                    timeEnd(name || key);
                     return Promise.resolve(succ);
                 }, (fail)=>{
-                    console.timeEnd(name || key);
+                    timeEnd(name || key);
                     return Promise.reject(fail);
                 });
             } else {
-                console.timeEnd(name || key);
+                timeEnd(name || key);
                 return r;
             }
         };

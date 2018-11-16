@@ -1,211 +1,405 @@
-import {getConfig, getFiles, readFile, isFile, error, getRelative, info, copy, applyPlugins, message} from './utils';
+import {readFile, isFile, amazingCache} from './utils';
 import path from 'path';
-import CWxa from './compile-wxa';
-import CScript from './compile-script';
-import CStyle from './compile-style';
-import CConfig from './compile-config';
-import CTemplate from './compile-template';
 import bar from './helpers/progressBar';
 import logger from './helpers/logger';
 import {EventEmitter} from 'events';
-/**
- * todo:
- *  1. full control compile task
- */
-let count = 0;
+// import loader from './loader';
+import COLOR from './const/color';
+import ROOT from './const/root';
+import debugPKG from 'debug';
+import defaultPret from './const/defaultPret';
+import wrapWxa from './helpers/wrapWxa';
+import Compiler from './compilers/index';
+import crypto from 'crypto';
+import {unlinkSync} from 'fs';
+import DependencyResolver from './helpers/dependencyResolver';
+import ProgressTextBar from './helpers/progressTextBar';
+
+let debug = debugPKG('WXA:Schedule');
 
 class Schedule extends EventEmitter {
-    constructor(src, dist, ext) {
+    constructor(loader) {
         super();
         this.current = process.cwd();
+        this.loader = loader;
         this.pending = [];
         this.waiting = [];
         this.finished = [];
         this.npmOrLocal = [];
 
-        this.src = src || 'src';
-        this.dist = dist || 'dist';
-        this.ext = ext || '.wxa';
+        this.meta = {
+            current: this.current,
+            wxaExt: 'wxa',
+            libSrc: path.join(__dirname, '../lib-dist'),
+            libs: ['wxa_wrap.js'],
+            context: path.join(this.current, 'src'),
+        };
+
         this.max = 5;
 
         this.bar = bar;
         this.logger = logger;
         this.mode = 'compile';
         this.wxaConfigs = {}; // wxa.config.js
+
+        let wxaConfigs;
+        Object.defineProperty(this, 'wxaConfigs', {
+            get() {
+                return wxaConfigs;
+            },
+            set(configs) {
+                wxaConfigs = configs;
+
+                this.APP_CONFIG_PATH = wxaConfigs.resolve.appConfigPath;
+
+                this.meta = {
+                    ...this.meta,
+                    wxaExt: wxaConfigs.resolve.wxaExt,
+                    context: wxaConfigs.context,
+                    output: wxaConfigs.output,
+                };
+            },
+        });
+
+        this.$pageArray = []; // denpendencies
+        this.$depPending = []; // pending dependencies
+        this.$indexOfModule = [ROOT]; // all module
         this.$isMountingCompiler = false; // if is mounting compiler, all task will be blocked.
+        this.progress = new ProgressTextBar(this.current, wxaConfigs);
+
+        // save all app configurations for compile time.
+        // such as global components.
+        this.app = {};
+
+        // load from path/to/project/src/app.json
+        this.appConfigs = {};
+
+        // cmd options
+        this.cmdOptions = {};
     }
 
     set(name, value) {
         this[name] = value;
     }
 
-    parse(opath, rst, configs={}) {
-        // console.log(count++);
-        count++;
-        if (rst) {
-            let all = [];
-            if (rst.style) {
-                let compiler = new CStyle(this.src, this.dist, this.ext, this.options);
-                applyPlugins(compiler);
-                all.push(compiler.compile(rst.style, opath));
+    addEntryPoint(mdl) {
+        let child = this.findOrAddDependency(mdl, ROOT);
+
+        if (!~ROOT.childNodes.findIndex((mdl)=>mdl.src===child.src)) ROOT.childNodes.push(child);
+
+        return child;
+    }
+
+    async doDPA() {
+        if (!this.$depPending.length) {
+            logger.error('找不到可编译的入口文件');
+            return;
+        }
+
+        debug('depPending %o', this.$depPending);
+        debug('DPA started');
+
+        return this.$doDPA();
+    }
+
+    $doDPA() {
+        let tasks = [];
+        // while (this.$depPending.length) {
+            let dep = this.$depPending.shift();
+
+            debug('file to parse %O', dep);
+            tasks.push(this.$parse(dep));
+        // }
+
+        return Promise.all(tasks).then(async (succ)=>{
+            if (this.$depPending.length === 0) {
+                // dependencies resolve complete
+                this.progress.clean();
+                return Promise.resolve(succ);
+            } else {
+                let sub = await this.$doDPA();
+                return succ.concat(sub);
+            }
+        });
+    }
+
+    async $parse(dep) {
+        // calc hash
+        // cause not every module is actually exists, we can not promise all module has hash here.
+        let content = dep.content ? dep.content : readFile(dep.src);
+        if (content) dep.hash = crypto.createHash('md5').update(content).digest('hex');
+        debug('Dep HASH: %s', dep.hash);
+        try {
+            this.progress.draw(dep.src);
+            // loader: use custom compiler to load resource.
+            await this.loader.compile(dep);
+
+            // try to wrap wxa every app and page
+            this.tryWrapWXA(dep);
+
+            // Todo: conside if cache is necessary here.
+            debug('dep to process %O', dep);
+            let compiler = new Compiler(this.wxaConfigs.resolve, this.meta, this.appConfigs);
+            let childNodes = await compiler.parse(dep);
+
+            debug('childNodes', childNodes);
+            let children = childNodes.map((node)=>this.findOrAddDependency(node, dep));
+
+            // if watch mode, use childNodes to clean up the dep tree.
+            // update each module's childnodes, then according to reference unlink file.
+            this.cleanUpChildren(children, dep);
+
+            // cover new childNodes
+            dep.childNodes = new Set(children);
+            dep.color = COLOR.COMPILED;
+
+            // if module is app.json, then add Page entry points.
+            if (dep.src === this.APP_CONFIG_PATH) {
+                this.appConfigs = dep.json;
+                debug('app configs is %O', dep.json);
+
+                let oldPages = this.$pageArray.slice(0);
+                let newPages = this.addPageEntryPoint();
+                // console.log(newPages, oldPages);
+                this.cleanUpPages(newPages, oldPages);
             }
 
-            if (rst.template && rst.template.code) {
-                let cTemplate = new CTemplate(this.src, this.dist, this.ext, this.options);
-                applyPlugins(cTemplate);
-                all.push(cTemplate.compile(rst.template));
-            }
-
-            if (rst.script.code) {
-                let compiler = new CScript(this.src, this.dist, this.ext, this.options);
-                applyPlugins(compiler);
-                all.push(compiler.compile(rst.script.type, rst.script.code, configs.type, opath));
-            }
-
-            if (rst.config.code) {
-                let compiler = new CConfig(this.src, this.dist, this.options);
-                applyPlugins(compiler);
-                all.push(compiler.compile(rst.config.code, opath));
-            }
-
-            return Promise.all(all);
-        } else {
-            if (!isFile(opath)) {
-                error('不存在文件:' + getRelative(opath));
-                return Promise.reject();
-            }
-
-            switch (opath.ext) {
-                case this.ext: {
-                    let cWxa = new CWxa(this.src, this.dist, this.ext, this.options);
-                    return cWxa.compile(opath, configs);
-                }
-                case '.sass':
-                case '.scss': {
-                    let cStyle = new CStyle(this.src, this.dist, opath.ext, this.options);
-                    applyPlugins(cStyle);
-                    return cStyle.compile('sass', opath);
-                }
-                case '.wxs':
-                case '.js': {
-                    let cScript = new CScript(this.src, this.dist, opath.ext, this.options);
-                    applyPlugins(cScript);
-                    let filepath = path.join(opath.dir, opath.base);
-                    let type = configs.type;
-                    if (filepath === path.join(this.current, this.src, 'app.js')) type = 'app';
-                    return cScript.compile('js', null, type, opath);
-                }
-                case '.json': {
-                    let cConfig = new CConfig(this.src, this.dist, this.options);
-                    applyPlugins(cConfig);
-                    return cConfig.compile(void(0), opath, configs);
-                }
-                case '.wxml': {
-                    let cTemplate = new CTemplate(this.src, this.dist, this.options);
-                    applyPlugins(cTemplate);
-                    return cTemplate.compile('wxml', opath);
-                }
-                default:
-                    info('copy', path.relative(this.current, path.join(opath.dir, opath.base)) );
-
-                    return copy(opath, opath.ext, this.src, this.dist);
-            }
+            // tick event
+            this.emit('tick', dep);
+            return dep;
+        } catch (e) {
+            console.log('\n');
+            debug('编译失败 %O', e);
+            throw e;
         }
     }
 
-    addTask(opath, rst, configs={}) {
-        if (this.wxaConfigs.resolve && this.wxaConfigs.resolve.ignore) {
-            let pathString = opath.dir + path.sep + opath.base;
-            let ignore = this.wxaConfigs.resolve.ignore;
-            ignore = Array.isArray(ignore) ? ignore : [ignore];
+    cleanUpChildren(newChildren, mdl) {
+        debug('clean up module %O', mdl);
+        if (mdl.childNodes == null) return;
 
-            let invalid = ignore.some((exp)=>{
-                let r = (exp instanceof RegExp) ? exp : new RegExp(exp);
+        mdl.childNodes.forEach((oldChild)=>{
+            if (!~newChildren.findIndex((item)=>item.src === oldChild.src)) {
+                // child node not used, update reference.
+                debug('denpendencies clean up started');
 
-                return r.test(pathString.replace(/\\/g, '/'));
-            });
+                if (oldChild.reference == null) {
+                    debug('Error: old child node\'s reference is no find %O', oldChild );
+                    return;
+                }
 
-            if (invalid) return;
-        }
+                let idxOfParent = oldChild.reference.findIndex((ref)=>ref.parent.src === mdl.src);
+                debug('find index %s', idxOfParent);
 
-        let newTask = {
-            opath,
-            rst,
-            // duplicate: 0,
-            configs,
+                if (idxOfParent === -1) {
+                    debug('Error: do not find parent module');
+                    return;
+                }
+
+                oldChild.reference.splice(idxOfParent, 1);
+
+                debug('oldChild %O', oldChild);
+
+                if (oldChild.reference.length === 0 && !oldChild.isROOT) {
+                    debug('useless module find %s', oldChild.src);
+
+                    // nested clean children
+                    this.cleanUpChildren([], oldChild);
+                    // unlink module
+                    oldChild.meta && unlinkSync(oldChild.meta.accOutputPath);
+                    this.$indexOfModule.splice(this.$indexOfModule.findIndex((mdl)=>mdl.src===oldChild.src), 1);
+                }
+            }
+        });
+    }
+
+    cleanUpPages(newPages, oldPages) {
+        let droppedPages = oldPages.filter((oldPage)=>newPages.findIndex((page)=>page.src===oldPage.src)===-1);
+
+        droppedPages.forEach((droppedPage)=>{
+            debug('dropped page %O', droppedPage);
+            // nested clean up children module
+            this.cleanUpChildren([], droppedPage);
+
+            // drop page from pageArray;
+            let idxOfPage = this.$pageArray.findIndex((page)=>page.src===droppedPage.src);
+            if (idxOfPage>-1) this.$pageArray.splice(idxOfPage, 1);
+
+            // drop module from index
+            let idxOfModule = this.$indexOfModule.findIndex((mdl)=>mdl.src===droppedPage.src);
+            if (idxOfModule>-1) this.$indexOfModule.splice(idxOfModule, 1);
+
+            if (droppedPage.meta && !droppedPage.isAbstract) {
+                unlinkSync(droppedPage.meta.accOutputPath);
+            }
+        });
+    }
+
+    findOrAddDependency(dep, mdl) {
+        debug('Find Dependencies started');
+
+        // circle referrence.
+        dep.reference = dep.reference || {};
+        dep.reference.parent = mdl;
+
+        // pret backup
+        dep.pret = dep.pret || defaultPret;
+
+        let indexedModuleIdx = this.$indexOfModule.findIndex((file)=>file.src===dep.src);
+        debug('Find index of moduleList %s', indexedModuleIdx);
+        let child = {
+            ...dep,
+            color: COLOR.INIT,
+            isNpm: dep.pret.isNodeModule,
+            isPlugin: dep.pret.isPlugin,
+            $target: dep.target,
+            $pret: dep.pret,
+            reference: [dep.reference],
         };
-        // record npm or local file
-        if (['local', 'npm'].indexOf(configs.type) > -1 ) {
-            this.npmOrLocal.push(opath);
+
+        if (!child.isFile) {
+            let content = child.content || readFile(child.src);
+            child.hash = crypto.createHash('md5').update(content).digest('hex');
         }
 
-        if (['change', 'add'].indexOf(configs.category) > -1) {
-            this.waiting.push(newTask);
-        } else {
-            let ifWaiting = this.filterTask(this.waiting, newTask);
-            let ifPending = this.filterTask(this.pending, newTask);
-            let ifFinished = this.filterTask(this.finished, newTask);
-            if (ifWaiting === -1 && ifPending === -1 && ifFinished === -1) {
-                this.waiting.push(newTask);
-                this.updateBar();
-            } else if (ifWaiting > -1) {
-                // this.waiting[ifWaiting].duplicate++;
-            } else if (ifPending > -1) {
-                // this.pending[ifPending].duplicate++;
+        if (indexedModuleIdx > -1) {
+            let indexedModule = this.$indexOfModule[indexedModuleIdx];
+            let ref = dep.reference;
+            debug('Find out module HASH is %s %O', indexedModule.hash, indexedModule);
+
+            // merge from.
+            if (Array.isArray(indexedModule.reference)) {
+                indexedModule.reference.push(ref);
+            } else if (typeof indexedModule.reference === 'object') {
+                // dead code theorily
+                debug('dead code execute');
+
+                indexedModule.reference = [
+                    indexedModule.reference,
+                    ref,
+                ];
+            } else {
+                indexedModule.reference = ref;
             }
+
+
+            if (this.mode === 'watch' && indexedModule.hash !== child.hash) {
+                debug('WATCH MODE and HASH is Changed');
+                let newChild = {...indexedModule, ...child};
+                this.$depPending.push(newChild);
+
+                this.$indexOfModule.splice(indexedModuleIdx, 1, newChild);
+                child = newChild;
+            } else {
+                child = indexedModule;
+            }
+        } else if (!child.isPlugin) {
+            // plugin do not resolve dependencies.
+            this.$depPending.push(child);
+            this.$indexOfModule.push(child);
         }
 
-        this.process();
+        return child;
     }
 
-    toggleMounting($isMountingCompiler=false) {
-        this.$isMountingCompiler = $isMountingCompiler;
-
-        if (!this.$isMountingCompiler) {
-            this.process();
-        }
-    }
-
-    filterTask(queue, task) {
-        return queue.findIndex((t)=>JSON.stringify(t)===JSON.stringify(task));
-    }
-
-    process() {
-        while (!this.$isMountingCompiler && this.pending.length < this.max && this.waiting.length) {
-            let task = this.waiting.shift();
-            this.pending.push(task);
-            this.parse(task.opath, task.rst, task.configs).then((succ)=>{
-                let idx = this.pending.findIndex((t)=>JSON.stringify(t)===JSON.stringify(task));
-                // delete task;
-                if (idx > -1) this.finished = this.finished.concat(this.pending.splice(idx, 1));
-                this.bar.update(this.finished.length);
-                this.checkStatus();
-                this.process();
-            }).catch((e)=>{
-                let idx = this.pending.findIndex((t)=>JSON.stringify(t)===JSON.stringify(task));
-                // delete task;
-                if (idx > -1) this.finished = this.finished.concat(this.pending.splice(idx, 1));
-                this.bar.update(this.finished.length);
-                this.checkStatus();
-                this.process();
-            });
+    tryWrapWXA(dep) {
+        if (
+            ~['app', 'component', 'page'].indexOf(dep.category ? dep.category.toLowerCase() : '') &&
+            dep.meta && path.extname(dep.meta.source) === '.js' &&
+            /exports\.default/gm.test(dep.code)
+        ) {
+            dep.code = wrapWxa(dep.code, dep.category, dep.pagePath);
+            debug('wrap dependencies %O', dep);
         }
     }
 
-    updateBar() {
-        this.bar.init(this.finished.length+this.pending.length+this.waiting.length);
-    }
-
-    checkStatus() {
-        if (this.pending.length <=0 && this.waiting.length <= 0) {
-            // end compile
-            this.bar.clean();
-            logger.show(this.options.verbose);
-            this.emit('finish', this.finished.length);
-            this.finished = [];
+    addPageEntryPoint() {
+        // ToDo: drop entry point and clean up children after page entry point update.
+        if (
+            this.appConfigs == null ||
+            !this.appConfigs.pages ||
+            !this.appConfigs.pages.length
+        ) {
+            logger.error('app页面配置缺失, 请检查app.json的pages配置项');
         }
+
+        let pages = this.appConfigs.pages;
+        // multi packages process.
+        if (this.appConfigs.subPackages) {
+            let subPages = this.appConfigs.subPackages.reduce((subPkgs, pkg)=>{
+                return subPkgs.concat(pkg.pages.map((subpath)=>pkg.root+'/'+subpath));
+            }, []);
+
+            pages = pages.concat(subPages);
+        }
+
+        let tryPush = (page)=>{
+            let idx = this.$pageArray.filter((p)=>p.src===page.src);
+            if (idx > -1) {
+                this.$pageArray.splice(idx, 1, page);
+            } else {
+                this.$pageArray.push(page);
+            }
+        };
+
+        // pages spread
+        let exts = ['.wxml', '.wxss', '.js', '.json'];
+        let newPages = pages.reduce((ret, page)=>{
+            // console.log(page);
+            // wxa file
+            let wxaPage = path.join(this.meta.context, page+this.meta.wxaExt);
+
+            debug('page %s %s', wxaPage, page);
+            let dr = new DependencyResolver(this.wxaConfigs.resolve, this.meta);
+
+            if (isFile(wxaPage)) {
+                try {
+                    let pagePoint = this.addEntryPoint({
+                        content: readFile(wxaPage),
+                        src: wxaPage,
+                        category: 'Page',
+                        pagePath: page,
+                        pret: defaultPret,
+                        isAbstract: true,
+                        meta: {
+                            source: wxaPage,
+                        },
+                    });
+
+                    return ret.concat([pagePoint]);
+                } catch (e) {
+                    logger.error(e);
+                }
+            } else {
+                exts.forEach((ext)=>{
+                    let p = path.join(this.meta.context, page+ext);
+
+                    if (isFile(p)) {
+                        let outputPath = dr.getOutputPath(p, defaultPret, ROOT);
+                        let pagePoint = this.addEntryPoint({
+                            content: readFile(p),
+                            src: p,
+                            category: 'Page',
+                            pagePath: page,
+                            pret: defaultPret,
+                            meta: {
+                                source: p,
+                                outputPath,
+                            },
+                        });
+
+                        ret.push(pagePoint);
+                    }
+                });
+
+                return ret;
+            }
+        }, []);
+
+        newPages.forEach((pagePoint)=>tryPush(pagePoint));
+
+        return newPages;
     }
 }
-const schedule = new Schedule();
 
-export default schedule;
+export default Schedule;
