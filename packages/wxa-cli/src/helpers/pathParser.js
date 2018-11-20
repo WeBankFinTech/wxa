@@ -5,6 +5,7 @@ import validUrl from 'valid-url';
 export default class PathParser {
     constructor() {
         this.pkgReg = /^[@\w\_\-\d]+(\/[\w\-\_\d@\.]+)*$/;
+        this.base64Reg = /^data:[\w\/;,+]/;
     }
 
     parse(x) {
@@ -32,6 +33,8 @@ export default class PathParser {
             if (x.indexOf('plugin://') === 0) ret.isPlugin = true;
             else if (x.indexOf('wxa://') === 0) (ret.isWXALib = true, ret.name = x.slice(6));
             else ret.isURI = true;
+        } else if (this.base64Reg.test(x)) {
+            ret.isURI = true;
         } else {
             logger.error('Path Error', '无法解析的路径类型: '+x);
         }
