@@ -1,10 +1,14 @@
 # Mixin
-`wxa`支持混合，合并规则为：方法`methods`和数据`data`按引入顺序依次覆盖，生命周期函数按引入顺序依次执行。
+`vue`开发者应该很熟悉的一个概念，通过抽离组件公共逻辑到单独一个js文件，再需要使用的时候只需做一次mixin操作即可。mixin提高了代码复用率，但是降低了代码的可读性，开发过程中还是需要谨慎使用。
+
+**混合规则**为：组件（页面也算组件的一种）方法`methods`项和数据`data`项按引入顺序**依次覆盖**，生命周期函数按引入顺序**依次执行**。
+
+定义一个页面的方法如下：
 
 ```javascript
 // common.js
-export default {
-    data: {
+export default class Common {
+    data = {
         email: 'genuifx@gmail.com',
     },
     onLoad(q) {
@@ -12,43 +16,33 @@ export default {
         console.log(q);
         console.log(this.data);
     },
-    methods: {
-        bindViewTap() {
-            this.router.push('../logs/logs');
-        },
+    bindViewTap() {
+        this.router.push('../logs/logs');
     },
 };
 ```
 
-在页面类指定mixins属性，`wxa`将在实例化Page之前把mixins的内容混合到实例。
+使用`Mixin`有两种方式：
+- 在页面类指定mixins属性。
+- 使用`Mixins`装饰器实现混合。
+
+两种方式只是写法不同，最终`wxa`都会在实例化之前把mixins的内容做好合并。
 
 ```javascript
-// page instance
+// 直接指定mixins项
 @Page
-class Index{
+export default class Index{
     mixins = [common]
-    //your logic here
 }
-wxa.launch.page(Index);
-```
 
-或者使用`Mixins`装饰器实现混合。
-
-```javascript
-// page instance
+// 使用Mixins装饰器
 @Page
 @Mixins(common)
-class Index{
-    //your logic here
-}
-wxa.launch.page(Index);
+export default class Index{}
 ```
 
-::: tip 提示
-1. wxa并不支持全局Mixin，即在App层使用mixin和Page层的效果是一样的，如果想要全局mixin，可以考虑使用plugin插件机制实现。
-2. 待混合的方法必须要放在`methods`中，而生命周期函数则挂载object的最外层。
-:::
+需要注意的是，上述操作一样适用于App实例，也就是说`App level`的mixin只对App实例有效，需要使用全局mixin可以参考进阶教程。
 
 ::: warning 注意
-`onShareAppMessage`由于该回调的局限性，mixin并不会对它做任何处理，所以请在页面层做好分享设置。
+`onShareAppMessage`由于该回调的特殊性，多个onShareAppMessage只会返回最后一个函数的返回。
 :::
