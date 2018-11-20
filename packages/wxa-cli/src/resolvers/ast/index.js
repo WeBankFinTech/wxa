@@ -70,7 +70,7 @@ export default class ASTManager {
                         },
                     });
                 } catch (e) {
-                    logger.error('resolve fail', e);
+                    logger.error('解析失败', e);
                     debug('resolve fail %O', e);
                 }
             },
@@ -87,7 +87,7 @@ export default class ASTManager {
                     }
                 }
             } catch (e) {
-                console.error(e);
+                logger.error(e);
             }
         });
         debug('dependencies libs %O', libs);

@@ -168,7 +168,6 @@ class Schedule extends EventEmitter {
             this.emit('tick', dep);
             return dep;
         } catch (e) {
-            console.log('\n');
             debug('编译失败 %O', e);
             throw e;
         }

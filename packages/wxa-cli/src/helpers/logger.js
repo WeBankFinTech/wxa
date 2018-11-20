@@ -12,7 +12,11 @@ class Logger {
             ['log', {color: chalk.bold.greenBright, info: console.log.bind(console)}],
             ['info', {color: chalk.bold.cyanBright, info: console.info.bind(console)}],
             ['warn', {color: chalk.bold.yellow, info: console.info.bind(console)}],
-            ['error', {color: chalk.red, info: console.error.bind(console)}],
+            ['error', {color: chalk.red, info: (...args)=>{
+                    console.log('');
+                    console.error.bind(console)(...args);
+                },
+            }],
         ]);
 
         this.map.forEach((fn, key)=>{
