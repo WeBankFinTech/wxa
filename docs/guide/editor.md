@@ -32,7 +32,7 @@
 ```json
 {
     "extends": [
-        "./node_modules/eslint-config-google/index.js"
+        "google"
     ],
     "root": true,
     "env": {
