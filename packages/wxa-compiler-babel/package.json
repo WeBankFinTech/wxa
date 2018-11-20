@@ -30,7 +30,10 @@
   },
   "dependencies": {
     "@babel/core": "^7.1.0",
-    "debug": "^4.0.1"
+    "debug": "^4.0.1",
+    "find-cache-dir": "^2.0.0",
+    "mkdirp": "^0.5.1",
+    "zlib": "^1.0.5"
   },
   "publishConfig": {
     "access": "public"
