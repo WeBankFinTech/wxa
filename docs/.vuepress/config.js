@@ -37,7 +37,7 @@ module.exports = {
                 lastUpdated: '上次编辑时间',
                 sidebarDepth: 4,
                 nav: [
-                    {text: '指南', link: '/guide/'},
+                    {text: '教程', link: '/learn/guide/'},
                     {text: 'CORE', link: '/core/'},
                     {text: 'CLI', link: '/cli/'},
                     {
@@ -67,22 +67,35 @@ module.exports = {
             },
         },
         sidebar: {
-            '/guide/': [
-                '',
-                'quickstart',
-                'construction',
-                'develop',
-                'mixin',
-                'component',
-                'plugin',
-                'editor'
+            '/learn/': [
+                {
+                    title: '指南',
+                    collapsable: false,
+                    children: [
+                        '/learn/guide/',
+                        '/learn/guide/quickstart',
+                        '/learn/guide/construction',
+                        '/learn/guide/develop',
+                        '/learn/guide/mixin',
+                        '/learn/guide/component',
+                        '/learn/guide/plugin',
+                        '/learn/guide/editor'
+                    ]
+                },
+                {
+                    title: '进阶',
+                    collapsable: false,
+                    children: [
+                        '/learn/advance/preload'
+                    ]
+                }
             ],
             '/core/': [
                 '',
                 'global',
                 {
                     title: '装饰器',
-                    collapse: false,
+                    collapsable: false,
                     children: [
                         '/core/decorators/class',
                         '/core/decorators/methods',
