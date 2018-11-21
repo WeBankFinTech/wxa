@@ -1,7 +1,7 @@
 # 介绍
 wxa是一个[AOP](https://en.wikipedia.org/wiki/Aspect-oriented_programming)框架，通过预编译和运行时动态代理实现对小程序实例方法的拦截、改写、新增等操作。
 
-wxa提供了丰富的Decorator用于赋能小程序，开发者可以方便简洁的实现相应的业务需求。
+wxa提供了丰富的Decorator用于开发小程序，开发者可以方便简洁的实现相应的业务需求。
 
 wxa是一套完善的微信小程序开发解决方案，通过Decorator增强小程序能力，基于nodejs工程化小程序开发流程，同时支持Vue单文件开发模式和原生小程序开发模式！此外还提供了一套基于wxa开发UI组件。
 
