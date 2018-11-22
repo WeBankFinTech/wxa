@@ -45,6 +45,7 @@
     "find-cache-dir": "^1.0.0",
     "find-root": "^1.1.0",
     "globby": "^8.0.1",
+    "inquirer": "^6.2.0",
     "js-base64": "^2.4.0",
     "mkdirp": "^0.5.1",
     "node-notifier": "^5.2.1",
