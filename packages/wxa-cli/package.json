@@ -49,6 +49,7 @@
     "js-base64": "^2.4.0",
     "mkdirp": "^0.5.1",
     "node-notifier": "^5.2.1",
+    "shelljs": "^0.8.3",
     "tapable": "^1.0.0",
     "valid-url": "^1.0.9",
     "xmldom": "^0.1.27"

@@ -142,7 +142,7 @@ commander
             },
         ]);
 
-        console.log(opts);
+        // console.log(opts);
 
         new Creator(cmd).run(opts);
     });
