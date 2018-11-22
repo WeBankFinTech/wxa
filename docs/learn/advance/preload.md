@@ -88,7 +88,7 @@ import {Page, Debounce} from '@wxa/core';
 export default class A {
   @Debounce
   tap() {
-    this.$route.push('./b');
+    this.$router.push('./b');
   }
 }
 ```
