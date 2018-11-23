@@ -42,8 +42,8 @@ let unmountRedux = function (originUnmount) {
 export const wxaRedux = ({
     reducers,
     middlewares
-}={}, type) => {
-    return (vm) => {
+}={}) => {
+    return (vm, type) => {
         if (type === 'App') {
             let args = [reducers];
             if (middlewares) args.push(applyMiddleware(...middlewares));

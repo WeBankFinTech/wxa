@@ -81,7 +81,7 @@ export class Wxa {
         // 允许添加自定义方法
         this.$$plugins.forEach((plugin)=>{
             try {
-                plugin.fn.call(null, plugin.options, 'App').call(null, vm, 'App');
+                plugin.fn.call(null, vm, 'App');
             } catch (e) {
                 console.error(e);
             }
@@ -121,7 +121,7 @@ export class Wxa {
         }
         // 允许添加自定义方法
         this.$$plugins.forEach((plugin)=>{
-            plugin.fn.call(null, plugin.options, 'Page').call(null, vm, 'Page');
+            plugin.fn.call(null, vm, 'Page');
         });
 
         if (!!pagePath) {
@@ -143,7 +143,7 @@ export class Wxa {
 
         // 允许添加自定义方法
         this.$$plugins.forEach((plugin)=>{
-            plugin.fn.call(null, plugin.options, 'Component').call(null, vm, 'Component');
+            plugin.fn.call(null, vm, 'Component');
         });
 
         let methods = vm.methods || {};
@@ -176,8 +176,11 @@ export class Wxa {
         this.$$globalMixins.push(obj);
     }
     use(plugin, options) {
+        // initial options for plugin.
+        let pluginFn = plugin.call(null, options);
+
         this.$$plugins.push({
-            fn: plugin,
+            fn: pluginFn,
             options,
         });
     }
