@@ -4,19 +4,19 @@ import debugPKG from 'debug'
 
 let debug = debugPKG('WXA:SASS-Loader')
 class SassCompiler {
-    constructor(cwd, compilers) {
-        if (SassCompiler.prototype.instance) return SassCompiler.prototype.instance;
-        SassCompiler.prototype.instance = this;
+    constructor(cwd, configs) {
+        // default match file path.
+        this.test = /\.sass|\.scss/;
 
         this.current = cwd;
         this.configs = null;
         try {
             let pkg = require(path.join(this.current, 'package.json'));
-            this.configs = pkg.sass;
+            this.configs = pkg.sass || pkg.scss;
         } catch (e) {
-            this.configs = compilers.sass || {};
+            this.configs = configs || {};
         }
-        if(this.configs == null) this.configs = compilers.sass || {};
+        if(this.configs == null) this.configs = configs || {};
     }
 
     async parse(mdl, cmdConfigs) {

@@ -7,7 +7,7 @@
     "build": "babel src --out-dir dist",
     "dev": "babel --watch src --out-dir dist",
     "dev-lib": "babel --watch lib --out-dir lib-dist",
-    "prepublish": "npm run build",
+    "prepublish": "rm package-lock.json && npm run build",
     "travis-dev": "babel src --out-dir dist"
   },
   "author": "iveswen",

@@ -69,7 +69,8 @@ class CompilerLoader {
                     let instance = new Loader(this.current, options);
                     let test = loader.test || instance.test;
 
-                    if (test == null) throw new Error('Invalid loader config in ', JSON.stringify(loader));
+                    if (test == null) throw new Error('wxa.config.js配置有误，请指定use.loader.test', JSON.stringify(loader));
+
                     this.loaders.push({
                         test, loader: instance, options, cmdOptions,
                     });
