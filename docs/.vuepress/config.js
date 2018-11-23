@@ -1,7 +1,9 @@
+var path = require('path')
+
 module.exports = {
     title: '@wxa',
     base: '/wxa/',
-    ga: 'UA-74795022-1',
+    contentLoading: true,
     head: [
         ['link', { rel: 'icon', href: `/logo-mini.png` }],
     ],
@@ -114,5 +116,20 @@ module.exports = {
             ]
         },
         evergreen: true
-    }
+    },
+    plugins: [
+        ['@vuepress/pwa', {
+            serviceWorker: true,
+            updatePopup: {
+                message: "文档有更新",
+                buttonText: "刷新"
+            }
+        }],
+        '@vuepress/back-to-top',
+        '@vuepress/notification',
+        '@vuepress/plugin-medium-zoom',
+        'flowchart',
+        ['@vuepress/google-analytics', {ga: 'UA-116900237-1'}]
+    ],
+    clientRootMixin: path.resolve(__dirname, 'mixin.js')
 }

@@ -69,7 +69,7 @@ export default class Center {
 :::
 
 ## 使用第三方组件
-利用[`@wxa/cli`](../cli/)我们可以超级方便的引用任何第三方的组件！:confetti_ball:
+利用[`@wxa/cli`](../../cli/)我们可以超级方便的引用任何第三方的组件！:confetti_ball:
 
 譬如我们想在项目中使用有赞UI，我们可以先运行`npm i vant-weapp`安装有赞ui组件。然后在项目json配置文件中直接引用即可：
 
