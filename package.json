@@ -15,7 +15,7 @@
 		"vuepress": "^1.0.0-alpha.23"
 	},
 	"scripts": {
-		"publish-next": "lerna publish --npm-tag=next --canary --ignore @wxa/form --ignore @wxa/plugin-dependencies-analysis",
+		"publish-next": "lerna publish --npm-tag=next --canary --preid beta --ignore @wxa/form --ignore @wxa/plugin-dependencies-analysis",
 		"commit": "git-cz"
 	},
 	"lint-staged": {
