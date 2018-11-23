@@ -2,9 +2,9 @@ import stylus from 'stylus';
 import path from 'path';
 
 class StylusCompiler {
-    constructor(cwd, compilers) {
-        if (StylusCompiler.prototype.instance) return StylusCompiler.prototype.instance;
-        StylusCompiler.prototype.instance = this;
+    constructor(cwd, configs) {
+        // default match file path.
+        this.test = /\.stylus|\.styl/;
 
         this.current = cwd;
         this.configs = null;
@@ -12,30 +12,35 @@ class StylusCompiler {
             let pkg = require(path.join(this.current, 'package.json'));
             this.configs = pkg.stylus;
         } catch (e) {
-            this.configs = compilers.stylus || {};
+            this.configs = configs || {};
         }
-        if(this.configs == null) this.configs = compilers.stylus || {};
+        if(this.configs == null) this.configs = configs || {};
     }
 
-    parse(content, configs, filepath) {
+    parse(mdl, cmdConfigs) {
         return new Promise((resolve, reject)=>{
-            let opath = path.parse(filepath);
+            let opath = path.parse(mdl.src);
             let cfg = {
-                ...configs,
+                ...this.configs,
                 filename: opath.base,
                 paths: [opath.dir]
             };
-            stylus.render(content, cfg, (err, res)=>{
-                if (err) reject(err);
-                else resolve(res);
+
+            stylus.render(mdl.content, cfg, (err, res)=>{
+                if (err) return reject(err);
+
+                // custom outputPath
+                if(mdl.meta) {
+                    let source = path.parse(mdl.meta.source);
+                    mdl.meta.source = source.dir + path.sep + source.name + '.css';
+
+                    let output = path.parse(mdl.meta.outputPath);
+                    mdl.meta.outputPath = output.dir + path.sep + output.name + '.css'
+                }
+
+                resolve(res);
             });
         });
-    }
-
-    mount(map) {
-        map['stylus'] = this;
-        map['styl'] = this;
-        return map;
     }
 }
 

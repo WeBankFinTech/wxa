@@ -44,6 +44,9 @@ function amazingCache(params, needCache) {
 
 class BabelLoader {
     constructor(cwd, configs) {
+        // default match file path.
+        this.test = /\.js$|\.wxs$/;
+
         this.current = cwd;
         // get configuration from .babelrc, package.json or wxa.config.js
         this.configs = null;
