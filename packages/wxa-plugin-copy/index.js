@@ -1,5 +1,6 @@
 var ncp = require('ncp').ncp;
 var path = require('path');
+var mkdirp = require('mkdirp');
 
 module.exports = class CopyPlugin {
     constructor(options={}) {
@@ -29,19 +30,23 @@ module.exports = class CopyPlugin {
         var dist = path.join(compilation.wxaConfigs.output.path, this.options.to);
         var options = this.options;
 
-        ncp(source, dist, {
-            filter(filename){
-                return !options.ignore.some((value)=>{
-                    let reg = value instanceof RegExp ? value : new RegExp(value);
-                    return reg.test(filename);
-                });
-            }
-        }, function(err){
-            if(err) {
-                next(err)
-            }
+        mkdirp(dist, function(err) {
+            if(err) return next(err);
 
-            next();
+            ncp(source, dist, {
+                filter(filename){
+                    return !options.ignore.some((value)=>{
+                        let reg = value instanceof RegExp ? value : new RegExp(value);
+                        return reg.test(filename);
+                    });
+                }
+            }, function(err){
+                if(err) {
+                    next(err)
+                }
+    
+                next();
+            });
         })
     }
 }

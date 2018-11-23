@@ -14,6 +14,7 @@
   "author": "Genuifx",
   "license": "MIT",
   "dependencies": {
+    "mkdirp": "^0.5.1",
     "ncp": "^2.0.0"
   }
 }
