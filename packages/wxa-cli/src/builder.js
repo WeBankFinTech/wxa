@@ -182,8 +182,14 @@ class Builder {
 
             // do dependencies analysis.
             await this.schedule.doDPA();
-            debug('schedule dependencies Tree is %O', this.schedule.$indexOfModule);
-            // debug('createClass reference %O', this.schedule.$indexOfModule.find((mdl)=>mdl.src.match(new RegExp('/Users/wenzetian/Documents/web/webank/miniprogram/test-vant/vant/node_modules/@babel/runtime/helpers/createClass.js'))).reference);
+            debug('schedule dependencies Tree is %O', this.schedule.$indexOfModule.map((item)=>{
+                delete item.ast;
+                delete item.xml;
+
+                if (item.reference) delete item.reference;
+
+                return item;
+            }));
 
             await this.optimizeAndGenerate(this.schedule.$indexOfModule);
 
@@ -209,7 +215,7 @@ class Builder {
 
             await Promise.all(optimizeTasks).catch((e)=>{
                 this.progress.clean();
-                console.error(e);
+                logger.error(e);
             });
 
             this.progress.clean();
@@ -224,7 +230,7 @@ class Builder {
             this.progress.clean();
         } catch (e) {
             this.progress.clean();
-            console.error(e);
+            logger.error(e);
         }
     }
 
@@ -244,11 +250,11 @@ class Builder {
         }
 
         entry = this.hooks.entryOption.call(entry) || entry;
-        debug('entry after hooks %O', entry);
+        // debug('entry after hooks %O', entry);
 
         entry = await globby(entry);
         entry = entry.map((item)=>item.replace(/\//g, path.sep));
-        debug('entry after globby %O', entry);
+        // debug('entry after globby %O', entry);
 
         entry.forEach((point)=>{
             let mdl = {};
@@ -267,16 +273,16 @@ class Builder {
             let dr = new DependencyResolver(this.schedule.wxaConfigs.resolve, this.schedule.meta);
             let outputPath = dr.getOutputPath(point, defaultPret, root);
 
-            debug('entry point %O', {
-                src: point,
-                pret: defaultPret,
-                category: isAPP(point) ? 'App' : 'Entry',
-                meta: {
-                    source: point,
-                    outputPath,
-                },
-                ...mdl,
-            });
+            // debug('entry point %O', {
+            //     src: point,
+            //     pret: defaultPret,
+            //     category: isAPP(point) ? 'App' : 'Entry',
+            //     meta: {
+            //         source: point,
+            //         outputPath,
+            //     },
+            //     ...mdl,
+            // });
 
             mdl = {
                 src: point,

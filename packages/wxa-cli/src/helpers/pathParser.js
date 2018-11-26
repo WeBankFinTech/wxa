@@ -6,6 +6,7 @@ export default class PathParser {
     constructor() {
         this.pkgReg = /^[@\w\_\-\d]+(\/[\w\-\_\d@\.]+)*$/;
         this.base64Reg = /^data:[\w\/;,+]/;
+        this.dynamicReg = /{{[^{}]*}}/;
     }
 
     parse(x) {
@@ -18,6 +19,8 @@ export default class PathParser {
             isURI: false,
             isPlugin: false,
             isWXALib: false,
+            isDynamic: false,
+            isBase64: false,
         };
 
         // judge path's kind;
@@ -35,6 +38,10 @@ export default class PathParser {
             else ret.isURI = true;
         } else if (this.base64Reg.test(x)) {
             ret.isURI = true;
+            ret.isBase64 = true;
+        } else if (this.dynamicReg.test(x)) {
+            ret.isURI = true;
+            ret.isDynamic = true;
         } else {
             logger.error('Path Error', '无法解析的路径类型: '+x);
         }

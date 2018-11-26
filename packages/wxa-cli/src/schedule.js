@@ -143,7 +143,13 @@ class Schedule extends EventEmitter {
             let childNodes = await compiler.parse(dep);
 
             debug('childNodes', childNodes);
-            let children = childNodes.map((node)=>this.findOrAddDependency(node, dep));
+            let children = childNodes.reduce((children, node)=>{
+                let child = this.findOrAddDependency(node, dep);
+
+                if (child) return children.concat(child);
+
+                return children;
+            }, []);
 
             // if watch mode, use childNodes to clean up the dep tree.
             // update each module's childnodes, then according to reference unlink file.
@@ -235,6 +241,8 @@ class Schedule extends EventEmitter {
     }
 
     findOrAddDependency(dep, mdl) {
+        if (dep.pret.isURI || dep.pret.isDynamic || dep.pret.isBase64) return null;
+
         debug('Find Dependencies started');
 
         // circle referrence.

@@ -25,6 +25,7 @@ class DependencyResolver {
 
         let {pret, source} = this.$resolve(lib, mdl);
 
+        if (pret.isURI || pret.isDynamic || pret.isBase64) return {pret, source, lib};
         // 处理无后缀情况
         // ext = path.extname(source);
         if (!isFile(source) && !pret.isWXALib) {

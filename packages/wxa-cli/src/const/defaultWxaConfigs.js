@@ -18,7 +18,7 @@ export default class DefaultWxaConfigs {
                     '@': path.join(this.cwd, 'src'),
                 },
             },
-            entry: [path.resolve(this.cwd, 'src/app*'), path.resolve(this.cwd, 'src/project.config.json')],
+            entry: [path.resolve(this.cwd, 'src/app*'), path.resolve(this.cwd, 'src/project.config.json'), path.resolve(this.cwd, 'src/ext.json')],
             output: {
                 path: path.resolve(this.cwd, 'dist'),
             },
