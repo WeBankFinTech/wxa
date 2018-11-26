@@ -1,5 +1,6 @@
 import {readFile, isFile, amazingCache} from './utils';
 import path from 'path';
+import globby from 'globby';
 import bar from './helpers/progressBar';
 import logger from './helpers/logger';
 import {EventEmitter} from 'events';
@@ -107,7 +108,7 @@ class Schedule extends EventEmitter {
         // while (this.$depPending.length) {
             let dep = this.$depPending.shift();
 
-            debug('file to parse %O', dep);
+            // debug('file to parse %O', dep);
             tasks.push(this.$parse(dep));
         // }
 
@@ -138,7 +139,7 @@ class Schedule extends EventEmitter {
             this.tryWrapWXA(dep);
 
             // Todo: conside if cache is necessary here.
-            debug('dep to process %O', dep);
+            // debug('dep to process %O', dep);
             let compiler = new Compiler(this.wxaConfigs.resolve, this.meta, this.appConfigs);
             let childNodes = await compiler.parse(dep);
 
@@ -378,19 +379,19 @@ class Schedule extends EventEmitter {
                     logger.error(e);
                 }
             } else {
-                exts.forEach((ext)=>{
-                    let p = path.join(this.meta.context, page+ext);
+                let sections = globby.sync(path.join(this.meta.context, page+'.*'));
 
-                    if (isFile(p)) {
-                        let outputPath = dr.getOutputPath(p, defaultPret, ROOT);
+                sections.forEach((section)=>{
+                    if (isFile(section)) {
+                        let outputPath = dr.getOutputPath(section, defaultPret, ROOT);
                         let pagePoint = this.addEntryPoint({
-                            content: readFile(p),
-                            src: p,
+                            content: readFile(section),
+                            src: section,
                             category: 'Page',
                             pagePath: page,
                             pret: defaultPret,
                             meta: {
-                                source: p,
+                                source: section,
                                 outputPath,
                             },
                         });
