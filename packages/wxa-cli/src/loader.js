@@ -67,6 +67,7 @@ class CompilerLoader {
                     debug('loader started');
                     let options = loader.options || {};
                     let instance = new Loader(this.current, options);
+                    // console.log(instance);
                     let test = loader.test || instance.test;
 
                     if (test == null) throw new Error('wxa.config.js配置有误，请指定use.loader.test', JSON.stringify(loader));

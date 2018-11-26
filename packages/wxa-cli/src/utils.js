@@ -87,6 +87,8 @@ export function getDistPath(opath, ext, src, dist) {
 
 export function copy(from, to) {
     return new Promise((resolve, reject)=>{
+        mkdirp.sync(path.parse(to).dir);
+
         let readable = fs.createReadStream(from);
         let writeable = fs.createWriteStream(to);
         readable.pipe(writeable);
