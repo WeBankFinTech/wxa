@@ -1,6 +1,6 @@
 {
   "name": "@wxa/plugin-copy",
-  "version": "1.0.0",
+  "version": "2.0.0-beta.020496bf",
   "description": "copy static assets for wxa page",
   "main": "index.js",
   "scripts": {
