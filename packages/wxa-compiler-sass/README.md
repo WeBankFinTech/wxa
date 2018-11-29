@@ -1,18 +1,33 @@
 # wxa-compiler-sass
-wxa sass compiler
+sass 编译器
 
-# Install 
-run `npm` to install. example: `npm i -D @wxa/compiler-sass`
+## Install 
+``` sh
+npm i -D @wxa/compiler-sass
+```
 
-# Usage
+## Usage
+
+### 使用默认配置
+
 ```javascript
 // wxa.config.js
 module.exports = {
     use: ['sass'],
-    compiler: {
-        sass: {
-            // enter your sass option here
-        }
-    }
 }
 ```
+
+### 指定 sass 配置
+
+```javascript
+// wxa.config.js
+module.exports = {
+    use: [{
+        name: 'sass',
+        test: /\.sass$|\.scss$/,
+        options: {}
+    }],
+}
+```
+
+sass 相关配置请查看 [node-sass](https://github.com/sass/node-sass)
