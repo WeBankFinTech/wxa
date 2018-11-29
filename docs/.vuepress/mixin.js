@@ -1,7 +1,7 @@
 const notification = {
     '/': `
     <div>
-      <div>请注意这是 <b>2.x</b> 的文档，由于目前 2.x 仍处于 <b>alpha</b> 阶段，在我们到达 <b>beta</b> 阶段之前，有些 API 可能会变化、应用也可能不够稳定，所以目前我们推荐你在生产环境中使用 <b>1.x</b> .</div>
+      <div>请注意这是 <b>2.x</b> 的文档，由于目前 2.x 处于 <b>beta</b> 阶段，核心功能和 API 已经稳定，不会有大的 Break Change 出现，欢迎使用。
       <br>
       <ul>
         <li>1.x 的文档: <a style="color: #fff;" href="https://genuifx.com/wxa/v0/"><code>genuifx.com/wxa/v0/</code></a>
