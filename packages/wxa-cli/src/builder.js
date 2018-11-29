@@ -1,5 +1,3 @@
-import 'babel-polyfill';
-
 import {readFile, applyPlugins, isFile} from './utils';
 import path from 'path';
 import fs from 'fs';
