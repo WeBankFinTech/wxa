@@ -3,14 +3,12 @@ node_js:
 - '8'
 - '10'
 os:
-- windows
-- linux
 - osx
 install: 
 - npm i
 - npm i -g npx
 - npm install -g codecov
-- npx lerna bootstrap
+- npx lerna bootstrap --scope @wxa/core
 script: 
 - npx lerna run travis --scope @wxa/core
 after_success:
