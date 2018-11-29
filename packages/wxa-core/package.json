@@ -12,7 +12,7 @@
         "travis": "npm run cover",
         "precommit": "lint-staged",
         "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0",
-        "prepublish": "npm run prebuild && npm run build",
+        "prepublishOnly": "npm run prebuild && npm run build",
         "commit": "git cz"
     },
     "author": "iveswen",
