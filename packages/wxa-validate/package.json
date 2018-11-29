@@ -1,7 +1,7 @@
 {
   "name": "@wxa/validate",
   "version": "0.2.0-beta.6fbe2fbd",
-  "description": "watch plugin for wxa",
+  "description": "form plugin for wxa",
   "main": "dist/main.js",
   "scripts": {
     "build": "cross-env NODE_ENV=production webpack src/index.js --output-path ./dist/",
@@ -10,7 +10,7 @@
     "test": "jest"
   },
   "keywords": [
-    "watch",
+    "form",
     "wxa"
   ],
   "author": "iveswen",
