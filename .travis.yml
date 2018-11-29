@@ -1,0 +1,15 @@
+language: node_js
+node_js:
+- '8'
+- '10'
+os:
+- windows
+- linux
+- osx
+install: 
+- npm i
+- npm install -g codecov
+script: 
+- lerna run travis --scope @wxa/core
+after_success:
+- codecov
