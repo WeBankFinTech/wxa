@@ -6,8 +6,7 @@
   "scripts": {
     "build": "babel index.js fs-cache.js --out-dir dist",
     "dev": "babel --watch index.js fs-cache.js --out-dir dist",
-    "prepublish": "npm run build",
-    "test": "jest"
+    "prepublishOnly": "npm run build"
   },
   "repository": {
     "type": "git",
