@@ -1,11 +1,11 @@
 {
   "name": "@wxa/watch",
-  "version": "0.2.0",
+  "version": "2.0.0-beta.020496bf",
   "description": "watch plugin for wxa",
   "main": "dist/index.js",
   "scripts": {
     "build": "babel src --out-dir ./dist/",
-    "prepublish": "npm run build",
+    "prepublishOnly": "npm run build",
     "dev": "babel --watch src --out-dir ./dist/",
     "test": "jest"
   },
