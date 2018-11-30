@@ -105,9 +105,9 @@ module.exports = {
 
 指定加载对应的compiler，如`babel`，则cli将自动加载项目依赖中的`@wxa/compiler-babel`。
 目前支持的compiler有：
-- [`@wxa/compiler-babel`](https://github.com/Genuifx/wxa-compiler-babel)
-- [`@wxa/compiler-sass`](https://github.com/Genuifx/wxa-compiler-sass)
-- [`@wxa/compiler-stylus`](https://github.com/Genuifx/wxa-compiler-stylus)
+- [`@wxa/compiler-babel`](https://github.com/Genuifx/wxa/tree/master/packages/wxa-compiler-babel)
+- [`@wxa/compiler-sass`](https://github.com/Genuifx/wxa/tree/master/packages/wxa-compiler-sass)
+- [`@wxa/compiler-stylus`](https://github.com/Genuifx/wxa/tree/master/packages/wxa-compiler-stylus)
 
 ### use / options
 - **类型**: `Object`
@@ -117,10 +117,10 @@ module.exports = {
 
 ## plugins
 目前支持的插件有：
-- [`@wxa/plugin-replace`](https://github.com/Genuifx/wxa/tree/dev/packages/wxa-plugin-replace)
-- [`@wxa/plugin-uglifyjs`](https://github.com/Genuifx/wxa/tree/dev/packages/wxa-plugin-uglifyjs)
-- [`@wxa/plugin-postcss`](https://github.com/Genuifx/wxa/tree/dev/packages/wxa-plugin-postcss)
-- [`@wxa/plugin-copy`](https://github.com/Genuifx/wxa/tree/dev/packages/wxa-plugin-copy)
+- [`@wxa/plugin-replace`](https://github.com/Genuifx/wxa/tree/master/packages/wxa-plugin-replace)
+- [`@wxa/plugin-uglifyjs`](https://github.com/Genuifx/wxa/tree/master/packages/wxa-plugin-uglifyjs)
+- [`@wxa/plugin-postcss`](https://github.com/Genuifx/wxa/tree/master/packages/wxa-plugin-postcss)
+- [`@wxa/plugin-copy`](https://github.com/Genuifx/wxa/tree/master/packages/wxa-plugin-copy)
 
 用法如下：
 
