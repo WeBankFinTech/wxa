@@ -9,8 +9,6 @@ export const parseRule = (rule) => {
     return { name, params };
 };
 
-export const isObject = (obj) => obj !== null && obj && typeof obj === 'object' && ! Array.isArray(obj)
-
 export const normalizeRules = (rules) => {
     // if falsy value return an empty object.
     if (!rules) {
@@ -18,21 +16,16 @@ export const normalizeRules = (rules) => {
     }
 
     if (isObject(rules)) {
-        // $FlowFixMe
         return Object.keys(rules).reduce((prev, curr) => {
             let params = [];
-            // $FlowFixMe
             if (rules[curr] === true) {
                 params = [];
             } else if (Array.isArray(rules[curr])) {
-                params = rules[curr];
-            } else if (isObject(rules[curr])) {
                 params = rules[curr];
             } else {
                 params = [rules[curr]];
             }
 
-            // $FlowFixMe
             if (rules[curr] !== false) {
                 prev[curr] = params;
             }
@@ -57,6 +50,40 @@ export const normalizeRules = (rules) => {
     }, {});
 };
 
+export const isObject = (obj) => obj !== null && obj && typeof obj === 'object' && ! Array.isArray(obj);
+
 export const isEmptyArray = (arr) => {
     return Array.isArray(arr) && arr.length === 0;
+};
+
+/**
+ * Checks if the values are either null or undefined.
+ */
+export const isNullOrUndefined = (values) => {
+    return values.every(value => {
+        return value === null || value === undefined;
+    });
+};
+/**
+ * Checks if a function is callable.
+ */
+export const isCallable = (func) => typeof func === 'function';
+
+/**
+ * Converts an array-like object to array, provides a simple polyfill for Array.from
+ */
+export const toArray = (arrayLike) => {
+    if (isCallable(Array.from)) {
+        return Array.from(arrayLike);
+    }
+
+    const array = [];
+    const length = arrayLike.length;
+
+    for (let i = 0; i < length; i++) {
+        array.push(arrayLike[i]);
+    }
+
+
+    return array;
 };
