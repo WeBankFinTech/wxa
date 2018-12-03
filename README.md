@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://travis-ci.com/Genuifx/wxa"><img alt="Travis Status" src="https://travis-ci.com/Genuifx/wxa.svg?branch=master?label=travis&maxAge=43200"></a>
+  <a href="https://travis-ci.com/Genuifx/wxa"><img alt="Travis Status" src="https://travis-ci.com/Genuifx/wxa.svg?branch=master"></a>
   <a href="https://codecov.io/gh/Genuifx/wxa">
     <img src="https://codecov.io/gh/Genuifx/wxa/branch/master/graph/badge.svg" />
   </a>
@@ -24,3 +24,4 @@
 :100:More detail [documents](https://genuifx.github.io/wxa/)
 
 :100:更完善的[文档](https://genuifx.github.io/wxa/)
+

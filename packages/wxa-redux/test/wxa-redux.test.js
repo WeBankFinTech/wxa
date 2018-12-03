@@ -1,5 +1,11 @@
 import {wxaRedux, combineReducers} from '../src/index'
 
+getCurrentPages = function() {
+    return [{route: 'pages/index/index'}];
+};
+
+let og = getApp;
+
 let todo = function(state=[], action) {
     switch(action.type) {
         case 'add' : {
@@ -30,7 +36,7 @@ let setData = function(data) {
 test('mount redux store and middlewares', ()=>{
     let reduxFn = wxaRedux({
         reducers: combineReducers({todo})
-    }, 'App');
+    });
 
     let mw = jest.fn();
     let reduxFnMW = wxaRedux({
@@ -40,13 +46,13 @@ test('mount redux store and middlewares', ()=>{
                 mw();
             }
         }]
-    }, 'App');
+    });
 
     let vm = {}, vm2 = {};
 
-    reduxFn(vm);
+    reduxFn(vm, 'App');
 
-    reduxFnMW(vm2);
+    reduxFnMW(vm2, 'App');
 
     expect(vm.$store).not.toBeNull();
     expect(mw.mock.calls.length).toBe(1);
@@ -68,18 +74,21 @@ describe('Page', ()=>{
             todo,
             todoDel
         })
-    }, 'App');
-    let app = {}; reduxFnApp(app);
+    });
+    let app = {}; reduxFnApp(app, 'App');
     
-    let reduxFnPage = wxaRedux({}, 'Page');
+    let reduxFnPage = wxaRedux({});
+
+    global.getApp = ()=>app;
 
     test('subscribe redux', ()=>{
+
         let page = {
             app,
             setData
         }; 
     
-        reduxFnPage(page);
+        reduxFnPage(page, 'Page');
     
         expect(page.$unsubscribe).toBeFalsy();
         page.onLoad();
@@ -98,7 +107,7 @@ describe('Page', ()=>{
             onLoad, onShow, onHide, onUnload
         };
 
-        reduxFnPage(page);
+        reduxFnPage(page, 'Page');
 
         expect(onLoad.mock.calls.length).toBe(0);
         page.onLoad({scene: 110});
@@ -134,26 +143,29 @@ describe('Page', ()=>{
              setData
          };
 
-         reduxFnPage(page);
+         reduxFnPage(page, 'Page');
 
          page.onLoad();
 
-         page.store.dispatch({type: 'add', payload: 'test+1'});
+         page.$store.dispatch({type: 'add', payload: 'test+1'});
          expect(page.data).toBeFalsy();
-         expect(app.$store.getState().todo.length).toBe(1);
+         expect(page.$store.getState().todo.length).toBe(1);
          
          page.onShow();
-         page.store.dispatch({type: 'add', payload: 'test+2'});
-         page.store.dispatch({type: 'add', payload: 'test+3'});
+         page.$store.dispatch({type: 'add', payload: 'test+2'});
+         page.$store.dispatch({type: 'add', payload: 'test+3'});
+         
+         console.log(page.$store.getState().todo)
          expect(page.data.todoList.length).toBe(3);
 
+         process.exit(1)
 
-         page.store.dispatch({type: 'del', payload: 'test+3'});
+         page.$store.dispatch({type: 'del', payload: 'test+3'});
          expect(page.data.todoList.length).toBe(3);
          expect(app.$store.getState().todo.length).toBe(3);
          
          page.onHide();
-         page.store.dispatch({type: 'add', payload: 'test+2'});
+         page.$store.dispatch({type: 'add', payload: 'test+2'});
          expect(page.data.todoList.length).toBe(3);
          expect(app.$store.getState().todo.length).toBe(4);
          
@@ -171,7 +183,7 @@ describe('Page', ()=>{
             setData
         };
 
-        reduxFnPage(page);
+        reduxFnPage(page, 'Page');
         page.onLoad();
         page.onShow();
         page.$store.dispatch({type: 'add', payload: 'test+1'});
@@ -183,10 +195,12 @@ describe('Page', ()=>{
 describe('Component', ()=>{
     let reduxFnApp = wxaRedux({
         reducers: combineReducers({todo})
-    }, 'App');
-    let app = {}; reduxFnApp(app);
+    });
+    let app = {}; reduxFnApp(app, 'App');
     
     let reduxFnComponent = wxaRedux({}, 'Component');
+
+    global.getApp = ()=>app;
 
     test('mount redux', ()=>{
         const created = jest.fn();
@@ -197,13 +211,13 @@ describe('Component', ()=>{
         let comWithoutApp = {};
         let q = {scene: 110};
 
-        reduxFnComponent(com);
+        reduxFnComponent(com, 'Component');
         expect(com.$store).not.toBeNull();
         com.created(q);
         expect(created.mock.calls.length).toBe(1);
         expect(created).toHaveBeenCalledWith(q);
 
-        reduxFnComponent(comWithoutApp);
+        reduxFnComponent(comWithoutApp, 'Component');
         comWithoutApp.attached();
         expect(comWithoutApp.$unsubscribe).toBeFalsy();
     });
@@ -223,7 +237,7 @@ describe('Component', ()=>{
             setData
         }
         
-        reduxFnComponent(com);
+        reduxFnComponent(com, 'Component');
         com.created();
         
         com.attached();
@@ -241,4 +255,8 @@ describe('Component', ()=>{
         com.detached();
         expect(com.$unsubscribe).toBeNull();
     })
+})
+
+afterAll(()=>{
+    global.getApp = og;
 })
