@@ -6,8 +6,7 @@
   "scripts": {
     "build": "babel src --out-dir ./dist/",
     "prepublishOnly": "npm run build",
-    "dev": "babel --watch src --out-dir ./dist/",
-    "test": "jest"
+    "dev": "babel --watch src --out-dir ./dist/"
   },
   "keywords": [
     "watch",
