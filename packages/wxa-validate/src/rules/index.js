@@ -36,9 +36,8 @@ import url from './url';
 
 import bankcard from './bank_card';
 import id_no from './id_no';
-import username from './user_name';
+import username from './username';
 import mobile from './mobile';
-import otp from './otp';
 
 export {
     after,
@@ -79,6 +78,5 @@ export {
     bankcard,
     id_no,
     username,
-    mobile,
-    otp
+    mobile
 };

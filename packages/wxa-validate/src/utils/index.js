@@ -59,7 +59,7 @@ export const isEmptyArray = (arr) => {
 /**
  * Checks if the values are either null or undefined.
  */
-export const isNullOrUndefined = (values) => {
+export const isNullOrUndefined = (...values) => {
     return values.every(value => {
         return value === null || value === undefined;
     });
