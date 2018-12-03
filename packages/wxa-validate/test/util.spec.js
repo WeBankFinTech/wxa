@@ -1,5 +1,5 @@
-import * as utils from '@/utils';
-import * as dateUtils from '@/utils/date';
+import * as utils from '../src/utils';
+import * as dateUtils from '../src/utils/date';
 
 describe('util', () => {
     it('checks if a value is an object', () => {

@@ -20,6 +20,7 @@ let mountRedux = function (originHook) {
                         // 有效state
                         this.$$storeLastState = newState;
                         let diffData = this.$$reduxDiff(data);
+                        console.log('diff data ', diffData)
                         this.setData(diffData);
                     }
                 }
