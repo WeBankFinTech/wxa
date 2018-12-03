@@ -22,9 +22,9 @@ describe('util', () => {
     });
 
     it('checks if a value is null or undefined', () => {
-        expect(utils.isNullOrUndefined([null])).toBe(true);
-        expect(utils.isNullOrUndefined([undefined])).toBe(true);
-        expect(utils.isNullOrUndefined([undefined, 'null'])).toBe(false);
+        expect(utils.isNullOrUndefined(null)).toBe(true);
+        expect(utils.isNullOrUndefined(undefined)).toBe(true);
+        expect(utils.isNullOrUndefined('null')).toBe(false);
     });
 
     it('converts array like objects to arrays', () => {

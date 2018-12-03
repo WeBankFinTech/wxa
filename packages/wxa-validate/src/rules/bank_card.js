@@ -1,16 +1,15 @@
-
 const validate = (value) => {
-    return /^[0-9]{15,19}$/.test(value);
+    if (Array.isArray(value)) {
+        return value.every(val => /^[0-9]{15,19}$/.test(String(val)));
+    }
+
+    return /^[0-9]{15,19}$/.test(String(value));
 };
 
-const paramNames = ['locale'];
-
 export {
-    validate,
-    paramNames
+    validate
 };
 
 export default {
-    validate,
-    paramNames
+    validate
 };
