@@ -22,45 +22,27 @@ global.getCurrentPages = function() {
     return [{route: 'pages/index/index'}];
 };
 
-global.Page = ()=>{};
-global.Component = ()=>{};
-global.App = ()=>{};
+global.Page = ()=>{setData};
+global.Component = ()=>{setData};
+global.App = ()=>{setData};
 
-/**
- * { a: { b: 1 } } { 'a.b': 1 } { 'a.b[1].v': 1 }
- *    
- * @param {*} obj 
- */
-// let setData = function(obj) {
+global.setData = function setData(obj) {
 
-//     let keys = Object.keys(obj);
-//     let ret = {};
+    let keys = Object.keys(obj);
+    let ret = this.data;
 
-//     keys.forEach((key)=>{
-
-//         if ( !/[\.\[\]]/.test( field ) ) {
-//             ret[ key ] = obj[ key ];
-//         } else {
-//             let current = ret;
-//             let oldValue = this.data;
-//             let newValue = obj;
-
-//             key.split('.').forEach((field, idx, keyArr)=>{
-//                 if (/[\[\]]/.test(field)) {
-//                     let [match, arr, index] = /([^\[\]])+\[(\d+)\][^\[\]]*/.exec(field);
-
-//                 } else {
-//                     // 没数组
-//                     newValue = newValue[ field ];
-//                     oldValue = oldValue[ field ];
-
-//                     if( typeof oldValue !== 'object' ) {
-//                         current[ field ] = {};
-//                     } else {
-//                         current[ field ] = oldValue;
-//                     }
-//                 }
-//             })
-//         }
-//     });
-// }
+    keys.forEach(key => { //key可能是a["b"]['c']["d"].e.f.g['h']
+        let keyArr = key.split(/\[|\]|\.|\'|\"/).filter(k => k); // ["a", "b", "c", "d", "e", "f", "g", "h"]
+        let curr = ret;
+        keyArr.forEach((val, index, array) => {
+            if (index == array.length - 1) {
+                return curr[val] = obj[key];
+            }
+            if (!curr[val]) {
+                curr[val] = {}
+            }
+            curr = curr[val];
+        })
+    });
+}
+//setData({'a[\'bl\'].b[\'c\'][\"d\"][1][2]':1,'e.r.d.d.a[\'hhh\"]':12,'a[bl].b[decode][c][d]':1,})
