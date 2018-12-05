@@ -1,3 +1,3 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`throw error while type undefined 1`] = `"不合法的wxa组件类型"`;
+exports[`App register redux throw error while type undefined 1`] = `"不合法的wxa组件类型"`;

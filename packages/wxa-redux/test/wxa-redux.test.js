@@ -4,11 +4,21 @@ getCurrentPages = function() {
     return [{route: 'pages/index/index'}];
 };
 
-let og = getApp;
+let og = global.getApp;
 
 let todo = function(state=[], action) {
     switch(action.type) {
         case 'add' : {
+            state = [...state, action.payload]
+            return state;
+        }
+        default : return state;
+    }
+}
+
+let comTodo = function(state=[], action) {
+    switch(action.type) {
+        case 'comAdd' : {
             state = [...state, action.payload]
             return state;
         }
@@ -26,69 +36,92 @@ let todoDel = function(state=[], action) {
     }
 }
 
-let setData = function(data) {
-    this.data = {
-        ...this.data,
-        ...data
-    }
-}
-
-test('mount redux store and middlewares', ()=>{
-    let reduxFn = wxaRedux({
-        reducers: combineReducers({todo})
-    });
-
-    let mw = jest.fn();
-    let reduxFnMW = wxaRedux({
-        reducers: combineReducers({todo}),
-        middlewares: [function(store){
-            return function(){
-                mw();
-            }
-        }]
-    });
-
-    let vm = {}, vm2 = {};
-
-    reduxFn(vm, 'App');
-
-    reduxFnMW(vm2, 'App');
-
-    expect(vm.$store).not.toBeNull();
-    expect(mw.mock.calls.length).toBe(1);
-});
-
-test('throw error while type undefined', ()=>{
-    let reduxFn = wxaRedux({}, 'Hello');
-
-    let page = {};
-
-    expect(()=>{
-        reduxFn(page)
-    }).toThrowErrorMatchingSnapshot();
-});
-
-describe('Page', ()=>{
-    let reduxFnApp = wxaRedux({
-        reducers: combineReducers({
-            todo,
-            todoDel
-        })
-    });
-    let app = {}; reduxFnApp(app, 'App');
+describe('App register redux', ()=>{
+    test('mount redux store and middlewares', ()=>{
+        let reduxFn = wxaRedux({
+            reducers: combineReducers({todo})
+        });
     
-    let reduxFnPage = wxaRedux({});
+        let mw = jest.fn();
+        let reduxFnMW = wxaRedux({
+            reducers: combineReducers({todo}),
+            middlewares: [function(store){
+                return function(){
+                    mw();
+                }
+            }]
+        });
+    
+        let vm = {}, vm2 = {};
+    
+        reduxFn(vm, 'App');
+    
+        reduxFnMW(vm2, 'App');
+    
+        expect(vm.$store).not.toBeNull();
+        expect(mw.mock.calls.length).toBe(1);
+    });
+    
+    test('middlewares not array', ()=>{
+        let mw = jest.fn();
+    
+        let reduxFnMW = wxaRedux({
+            reducers: combineReducers({todo}),
+            middlewares: function(store){
+                return function(){
+                    mw();
+                }
+            }
+        });
+    
+        reduxFnMW({}, 'App');
+    
+        expect(mw).not.toHaveBeenCalled();
+    })
+    
+    test('throw error while type undefined', ()=>{
+        let reduxFn = wxaRedux({}, 'Hello');
+    
+        let page = {};
+    
+        expect(()=>{
+            reduxFn(page)
+        }).toThrowErrorMatchingSnapshot();
+    });
 
-    global.getApp = ()=>app;
+    test('reducers is null', ()=>{
+        let warn = jest.fn();
+        let ogWarn = console.warn;
+        console.warn = warn;
+        
+        let reduxFn = wxaRedux();
+        expect(warn).toHaveBeenCalled();
+
+        console.warn = ogWarn;
+    })
+})
+
+let app = {};
+global.getApp = ()=>app;
+let reduxFn = wxaRedux({
+    reducers: combineReducers({
+        todo,
+        todoDel,
+        comTodo,
+    })
+});
+
+reduxFn(getApp(), 'App');
+
+describe('Page use redux', ()=>{
 
     test('subscribe redux', ()=>{
 
         let page = {
-            app,
             setData
         }; 
     
-        reduxFnPage(page, 'Page');
+        reduxFn(page, 'Page');
     
         expect(page.$unsubscribe).toBeFalsy();
         page.onLoad();
@@ -102,12 +135,11 @@ describe('Page', ()=>{
         const onUnload = jest.fn();
 
         let page = {
-            app,
             setData,
             onLoad, onShow, onHide, onUnload
         };
 
-        reduxFnPage(page, 'Page');
+        reduxFn(page, 'Page');
 
         expect(onLoad.mock.calls.length).toBe(0);
         page.onLoad({scene: 110});
@@ -136,38 +168,35 @@ describe('Page', ()=>{
 
     test('update data', ()=>{
          let page = {
-             app,
+             data: {},
              mapState: {
                  todoList: (state)=>state.todo
              },
-             setData
+             setData: global.setData
          };
 
-         reduxFnPage(page, 'Page');
+         reduxFn(page, 'Page');
 
          page.onLoad();
 
          page.$store.dispatch({type: 'add', payload: 'test+1'});
-         expect(page.data).toBeFalsy();
+         expect(page.data).toMatchObject({});
          expect(page.$store.getState().todo.length).toBe(1);
          
          page.onShow();
          page.$store.dispatch({type: 'add', payload: 'test+2'});
          page.$store.dispatch({type: 'add', payload: 'test+3'});
          
-         console.log(page.$store.getState().todo)
          expect(page.data.todoList.length).toBe(3);
-
-         process.exit(1)
 
          page.$store.dispatch({type: 'del', payload: 'test+3'});
          expect(page.data.todoList.length).toBe(3);
-         expect(app.$store.getState().todo.length).toBe(3);
+         expect(page.$store.getState().todo.length).toBe(3);
          
          page.onHide();
          page.$store.dispatch({type: 'add', payload: 'test+2'});
          expect(page.data.todoList.length).toBe(3);
-         expect(app.$store.getState().todo.length).toBe(4);
+         expect(page.$store.getState().todo.length).toBe(4);
          
          page.onShow();
          page.onShow();
@@ -179,11 +208,10 @@ describe('Page', ()=>{
 
     test('page without map', ()=>{
         let page = {
-            app,
             setData
         };
 
-        reduxFnPage(page, 'Page');
+        reduxFn(page, 'Page');
         page.onLoad();
         page.onShow();
         page.$store.dispatch({type: 'add', payload: 'test+1'});
@@ -192,16 +220,7 @@ describe('Page', ()=>{
 
 });
 
-describe('Component', ()=>{
-    let reduxFnApp = wxaRedux({
-        reducers: combineReducers({todo})
-    });
-    let app = {}; reduxFnApp(app, 'App');
-    
-    let reduxFnComponent = wxaRedux({}, 'Component');
-
-    global.getApp = ()=>app;
-
+describe('Component use redux', ()=>{
     test('mount redux', ()=>{
         const created = jest.fn();
         let com = {
@@ -211,13 +230,13 @@ describe('Component', ()=>{
         let comWithoutApp = {};
         let q = {scene: 110};
 
-        reduxFnComponent(com, 'Component');
+        reduxFn(com, 'Component');
         expect(com.$store).not.toBeNull();
         com.created(q);
         expect(created.mock.calls.length).toBe(1);
         expect(created).toHaveBeenCalledWith(q);
 
-        reduxFnComponent(comWithoutApp, 'Component');
+        reduxFn(comWithoutApp, 'Component');
         comWithoutApp.attached();
         expect(comWithoutApp.$unsubscribe).toBeFalsy();
     });
@@ -227,28 +246,28 @@ describe('Component', ()=>{
         const detached = jest.fn();
 
         let com = {
-            app,
+            data: {},
             attached,
             detached,
             mapState: {
-                todoList: (state)=>state.todo,
-                first: (state)=>state.todo && state.todo[0]
+                todoList: (state)=>state.comTodo,
+                first: (state)=>state.comTodo && state.comTodo[0]
             },
-            setData
+            setData: global.setData
         }
         
-        reduxFnComponent(com, 'Component');
+        reduxFn(com, 'Component');
         com.created();
         
         com.attached();
         expect(attached.mock.calls.length).toBe(1);
-        expect(com.data).toBeFalsy();
+        expect(com.data).toMatchObject({});
         expect(com.$unsubscribe).not.toBeFalsy();
 
-        com.$store.dispatch({type: 'add', payload: 'testcom'});
+        com.$store.dispatch({type: 'comAdd', payload: 'testcom'});
         expect(com.data.todoList.length).toBe(1);
-        com.$store.dispatch({type: 'add', payload: 'testcom'});
-        com.$store.dispatch({type: 'add', payload: 'testcom'});
+        com.$store.dispatch({type: 'comAdd', payload: 'testcom'});
+        com.$store.dispatch({type: 'comAdd', payload: 'testcom'});
         expect(com.data.todoList.length).toBe(3);
         expect(com.data.first).not.toBeFalsy();
 
