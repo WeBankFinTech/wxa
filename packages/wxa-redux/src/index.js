@@ -20,7 +20,6 @@ let mountRedux = function (originHook) {
                         // 有效state
                         this.$$storeLastState = newState;
                         let diffData = this.$$reduxDiff(data);
-                        console.log('diff data ', diffData)
                         this.setData(diffData);
                     }
                 }
@@ -44,10 +43,12 @@ export const wxaRedux = ({
     reducers,
     middlewares
 }={}) => {
+    if(reducers == null) console.warn('不存在reducer, redux插件将无法工作。')
+
     return (vm, type) => {
-        if (type === 'App') {
+        if (type === 'App' && reducers) {
             let args = [reducers];
-            if (middlewares) args.push(applyMiddleware(...middlewares));
+            if (Array.isArray(middlewares)) args.push(applyMiddleware(...middlewares));
             vm.$store = createStore.apply(null, args);
         } else if (type === 'Page') {
             vm.$store = getApp().$store;
@@ -82,7 +83,7 @@ export const wxaRedux = ({
                 this.$store = getApp().$store;
                 if (created) created.apply(this, args);
             }
-            vm.$isCurrentPage = true;
+            vm.$$isCurrentPage = true;
             vm.attached = mountRedux(attached);
             vm.detached = unmountRedux(detached);
         } else {
