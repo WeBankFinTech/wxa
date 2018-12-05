@@ -18,7 +18,7 @@
 
 import WatchJS from 'melanke-watchjs';
 
-export default (options)=>{
+export default ()=>{
     return (vm, type)=>{
         if (type === 'Page') {
             let onload = vm.onLoad || function() {};
@@ -28,54 +28,43 @@ export default (options)=>{
             let isInit = false;
 
             vm.onLoad = function(...args) {
-                try {
-                    if (this.watch && !isInit) {
-                        isInit = true;
+                if (this.watch && !isInit && this.data) {
+                    isInit = true;
 
-                        Object.keys(this.watch).forEach((key)=>{
-                            let keyArr = key.split(/[.\[\]]/).filter((x)=>x!=null&&x!=='');
+                    Object.keys(this.watch).forEach((key)=>{
+                        let keyArr = key.split(/[.\[\]]/).filter((x)=>x!=null&&x!=='');
 
-                            let tar = keyArr[keyArr.length-1];
+                        let tar = keyArr[keyArr.length-1];
 
-                            let source = keyArr.slice(0, -1).reduce((prev, key)=>{
-                                try {
-                                    prev = prev[key];
-                                } catch (e) {
-                                    console.error(e);
-                                }
+                        let source = keyArr.slice(0, -1).reduce((prev, key)=>{
+                            if(typeof prev === 'object') {
+                                prev = prev[key];
                                 return prev;
-                            }, this.data);
+                            } else {
+                                return void(0);
+                            }
+                        }, this.data);
 
+                        if(source) {
                             watcher.push([source, tar, (prop, action, newValue, oldValue)=>{
                                 this.watch[key].apply(this, [newValue, oldValue]);
                             }]);
-                        });
-                    }
-                    watcher.forEach((subscriber)=>{
-                        WatchJS.watch(subscriber[0], [subscriber[1]], subscriber[2]);
+                        }
                     });
-                } catch (e) {
-                    console.log('watch mount fail');
-                    console.error(e);
                 }
+                watcher.forEach((subscriber)=>{
+                    WatchJS.watch(subscriber[0], [subscriber[1]], subscriber[2]);
+                });
 
                 onload.apply(this, args);
             };
 
             vm.onUnload = function(...args) {
-                try {
-                    watcher.forEach((subscriber)=>{
-                        WatchJS.unwatch(subscriber[0], [subscriber[1]], subscriber[2]);
-                    });
-                } catch (e) {
-                    console.log('watch unmount fail');
-                    console.error(e);
-                }
+                watcher.forEach((subscriber)=>{
+                    WatchJS.unwatch(subscriber[0], [subscriber[1]], subscriber[2]);
+                });
 
                 onUnload.apply(this, args);
-                // watcher = [];
-                // onload = null;
-                // onUnload =null;
             };
         }
     };
