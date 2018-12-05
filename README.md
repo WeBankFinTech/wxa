@@ -13,7 +13,7 @@
   <a href="https://codecov.io/gh/Genuifx/wxa">
     <img src="https://codecov.io/gh/Genuifx/wxa/branch/master/graph/badge.svg" />
   </a>
-  <img alt="node (scoped with tag, custom registry)" src="https://img.shields.io/node/v/@stdlib/stdlib/latest.svg?registry_uri=https%3A%2F%2Fregistry.npmjs.com" />
+  <img alt="node (scoped with tag, custom registry)" src="https://img.shields.io/badge/node-%3E%3D%208.0.0-brightgreen.svg?maxAge=2592000" />
   <img alt="Licence" src="https://img.shields.io/npm/l/@wxa/core.svg" />
 </p>
 
