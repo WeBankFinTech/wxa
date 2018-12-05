@@ -8,7 +8,7 @@ install:
 - npm i
 - npm i -g npx
 - npm install -g codecov
-- npx lerna bootstrap
+- npx lerna bootstrap -- --production --no-optional
 script: 
 # - npx lerna run travis --scope @wxa/core
 - npx jest
