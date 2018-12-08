@@ -27,7 +27,7 @@ async function start(options = {}) {
     console.log(`listening on port ${port}`); 
 }
 
-// test
+// test:
 start();
 module.exports = {
     start,
