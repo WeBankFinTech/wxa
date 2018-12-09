@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './App';
+import TreeMap from './components/TreeMap';
 
 ReactDOM.render(
-    <App />, 
+    <TreeMap/>, 
     document.getElementById('root')
 );
 

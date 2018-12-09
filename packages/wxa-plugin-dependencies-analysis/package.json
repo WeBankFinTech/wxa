@@ -5,7 +5,8 @@
   "scripts": {
     "start": "babel src --out-dir dist && webpack --config webpack.config.js && node dist/server.js",
     "dev:client": "webpack-dev-server",
-    "dev:server": "babel src --out-dir dist && node dist/server.js"
+    "dev": "babel src --out-dir dist && node dist/index.js",
+    "build": "babel src --out-dir dist && webpack --config webpack.config.js"
   },
   "keywords": [
     "wxa",
@@ -16,7 +17,7 @@
   "license": "",
   "dependencies": {
     "@babel/polyfill": "^7.0.0",
-    "d3": "^5.7.0",
+    "echarts": "^4.2.0-rc.2",
     "koa": "^2.5.3",
     "koa-static": "^5.0.0",
     "react": "^16.5.2",
@@ -26,6 +27,7 @@
   "devDependencies": {
     "@babel/cli": "^7.1.2",
     "@babel/core": "^7.1.2",
+    "@babel/plugin-proposal-class-properties": "^7.2.1",
     "@babel/preset-env": "^7.1.0",
     "@babel/preset-react": "^7.0.0",
     "@babel/register": "^7.0.0",
