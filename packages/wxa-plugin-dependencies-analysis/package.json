@@ -5,7 +5,8 @@
   "scripts": {
     "start": "babel src --out-dir dist && webpack --config webpack.config.js && node dist/server.js",
     "dev:client": "webpack-dev-server",
-    "dev": "babel src --out-dir dist && node dist/index.js"
+    "dev": "babel src --out-dir dist && node dist/index.js",
+    "build": "babel src --out-dir dist && webpack --config webpack.config.js"
   },
   "keywords": [
     "wxa",

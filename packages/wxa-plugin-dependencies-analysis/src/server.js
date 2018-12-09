@@ -5,7 +5,7 @@ const Koa = require('koa');
 const koaStatic = require('koa-static');
 const app = new Koa();
 
-async function start(options = {}) {
+export function start(options = {}) {
     const {
         port = 8080
     } = options;
@@ -29,6 +29,3 @@ async function start(options = {}) {
 
 // test:
 start();
-module.exports = {
-    start,
-}

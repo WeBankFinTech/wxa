@@ -2,7 +2,6 @@ const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
-    watch: true,
     mode: 'development',
     entry: './client/index',
     output: {

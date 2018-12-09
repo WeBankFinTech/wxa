@@ -1,336 +1,982 @@
-{
-  "errors": [],
-  "warnings": [],
-  "version": "1.14.0",
-  "hash": "4e39ab22a848116a4c15",
-  "children": [
+[
     {
-      "errors": [],
-      "warnings": [],
-      "version": "1.14.0",
-      "hash": "4e39ab22a848116a4c15",
-      "time": 79,
-      "publicPath": "",
-      "assetsByChunkName": {
-        "bundle": "bundle.js"
-      },
-      "assets": [
+      "value": 78,
+      "name": "app.wxss",
+      "path": "/Users/han/webank/test-weapp/dist/app.wxss"
+    },
+    {
+      "value": 905,
+      "name": "app.js",
+      "path": "/Users/han/webank/test-weapp/dist/app.js",
+      "children": [
         {
-          "name": "bundle.js",
-          "size": 1735,
-          "chunks": [
-            0
-          ],
-          "chunkNames": [
-            "bundle"
-          ],
-          "emitted": true
-        }
-      ],
-      "chunks": [
-        {
-          "id": 0,
-          "rendered": true,
-          "initial": true,
-          "entry": true,
-          "extraAsync": false,
-          "size": 141,
-          "names": [
-            "bundle"
-          ],
-          "files": [
-            "bundle.js"
-          ],
-          "hash": "eb0091314b5c4ca75abf",
-          "parents": [],
-          "modules": [
+          "value": 444,
+          "name": "wxa_wrap.js",
+          "path": "/Users/han/webank/test-weapp/dist/_wxa/wxa_wrap.js",
+          "children": [
             {
-              "id": 0,
-              "identifier": "/Volumes/Work/webpack-bundle-analyzer/test/src/index.js",
-              "name": "./src/index.js",
-              "index": 0,
-              "index2": 3,
-              "size": 54,
-              "cacheable": true,
-              "built": true,
-              "optional": false,
-              "prefetched": false,
-              "chunks": [
-                0
-              ],
-              "assets": [],
-              "issuer": null,
-              "profile": {
-                "factory": 19,
-                "building": 15
-              },
-              "failed": false,
-              "errors": 0,
-              "warnings": 0,
-              "reasons": [],
-              "source": "require('./a');\nrequire('./b');\nrequire('./a-clone');\n"
-            },
-            {
-              "id": 1,
-              "identifier": "/Volumes/Work/webpack-bundle-analyzer/test/src/a.js",
-              "name": "./src/a.js",
-              "index": 1,
-              "index2": 0,
-              "size": 29,
-              "cacheable": true,
-              "built": true,
-              "optional": false,
-              "prefetched": false,
-              "chunks": [
-                0
-              ],
-              "assets": [],
-              "issuer": "/Volumes/Work/webpack-bundle-analyzer/test/src/index.js",
-              "profile": {
-                "factory": 8,
-                "building": 6
-              },
-              "failed": false,
-              "errors": 0,
-              "warnings": 0,
-              "reasons": [
-                {
-                  "moduleId": 0,
-                  "moduleIdentifier": "/Volumes/Work/webpack-bundle-analyzer/test/src/index.js",
-                  "module": "./src/index.js",
-                  "moduleName": "./src/index.js",
-                  "type": "cjs require",
-                  "userRequest": "./a",
-                  "loc": "1:0-14"
-                }
-              ],
-              "source": "module.exports = 'module a';\n"
-            },
-            {
-              "id": 2,
-              "identifier": "/Volumes/Work/webpack-bundle-analyzer/test/src/b.js",
-              "name": "./src/b.js",
-              "index": 2,
-              "index2": 1,
-              "size": 29,
-              "cacheable": true,
-              "built": true,
-              "optional": false,
-              "prefetched": false,
-              "chunks": [
-                0
-              ],
-              "assets": [],
-              "issuer": "/Volumes/Work/webpack-bundle-analyzer/test/src/index.js",
-              "profile": {
-                "factory": 9,
-                "building": 5
-              },
-              "failed": false,
-              "errors": 0,
-              "warnings": 0,
-              "reasons": [
-                {
-                  "moduleId": 0,
-                  "moduleIdentifier": "/Volumes/Work/webpack-bundle-analyzer/test/src/index.js",
-                  "module": "./src/index.js",
-                  "moduleName": "./src/index.js",
-                  "type": "cjs require",
-                  "userRequest": "./b",
-                  "loc": "2:0-14"
-                }
-              ],
-              "source": "module.exports = 'module b';\n"
-            },
-            {
-              "id": 3,
-              "identifier": "/Volumes/Work/webpack-bundle-analyzer/test/src/a-clone.js",
-              "name": "./src/a-clone.js",
-              "index": 3,
-              "index2": 2,
-              "size": 29,
-              "cacheable": true,
-              "built": true,
-              "optional": false,
-              "prefetched": false,
-              "chunks": [
-                0
-              ],
-              "assets": [],
-              "issuer": "/Volumes/Work/webpack-bundle-analyzer/test/src/index.js",
-              "profile": {
-                "factory": 10,
-                "building": 5
-              },
-              "failed": false,
-              "errors": 0,
-              "warnings": 0,
-              "reasons": [
-                {
-                  "moduleId": 0,
-                  "moduleIdentifier": "/Volumes/Work/webpack-bundle-analyzer/test/src/index.js",
-                  "module": "./src/index.js",
-                  "moduleName": "./src/index.js",
-                  "type": "cjs require",
-                  "userRequest": "./a-clone",
-                  "loc": "3:0-20"
-                }
-              ],
-              "source": "module.exports = 'module a';\n"
+              "value": 46795,
+              "name": "main.js",
+              "path": "/Users/han/webank/test-weapp/dist/npm/@wxa/core/src/main.js"
             }
-          ],
-          "filteredModules": 0,
-          "origins": [
+          ]
+        },
+        {
+          "value": 145,
+          "name": "interopRequireDefault.js",
+          "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/interopRequireDefault.js"
+        },
+        {
+          "value": 196,
+          "name": "classCallCheck.js",
+          "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/classCallCheck.js"
+        },
+        {
+          "value": 11677,
+          "name": "decorate.js",
+          "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/decorate.js",
+          "children": [
             {
-              "moduleId": 0,
-              "module": "/Volumes/Work/webpack-bundle-analyzer/test/src/index.js",
-              "moduleIdentifier": "/Volumes/Work/webpack-bundle-analyzer/test/src/index.js",
-              "moduleName": "./src/index.js",
-              "loc": "",
-              "name": "bundle",
-              "reasons": []
+              "value": 854,
+              "name": "typeof.js",
+              "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/typeof.js"
+            },
+            {
+              "value": 295,
+              "name": "toArray.js",
+              "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/toArray.js",
+              "children": [
+                {
+                  "value": 106,
+                  "name": "arrayWithHoles.js",
+                  "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/arrayWithHoles.js"
+                },
+                {
+                  "value": 200,
+                  "name": "iterableToArray.js",
+                  "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/iterableToArray.js"
+                },
+                {
+                  "value": 146,
+                  "name": "nonIterableRest.js",
+                  "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/nonIterableRest.js"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "value": 46795,
+          "name": "main.js",
+          "path": "/Users/han/webank/test-weapp/dist/npm/@wxa/core/src/main.js"
+        },
+        {
+          "value": 583,
+          "name": "x.mixin.js",
+          "path": "/Users/han/webank/test-weapp/dist/x.mixin.js",
+          "children": [
+            {
+              "value": 145,
+              "name": "interopRequireDefault.js",
+              "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/interopRequireDefault.js"
+            },
+            {
+              "value": 196,
+              "name": "classCallCheck.js",
+              "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/classCallCheck.js"
+            },
+            {
+              "value": 596,
+              "name": "createClass.js",
+              "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/createClass.js"
             }
           ]
         }
-      ],
-      "modules": [
+      ]
+    },
+    {
+      "value": 67,
+      "name": "app.json",
+      "path": "/Users/han/webank/test-weapp/dist/app.json"
+    },
+    {
+      "value": 444,
+      "name": "wxa_wrap.js",
+      "path": "/Users/han/webank/test-weapp/dist/_wxa/wxa_wrap.js",
+      "children": [
         {
-          "id": 0,
-          "identifier": "/Volumes/Work/webpack-bundle-analyzer/test/src/index.js",
-          "name": "./src/index.js",
-          "index": 0,
-          "index2": 3,
-          "size": 54,
-          "cacheable": true,
-          "built": true,
-          "optional": false,
-          "prefetched": false,
-          "chunks": [
-            0
-          ],
-          "assets": [],
-          "issuer": null,
-          "profile": {
-            "factory": 19,
-            "building": 15
-          },
-          "failed": false,
-          "errors": 0,
-          "warnings": 0,
-          "reasons": [],
-          "source": "require('./a');\nrequire('./b');\nrequire('./a-clone');\n"
-        },
-        {
-          "id": 1,
-          "identifier": "/Volumes/Work/webpack-bundle-analyzer/test/src/a.js",
-          "name": "./src/a.js",
-          "index": 1,
-          "index2": 0,
-          "size": 29,
-          "cacheable": true,
-          "built": true,
-          "optional": false,
-          "prefetched": false,
-          "chunks": [
-            0
-          ],
-          "assets": [],
-          "issuer": "/Volumes/Work/webpack-bundle-analyzer/test/src/index.js",
-          "profile": {
-            "factory": 8,
-            "building": 6
-          },
-          "failed": false,
-          "errors": 0,
-          "warnings": 0,
-          "reasons": [
-            {
-              "moduleId": 0,
-              "moduleIdentifier": "/Volumes/Work/webpack-bundle-analyzer/test/src/index.js",
-              "module": "./src/index.js",
-              "moduleName": "./src/index.js",
-              "type": "cjs require",
-              "userRequest": "./a",
-              "loc": "1:0-14"
-            }
-          ],
-          "source": "module.exports = 'module a';\n"
-        },
-        {
-          "id": 2,
-          "identifier": "/Volumes/Work/webpack-bundle-analyzer/test/src/b.js",
-          "name": "./src/b.js",
-          "index": 2,
-          "index2": 1,
-          "size": 29,
-          "cacheable": true,
-          "built": true,
-          "optional": false,
-          "prefetched": false,
-          "chunks": [
-            0
-          ],
-          "assets": [],
-          "issuer": "/Volumes/Work/webpack-bundle-analyzer/test/src/index.js",
-          "profile": {
-            "factory": 9,
-            "building": 5
-          },
-          "failed": false,
-          "errors": 0,
-          "warnings": 0,
-          "reasons": [
-            {
-              "moduleId": 0,
-              "moduleIdentifier": "/Volumes/Work/webpack-bundle-analyzer/test/src/index.js",
-              "module": "./src/index.js",
-              "moduleName": "./src/index.js",
-              "type": "cjs require",
-              "userRequest": "./b",
-              "loc": "2:0-14"
-            }
-          ],
-          "source": "module.exports = 'module b';\n"
-        },
-        {
-          "id": 3,
-          "identifier": "/Volumes/Work/webpack-bundle-analyzer/test/src/a-clone.js",
-          "name": "./src/a-clone.js",
-          "index": 3,
-          "index2": 2,
-          "size": 29,
-          "cacheable": true,
-          "built": true,
-          "optional": false,
-          "prefetched": false,
-          "chunks": [
-            0
-          ],
-          "assets": [],
-          "issuer": "/Volumes/Work/webpack-bundle-analyzer/test/src/index.js",
-          "profile": {
-            "factory": 10,
-            "building": 5
-          },
-          "failed": false,
-          "errors": 0,
-          "warnings": 0,
-          "reasons": [
-            {
-              "moduleId": 0,
-              "moduleIdentifier": "/Volumes/Work/webpack-bundle-analyzer/test/src/index.js",
-              "module": "./src/index.js",
-              "moduleName": "./src/index.js",
-              "type": "cjs require",
-              "userRequest": "./a-clone",
-              "loc": "3:0-20"
-            }
-          ],
-          "source": "module.exports = 'module a';\n"
+          "value": 46795,
+          "name": "main.js",
+          "path": "/Users/han/webank/test-weapp/dist/npm/@wxa/core/src/main.js"
         }
-      ],
-      "filteredModules": 0,
-      "children": []
+      ]
+    },
+    {
+      "value": 145,
+      "name": "interopRequireDefault.js",
+      "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/interopRequireDefault.js"
+    },
+    {
+      "value": 196,
+      "name": "classCallCheck.js",
+      "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/classCallCheck.js"
+    },
+    {
+      "value": 11677,
+      "name": "decorate.js",
+      "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/decorate.js",
+      "children": [
+        {
+          "value": 854,
+          "name": "typeof.js",
+          "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/typeof.js"
+        },
+        {
+          "value": 295,
+          "name": "toArray.js",
+          "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/toArray.js",
+          "children": [
+            {
+              "value": 106,
+              "name": "arrayWithHoles.js",
+              "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/arrayWithHoles.js"
+            },
+            {
+              "value": 200,
+              "name": "iterableToArray.js",
+              "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/iterableToArray.js"
+            },
+            {
+              "value": 146,
+              "name": "nonIterableRest.js",
+              "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/nonIterableRest.js"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "value": 46795,
+      "name": "main.js",
+      "path": "/Users/han/webank/test-weapp/dist/npm/@wxa/core/src/main.js"
+    },
+    {
+      "value": 583,
+      "name": "x.mixin.js",
+      "path": "/Users/han/webank/test-weapp/dist/x.mixin.js",
+      "children": [
+        {
+          "value": 145,
+          "name": "interopRequireDefault.js",
+          "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/interopRequireDefault.js"
+        },
+        {
+          "value": 196,
+          "name": "classCallCheck.js",
+          "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/classCallCheck.js"
+        },
+        {
+          "value": 596,
+          "name": "createClass.js",
+          "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/createClass.js"
+        }
+      ]
+    },
+    {
+      "value": 854,
+      "name": "typeof.js",
+      "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/typeof.js"
+    },
+    {
+      "value": 295,
+      "name": "toArray.js",
+      "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/toArray.js",
+      "children": [
+        {
+          "value": 106,
+          "name": "arrayWithHoles.js",
+          "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/arrayWithHoles.js"
+        },
+        {
+          "value": 200,
+          "name": "iterableToArray.js",
+          "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/iterableToArray.js"
+        },
+        {
+          "value": 146,
+          "name": "nonIterableRest.js",
+          "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/nonIterableRest.js"
+        }
+      ]
+    },
+    {
+      "value": 596,
+      "name": "createClass.js",
+      "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/createClass.js"
+    },
+    {
+      "value": 201,
+      "name": "index.wxss",
+      "path": "/Users/han/webank/test-weapp/dist/pages/index.wxss"
+    },
+    {
+      "value": 652,
+      "name": "index.wxml",
+      "path": "/Users/han/webank/test-weapp/dist/pages/index.wxml"
+    },
+    {
+      "value": 945,
+      "name": "index.js",
+      "path": "/Users/han/webank/test-weapp/dist/pages/index.js",
+      "children": [
+        {
+          "value": 444,
+          "name": "wxa_wrap.js",
+          "path": "/Users/han/webank/test-weapp/dist/_wxa/wxa_wrap.js",
+          "children": [
+            {
+              "value": 46795,
+              "name": "main.js",
+              "path": "/Users/han/webank/test-weapp/dist/npm/@wxa/core/src/main.js"
+            }
+          ]
+        },
+        {
+          "value": 145,
+          "name": "interopRequireDefault.js",
+          "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/interopRequireDefault.js"
+        },
+        {
+          "value": 196,
+          "name": "classCallCheck.js",
+          "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/classCallCheck.js"
+        },
+        {
+          "value": 11677,
+          "name": "decorate.js",
+          "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/decorate.js",
+          "children": [
+            {
+              "value": 854,
+              "name": "typeof.js",
+              "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/typeof.js"
+            },
+            {
+              "value": 295,
+              "name": "toArray.js",
+              "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/toArray.js",
+              "children": [
+                {
+                  "value": 106,
+                  "name": "arrayWithHoles.js",
+                  "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/arrayWithHoles.js"
+                },
+                {
+                  "value": 200,
+                  "name": "iterableToArray.js",
+                  "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/iterableToArray.js"
+                },
+                {
+                  "value": 146,
+                  "name": "nonIterableRest.js",
+                  "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/nonIterableRest.js"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "value": 46795,
+          "name": "main.js",
+          "path": "/Users/han/webank/test-weapp/dist/npm/@wxa/core/src/main.js"
+        },
+        {
+          "value": 166,
+          "name": "test.js",
+          "path": "/Users/han/webank/test-weapp/dist/pages/test.js"
+        }
+      ]
+    },
+    {
+      "value": 248,
+      "name": "index.json",
+      "path": "/Users/han/webank/test-weapp/dist/pages/index.json",
+      "children": [
+        {
+          "value": 891,
+          "name": "index.wxml",
+          "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/button/index.wxml"
+        },
+        {
+          "value": 1567,
+          "name": "index.wxss",
+          "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/button/index.wxss"
+        },
+        {
+          "value": 1023,
+          "name": "index.js",
+          "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/button/index.js",
+          "children": [
+            {
+              "value": 891,
+              "name": "create.js",
+              "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/common/create.js",
+              "children": [
+                {
+                  "value": 588,
+                  "name": "basic.js",
+                  "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/basic.js",
+                  "children": [
+                    {
+                      "value": 668,
+                      "name": "class-names.js",
+                      "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/common/class-names.js"
+                    }
+                  ]
+                },
+                {
+                  "value": 322,
+                  "name": "index.js",
+                  "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/observer/index.js",
+                  "children": [
+                    {
+                      "value": 716,
+                      "name": "behavior.js",
+                      "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/observer/behavior.js"
+                    },
+                    {
+                      "value": 524,
+                      "name": "props.js",
+                      "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/observer/props.js"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "value": 972,
+              "name": "button.js",
+              "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/button.js"
+            }
+          ]
+        },
+        {
+          "value": 101,
+          "name": "index.json",
+          "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/button/index.json",
+          "children": [
+            {
+              "value": 325,
+              "name": "index.wxml",
+              "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/loading/index.wxml"
+            },
+            {
+              "value": 2285,
+              "name": "index.wxss",
+              "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/loading/index.wxss"
+            },
+            {
+              "value": 259,
+              "name": "index.js",
+              "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/loading/index.js",
+              "children": [
+                {
+                  "value": 891,
+                  "name": "create.js",
+                  "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/common/create.js",
+                  "children": [
+                    {
+                      "value": 588,
+                      "name": "basic.js",
+                      "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/basic.js",
+                      "children": [
+                        {
+                          "value": 668,
+                          "name": "class-names.js",
+                          "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/common/class-names.js"
+                        }
+                      ]
+                    },
+                    {
+                      "value": 322,
+                      "name": "index.js",
+                      "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/observer/index.js",
+                      "children": [
+                        {
+                          "value": 716,
+                          "name": "behavior.js",
+                          "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/observer/behavior.js"
+                        },
+                        {
+                          "value": 524,
+                          "name": "props.js",
+                          "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/observer/props.js"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "value": 25,
+              "name": "index.json",
+              "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/loading/index.json"
+            }
+          ]
+        },
+        {
+          "value": 123,
+          "name": "index.wxml",
+          "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/tab/index.wxml"
+        },
+        {
+          "value": 628,
+          "name": "index.js",
+          "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/tab/index.js",
+          "children": [
+            {
+              "value": 891,
+              "name": "create.js",
+              "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/common/create.js",
+              "children": [
+                {
+                  "value": 588,
+                  "name": "basic.js",
+                  "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/basic.js",
+                  "children": [
+                    {
+                      "value": 668,
+                      "name": "class-names.js",
+                      "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/common/class-names.js"
+                    }
+                  ]
+                },
+                {
+                  "value": 322,
+                  "name": "index.js",
+                  "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/observer/index.js",
+                  "children": [
+                    {
+                      "value": 716,
+                      "name": "behavior.js",
+                      "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/observer/behavior.js"
+                    },
+                    {
+                      "value": 524,
+                      "name": "props.js",
+                      "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/observer/props.js"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "value": 25,
+          "name": "index.json",
+          "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/tab/index.json"
+        },
+        {
+          "value": 1182,
+          "name": "index.wxml",
+          "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/tabs/index.wxml"
+        },
+        {
+          "value": 2266,
+          "name": "index.wxss",
+          "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/tabs/index.wxss"
+        },
+        {
+          "value": 3728,
+          "name": "index.js",
+          "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/tabs/index.js",
+          "children": [
+            {
+              "value": 891,
+              "name": "create.js",
+              "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/common/create.js",
+              "children": [
+                {
+                  "value": 588,
+                  "name": "basic.js",
+                  "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/basic.js",
+                  "children": [
+                    {
+                      "value": 668,
+                      "name": "class-names.js",
+                      "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/common/class-names.js"
+                    }
+                  ]
+                },
+                {
+                  "value": 322,
+                  "name": "index.js",
+                  "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/observer/index.js",
+                  "children": [
+                    {
+                      "value": 716,
+                      "name": "behavior.js",
+                      "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/observer/behavior.js"
+                    },
+                    {
+                      "value": 524,
+                      "name": "props.js",
+                      "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/observer/props.js"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "value": 25,
+          "name": "index.json",
+          "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/tabs/index.json"
+        }
+      ]
+    },
+    {
+      "value": 0,
+      "name": "log.wxss",
+      "path": "/Users/han/webank/test-weapp/dist/pages/log.wxss"
+    },
+    {
+      "value": 34,
+      "name": "log.wxml",
+      "path": "/Users/han/webank/test-weapp/dist/pages/log.wxml"
+    },
+    {
+      "value": 695,
+      "name": "log.js",
+      "path": "/Users/han/webank/test-weapp/dist/pages/log.js",
+      "children": [
+        {
+          "value": 444,
+          "name": "wxa_wrap.js",
+          "path": "/Users/han/webank/test-weapp/dist/_wxa/wxa_wrap.js",
+          "children": [
+            {
+              "value": 46795,
+              "name": "main.js",
+              "path": "/Users/han/webank/test-weapp/dist/npm/@wxa/core/src/main.js"
+            }
+          ]
+        },
+        {
+          "value": 145,
+          "name": "interopRequireDefault.js",
+          "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/interopRequireDefault.js"
+        },
+        {
+          "value": 196,
+          "name": "classCallCheck.js",
+          "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/classCallCheck.js"
+        },
+        {
+          "value": 596,
+          "name": "createClass.js",
+          "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/createClass.js"
+        }
+      ]
+    },
+    {
+      "value": 106,
+      "name": "arrayWithHoles.js",
+      "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/arrayWithHoles.js"
+    },
+    {
+      "value": 200,
+      "name": "iterableToArray.js",
+      "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/iterableToArray.js"
+    },
+    {
+      "value": 146,
+      "name": "nonIterableRest.js",
+      "path": "/Users/han/webank/test-weapp/dist/npm/@babel/runtime/helpers/nonIterableRest.js"
+    },
+    {
+      "value": 166,
+      "name": "test.js",
+      "path": "/Users/han/webank/test-weapp/dist/pages/test.js"
+    },
+    {
+      "value": 891,
+      "name": "index.wxml",
+      "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/button/index.wxml"
+    },
+    {
+      "value": 1567,
+      "name": "index.wxss",
+      "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/button/index.wxss"
+    },
+    {
+      "value": 1023,
+      "name": "index.js",
+      "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/button/index.js",
+      "children": [
+        {
+          "value": 891,
+          "name": "create.js",
+          "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/common/create.js",
+          "children": [
+            {
+              "value": 588,
+              "name": "basic.js",
+              "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/basic.js",
+              "children": [
+                {
+                  "value": 668,
+                  "name": "class-names.js",
+                  "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/common/class-names.js"
+                }
+              ]
+            },
+            {
+              "value": 322,
+              "name": "index.js",
+              "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/observer/index.js",
+              "children": [
+                {
+                  "value": 716,
+                  "name": "behavior.js",
+                  "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/observer/behavior.js"
+                },
+                {
+                  "value": 524,
+                  "name": "props.js",
+                  "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/observer/props.js"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "value": 972,
+          "name": "button.js",
+          "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/button.js"
+        }
+      ]
+    },
+    {
+      "value": 101,
+      "name": "index.json",
+      "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/button/index.json",
+      "children": [
+        {
+          "value": 325,
+          "name": "index.wxml",
+          "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/loading/index.wxml"
+        },
+        {
+          "value": 2285,
+          "name": "index.wxss",
+          "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/loading/index.wxss"
+        },
+        {
+          "value": 259,
+          "name": "index.js",
+          "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/loading/index.js",
+          "children": [
+            {
+              "value": 891,
+              "name": "create.js",
+              "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/common/create.js",
+              "children": [
+                {
+                  "value": 588,
+                  "name": "basic.js",
+                  "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/basic.js",
+                  "children": [
+                    {
+                      "value": 668,
+                      "name": "class-names.js",
+                      "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/common/class-names.js"
+                    }
+                  ]
+                },
+                {
+                  "value": 322,
+                  "name": "index.js",
+                  "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/observer/index.js",
+                  "children": [
+                    {
+                      "value": 716,
+                      "name": "behavior.js",
+                      "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/observer/behavior.js"
+                    },
+                    {
+                      "value": 524,
+                      "name": "props.js",
+                      "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/observer/props.js"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "value": 25,
+          "name": "index.json",
+          "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/loading/index.json"
+        }
+      ]
+    },
+    {
+      "value": 123,
+      "name": "index.wxml",
+      "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/tab/index.wxml"
+    },
+    {
+      "value": 628,
+      "name": "index.js",
+      "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/tab/index.js",
+      "children": [
+        {
+          "value": 891,
+          "name": "create.js",
+          "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/common/create.js",
+          "children": [
+            {
+              "value": 588,
+              "name": "basic.js",
+              "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/basic.js",
+              "children": [
+                {
+                  "value": 668,
+                  "name": "class-names.js",
+                  "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/common/class-names.js"
+                }
+              ]
+            },
+            {
+              "value": 322,
+              "name": "index.js",
+              "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/observer/index.js",
+              "children": [
+                {
+                  "value": 716,
+                  "name": "behavior.js",
+                  "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/observer/behavior.js"
+                },
+                {
+                  "value": 524,
+                  "name": "props.js",
+                  "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/observer/props.js"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "value": 25,
+      "name": "index.json",
+      "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/tab/index.json"
+    },
+    {
+      "value": 1182,
+      "name": "index.wxml",
+      "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/tabs/index.wxml"
+    },
+    {
+      "value": 2266,
+      "name": "index.wxss",
+      "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/tabs/index.wxss"
+    },
+    {
+      "value": 3728,
+      "name": "index.js",
+      "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/tabs/index.js",
+      "children": [
+        {
+          "value": 891,
+          "name": "create.js",
+          "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/common/create.js",
+          "children": [
+            {
+              "value": 588,
+              "name": "basic.js",
+              "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/basic.js",
+              "children": [
+                {
+                  "value": 668,
+                  "name": "class-names.js",
+                  "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/common/class-names.js"
+                }
+              ]
+            },
+            {
+              "value": 322,
+              "name": "index.js",
+              "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/observer/index.js",
+              "children": [
+                {
+                  "value": 716,
+                  "name": "behavior.js",
+                  "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/observer/behavior.js"
+                },
+                {
+                  "value": 524,
+                  "name": "props.js",
+                  "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/observer/props.js"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "value": 25,
+      "name": "index.json",
+      "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/tabs/index.json"
+    },
+    {
+      "value": 891,
+      "name": "create.js",
+      "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/common/create.js",
+      "children": [
+        {
+          "value": 588,
+          "name": "basic.js",
+          "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/basic.js",
+          "children": [
+            {
+              "value": 668,
+              "name": "class-names.js",
+              "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/common/class-names.js"
+            }
+          ]
+        },
+        {
+          "value": 322,
+          "name": "index.js",
+          "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/observer/index.js",
+          "children": [
+            {
+              "value": 716,
+              "name": "behavior.js",
+              "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/observer/behavior.js"
+            },
+            {
+              "value": 524,
+              "name": "props.js",
+              "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/observer/props.js"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "value": 972,
+      "name": "button.js",
+      "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/button.js"
+    },
+    {
+      "value": 325,
+      "name": "index.wxml",
+      "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/loading/index.wxml"
+    },
+    {
+      "value": 2285,
+      "name": "index.wxss",
+      "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/loading/index.wxss"
+    },
+    {
+      "value": 259,
+      "name": "index.js",
+      "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/loading/index.js",
+      "children": [
+        {
+          "value": 891,
+          "name": "create.js",
+          "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/common/create.js",
+          "children": [
+            {
+              "value": 588,
+              "name": "basic.js",
+              "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/basic.js",
+              "children": [
+                {
+                  "value": 668,
+                  "name": "class-names.js",
+                  "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/common/class-names.js"
+                }
+              ]
+            },
+            {
+              "value": 322,
+              "name": "index.js",
+              "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/observer/index.js",
+              "children": [
+                {
+                  "value": 716,
+                  "name": "behavior.js",
+                  "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/observer/behavior.js"
+                },
+                {
+                  "value": 524,
+                  "name": "props.js",
+                  "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/observer/props.js"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "value": 25,
+      "name": "index.json",
+      "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/loading/index.json"
+    },
+    {
+      "value": 588,
+      "name": "basic.js",
+      "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/basic.js",
+      "children": [
+        {
+          "value": 668,
+          "name": "class-names.js",
+          "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/common/class-names.js"
+        }
+      ]
+    },
+    {
+      "value": 322,
+      "name": "index.js",
+      "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/observer/index.js",
+      "children": [
+        {
+          "value": 716,
+          "name": "behavior.js",
+          "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/observer/behavior.js"
+        },
+        {
+          "value": 524,
+          "name": "props.js",
+          "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/observer/props.js"
+        }
+      ]
+    },
+    {
+      "value": 668,
+      "name": "class-names.js",
+      "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/common/class-names.js"
+    },
+    {
+      "value": 716,
+      "name": "behavior.js",
+      "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/observer/behavior.js"
+    },
+    {
+      "value": 524,
+      "name": "props.js",
+      "path": "/Users/han/webank/test-weapp/dist/npm/vant-weapp/dist/mixins/observer/props.js"
     }
   ]
-}
