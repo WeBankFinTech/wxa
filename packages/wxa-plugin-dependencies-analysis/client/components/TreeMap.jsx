@@ -19,7 +19,7 @@ export default class TreeMap extends Component {
         const chart = echarts.init(document.getElementById('chart-main'));
 
         chart.showLoading();
-        const diskData = require('../../test/test-data.json');
+        const diskData = require('../../test/test-stats.json');
         chart.hideLoading();
 
         function colorMappingChange(value) {
@@ -130,7 +130,7 @@ export default class TreeMap extends Component {
             <div id='chart-main' 
                 style={{
                     width: 960,
-                    height: 960
+                    height: 800
                 }}
             />
         );
