@@ -97,6 +97,7 @@ class Builder {
                     let md5 = crypto.createHash('md5').update(content).digest('hex');
 
                     mdl.content = content;
+                    mdl.code = void(0);
                     isChange = mdl.hash !== md5;
                     debug('OLD HASH %s, NEW HASH %s', mdl.hash, md5);
                 }
