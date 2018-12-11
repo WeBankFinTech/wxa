@@ -10,6 +10,8 @@
     "wxa",
     "plugin"
   ],
+  "repository": "https://github.com/wxajs/wxa.git",
+  "homepage": "https://wxajs.github.io/wxa/",
   "author": "Genuifx",
   "license": "MIT",
   "dependencies": {

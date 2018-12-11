@@ -15,6 +15,8 @@
   ],
   "author": "han",
   "license": "",
+  "repository": "https://github.com/wxajs/wxa.git",
+  "homepage": "https://wxajs.github.io/wxa/",
   "dependencies": {
     "@babel/polyfill": "^7.0.0",
     "echarts": "^4.2.0-rc.2",

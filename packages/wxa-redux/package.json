@@ -11,10 +11,6 @@
         "cover": "jest --coverage",
         "travis": "npm run cover"
     },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/Genuifx/wxa-redux.git"
-    },
     "keywords": [
         "wxa",
         "redux",
@@ -23,9 +19,10 @@
     "author": "genuifx",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/Genuifx/wxa-redux/issues"
+        "url": "https://github.com/wxajs/wxa/issues"
     },
-    "homepage": "https://github.com/Genuifx/wxa-redux#readme",
+    "repository": "https://github.com/wxajs/wxa.git",
+    "homepage": "https://wxajs.github.io/wxa/",
     "dependencies": {
         "@wxa/core": "^2.0.0-beta.7d9ff778",
         "deep-object-diff": "^1.1.0",

@@ -8,10 +8,6 @@
         "dev": "babel --watch index.js --out-dir dist",
         "prepublishOnly": "npm run build"
     },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/Genuifx/wxa-compiler-stylus.git"
-    },
     "keywords": [
         "stylus",
         "wxa",
@@ -20,9 +16,10 @@
     "author": "genuifx",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/Genuifx/wxa-compiler-stylus/issues"
+        "url": "https://github.com/wxajs/wxa/issues"
     },
-    "homepage": "https://github.com/Genuifx/wxa-compiler-stylus#readme",
+    "repository": "https://github.com/wxajs/wxa.git",
+    "homepage": "https://wxajs.github.io/wxa/",
     "devDependencies": {
         "babel-cli": "^6.26.0",
         "babel-plugin-transform-class-properties": "^6.24.1",
