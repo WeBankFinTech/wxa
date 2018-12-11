@@ -14,6 +14,8 @@
   ],
   "author": "iveswen",
   "license": "MIT",
+  "repository": "https://github.com/wxajs/wxa.git",
+  "homepage": "https://wxajs.github.io/wxa/",
   "dependencies": {
     "melanke-watchjs": "^1.4.3"
   },

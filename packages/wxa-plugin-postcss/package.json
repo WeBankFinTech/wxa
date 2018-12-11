@@ -6,6 +6,8 @@
   "keywords": [
     "postcss"
   ],
+  "repository": "https://github.com/wxajs/wxa.git",
+  "homepage": "https://wxajs.github.io/wxa/",
   "author": "iveswen",
   "license": "MIT",
   "dependencies": {

@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Genuifx/wxa-compiler-babel.git"
+    "url": "git+https://github.com/wxajs/wxa.git"
   },
   "keywords": [
     "babel",
@@ -20,9 +20,9 @@
   "author": "genuifx",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Genuifx/wxa-compiler-babel/issues"
+    "url": "https://github.com/wxajs/wxa/issues"
   },
-  "homepage": "https://github.com/Genuifx/wxa-compiler-babel#readme",
+  "homepage": "https://wxajs.github.io/wxa/",
   "devDependencies": {
     "@babel/cli": "^7.1.0",
     "@babel/preset-env": "^7.1.0"
