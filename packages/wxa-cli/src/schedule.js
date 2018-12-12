@@ -1,5 +1,6 @@
-import {readFile, isFile, amazingCache} from './utils';
+import {readFile, isFile} from './utils';
 import path from 'path';
+import fs from 'fs';
 import globby from 'globby';
 import bar from './helpers/progressBar';
 import logger from './helpers/logger';
@@ -170,6 +171,8 @@ class Schedule extends EventEmitter {
                 // console.log(newPages, oldPages);
                 this.cleanUpPages(newPages, oldPages);
             }
+
+            this.calcFileSize(dep);
 
             // tick event
             this.emit('tick', dep);
@@ -407,6 +410,18 @@ class Schedule extends EventEmitter {
         newPages.forEach((pagePoint)=>tryPush(pagePoint));
 
         return newPages;
+    }
+
+    calcFileSize(dep) {
+        if (dep.isFile || dep.kind === 'wxa') {
+            let stat = fs.statSync(dep.src);
+
+            dep.size = stat['size'];
+        } else if (dep.code) {
+            dep.size = Buffer.byteLength(dep.code, 'utf8');
+        } else {
+            dep.size = 0;
+        }
     }
 }
 

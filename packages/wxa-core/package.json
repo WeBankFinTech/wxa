@@ -17,7 +17,8 @@
     },
     "author": "iveswen",
     "license": "MIT",
-    "repository": "https://github.com/Genuifx/wxa.git",
+    "repository": "https://github.com/wxajs/wxa.git",
+    "homepage": "https://wxajs.github.io/wxa/",
     "devDependencies": {
         "@babel/core": "^7.1.0",
         "@babel/plugin-proposal-class-properties": "^7.1.0",

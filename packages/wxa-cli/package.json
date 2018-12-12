@@ -15,7 +15,8 @@
   "bin": {
     "wxa2": "bin/wxa.js"
   },
-  "repository": "https://github.com/Genuifx/wxa-cli.git",
+  "repository": "https://github.com/wxajs/wxa.git",
+  "homepage": "https://wxajs.github.io/wxa/",
   "devDependencies": {
     "@babel/cli": "^7.0.0",
     "@babel/core": "^7.0.0",
