@@ -30,7 +30,13 @@ export default class XmlCompiler {
 
         debug('encoded template %s', code);
 
-        let xml = this.parseXml(path.parse(filepath)).parseFromString(code);
+        let xml;
+        if (code !== '') {
+            xml = this.parseXml(path.parse(filepath)).parseFromString(code);
+        } else {
+            xml = {};
+        }
+
 
         code = Array.prototype.slice.call(xml.childNodes||[]).reduce((ret, node)=>{
             ret += coder.decodeTemplate(node.toString());
