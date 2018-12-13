@@ -42,6 +42,8 @@ class Builder {
             beforeRun: new AsyncSeriesHook(['compiler']),
             run: new AsyncSeriesHook(['compiler']),
             done: new AsyncParallelHook(['compilation']),
+            rebuildModule: new AsyncSeriesHook(['changedModule']),
+            finishRebuildModule: new AsyncParallelHook(['compilation', 'changedModule']),
         };
     }
 
@@ -106,6 +108,9 @@ class Builder {
                     let changedDeps;
                     try {
                         this.schedule.$depPending.push(mdl);
+
+                        await this.hooks.rebuildModule.promise(this.schedule, mdl);
+
                         changedDeps = await this.schedule.$doDPA();
                         await this.optimizeAndGenerate(changedDeps);
                         logger.log('Done', '编译完成');
@@ -113,7 +118,6 @@ class Builder {
                     } catch (e) {
                         logger.error('编译失败', e);
                     }
-
 
                     let newFiles = this.filterModule(this.schedule.$indexOfModule);
                     let unlinkFiles = files.filter((oldFilePath)=>!~newFiles.indexOf(oldFilePath));
@@ -125,6 +129,8 @@ class Builder {
                     this.watcher.unwatch(unlinkFiles);
 
                     files = newFiles;
+
+                    await this.hooks.finishRebuildModule.promise(this.schedule, mdl);
                 } else {
                     logger.info(`文件无变化(${mdl.hash})`);
                 }
