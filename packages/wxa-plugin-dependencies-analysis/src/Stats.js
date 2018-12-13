@@ -1,43 +1,41 @@
 export class Stats {
-    constructor(compilation) {
-        
-    }
+  constructor(compilation) {
 
-    toStatsJson(indexOfModule = []) {
-        if (!indexOfModule || indexOfModule.length === 0) return;
+  }
 
-        const statsJson = [];
-        
-        const statsJsonItem = {
-            value: '',
-            name: '',
-            path: '',
-        }
+  toStatsJson(indexOfModule = []) {
+    if (!indexOfModule || indexOfModule.length === 0) return;
 
-        indexOfModule.forEach((item = {}) => {
-            if (item.isAbstract || !item.meta.accOutputPath) return;
+    const statsJson = [];
 
-            const { 
-                meta: { 
-                    accOutputPath = '' 
-                } = {},
-                code = ''
-            } = item;
+    indexOfModule.forEach((item = {}) => {
+      if (item.isAbstract || 
+        !item.meta.accOutputPath || 
+        item.kind !== 'js'
+      ) {
+        return;
+      }
 
-            const statsJsonItem = {
-                value: code.length,
-                name: accOutputPath.split('/').pop(),
-                path: accOutputPath,
-            }
-            
-            if (item.childNodes && item.childNodes.size > 0) {
-                statsJsonItem.children = this.toStatsJson(item.childNodes);
-            }
-            
-            statsJson.push(statsJsonItem);
-        })
+      const {
+        meta: {
+          accOutputPath = ''
+        } = {},
+        code = ''
+      } = item;
 
-        return statsJson;
-    }
+      const statsJsonItem = {
+        value: code.length,
+        name: accOutputPath.split('/').pop(),
+        path: accOutputPath,
+      }
+
+      if (item.childNodes && item.childNodes.size > 0) {
+        statsJsonItem.children = this.toStatsJson(item.childNodes);
+      }
+
+      statsJson.push(statsJsonItem);
+    })
+
+    return statsJson;
+  }
 }
-
