@@ -83,7 +83,12 @@ export default class ASTManager {
                     path.node.callee.name === 'require' &&
                     path.node.arguments.length
                 ) {
-                    dep = path.node.arguments[0].value;
+                    let type = path.node.arguments[0].type;
+                    if ( type === 'StringLiteral') {
+                        dep = path.node.arguments[0].value;
+                    } else if ( type === 'CallExpression') {
+                        return;
+                    }
                     debug('callExpression %s %O', dep, mdl);
                 } else if (
                     path.node.type === 'ImportDeclaration' &&
