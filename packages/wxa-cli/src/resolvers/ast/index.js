@@ -86,10 +86,10 @@ export default class ASTManager {
                     let type = path.node.arguments[0].type;
                     if ( type === 'StringLiteral') {
                         dep = path.node.arguments[0].value;
-                    } else if ( type === 'CallExpression') {
+                        debug('callExpression %s %O', dep,  path.node.arguments[0]);
+                    } else {
                         return;
                     }
-                    debug('callExpression %s %O', dep, mdl);
                 } else if (
                     path.node.type === 'ImportDeclaration' &&
                     path.node.source &&
@@ -141,7 +141,7 @@ export default class ASTManager {
                 logger.error(e);
             }
         });
-        debug('dependencies libs %O', libs);
+        // debug('dependencies libs %O', libs);
 
         let wxaSourceLibs = this.scanComments(mdl.ast.comments, mdl);
 
@@ -155,7 +155,7 @@ export default class ASTManager {
         debug('generate start');
         if (mdl.ast == null) return;
 
-        debug('module to generate %O', mdl.ast);
+        // debug('module to generate %O', mdl.ast);
         return generate(mdl.ast, {});
     }
 }
