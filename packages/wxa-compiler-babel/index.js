@@ -91,7 +91,7 @@ class BabelLoader {
             type = 'transformFile';
         }
 
-        if(opath && this.checkIgnore(opath, configs.ignore)) {
+        if(opath && this.checkIgnore(opath, configs.ignore) || code === '') {
             return Promise.resolve({code});
         } else {
             try {
@@ -100,12 +100,12 @@ class BabelLoader {
                     source: code || readFile(src),
                     options: {
                         ...configs, 
-                        filename: opath.base
+                        filename: src
                     },
                     transform: ()=>{
                         return this.transform(type, code || src, {
                             ...configs,
-                            filename: opath.base
+                            filename: src
                         });
                     }
                 }, cmdOptions.cache);
