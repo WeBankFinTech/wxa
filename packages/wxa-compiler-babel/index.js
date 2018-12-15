@@ -9,22 +9,16 @@ let debug = debugPKG('WXA:BABEL_Loader');
 let pkg = require('./package.json');
 
 function readFile(p) {
-    let rst = '';
     p = (typeof p === 'object') ? path.join(p.dir, p.base) : p;
-    try {
-        rst = fs.readFileSync(p, 'utf-8');
-    } catch (e) {
-        rst = null;
-    }
 
-    return rst;
+    return fs.readFileSync(p, 'utf-8');
 }
 
 function amazingCache(params, needCache) {
     let defaultOpts = {
         directory: true,
         identifier: JSON.stringify({
-            '@webank/wxa-compiler-babel': pkg.version,
+            '@wxa/compiler-babel': pkg.version,
             'env': process.env.NODE_ENV || 'development',
         }),
     };
@@ -49,23 +43,39 @@ class BabelLoader {
 
         this.current = cwd;
         // get configuration from .babelrc, package.json or wxa.config.js
-        this.configs = null;
-        try {
-            let babelrc = JSON.parse(fs.readFileSync(path.join(this.current, '.babelrc'), 'utf-8'));
-            this.configs = babelrc;
-        } catch (e) {
-            let pkg = require(path.join(this.current, 'package.json'));
-            this.configs = pkg.babel || null;
+        // find .babelrc first then babel.config.js
+        let babelrc = path.join(this.current, '.babelrc');
+        let babeljs = path.join(this.current, 'babel.config.js');
+        let pkg = path.join(this.current, 'package.json');
+
+        if (fs.existsSync(babelrc)) {
+            this.configs = JSON.parse(fs.readFileSync(babelrc, 'utf-8'));
+        } else if (fs.existsSync(babeljs)){
+            this.configs = require(babeljs);
+        } else if (fs.existsSync(pkg)){
+            this.configs = require(pkg).babel;
+        } else {
+            this.configs = configs || {};
         }
 
-        if (this.configs == null) this.configs = configs.babel || {};
-
-        this.configs.ignore = this.configs.ignore || ["node_modules"];
+        // process ignore to compat babel6
+        if (
+            typeof this.configs.ignore === 'string' || 
+            this.configs.ignore instanceof RegExp
+        ) {
+            this.configs.ignore = [this.configs.ignore];
+        } else if ( 
+            this.configs.ignore && 
+            !Array.isArray(this.configs.ignore)
+        ) {
+            throw new Error(`babel 配置 ignore 必须为Array类型`);
+        } else {
+            this.configs.ignore = this.configs.ignore || ["node_modules"];
+        }
     }
 
     transform(type, ...args) {
         let map = new Map([['transform', transform], ['transformFile', transformFile]]);
-        // console.log(map.get(type))
 
         return new Promise((resolve, reject)=>{
             debug('arguments %O', args)
@@ -91,30 +101,25 @@ class BabelLoader {
             type = 'transformFile';
         }
 
-        if(opath && this.checkIgnore(opath, configs.ignore) || code === '') {
+        if(this.checkIgnore(opath, configs.ignore) || code === '') {
             return Promise.resolve({code});
         } else {
-            try {
-
-                let ret = await amazingCache({
-                    source: code || readFile(src),
-                    options: {
-                        ...configs, 
+            let ret = await amazingCache({
+                source: code || readFile(src),
+                options: {
+                    ...configs, 
+                    filename: src
+                },
+                transform: ()=>{
+                    return this.transform(type, code || src, {
+                        ...configs,
                         filename: src
-                    },
-                    transform: ()=>{
-                        return this.transform(type, code || src, {
-                            ...configs,
-                            filename: src
-                        });
-                    }
-                }, cmdOptions.cache);
+                    });
+                }
+            }, cmdOptions.cache);
 
-                debug('transform succ %s', ret.code);
-                return Promise.resolve({ret, code: ret.code});
-            } catch (e) {
-                return Promise.reject(e);
-            }
+            debug('transform succ %s', ret.code);
+            return Promise.resolve({ret, code: ret.code});
         }
     }
 
@@ -122,17 +127,11 @@ class BabelLoader {
         if(ignore == null) return false;
         let filepath = this.normal(opath.dir + path.sep + opath.base);
 
-        if (Array.isArray(ignore)) {
-            return ignore.some((str)=>{
-                let reg = typeof str === 'object' ? str : new RegExp(str);
-
-                return reg.test(filepath);
-            });
-        } else {
-            let reg = typeof ignore === 'object' ? ignore : new RegExp(ignore);
+        return ignore.some((str)=>{
+            let reg = typeof str === 'object' ? str : new RegExp(str);
 
             return reg.test(filepath);
-        }
+        });
     }
 
     normal(path) {

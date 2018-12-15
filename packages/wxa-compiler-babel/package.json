@@ -25,7 +25,8 @@
   "homepage": "https://wxajs.github.io/wxa/",
   "devDependencies": {
     "@babel/cli": "^7.1.0",
-    "@babel/preset-env": "^7.1.0"
+    "@babel/preset-env": "^7.1.0",
+    "memfs": "^2.14.2"
   },
   "dependencies": {
     "@babel/core": "^7.1.0",
