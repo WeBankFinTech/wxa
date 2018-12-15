@@ -20,11 +20,10 @@ export class Stats {
         meta: {
           accOutputPath = ''
         } = {},
-        code = ''
       } = item;
 
       const statsJsonItem = {
-        value: code.length,
+        value: item.size,
         name: accOutputPath.split('/').pop(),
         path: accOutputPath,
       }
