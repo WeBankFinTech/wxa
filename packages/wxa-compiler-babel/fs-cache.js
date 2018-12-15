@@ -108,7 +108,7 @@ const handleCache = (directory, params)=>{
 export default function(params) {
     let {directory} = params;
     if (typeof directory !== 'string') {
-        directory = findCacheDir({name: 'wxa'}) || os.tmpdir();
+        directory = findCacheDir({name: '@wxa/compiler-babel'}) || os.tmpdir();
     }
     return handleCache(directory, params);
 }
