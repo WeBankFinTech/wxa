@@ -29,7 +29,7 @@ export function start(stats, options = {}) {
   });
 
   server.listen(port);
-  console.log(`DAP server is listening on http://localhost:${port}`);
+  console.log(`> DAP Treemap data is rendered on http://localhost:${port}`);
 
   function updateData(newStats) {
     wss.clients.forEach(client => {
@@ -39,6 +39,7 @@ export function start(stats, options = {}) {
           event: 'treemapDataUpdated',
           data: newStats
         }));
+        console.log(`> DAP New treemap data is rendered on http://localhost:${port}`);
       }
     });
   }

@@ -3,6 +3,7 @@ const echarts = require('echarts/lib/echarts.js');
 require('echarts/lib/chart/treemap.js');
 require('echarts/lib/component/tooltip.js');
 require('echarts/lib/component/title.js');
+import filesize from 'filesize';
 
 export default class Treemap extends Component {
 
@@ -18,7 +19,7 @@ export default class Treemap extends Component {
   }
 
   componentDidUpdate() {
-    console.log('componentDidUpdate');
+    console.log('Treemap componentDidUpdate');
     this.updateTreemap(this.state.chart, this.props.treemapData);
   }
 
@@ -98,7 +99,7 @@ export default class Treemap extends Component {
 
           return [
             '<div class="tooltip-title">dep path: ' + formatUtil.encodeHTML(treePath.join('->')) + '</div>',
-            '<div class="tooltip-title">code length: ' + formatUtil.addCommas(value) + '</div>',
+            '<div class="tooltip-title">size: ' + filesize(value) + '</div>',
             //'outputPath: ' + formatUtil.encodeHTML(path)
           ].join('');
         }

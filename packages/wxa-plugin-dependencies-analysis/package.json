@@ -3,10 +3,9 @@
   "version": "1.0.0",
   "description": "dependencies analysis plugin for wxa",
   "scripts": {
-    "start": "babel src --out-dir dist && webpack --config webpack.config.js && node dist/server.js",
     "dev:client": "webpack-dev-server",
-    "dev": "babel src --out-dir dist && node dist/index.js",
-    "build": "babel src --out-dir dist && webpack --config webpack.config.js"
+    "build": "babel src --out-dir dist && webpack --config webpack.config.js",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "wxa",
@@ -14,12 +13,13 @@
     "analysis"
   ],
   "author": "han",
-  "license": "",
+  "license": "MIT",
   "repository": "https://github.com/wxajs/wxa.git",
   "homepage": "https://wxajs.github.io/wxa/",
   "dependencies": {
     "@babel/polyfill": "^7.0.0",
     "echarts": "^4.2.0-rc.2",
+    "filesize": "^3.6.1",
     "koa": "^2.5.3",
     "koa-static": "^5.0.0",
     "react": "^16.5.2",
