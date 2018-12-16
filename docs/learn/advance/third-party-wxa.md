@@ -1,0 +1,132 @@
+# 三方开发
+
+开发一个三方小程序和开发一个普通的小程序本质上没有不同，然而三方开发过程中却存在着很多额外的痛点。
+
+首先是**开发的问题**，一个三方小程序往往不会只提供给单独的第三方，相反我们希望逻辑代码能够复用到其他的合作方小程序中，与此同时，界面 UI 我们允许有限度的修改。
+
+更高级点，可能每个合作方需要定制自己的一些页面，这个时候我们还需要为特定合作方开发特定页面，并且控制页面入口。
+
+上述需求在三方开发中非常常见，我们需要兼顾**代码可复用**，**小程序打包体积**，**UI 换肤**等等。而这些在原生开发中是不可能完美做到的，原生的小程序只有一个运行时的途径区分不同三方小程序（即 `ext.json` 和 `wx.getExtConfigSync`），故而平时我们开发三方小程序的时候往往需要单独的去写脚本替换文件，指定打包到不同目录等等，但是编写简单脚本并不能很好的处理合作方定制页面。
+
+其次是**分发和部署的问题**，当三方小程序需要更新的时候，我们需要一个一个合作方的输出小程序代码，然后使用开发者工具一个个小程序的上传代码，预览小程序，提交体验版。当接入方少的时候，手动的重新这些过程还能接受，但是如果有10个、20个合作方，这么做就很不人道了。
+
+wxa2.x 专门为三方开发设计了一些套路解决上述痛点。
+
+## wxa2.x 配置
+
+代码复用的问题。既然在三方开发中，大部分页面都可以复用，那么我们只需要一次性多次编译、输出到不用的文件夹就可以了。
+
+在 `wxa.config.js` 中指定 `thirdParty` 配置项：
+
+```js
+module.exports = {
+    thirdParty: [
+        {
+            name: 'partner-A',
+            wxaConfigs: {
+                output: {
+                    path: path.resolve(__dirname, 'partners/A'),
+                },
+            }
+        }
+    ]
+}
+```
+
+可以看到，我们在 `thirdParty/wxaConfigs` 中指定了不同的项目名和输出路径，这样一来，我们就可以为每个不同的合作方输出单独的小程序代码了。但是这样子不够，一般不同合作方的项目参数都不一样，我们需要在运行时能区分当前是哪个合作方的小程序。这个时候我们可以使用 `@wxa/plugin-replace` 实现效果：
+
+```js
+module.exports = {
+    thirdParty: [
+        {
+            name: 'partner-A',
+            wxaConfigs: {
+                output: {
+                    path: path.resolve(__dirname, 'partners/A'),
+                },
+                plugins: [
+                    new ReplacePlugin({
+                        list: require('./projects/A/app.config.js').env,
+                    }),
+                ]
+            }
+        }
+    ]
+}
+```
+
+插件文档请查看：[`@wxa/plugin-replace`](https://wxajs.github.io/wxa/plugin/cli/replace.html)。通过为不同合作方使用不同的插件，我们可以给不同的合作方替换不同的参数，指定是否需要压缩代码，是否需要使用PostCss等。
+
+这样子一来，我们就可以为不同合作方输出不同小程序代码了，接下来我们需要解决 **UI 换肤**和 **打包体积**两个问题。这两个问题也可以理解为三方小程序**个性化**问题。怎么为不同合作方个性化呢？
+
+首先是样式方面，小程序 `app.wxss` 定义的样式属于全局样式，所有页面都生效。既然如此我们可以为不同的合作方替换指定的 `app.wxss`，再配合[CSS-VAR](https://developer.mozilla.org/zh-CN/docs/Web/CSS/var)，就可以实现 UI 换肤功能了。
+
+其次是打包体积，不同合作方定制的页面我们并不想全部输出。只要输出到指定合作方代码即可。幸运的是，wxa2.x 实现的依赖分析功能可以根据 `app.json` 指定的 `pages` 和 `subPackage` 打包相应的页面以及依赖。
+
+也就是说我们只需要为不同合作方替换不同的 `app.json` 即可解决打包体积的问题。
+
+改动 `wxa.config.js` 配置如下：
+
+```js
+module.exports = {
+    thirdParty: [
+        {
+            name: 'partner-A',
+            point: {
+                'app.json': path.resolve('projects/A/app.json'),
+                'ext.json': path.resolve('projects/A/ext.json'),
+                'app.scss': path.resolve('projects/A/app.scss'),
+            },
+            wxaConfigs: {
+                output: {
+                    path: path.resolve(__dirname, 'partners/A'),
+                },
+                plugins: [
+                    new ReplacePlugin({
+                        list: require('./projects/A/app.config.js').env,
+                    }),
+                ]
+            }
+        },
+        {
+            name: 'partner-B',
+            point: {
+                'app.json': path.resolve('projects/B/app.json'),
+                'ext.json': path.resolve('projects/B/ext.json'),
+                'app.scss': path.resolve('projects/B/app.scss'),
+            },
+            wxaConfigs: {
+                output: {
+                    path: path.resolve(__dirname, 'partners/B'),
+                },
+                plugins: [
+                    new ReplacePlugin({
+                        list: require('./projects/B/app.config.js').env,
+                    }),
+                ]
+            }
+        }
+    ]
+}
+```
+
+至此，我们为不同合作方指定替换了入口文件 `app.scss` 、 `ext.json` 和 `app.json`。为不同合作方维护不同的 UI 皮肤，指定打包编译的 pages，输出特性的定制页面。
+
+我们通过下面的命令开始一次性的输出所有合作方配置：
+
+```bash
+wxa2 build --multi
+# 或者使用缩写
+wxa2 build -m
+```
+
+开发阶段可以指定启动监听模式单独编译某个合作方
+
+```bash
+wxa2 build --watch --multi --project projectName
+# 使用缩写
+wxa2 build -w -m -p projectName
+```
+
+## wxa2.x 分发
+To Be Continue

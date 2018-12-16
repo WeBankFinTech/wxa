@@ -88,7 +88,16 @@ module.exports = {
                     title: '进阶',
                     collapsable: false,
                     children: [
-                        '/learn/advance/preload'
+                        '/learn/advance/preload',
+                        '/learn/advance/third-party-wxa'
+                    ]
+                },
+                {
+                    title: '其他',
+                    collapsable: false,
+                    sidebarDepth: 2,
+                    children: [
+                        '/learn/other/migrade1.x'
                     ]
                 }
             ],
