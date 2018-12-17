@@ -1,5 +1,5 @@
 import path from 'path';
-import BabelCompiler from '../index';
+import BabelCompiler from '../src/index';
 import { default as fs, mock } from 'jest-plugin-fs'
 
 let defaultBabelRc = `{

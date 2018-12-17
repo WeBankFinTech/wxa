@@ -8,7 +8,7 @@ module.exports = {
         '<rootDir>/packages/wxa-core/src/test/setup.js',
         '<rootDir>/scripts/setupJest.js',
         '<rootDir>/packages/wxa-validate/test/helpers/*',
-        '<rootDir>/packages/wxa-compiler-babel/fs-cache.js',
+        '<rootDir>/packages/wxa-compiler-babel/src/fs-cache.js',
     ],
     'testMatch': ['**/test/**/*.test.js', '**/test/**/*.spec.js'],
     'setupFiles': ['./scripts/setupJest.js'],
