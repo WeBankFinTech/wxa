@@ -139,4 +139,10 @@ npm rebuild
 - `this.utils` -> `this.$utils`
 - `this.wxapi` -> `this.$wxapi`
 
+最后在命令行跑起来：
+
+```
+wxa2 build --watch
+```
+
 至此，2.x 升级完毕，enjoy it! :yum:
