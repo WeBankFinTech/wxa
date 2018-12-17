@@ -6,7 +6,7 @@ import cache from './fs-cache';
 
 let debug = debugPKG('WXA:BABEL_Loader');
 
-let pkg = require('./package.json');
+let pkg = require('../package.json');
 
 function readFile(p) {
     p = (typeof p === 'object') ? path.join(p.dir, p.base) : p;

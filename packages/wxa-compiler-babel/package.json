@@ -4,8 +4,8 @@
   "description": "wxa babel compiler",
   "main": "dist/index.js",
   "scripts": {
-    "build": "babel index.js fs-cache.js --out-dir dist",
-    "dev": "babel --watch index.js fs-cache.js --out-dir dist",
+    "build": "babel ./src --out-dir dist",
+    "dev": "babel --watch ./src --out-dir dist",
     "prepublishOnly": "npm run build"
   },
   "repository": {
