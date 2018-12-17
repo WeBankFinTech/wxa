@@ -1,6 +1,6 @@
 # @wxa/cli2
 [![NPM version](https://img.shields.io/npm/v/@wxa/cli2/next.svg)](https://www.npmjs.com/package/@wxa/cli2)
-![node (scoped with tag, custom registry)](https://img.shields.io/node/v/@stdlib/stdlib/latest.svg?registry_uri=https%3A%2F%2Fregistry.npmjs.com)
+![node (scoped with tag, custom registry)](https://img.shields.io/badge/node-%3E%3D%208.0.0-brightgreen.svg?maxAge=2592000)
 ![NpmLicense](https://img.shields.io/npm/l/@wxa/cli2.svg)
 
 为小程序开发定制的命令行工具。以模块化方式处理项目依赖，通过依赖分析得到整个项目的结构，在优化代码后最终生成目标小程序代码。

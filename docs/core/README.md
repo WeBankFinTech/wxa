@@ -1,7 +1,7 @@
 # @wxa/core
+[![Travis](https://travis-ci.org/wxajs/wxa.svg?branch=master)](https://travis-ci.org/wxajs/wxa)
 [![NPM version](https://img.shields.io/npm/v/@wxa/core/next.svg)](https://www.npmjs.com/package/@wxa/core)
 ![npm bundle size (minified + gzip)](https://img.shields.io/bundlephobia/minzip/@wxa/core/next.svg)
-![node (scoped with tag, custom registry)](https://img.shields.io/node/v/@stdlib/stdlib/latest.svg?registry_uri=https%3A%2F%2Fregistry.npmjs.com)
 ![NpmLicense](https://img.shields.io/npm/l/@wxa/core.svg)
 
 
