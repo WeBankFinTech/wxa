@@ -12,6 +12,7 @@
     "dependencies",
     "analysis"
   ],
+  "main": "./dist/index.js",
   "author": "han",
   "license": "MIT",
   "repository": "https://github.com/wxajs/wxa.git",

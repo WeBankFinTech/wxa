@@ -26,7 +26,7 @@
 		"vuepress": "^1.0.0-alpha.27"
 	},
 	"scripts": {
-		"publish-next": "lerna publish --npm-tag=next --canary beta --ignore @wxa/plugin-dependencies-analysis",
+		"publish-next": "lerna publish --npm-tag=next --canary beta",
 		"commit": "git-cz",
 		"test": "jest"
 	},
