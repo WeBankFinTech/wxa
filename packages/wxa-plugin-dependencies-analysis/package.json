@@ -18,7 +18,6 @@
   "repository": "https://github.com/wxajs/wxa.git",
   "homepage": "https://wxajs.github.io/wxa/",
   "dependencies": {
-    "@babel/polyfill": "^7.0.0",
     "echarts": "^4.2.0-rc.2",
     "filesize": "^3.6.1",
     "koa": "^2.5.3",

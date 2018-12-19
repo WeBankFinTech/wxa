@@ -1,4 +1,3 @@
-require("@babel/polyfill");
 import { Stats } from './Stats';
 import { start } from './server';
 
