@@ -181,15 +181,19 @@ export default class Compiler {
     }
 
     $$parseJSON(mdl) {
+        let children = [];
         let category = mdl.category ? mdl.category.toLowerCase() : '';
+
+        // normal json file or empty json file doesn't need to be resolved.
         if (
-            !~['app', 'component', 'page'].indexOf(category)
+            ~['app', 'component', 'page'].indexOf(category)
         ) {
-            // normal json file or empty json file doesn't need to be resolved.
-            return [];
+            // Page or Component resolve
+            children = new ComponentManager(this.resolve, this.meta, this.appConfigs).parse(mdl);
         }
 
-        // Page or Component resolve
-        return new ComponentManager(this.resolve, this.meta, this.appConfigs).parse(mdl);
+
+        mdl.code = JSON.stringify(mdl.json, void(0), 4);
+        return children;
     }
 }

@@ -259,7 +259,7 @@ class Builder {
 
         entry = await globby(entry);
         entry = entry.map((item)=>item.replace(/\//g, path.sep));
-        // debug('entry after globby %O', entry);
+        debug('entry after globby %O', entry);
 
         entry.forEach((point)=>{
             let mdl = {};
@@ -271,7 +271,7 @@ class Builder {
 
                 if (matchedPoint) {
                     mdl.src = this.wxaConfigs.thirdParty.point[matchedPoint];
-                    mdl.code = readFile(this.wxaConfigs.thirdParty.point[matchedPoint]);
+                    mdl.content = readFile(this.wxaConfigs.thirdParty.point[matchedPoint]);
                 }
             }
 
