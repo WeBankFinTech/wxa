@@ -1,0 +1,35 @@
+.switcher {
+    z-index: 999;
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    list-style: none;
+    padding: 0 20px;
+    display: flex;
+
+    line-height: 40px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, .3);
+    opacity: .9;
+}
+
+.switcher li {
+    opacity: .5;
+    cursor: pointer;
+    transition: .3s ease all;
+}
+
+.switcher li.active {
+    opacity: 1;
+}
+
+.switcher li:hover {
+    opacity: .9;
+}
+
+.switcher li:not(:first-child) {
+    margin-left: 20px;
+}
+

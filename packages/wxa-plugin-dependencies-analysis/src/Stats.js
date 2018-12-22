@@ -1,40 +1,39 @@
+import path from 'path'
+
 export class Stats {
   constructor(compilation) {
 
   }
 
-  toStatsJson(indexOfModule = []) {
-    if (!indexOfModule || indexOfModule.length === 0) return;
+  get(indexOfModule = []) {
+    if (!indexOfModule || indexOfModule.length === 0 || !indexOfModule[0].isROOT) return;
 
-    const statsJson = [];
+    return indexOfModule[0].childNodes.map((entry)=>this.toStatsJson(entry));
+  }
 
-    indexOfModule.forEach((item = {}) => {
-      if (item.isAbstract || 
-        !item.meta.accOutputPath || 
-        item.kind !== 'js'
-      ) {
-        return;
-      }
+  toStatsJson(mdl) {
+    const {
+      src,
+      category,
+      kind,
+    } = mdl;
 
-      const {
-        meta: {
-          accOutputPath = ''
-        } = {},
-      } = item;
+    const statsJsonItem = {
+      value: mdl.size,
+      name: path.relative(process.cwd(), src),
+      path: src,
+      category,
+      kind
+    }
 
-      const statsJsonItem = {
-        value: item.size,
-        name: accOutputPath.split('/').pop(),
-        path: accOutputPath,
-      }
+    if (mdl.childNodes && mdl.childNodes.size > 0) {
+      statsJsonItem.children = [];
 
-      if (item.childNodes && item.childNodes.size > 0) {
-        statsJsonItem.children = this.toStatsJson(item.childNodes);
-      }
+      mdl.childNodes.forEach((child)=>{
+        statsJsonItem.children.push(this.toStatsJson(child));
+      });
+    }
 
-      statsJson.push(statsJsonItem);
-    })
-
-    return statsJson;
+    return statsJsonItem;
   }
 }
