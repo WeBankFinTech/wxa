@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Treemap from './components/Treemap';
+import Board from './components/Board';
 
 export default class App extends Component {
 
@@ -43,9 +43,9 @@ export default class App extends Component {
 
   render() {
     return (
-      <Treemap
+      <Board
         treemapData={this.state.treemapData}
-      />
+      ></Board>
     );
   }
 }

@@ -1,5 +1,6 @@
 import { Stats } from './Stats';
 import { start } from './server';
+import { writeFileSync } from 'fs';
 
 export class DependenciesAnalysisPlugin {
   constructor(options = {}) {
@@ -17,17 +18,20 @@ export class DependenciesAnalysisPlugin {
       const DAP_NAME = 'DependenciesAnalysisPlugin';
 
       compiler.hooks.done.tapAsync(DAP_NAME, (compilation, next) => {
-        const statsJson = this.statsHandler.toStatsJson(compilation.$indexOfModule);
-  
-        this.DAPserver = start(statsJson, this.options);
-        next();
+        try{
+          const statsJson = this.statsHandler.get(compilation.$indexOfModule);
+          this.DAPserver = start(statsJson, this.options);
+          next();
+        } catch(e) {
+          next(e);
+        }
       });
   
       compiler.hooks.finishRebuildModule.tapAsync(DAP_NAME, (compilation, changedModule, next) => {
-        const statsJson = this.statsHandler.toStatsJson(compilation.$indexOfModule);
+        // const statsJson = this.statsHandler.get(compilation.$indexOfModule);
         
-        this.DAPserver.updateData(statsJson);
-        next();
+        // this.DAPserver.updateData(statsJson);
+        // next();
       });
     } catch(err) {
       console.error(err);
