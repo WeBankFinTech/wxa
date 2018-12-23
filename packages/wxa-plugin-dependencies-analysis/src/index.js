@@ -28,10 +28,15 @@ export class DependenciesAnalysisPlugin {
       });
   
       compiler.hooks.finishRebuildModule.tapAsync(DAP_NAME, (compilation, changedModule, next) => {
-        // const statsJson = this.statsHandler.get(compilation.$indexOfModule);
+        try {
+          const statsJson = this.statsHandler.get(compilation.$indexOfModule);
+          this.DAPserver.updateData(statsJson);
+
+          next();
+        } catch (e) {
+          next(e);
+        }
         
-        // this.DAPserver.updateData(statsJson);
-        // next();
       });
     } catch(err) {
       console.error(err);
