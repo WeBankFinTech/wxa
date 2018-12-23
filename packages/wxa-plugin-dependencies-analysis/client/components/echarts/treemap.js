@@ -93,8 +93,10 @@ export default function updateTreeMap(chart, treemapData) {
             },
             upperLabel: {
                 normal: {
-                    show: true,
-                    height: 30
+                    show: false,
+                    height: 30,
+                    backgroundColor: 'green',
+                    position: 'inside'
                 }
             },
             itemStyle: {
@@ -103,6 +105,7 @@ export default function updateTreeMap(chart, treemapData) {
                 }
             },
             levels: getLevelOption(),
+            leafDepth: 2,
             data: treemapData
         }]
     });
