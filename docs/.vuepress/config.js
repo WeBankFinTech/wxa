@@ -138,7 +138,8 @@ module.exports = {
         '@vuepress/notification',
         '@vuepress/plugin-medium-zoom',
         'flowchart',
-        ['@vuepress/google-analytics', {ga: 'UA-116900237-1'}]
+        ['@vuepress/google-analytics', {ga: 'UA-116900237-1'}],
+        ['sitemap', { hostname: 'https://wxajs.github.io/wxa/'}]
     ],
     clientRootMixin: path.resolve(__dirname, 'mixin.js')
 }

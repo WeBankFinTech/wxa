@@ -23,7 +23,8 @@
 		"lerna": "^2.9.0",
 		"lint-staged": "^7.3.0",
 		"regenerator-runtime": "^0.13.1",
-		"vuepress": "^1.0.0-alpha.27"
+		"vuepress": "^1.0.0-alpha.27",
+		"vuepress-plugin-sitemap": "^2.1.0"
 	},
 	"scripts": {
 		"publish-next": "lerna publish --npm-tag=next --canary beta",
@@ -44,6 +45,5 @@
 	},
 	"publishConfig": {
 		"access": "public"
-	},
-	"dependencies": {}
+	}
 }
