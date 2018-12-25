@@ -26,7 +26,8 @@ wxa 拓展是从 [vetur](https://github.com/vuejs/vetur) fork 而来，专门对
 
 ### WebStorm 配置
 
-to be continue.
+1. 打开WebStorm偏好设置 `Windows and Linux: File -> Settings `或`macOS: WebStorm -> Preferences`
+2. 点击 File Types `Editor -> File Types`，找到 `Vue.js Template`，在`registered Patterns`中添加`*.wxa`
 
 ## Eslint代码校验
 使用eslint校验代码，在开发阶段就解决弱*问题
