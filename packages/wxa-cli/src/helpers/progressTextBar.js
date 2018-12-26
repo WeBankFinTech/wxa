@@ -11,9 +11,17 @@ class ProgressBar {
         process.stdout.on('resize', ()=> {
             // this.bar_length = Math.floor( Math.max(0, (process.stdout.columns || 100) / 2 - 24) );
         });
+
+        this.isEnable = true;
+    }
+
+    toggle(able) {
+        this.isEnable = !!able;
     }
 
     draw(url, type='Compiling') {
+        if (!this.isEnable) return;
+
         let name = path.relative(this.cwd, url);
 
         this.clean();

@@ -1,6 +1,7 @@
 import {readFile, isFile} from './utils';
 import path from 'path';
 import fs from 'fs';
+import {performance, PerformanceObserver} from 'perf_hooks';
 import globby from 'globby';
 import bar from './helpers/progressBar';
 import logger from './helpers/logger';
@@ -16,8 +17,18 @@ import crypto from 'crypto';
 import {unlinkSync} from 'fs';
 import DependencyResolver from './helpers/dependencyResolver';
 import ProgressTextBar from './helpers/progressTextBar';
+import simplify from './helpers/simplifyObj';
 
 let debug = debugPKG('WXA:Schedule');
+
+const obs = new PerformanceObserver((list, observer) => {
+    if (process.env.NODE_DEBUG==='performance') {
+        console.log(list.getEntries());
+    }
+    // performance.clearMarks();
+    // observer.disconnect();
+  });
+obs.observe({entryTypes: ['measure'], buffered: true});
 
 class Schedule extends EventEmitter {
     constructor(loader) {
@@ -53,6 +64,7 @@ class Schedule extends EventEmitter {
                 wxaConfigs = configs;
 
                 this.APP_CONFIG_PATH = wxaConfigs.resolve.appConfigPath;
+                this.APP_SCRIPT_PATH = wxaConfigs.resolve.appScriptPath;
 
                 this.meta = {
                     ...this.meta,
@@ -133,16 +145,30 @@ class Schedule extends EventEmitter {
         debug('Dep HASH: %s', dep.hash);
         try {
             this.progress.draw(dep.src);
+
+            performance.mark(`loader started ${dep.src}`);
+
             // loader: use custom compiler to load resource.
             await this.loader.compile(dep);
 
+            performance.mark(`loader end ${dep.src}`);
+            performance.measure(`loader timing ${dep.src}`, `loader started ${dep.src}`, `loader end ${dep.src}`);
+
             // try to wrap wxa every app and page
             this.tryWrapWXA(dep);
+
+            if (dep.src === this.APP_SCRIPT_PATH) this.addAppPolyfill(dep);
+
+            // performance.mark(`compiler started ${dep.src}`);
 
             // Todo: conside if cache is necessary here.
             // debug('dep to process %O', dep);
             let compiler = new Compiler(this.wxaConfigs.resolve, this.meta, this.appConfigs);
             let childNodes = await compiler.parse(dep);
+
+            // performance.mark(`compiler end ${dep.src}`);
+
+            // performance.measure('compiler timing ', `compiler started ${dep.src}`, `compiler end ${dep.src}`);
 
             debug('childNodes', childNodes);
             let children = childNodes.reduce((children, node)=>{
@@ -152,6 +178,7 @@ class Schedule extends EventEmitter {
 
                 return children;
             }, []);
+
 
             // if watch mode, use childNodes to clean up the dep tree.
             // update each module's childnodes, then according to reference unlink file.
@@ -172,6 +199,7 @@ class Schedule extends EventEmitter {
                 this.cleanUpPages(newPages, oldPages);
             }
 
+
             this.calcFileSize(dep);
 
             // tick event
@@ -184,7 +212,7 @@ class Schedule extends EventEmitter {
     }
 
     cleanUpChildren(newChildren, mdl) {
-        debug('clean up module %O', mdl);
+        debug('clean up module %O', simplify(mdl));
         if (mdl.childNodes == null) return;
 
         mdl.childNodes.forEach((oldChild)=>{
@@ -247,7 +275,7 @@ class Schedule extends EventEmitter {
     findOrAddDependency(dep, mdl) {
         if (dep.pret.isURI || dep.pret.isDynamic || dep.pret.isBase64) return null;
 
-        debug('Find Dependencies started');
+        debug('Find Dependencies started %O', simplify(dep));
 
         // circle referrence.
         dep.reference = dep.reference || {};
@@ -313,15 +341,38 @@ class Schedule extends EventEmitter {
         return child;
     }
 
-    tryWrapWXA(dep) {
+    tryWrapWXA(mdl) {
         if (
-            ~['app', 'component', 'page'].indexOf(dep.category ? dep.category.toLowerCase() : '') &&
-            dep.meta && path.extname(dep.meta.source) === '.js' &&
-            /exports\.default/gm.test(dep.code)
+            ~['app', 'component', 'page'].indexOf(mdl.category ? mdl.category.toLowerCase() : '') &&
+            mdl.meta && path.extname(mdl.meta.source) === '.js' &&
+            /exports\.default/gm.test(mdl.code)
         ) {
-            dep.code = wrapWxa(dep.code, dep.category, dep.pagePath);
-            debug('wrap dependencies %O', dep);
+            mdl.code = wrapWxa(mdl.code, mdl.category, mdl.pagePath);
+            debug('wrap dependencies %O', simplify(mdl));
         }
+    }
+
+    addAppPolyfill(mdl) {
+        if (!this.wxaConfigs.polyfill) return;
+
+        const polyfill = Array.isArray(this.wxaConfigs.polyfill) ?
+            this.wxaConfigs.polyfill :
+            typeof this.wxaConfigs.polyfill === 'object' ?
+            Object.keys(this.wxaConfigs.polyfill) :
+            [this.wxaConfigs.polyfill];
+
+        const str = polyfill.reduce((ret, pkg)=>{
+            if (fs.existsSync(path.join(__dirname, '../lib-dist/', pkg))) {
+                return ret + `
+                    require('wxa://${pkg}').default;
+                `;
+            } else {
+                logger.error(new Error(`不存在 ${pkg} 的补丁`));
+                return ret;
+            }
+        }, '');
+
+        mdl.code = str + mdl.code;
     }
 
     addPageEntryPoint() {
