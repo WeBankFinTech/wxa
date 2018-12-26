@@ -13,6 +13,7 @@ export default class DefaultWxaConfigs {
             resolve: {
                 wxaExt: '.wxa',
                 extensions: ['.js', '.json'],
+                appScriptPath: path.join(context, 'app.js'),
                 appConfigPath: path.join(context, 'app.json'),
                 alias: {
                     '@': path.join(this.cwd, 'src'),
