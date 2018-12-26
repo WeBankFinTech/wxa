@@ -44,6 +44,7 @@ export default class Optimizer {
             // 并没有好的方法找到全局变量，top, self, this, window, global都不能解决三端问题, 只好采用https://cnodejs.org/topic/5846b2883ebad99b336b1e06的方式解决问题了。
             case '_freeGlobal.js':
                 code = code.replace('module.exports = freeGlobal;', `module.exports = {
+                    Promise: Promise,
                     Array: Array,
                     Date: Date,
                     Error: Error,
