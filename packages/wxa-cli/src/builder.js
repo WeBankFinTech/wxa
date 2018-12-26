@@ -163,6 +163,7 @@ class Builder {
         await this.hooks.beforeRun.promise(this);
 
         this.schedule = new Schedule(this.loader);
+        this.schedule.progress.toggle(cmd.progress);
         this.schedule.set('cmdOptions', cmd);
         this.schedule.set('wxaConfigs', this.wxaConfigs || {});
 
