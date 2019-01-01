@@ -11,10 +11,23 @@ class CompilerLoader {
         this.current = cwd;
 
         this.modulePath = path.join(this.current, 'node_modules');
+
+        this.cliModulePath = path.join(__dirname, '../node_modules');
         // all loader in queue.
         this.loaders = [];
     }
 
+    /**
+     *
+     * try load loader from
+     * - absoulte path,
+     * - project's npm repos,
+     * - @wxa/cli's npm repos.
+     *
+     * @param {Array<Object>} useLoaders loader to load
+     * @param {Object} cmdOptions options from terminal.
+     * @return {Promise}
+     */
     mount(useLoaders=[], cmdOptions) {
         let coms = useLoaders.map((loader)=>{
             let Loader;
@@ -33,13 +46,37 @@ class CompilerLoader {
                 debug('loader %O', Loader);
             } else {
                 let compilerName = '@wxa/compiler-'+uri;
+                let isDone = false;
+                let err;
+
+                // try to find loader from project's node_modules
                 try {
                     let main = findNpmModule(compilerName, this.modulePath);
                     Loader = require(main).default;
+
+                    isDone = true;
                 } catch (e) {
-                    console.error(e);
+                    err = e;
+                }
+
+                // try to find loader from cli's node_modules;
+                if (!isDone) {
+                    try {
+                        let main = findNpmModule(compilerName, this.cliModulePath);
+
+                        Loader = require(main).default;
+                        isDone = true;
+                    } catch (e) {
+                        debug('load cli\'s loader fail %O', e);
+                    }
+                }
+
+                // still no find, then use npm manager try to install it.
+                if (!isDone) {
+                    console.error(err);
                     logger.error('未安装的编译器：'+compilerName);
                     logger.info('Install', `尝试安装${compilerName}中`);
+
                     return npmManager.install(compilerName).then((succ)=>{
                         logger.info('Success', `安装${compilerName}成功`);
 
@@ -57,6 +94,7 @@ class CompilerLoader {
                     });
                 }
             }
+
             return Promise.resolve({Loader, uri, loader, cmdOptions});
         });
 

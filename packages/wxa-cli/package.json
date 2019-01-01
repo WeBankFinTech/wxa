@@ -42,6 +42,8 @@
     "@babel/template": "^7.1.2",
     "@babel/traverse": "^7.1.4",
     "@babel/types": "^7.1.6",
+    "@wxa/compiler-babel": "^2.0.0-beta.aec5f80c",
+    "@wxa/compiler-sass": "^2.0.0-beta.aec5f80c",
     "acorn": "^5.7.1",
     "babylon-walk": "^1.0.2",
     "chalk": "^2.3.0",
