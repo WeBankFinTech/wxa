@@ -9,6 +9,7 @@ export default class DefaultWxaConfigs {
         let context = path.resolve(this.cwd, 'src');
         return {
             target: 'wxa',
+            dependencyManager: 'npm',
             context,
             resolve: {
                 wxaExt: '.wxa',

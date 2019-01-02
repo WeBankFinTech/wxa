@@ -52,7 +52,7 @@ class Builder {
         // npmManager.setup(category)
 
         // mount loader
-        this.loader = new CompilerLoader(this.current);
+        this.loader = new CompilerLoader(this.wxaConfigs, this.current);
         return this.loader.mount(this.wxaConfigs.use, cmd);
     }
 
