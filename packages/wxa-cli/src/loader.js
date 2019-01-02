@@ -1,20 +1,23 @@
 import path from 'path';
 import findNpmModule from './helpers/findNpmModule';
 import logger from './helpers/logger';
-import npmManager from './helpers/npmManager';
+import {NpmManager} from './helpers/npmManager';
 import debugPKG from 'debug';
 
 let debug = debugPKG('WXA:Loader');
 
 class CompilerLoader {
-    constructor(cwd) {
+    constructor(wxaConfigs, cwd) {
         this.current = cwd;
+        this.wxaConfigs = wxaConfigs;
 
         this.modulePath = path.join(this.current, 'node_modules');
 
         this.cliModulePath = path.join(__dirname, '../node_modules');
         // all loader in queue.
         this.loaders = [];
+
+        this.npmManager = new NpmManager(wxaConfigs.dependencyManager);
     }
 
     /**
@@ -77,7 +80,7 @@ class CompilerLoader {
                     logger.error('未安装的编译器：'+compilerName);
                     logger.info('Install', `尝试安装${compilerName}中`);
 
-                    return npmManager.install(compilerName).then((succ)=>{
+                    return this.npmManager.install(compilerName).then((succ)=>{
                         logger.info('Success', `安装${compilerName}成功`);
 
                         try {
