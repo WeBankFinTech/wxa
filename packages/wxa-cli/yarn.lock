@@ -255,13 +255,22 @@
     "@babel/helper-remap-async-to-generator" "^7.1.0"
     "@babel/plugin-syntax-async-generators" "^7.2.0"
 
-"@babel/plugin-proposal-class-properties@^7.0.0":
+"@babel/plugin-proposal-class-properties@^7.2.3":
   version "7.2.3"
   resolved "https://registry.yarnpkg.com/@babel/plugin-proposal-class-properties/-/plugin-proposal-class-properties-7.2.3.tgz#c9e1294363b346cff333007a92080f3203698461"
   integrity sha512-FVuQngLoN2iDrpW7LmhPZ2sO4DJxf35FOcwidwB9Ru9tMvI5URthnkVHuG14IStV+TzkMTyLMoOUlSTtrdVwqw==
   dependencies:
     "@babel/helper-create-class-features-plugin" "^7.2.3"
     "@babel/helper-plugin-utils" "^7.0.0"
+
+"@babel/plugin-proposal-decorators@^7.2.3":
+  version "7.2.3"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-proposal-decorators/-/plugin-proposal-decorators-7.2.3.tgz#1fe5b0d22ce0c4418f225474ebd40267430364c0"
+  integrity sha512-jhCFm7ftmue02EWIYqbhzP0iConEPsgVQeDriOs/Qc2lgr6MDtHTTrv3hE2GOOQDFjQ9tjP7nWQq0ad0JhIsQg==
+  dependencies:
+    "@babel/helper-create-class-features-plugin" "^7.2.3"
+    "@babel/helper-plugin-utils" "^7.0.0"
+    "@babel/plugin-syntax-decorators" "^7.2.0"
 
 "@babel/plugin-proposal-json-strings@^7.2.0":
   version "7.2.0"
@@ -300,6 +309,13 @@
   version "7.2.0"
   resolved "https://registry.yarnpkg.com/@babel/plugin-syntax-async-generators/-/plugin-syntax-async-generators-7.2.0.tgz#69e1f0db34c6f5a0cf7e2b3323bf159a76c8cb7f"
   integrity sha512-1ZrIRBv2t0GSlcwVoQ6VgSLpLgiN/FVQUzt9znxo7v2Ov4jJrs8RY8tv0wvDmFN3qIdMKWrmMMW6yZ0G19MfGg==
+  dependencies:
+    "@babel/helper-plugin-utils" "^7.0.0"
+
+"@babel/plugin-syntax-decorators@^7.2.0":
+  version "7.2.0"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-syntax-decorators/-/plugin-syntax-decorators-7.2.0.tgz#c50b1b957dcc69e4b1127b65e1c33eef61570c1b"
+  integrity sha512-38QdqVoXdHUQfTpZo3rQwqQdWtCn5tMv4uV6r2RMfTqNBuv4ZBhz79SfaQWKTVmxHjeFv/DnXVC/+agHCklYWA==
   dependencies:
     "@babel/helper-plugin-utils" "^7.0.0"
 
@@ -500,7 +516,7 @@
   dependencies:
     regenerator-transform "^0.13.3"
 
-"@babel/plugin-transform-runtime@^7.1.0":
+"@babel/plugin-transform-runtime@^7.2.0":
   version "7.2.0"
   resolved "https://registry.yarnpkg.com/@babel/plugin-transform-runtime/-/plugin-transform-runtime-7.2.0.tgz#566bc43f7d0aedc880eaddbd29168d0f248966ea"
   integrity sha512-jIgkljDdq4RYDnJyQsiWbdvGeei/0MOTtSHKO/rfbd/mXBxNpdlulMx49L0HQ4pug1fXannxoqCI+fYSle9eSw==
@@ -564,7 +580,7 @@
     core-js "^2.5.7"
     regenerator-runtime "^0.12.0"
 
-"@babel/preset-env@^7.0.0":
+"@babel/preset-env@^7.2.3":
   version "7.2.3"
   resolved "https://registry.yarnpkg.com/@babel/preset-env/-/preset-env-7.2.3.tgz#948c8df4d4609c99c7e0130169f052ea6a7a8933"
   integrity sha512-AuHzW7a9rbv5WXmvGaPX7wADxFkZIqKlbBh1dmZUQp4iwiPpkE/Qnrji6SC4UQCQzvWY/cpHET29eUhXS9cLPw==
@@ -611,7 +627,7 @@
     js-levenshtein "^1.1.3"
     semver "^5.3.0"
 
-"@babel/runtime@^7.1.5":
+"@babel/runtime@^7.2.0":
   version "7.2.0"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.2.0.tgz#b03e42eeddf5898e00646e4c840fa07ba8dcad7f"
   integrity sha512-oouEibCbHMVdZSDlJBO6bZmID/zA/G/Qx3H1d3rSNPTD+L8UNKvCat7aKWSJ74zYbm5zWGh0GQN0hKj8zYFTCg==

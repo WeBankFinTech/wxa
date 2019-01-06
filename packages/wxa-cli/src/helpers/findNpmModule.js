@@ -2,7 +2,7 @@ import path from 'path';
 import findRoot from 'find-root';
 import {readFile, isFile} from '../utils';
 
-function getPkgJson(modulesPath, lib) {
+export function getPkgJson(modulesPath, lib) {
     let uri = path.join(modulesPath, lib);
     let location = findRoot(uri);
     let content = readFile(path.join(location, 'package.json'));

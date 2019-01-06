@@ -2,6 +2,7 @@ import path from 'path';
 import findNpmModule from './helpers/findNpmModule';
 import logger from './helpers/logger';
 import {NpmManager} from './helpers/npmManager';
+import defaultBabelConfigs from './const/defaultBabelConfigs';
 import debugPKG from 'debug';
 
 let debug = debugPKG('WXA:Loader');
@@ -106,7 +107,9 @@ class CompilerLoader {
             succ.forEach(({Loader, uri, loader, cmdOptions})=>{
                 try {
                     debug('loader started');
-                    let options = loader.options || {};
+                    const defaultConfigs = /babel/.test(uri) ? defaultBabelConfigs : {};
+
+                    let options = loader.options || defaultConfigs;
                     let instance = new Loader(this.current, options);
                     // console.log(instance);
                     let test = loader.test || instance.test;

@@ -156,6 +156,7 @@ class Schedule extends EventEmitter {
 
             // try to wrap wxa every app and page
             this.tryWrapWXA(dep);
+            this.tryAddPolyfill(dep);
 
             if (dep.src === this.APP_SCRIPT_PATH) this.addAppPolyfill(dep);
 
@@ -350,6 +351,33 @@ class Schedule extends EventEmitter {
             mdl.code = wrapWxa(mdl.code, mdl.category, mdl.pagePath);
             debug('wrap dependencies %O', simplify(mdl));
         }
+    }
+
+    tryAddPolyfill(mdl) {
+        const polyfill = new Map([
+            ['regenerator-runtime/runtime', {
+                test(mdl) {
+                    // if js file do not have regeneratorRuntime polyfill
+                    // or babelRuntime polyfill we add it.
+                    return (
+                        /regeneratorRuntime/.test(mdl.code) &&
+                        !/var\sregeneratorRuntime \=/.test(mdl.code) &&
+                        !/@babel\/runtime\/regenerator/.test(mdl.code)
+                    );
+                },
+                wrap(mdl) {
+                    mdl.code = `
+                    var regeneratorRuntime = require('wxa://regenerator-runtime/runtime');
+
+                    ${mdl.code}
+                    `;
+                },
+            }],
+        ]);
+
+        polyfill.forEach((preset, name)=>{
+            if (preset.test(mdl)) preset.wrap(mdl);
+        });
     }
 
     addAppPolyfill(mdl) {
