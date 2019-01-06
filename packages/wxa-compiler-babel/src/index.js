@@ -54,10 +54,10 @@ class BabelLoader {
             this.configs = require(babeljs);
         } else if (fs.existsSync(pkg)){
             this.configs = require(pkg).babel;
-        } else {
-            this.configs = configs || {};
-        }
+        } 
 
+        // setup default babel config
+        this.configs = configs || {};
         // process ignore to compat babel6
         if (
             typeof this.configs.ignore === 'string' || 
@@ -113,7 +113,7 @@ class BabelLoader {
                 transform: ()=>{
                     return this.transform(type, code || src, {
                         ...configs,
-                        filename: src
+                        filename: src,
                     });
                 }
             }, cmdOptions.cache);
