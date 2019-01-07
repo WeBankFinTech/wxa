@@ -360,6 +360,7 @@ class Schedule extends EventEmitter {
                     // if js file do not have regeneratorRuntime polyfill
                     // or babelRuntime polyfill we add it.
                     return (
+                        mdl.meta && path.extname(mdl.meta.source) === '.js' &&
                         /regeneratorRuntime/.test(mdl.code) &&
                         !/var\sregeneratorRuntime \=/.test(mdl.code) &&
                         !/@babel\/runtime\/regenerator/.test(mdl.code)
@@ -373,6 +374,20 @@ class Schedule extends EventEmitter {
                     `;
                 },
             }],
+            ['core-js/es.promise.finally', {
+                    test(mdl) {
+                        return mdl.category && ~['app'].indexOf(mdl.category.toLowerCase()) &&
+                        mdl.meta && path.extname(mdl.meta.source) === '.js';
+                    },
+                    wrap(mdl) {
+                        mdl.code = `
+                        require('wxa://core-js/es.promise.finally.js');
+
+                        ${mdl.code}
+                        `;
+                    },
+                },
+            ],
         ]);
 
         polyfill.forEach((preset, name)=>{

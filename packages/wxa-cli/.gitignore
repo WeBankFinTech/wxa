@@ -4,3 +4,4 @@ dist
 npm-debug.log.*
 lib-dist
 package-lock.json
+.cache
