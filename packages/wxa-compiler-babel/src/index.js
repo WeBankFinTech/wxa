@@ -57,7 +57,7 @@ class BabelLoader {
         } 
 
         // setup default babel config
-        this.configs = configs || {};
+        this.configs = this.configs || configs || {};
         // process ignore to compat babel6
         if (
             typeof this.configs.ignore === 'string' || 
