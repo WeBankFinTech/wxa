@@ -158,8 +158,6 @@ class Schedule extends EventEmitter {
             this.tryWrapWXA(dep);
             this.tryAddPolyfill(dep);
 
-            if (dep.src === this.APP_SCRIPT_PATH) this.addAppPolyfill(dep);
-
             // performance.mark(`compiler started ${dep.src}`);
 
             // Todo: conside if cache is necessary here.
@@ -354,6 +352,8 @@ class Schedule extends EventEmitter {
     }
 
     tryAddPolyfill(mdl) {
+        if (!this.wxaConfigs.polyfill) return;
+
         const polyfill = new Map([
             ['regenerator-runtime/runtime', {
                 test(mdl) {
@@ -374,7 +374,7 @@ class Schedule extends EventEmitter {
                     `;
                 },
             }],
-            ['core-js/es.promise.finally', {
+            ['es.promise.finally', {
                     test(mdl) {
                         return mdl.category && ~['app'].indexOf(mdl.category.toLowerCase()) &&
                         mdl.meta && path.extname(mdl.meta.source) === '.js';
@@ -391,31 +391,8 @@ class Schedule extends EventEmitter {
         ]);
 
         polyfill.forEach((preset, name)=>{
-            if (preset.test(mdl)) preset.wrap(mdl);
+            if (this.wxaConfigs.polyfill[name] && preset.test(mdl)) preset.wrap(mdl);
         });
-    }
-
-    addAppPolyfill(mdl) {
-        if (!this.wxaConfigs.polyfill) return;
-
-        const polyfill = Array.isArray(this.wxaConfigs.polyfill) ?
-            this.wxaConfigs.polyfill :
-            typeof this.wxaConfigs.polyfill === 'object' ?
-            Object.keys(this.wxaConfigs.polyfill) :
-            [this.wxaConfigs.polyfill];
-
-        const str = polyfill.reduce((ret, pkg)=>{
-            if (fs.existsSync(path.join(__dirname, '../lib-dist/', pkg))) {
-                return ret + `
-                    require('wxa://${pkg}').default;
-                `;
-            } else {
-                logger.error(new Error(`不存在 ${pkg} 的补丁`));
-                return ret;
-            }
-        }, '');
-
-        mdl.code = str + mdl.code;
     }
 
     addPageEntryPoint() {
