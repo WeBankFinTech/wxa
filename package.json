@@ -31,11 +31,17 @@
 		"commit": "git-cz",
 		"test": "jest"
 	},
+	"husky": {
+		"hooks": {
+			"pre-commit": "lint-staged"
+		}
+	},
 	"lint-staged": {
 		"*.js": [
 			"eslint --fix",
 			"git add"
-		]
+		],
+		"*": "npm test"
 	},
 	"sideEffects": false,
 	"config": {
