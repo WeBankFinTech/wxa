@@ -25,9 +25,7 @@ const obs = new PerformanceObserver((list, observer) => {
     if (process.env.NODE_DEBUG==='performance') {
         console.log(list.getEntries());
     }
-    // performance.clearMarks();
-    // observer.disconnect();
-  });
+});
 obs.observe({entryTypes: ['measure'], buffered: true});
 
 class Schedule extends EventEmitter {
@@ -169,7 +167,7 @@ class Schedule extends EventEmitter {
 
             // performance.measure('compiler timing ', `compiler started ${dep.src}`, `compiler end ${dep.src}`);
 
-            debug('childNodes', childNodes);
+            debug('childNodes', childNodes.map((node)=>simplify(node)));
             let children = childNodes.reduce((children, node)=>{
                 let child = this.findOrAddDependency(node, dep);
 
@@ -188,7 +186,7 @@ class Schedule extends EventEmitter {
             dep.color = COLOR.COMPILED;
 
             // if module is app.json, then add Page entry points.
-            if (dep.src === this.APP_CONFIG_PATH) {
+            if (dep.meta && dep.meta.source === this.APP_CONFIG_PATH) {
                 this.appConfigs = dep.json;
                 debug('app configs is %O', dep.json);
 
@@ -220,7 +218,7 @@ class Schedule extends EventEmitter {
                 debug('denpendencies clean up started');
 
                 if (oldChild.reference == null) {
-                    debug('Error: old child node\'s reference is no find %O', oldChild );
+                    debug('Error: old child node\'s reference is no find %O', simplify(oldChild) );
                     return;
                 }
 
@@ -234,7 +232,7 @@ class Schedule extends EventEmitter {
 
                 oldChild.reference.splice(idxOfParent, 1);
 
-                debug('oldChild %O', oldChild);
+                // debug('oldChild %O', oldChild);
 
                 if (oldChild.reference.length === 0 && !oldChild.isROOT) {
                     debug('useless module find %s', oldChild.src);
@@ -407,11 +405,10 @@ class Schedule extends EventEmitter {
 
         let pages = this.appConfigs.pages;
         // multi packages process.
-        if (this.appConfigs.subPackages) {
-            let subPages = this.appConfigs.subPackages.reduce((subPkgs, pkg)=>{
+        if (this.appConfigs.subpackages) {
+            let subPages = this.appConfigs.subpackages.reduce((subPkgs, pkg)=>{
                 return subPkgs.concat(pkg.pages.map((subpath)=>pkg.root+'/'+subpath));
             }, []);
-
             pages = pages.concat(subPages);
         }
 
