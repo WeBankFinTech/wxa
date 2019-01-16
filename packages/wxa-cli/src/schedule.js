@@ -240,7 +240,7 @@ class Schedule extends EventEmitter {
                     // nested clean children
                     this.cleanUpChildren([], oldChild);
                     // unlink module
-                    oldChild.meta && unlinkSync(oldChild.meta.accOutputPath);
+                    oldChild.meta && oldChild.meta.accOutputPath && unlinkSync(oldChild.meta.accOutputPath);
                     this.$indexOfModule.splice(this.$indexOfModule.findIndex((mdl)=>mdl.src===oldChild.src), 1);
                 }
             }
@@ -270,6 +270,8 @@ class Schedule extends EventEmitter {
     }
 
     findOrAddDependency(dep, mdl) {
+        // if a dependency is from remote, or dynamic path, or base64 format, then we ignore it.
+        // cause we needn't process this kind of resource.
         if (dep.pret.isURI || dep.pret.isDynamic || dep.pret.isBase64) return null;
 
         debug('Find Dependencies started %O', simplify(dep));
@@ -300,20 +302,12 @@ class Schedule extends EventEmitter {
 
         if (indexedModuleIdx > -1) {
             let indexedModule = this.$indexOfModule[indexedModuleIdx];
-            let ref = dep.reference;
+            let ref = child.reference;
             debug('Find out module HASH is %s %O', indexedModule.hash, indexedModule);
 
             // merge from.
             if (Array.isArray(indexedModule.reference)) {
                 indexedModule.reference.push(ref);
-            } else if (typeof indexedModule.reference === 'object') {
-                // dead code theorily
-                debug('dead code execute');
-
-                indexedModule.reference = [
-                    indexedModule.reference,
-                    ref,
-                ];
             } else {
                 indexedModule.reference = ref;
             }
