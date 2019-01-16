@@ -7,7 +7,7 @@ import debugPKG from 'debug';
 import logger from '../../helpers/logger';
 
 let debug = debugPKG('WXA:XMLManager');
-
+let debugXMLStyle = debugPKG('WXA:XMLManager-style');
 // const SOURCE_ATTR = ['src', 'href'];
 // const STYLE_
 
@@ -93,6 +93,9 @@ class XMLManager {
                 }
 
                 case 'style': {
+                    debugXMLStyle(attr.nodeName, attr.nodeType, attr.nodeValue, typeof attr.nodeValue);
+                    if (!attr.nodeValue) break;
+
                     try {
                         let CM = new CSSManager(this.resolve, this.meta);
                         let {libs: subLibs, code} = CM.resolveStyle(attr.nodeValue, mdl);

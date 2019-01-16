@@ -134,7 +134,13 @@ export default class WxaCompiler {
         });
 
         rst = Object.keys(rst).reduce((ret, key)=>{
-            if (rst[key].src && rst[key].code !== '') {
+            // in wxa tempate and script is alway generated cause they are required.
+            // but config and style is optional
+            // https://developers.weixin.qq.com/miniprogram/dev/framework/structure.html
+            if (
+                (rst[key].src && rst[key].code !== '') ||
+                ~['script', 'template'].indexOf(key)
+            ) {
                 ret[key] = rst[key];
             }
             return ret;

@@ -25,6 +25,8 @@ export default class CSSManager {
     resolveStyle(str, mdl) {
         let libs = [];
         debug('style resolve start');
+        if (typeof str !== 'string') return {libs, code: ''};
+
         let code = str.replace(
             /(?:\/\*[\s\S]*?\*\/|(?:[^\\:]|^)\/\/.*)|(\.)?url\(['"]?([\w\d_\-\.\/@]+)['"]?\)|@import\s+['"]?([\w\d_\-\.\/@]+)['"]?/igm,
             (match, point, dep, importCSS)=>{
