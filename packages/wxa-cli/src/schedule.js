@@ -405,9 +405,13 @@ class Schedule extends EventEmitter {
 
         let pages = this.appConfigs.pages;
         // multi packages process.
-        if (this.appConfigs.subpackages) {
-            let subPages = this.appConfigs.subpackages.reduce((subPkgs, pkg)=>{
-                return subPkgs.concat(pkg.pages.map((subpath)=>pkg.root+'/'+subpath));
+        // support both subpackages and subPackages
+        // see: https://developers.weixin.qq.com/miniprogram/dev/framework/subpackages/basic.html
+        let pkg = this.appConfigs.subpackages || this.appConfigs.subPackages;
+
+        if (pkg) {
+            let subPages = pkg.reduce((subPkgs, pkg)=>{
+                return subPkgs.concat(pkg.pages.map((subpath)=>pkg.root.replace(/\/$/, '')+'/'+subpath));
             }, []);
             pages = pages.concat(subPages);
         }
