@@ -58,13 +58,15 @@ export class Wxa {
         // every Page, Component will receive these guys.
         this.$$globalMixins = [];
     }
+
     setDebugMode(val) {
         this.IS_DEBUG = !!val;
         if (this.IS_DEBUG) {
-            console.info(this);
             console.warn('WXA is in Debug mode, please close debug mode in production.');
+            console.info('wxa class: ', this);
         }
     }
+
     launchApp(instance) {
         let vm = instance;
 
@@ -72,9 +74,7 @@ export class Wxa {
 
         // 复制methods
         if (vm.methods != null && typeof vm.methods === 'object') {
-            // console.log(vm);
             Object.keys(vm.methods).forEach((key)=>{
-                // console.log(key, Object.getOwnPropertyDescriptor(vm.__proto__, key));
                 vm[key] = vm.methods[key];
             });
         }
@@ -89,6 +89,7 @@ export class Wxa {
 
         App(vm);
     }
+
     launchPage(instance, pagePath) {
         let vm = instance;
 
@@ -126,11 +127,12 @@ export class Wxa {
 
         if (!!pagePath) {
             let _pagePath = pagePath.replace(/^\//, '');
-            wxa.$$pageMap.set(_pagePath, vm);
+            this.$$pageMap.set(_pagePath, vm);
         }
 
         Page(vm);
     }
+
     launchComponent(instance) {
         let vm = instance;
 
@@ -170,11 +172,13 @@ export class Wxa {
 
         Component(vm);
     }
+
     mixin(obj) {
         if (obj == null) return;
 
         this.$$globalMixins.push(obj);
     }
+
     use(plugin, options) {
         // initial options for plugin.
         let pluginFn = plugin.call(null, options);

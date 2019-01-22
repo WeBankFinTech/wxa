@@ -2,21 +2,49 @@ import merge from '../utils/deep-merge';
 
 import {hooksName} from './hook';
 
+let getPropotypeOf = Object.getPrototypeOf || ((obj)=>obj.__proto__);
+
+// trace prototype to copy method for extends.
+let tracePrototypeMethods = (vm)=>{
+    let result = {};
+
+    Object.getOwnPropertyNames(vm).forEach((key)=>{
+        // wxa private methods that prefix with $ should allways not to copy.
+        // also, the wxa hooks, un-writable methos and mixins shouldn't too.
+        if (
+            !~['constructor', 'mixins'].indexOf(key) &&
+            !/^$/.test(key) &&
+            hooksName.indexOf(key) === -1
+        ) {
+            result[key] = vm[key];
+        }
+    });
+
+    const proto = getPropotypeOf(vm);
+
+    if (proto && proto.constructor !== Object) {
+        return {
+            ...tracePrototypeMethods(proto),
+            ...result,
+        };
+    } else {
+        return result;
+    }
+};
+
 let copyMethodsFromClass = (vm)=>{
     if (typeof vm === 'function') {
         // class
         let obj = new vm();
 
         obj.methods = obj.methods || {};
-        Object.getOwnPropertyNames(vm.prototype).forEach((key)=>{
-            if (
-                ['constructor', 'mixins'].indexOf(key) === -1 &&
-                hooksName.indexOf(key) === -1
-            ) {
-                obj.methods[key] = vm.prototype[key];
-            }
-        });
 
+        const tracedMethods = tracePrototypeMethods(vm.prototype);
+
+        obj.methods = {
+            ...obj.methods,
+            ...tracedMethods,
+        };
         vm = obj;
     } else if (typeof vm !== 'object') {
         vm = {};

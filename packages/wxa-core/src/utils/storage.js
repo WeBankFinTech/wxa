@@ -1,7 +1,7 @@
 import wxapi from './wxapi';
 
 export default class Storage {
-    constructor() {
+    constructor(wx) {
         this.wxapi = wxapi(wx);
     }
     set(key, value) {
@@ -18,7 +18,7 @@ export default class Storage {
         let ret;
         try {
             ret = this.wxapi.getStorageSync(key);
-            ret = ret === ''|| ret == null ? null : JSON.parse(this.wxapi.getStorageSync(key));
+            ret = (ret === ''|| ret == null) ? null : JSON.parse(ret);
         } catch (e) {
             console.error(e);
         }
@@ -41,4 +41,4 @@ export default class Storage {
     }
 }
 
-export const storage = new Storage();
+export const storage = new Storage(wx);
