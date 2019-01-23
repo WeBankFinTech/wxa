@@ -166,6 +166,8 @@ class Builder {
     }
 
     async build(cmd) {
+        if (cmd.verbose) logger.info('WxaConfigs', this.wxaConfigs);
+
         try {
             // initial loader and entry options.
             await this.init(cmd);

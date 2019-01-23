@@ -19,14 +19,17 @@ class ProgressBar {
         this.isEnable = !!able;
     }
 
-    draw(url, type='Compiling') {
+    draw(text, type='Compiling', needClean=true) {
         if (!this.isEnable) return;
 
-        let name = path.relative(this.cwd, url);
+        if (needClean) {
+            this.clean();
+        } else {
+            process.stdout.write('\n');
+        }
 
-        this.clean();
         process.stdout.write(
-            `${greenBright(type)}: ${name}`
+            `${greenBright(type)}: ${text}`
         );
     }
 

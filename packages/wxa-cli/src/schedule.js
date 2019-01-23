@@ -21,13 +21,6 @@ import simplify from './helpers/simplifyObj';
 
 let debug = debugPKG('WXA:Schedule');
 
-const obs = new PerformanceObserver((list, observer) => {
-    if (process.env.NODE_DEBUG==='performance') {
-        console.log(list.getEntries());
-    }
-});
-obs.observe({entryTypes: ['measure'], buffered: true});
-
 class Schedule extends EventEmitter {
     constructor(loader) {
         super();
@@ -88,6 +81,14 @@ class Schedule extends EventEmitter {
 
         // cmd options
         this.cmdOptions = {};
+
+        // performance mark
+        this.obs = new PerformanceObserver((list, observer) => {
+            if (process.env.NODE_DEBUG==='performance') {
+                console.log(list.getEntries());
+            }
+        });
+        this.obs.observe({entryTypes: ['measure'], buffered: true});
     }
 
     set(name, value) {
@@ -142,7 +143,10 @@ class Schedule extends EventEmitter {
         if (content) dep.hash = crypto.createHash('md5').update(content).digest('hex');
         debug('Dep HASH: %s', dep.hash);
         try {
-            this.progress.draw(dep.src);
+            const relativeSrc = path.relative(this.current, dep.src);
+            const text = this.cmdOptions.verbose ? `(Hash: ${dep.hash})    ${relativeSrc}` : relativeSrc;
+
+            this.progress.draw(text, 'COMPILING', !this.cmdOptions.verbose);
 
             performance.mark(`loader started ${dep.src}`);
 
@@ -195,7 +199,6 @@ class Schedule extends EventEmitter {
                 // console.log(newPages, oldPages);
                 this.cleanUpPages(newPages, oldPages);
             }
-
 
             this.calcFileSize(dep);
 
