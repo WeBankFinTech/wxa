@@ -7,21 +7,21 @@ import shell from 'shelljs';
 class Creator {
     constructor(cmd) {
         this.cmdOptions = cmd;
-        this.prefix = 'https://github.com/Genuifx';
+        this.prefix = 'https://github.com/wxajs';
     }
 
-    run({projectName, template}) {
-        this.clone(template, projectName);
+    run({projectName, template, ...rest}) {
+        this.clone(template, projectName, rest);
     }
 
-    clone(template, name) {
+    clone(template, name, rest) {
         let full = `${this.prefix}/wxa-templates.git`;
 
         exec(`git clone ${full} ${name}`, function(err, stdout, stderr) {
             if (err) {
                 logger.error(err);
             } else {
-                logger.info('clone', `成功下载模板 ${full}`);
+                logger.info('Clone', `成功下载模板 ${full}`);
                 try {
                     let cwd = process.cwd();
                     let tmpDir = Date.now()+`_${template}`;
@@ -30,11 +30,26 @@ class Creator {
                     shell.rm('-rf', path.join(cwd, `./${name}/`));
                     shell.mv(path.join(cwd, tmpDir), path.join(cwd, `${name}/`));
 
-                    let filepath = path.join(process.cwd(), `${name}/package.json`);
-                    let pkg = require(filepath);
+                    const pkgFilepath = path.join(process.cwd(), `${name}/package.json`);
+                    const pkg = require(pkgFilepath);
                     pkg.name = name;
-                    fs.writeFileSync(filepath, JSON.stringify(pkg, null, 4));
-                    logger.info('success', '新建成功，请注意安装依赖');
+                    fs.writeFileSync(pkgFilepath, JSON.stringify(pkg, null, 4));
+
+                    // write project.config.json.
+                    const projectConfig = {
+                        'miniprogramRoot': './',
+                        'compileType': 'miniprogram',
+                        'appid': rest.appid || '',
+                        'projectname': name,
+                    };
+
+                    fs.writeFileSync(
+                        path.join(process.cwd(), `${name}/src/project.config.json`),
+                        JSON.stringify(projectConfig, null, 4)
+                    );
+
+                    logger.info('Success', '新建成功，请注意安装依赖');
+                    if (!rest.appid) logger.warn('Noticed', '记得在 project.config.json 中指定 appid~');
                 } catch (e) {
                     logger.error(e);
                 }

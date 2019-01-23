@@ -142,9 +142,13 @@ commander
                     },
                 ],
             },
+            {
+                type: 'input',
+                name: 'appid',
+                message: '小程序APPID',
+                default: '',
+            },
         ]);
-
-        // console.log(opts);
 
         new Creator(cmd).run(opts);
     });
