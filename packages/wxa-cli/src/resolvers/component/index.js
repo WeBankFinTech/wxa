@@ -24,7 +24,7 @@ export default class ComponentManager {
         if (mdl.category && mdl.category.toLowerCase() === 'page') {
             debug('merge global component and page components %O', mdl);
             mdl.json.usingComponents = {
-                ...this.appConfigs.usingComponents,
+                ...this.appConfigs['wxa.globalComponents'],
                 ...mdl.json.usingComponents,
             };
         }
