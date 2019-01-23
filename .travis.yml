@@ -7,7 +7,7 @@ os:
 install: 
 - npm i
 - npm install -g codecov
-- npx lerna bootstrap -- --production --no-optional
+- npx lerna bootstrap
 script: 
 - npx jest
 after_success:
