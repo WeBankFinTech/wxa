@@ -21,7 +21,7 @@
 		"jest": "^23.6.0",
 		"jest-plugin-console-matchers": "^2.9.0",
 		"jest-plugin-fs": "^2.9.0",
-		"lerna": "^2.9.0",
+		"lerna": "^3.10.7",
 		"lint-staged": "^7.3.0",
 		"regenerator-runtime": "^0.13.1",
 		"vuepress": "^1.0.0-alpha.27",
@@ -33,7 +33,7 @@
 		}
 	},
 	"scripts": {
-		"publish-next": "lerna publish --npm-tag=next --canary beta",
+		"publish-next": "lerna publish --dist-tag=next --canary --preid rc",
 		"commit": "git-cz",
 		"test": "jest"
 	},
