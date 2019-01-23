@@ -28,6 +28,18 @@ class Builder {
         this.wxaConfigs.resolve.appConfigPath = path.join(this.wxaConfigs.context, 'app.json');
         if (this.wxaConfigs.resolve.wxaExt[0] !== '.') this.wxaConfigs.resolve.wxaExt = '.'+this.wxaConfigs.resolve.wxaExt;
 
+        // get project name,
+        // priority: wxa.config -> package.json -> 'WXA';
+        if (!this.wxaConfigs.$name) {
+            try {
+                this.name = require(path.join(this.current, 'package.json')).name;
+            } catch (e) {
+                this.name = 'WXA';
+            }
+        } else {
+            this.name = this.wxaConfigs.$name;
+        }
+
         // chokidar options.
         this.isWatching = false;
         this.isWatchReady = false;
@@ -182,7 +194,8 @@ class Builder {
     }
 
     async run(cmd) {
-        logger.info('Building', `Project: ${this.wxaConfigs.$name || 'Default'} `+'AT: '+new Date().toLocaleString());
+        process.title = this.name;
+        logger.info('Building', `Project: ${this.name} `+'AT: '+new Date().toLocaleString());
         try {
             await this.hooks.run.promise(this);
 
