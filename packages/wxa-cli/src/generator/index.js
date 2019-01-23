@@ -45,6 +45,7 @@ export default class Generator {
             switch (opath.ext) {
                 case '.css': ext = '.wxss'; break;
                 case '.xml': ext = '.wxml'; break;
+                case '.ts': ext = '.js'; break;
                 default: ext = opath.ext;
             }
 
