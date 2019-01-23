@@ -191,12 +191,19 @@ class Schedule extends EventEmitter {
 
             // if module is app.json, then add Page entry points.
             if (dep.meta && dep.meta.source === this.APP_CONFIG_PATH) {
-                this.appConfigs = dep.json;
+                this.appConfigs = {...dep.json};
                 debug('app configs is %O', dep.json);
+
+                if (dep.json['wxa.globalComponents']) {
+                    // global components in wxa;
+                    // delete custom field in app.json or wechat devtool will get wrong.
+                    delete dep.json['wxa.globalComponents'];
+
+                    dep.code = JSON.stringify(dep.json, void(0), 4);
+                }
 
                 let oldPages = this.$pageArray.slice(0);
                 let newPages = this.addPageEntryPoint();
-                // console.log(newPages, oldPages);
                 this.cleanUpPages(newPages, oldPages);
             }
 
@@ -423,9 +430,7 @@ class Schedule extends EventEmitter {
         };
 
         // pages spread
-        let exts = ['.wxml', '.wxss', '.js', '.json'];
         let newPages = pages.reduce((ret, page)=>{
-            // console.log(page);
             // wxa file
             let wxaPage = path.join(this.meta.context, page+this.meta.wxaExt);
 
