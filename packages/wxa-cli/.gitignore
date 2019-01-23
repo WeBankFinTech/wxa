@@ -3,5 +3,4 @@ dist
 .DS_Store
 npm-debug.log.*
 lib-dist
-package-lock.json
 .cache
