@@ -42,7 +42,7 @@ let wrapWxaConfigs = (fn)=>{
             instance.wxaConfigs.thirdParty = instance;
             subWxaConfigs = Object.assign({}, wxaConfigs, instance.wxaConfigs, {$name: instance.name});
         } else {
-            subWxaConfigs = Object.assign({}, wxaConfigs, {$name: 'Default'});
+            subWxaConfigs = Object.assign({}, wxaConfigs);
         }
 
         return fn(subWxaConfigs, cmdOptions);
