@@ -124,7 +124,7 @@ class Builder {
                         await this.hooks.rebuildModule.promise(this.schedule, mdl);
 
                         changedDeps = await this.schedule.$doDPA();
-                        await this.optimizeAndGenerate(changedDeps);
+                        await this.optimizeAndGenerate(changedDeps, cmd);
                         logger.log('Done', '编译完成');
                         debug('schedule dependencies Tree is %O', this.schedule.$indexOfModule);
                     } catch (e) {
@@ -192,7 +192,7 @@ class Builder {
 
         await this.run(cmd);
 
-        if (cmd.watch) this.watch();
+        if (cmd.watch) this.watch(cmd);
     }
 
     async run(cmd) {
@@ -212,7 +212,7 @@ class Builder {
                 return item;
             }));
 
-            await this.optimizeAndGenerate(this.schedule.$indexOfModule);
+            await this.optimizeAndGenerate(this.schedule.$indexOfModule, cmd);
 
             // done.
             await this.hooks.done.promise(this.schedule);
@@ -223,35 +223,32 @@ class Builder {
         }
     }
 
-    async optimizeAndGenerate(list) {
+    async optimizeAndGenerate(list, cmdOptions) {
         try {
             // module optimize, dependencies merge, minor.
-            let optimizer = new Optimizer(this.wxaConfigs);
+            let optimizer = new Optimizer(this.current, this.wxaConfigs, cmdOptions);
             applyPlugins(this.schedule.wxaConfigs.plugins, optimizer);
 
             let optimizeTasks = list.map((dep)=>{
-                this.progress.draw(dep.src, 'Optimizing');
                 return optimizer.do(dep);
             });
 
             await Promise.all(optimizeTasks).catch((e)=>{
-                this.progress.clean();
                 logger.error(e);
             });
 
-            this.progress.clean();
             // module dest, dependencies copy,
-            let generator = new Generator(this.schedule.wxaConfigs.resolve, this.schedule.meta, this.schedule.wxaConfigs);
+            let generator = new Generator(this.current, this.schedule.meta, this.wxaConfigs, cmdOptions);
             let generateTasks = list.map((mdl)=>{
-                this.progress.draw(mdl.src, 'Generating');
                 return generator.do(mdl);
             });
 
             await Promise.all(generateTasks);
+
             this.progress.clean();
         } catch (e) {
-            this.progress.clean();
             logger.error(e);
+            this.progress.draw('\n');
         }
     }
 
