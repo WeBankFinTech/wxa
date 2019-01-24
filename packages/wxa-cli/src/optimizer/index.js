@@ -1,19 +1,26 @@
 import path from 'path';
 import debugPKG from 'debug';
 import {AsyncSeriesHook} from 'tapable';
+import ProgressBar from '../helpers/progressTextBar';
 
 let debug = debugPKG('WXA:Optimizer');
 
 export default class Optimizer {
-    constructor(wxaConfigs) {
+    constructor(cwd, wxaConfigs, cmdOptions) {
         this.wxaConfigs = wxaConfigs;
 
         this.hooks = {
             optimizeAssets: new AsyncSeriesHook(['compilation']),
         };
+
+        this.cmdOptions = cmdOptions;
+        this.cwd = cwd;
+        this.progress = new ProgressBar(cwd, wxaConfigs);
     }
 
-    do(dep) {
+    async do(dep) {
+        const text = path.relative(this.cwd, dep.src);
+        this.progress.draw(text, 'Optimizing', !this.cmdOptions.verbose);
         // if compile to mini-program, process.env will not available, so we have to replace it.
         if (this.wxaConfigs.target === 'wxa' && dep.code) {
             dep.code = dep.code.replace(/process\.env\.NODE_ENV/g, JSON.stringify(process.env.NODE_ENV));
@@ -21,7 +28,7 @@ export default class Optimizer {
 
         if (dep.meta && dep.meta.source.indexOf(`node_modules${path.sep}`) !== -1) dep.code = this.hackNodeMoudule(dep.meta.source, dep.code);
 
-        return this.hooks.optimizeAssets.promise(dep);
+        await this.hooks.optimizeAssets.promise(dep);
     }
 
     hackNodeMoudule(filepath, code) {

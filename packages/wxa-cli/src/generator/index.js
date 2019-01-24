@@ -1,20 +1,27 @@
 import path from 'path';
-import ASTManager from '../resolvers/ast/index';
 import {writeFile, getDistPath, readFile, copy} from '../utils';
 import debugPKG from 'debug';
 import DependencyResolver from '../helpers/dependencyResolver';
+import ProgressBar from '../helpers/progressTextBar';
 
 let debug = debugPKG('WXA:Generator');
 
 export default class Generator {
-    constructor(resolve, meta, configs) {
-        this.resolve = resolve;
+    constructor(cwd, meta, configs, cmdOptions) {
+        this.cwd = cwd;
+        this.resolve = configs.resolve;
         this.meta = meta;
-        this.configs = configs;
+        this.wxaConfigs = configs;
+        this.cmdOptions = cmdOptions;
+
+        this.progress = new ProgressBar(cwd, configs);
     }
 
     do(mdl) {
         if (mdl.isAbstract) return;
+
+        const text = path.relative(this.cwd, mdl.src);
+        this.progress.draw(text, 'Generating', !this.cmdOptions.verbose);
 
         debug('module to generate %O', mdl);
         let outputPath;
@@ -37,7 +44,7 @@ export default class Generator {
     }
 
     tryTransFormExtension(output) {
-        if (this.configs.target === 'wxa') {
+        if (this.wxaConfigs.target === 'wxa') {
             // 小程序相关
             let opath = path.parse(output);
 

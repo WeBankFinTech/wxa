@@ -19,7 +19,7 @@ class ProgressBar {
         this.isEnable = !!able;
     }
 
-    draw(text, type='Compiling', needClean=true) {
+    draw(text, type, needClean=true) {
         if (!this.isEnable) return;
 
         if (needClean) {
@@ -28,9 +28,8 @@ class ProgressBar {
             process.stdout.write('\n');
         }
 
-        process.stdout.write(
-            `${greenBright(type)}: ${text}`
-        );
+        const content = type ? `${greenBright(type)}: ${text}` : text;
+        process.stdout.write(content);
     }
 
     clean() {
