@@ -8,10 +8,6 @@ class ProgressBar {
         this.cwd = cwd;
         this.wxaConfigs = wxaConfigs;
 
-        process.stdout.on('resize', ()=> {
-            // this.bar_length = Math.floor( Math.max(0, (process.stdout.columns || 100) / 2 - 24) );
-        });
-
         this.isEnable = true;
     }
 
@@ -21,15 +17,12 @@ class ProgressBar {
 
     draw(text, type, needClean=true) {
         if (!this.isEnable) return;
-
-        if (needClean) {
-            this.clean();
-        } else {
-            process.stdout.write('\n');
-        }
+        this.clean();
 
         const content = type ? `${greenBright(type)}: ${text}` : text;
         process.stdout.write(content);
+
+        if (!needClean) process.stdout.write('\n');
     }
 
     clean() {
