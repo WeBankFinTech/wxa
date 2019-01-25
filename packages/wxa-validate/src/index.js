@@ -4,16 +4,17 @@ import { normalizeRules } from './utils';
 
 export default (options={})=>{
     options = {
-        ignoreErrorRule: ['required'],
         ...options
     }
 
     const MESSAGES = {...defaultMessages, ...options.messages};
-
-    Object.keys(defaultRule).map(item => {
-        defaultRule[item]['getMessage'] = MESSAGES[item]? MESSAGES[item]: MESSAGES['_default'];
-    })
     const VALIDATOR = {...defaultRule, ...options.rule};
+
+    Object.keys(VALIDATOR).map(item => {
+      if(!VALIDATOR[item]['getMessage']) {
+        VALIDATOR[item]['getMessage'] = MESSAGES[item]? MESSAGES[item]: MESSAGES['_default'];
+      }
+    })
 
     return (vm, type)=>{
         if (~['Page', 'Component'].indexOf(type)) {
