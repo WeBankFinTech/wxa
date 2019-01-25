@@ -1,6 +1,6 @@
 import {readFile, applyPlugins, isFile} from './utils';
 import path from 'path';
-import fs from 'fs';
+import fs, {unlink} from 'fs';
 import crypto from 'crypto';
 import chokidar from 'chokidar';
 import globby from 'globby';
@@ -18,7 +18,6 @@ import root from './const/root';
 import ProgressTextBar from './helpers/progressTextBar';
 
 let debug = debugPKG('WXA:Builder');
-
 class Builder {
     constructor(wxaConfigs) {
         this.current = process.cwd();
@@ -82,14 +81,17 @@ class Builder {
     }
 
     watch(cmd) {
-        if (this.isWatching) return;
+        if (this.isWatching || this.watcher) return;
         this.isWatching = true;
 
         // set mode
         this.schedule.set('mode', 'watch');
 
         let files = this.filterModule(this.schedule.$indexOfModule);
-        // console.log(files);
+
+        if (cmd.verbose) {
+            logger.info('File to Watch ', files.length);
+        }
 
         this.watcher = chokidar.watch(files, {
             awaitWriteFinish: {
@@ -97,9 +99,11 @@ class Builder {
                 pollInterval: 100,
             },
         })
-        .on('all', async (event, filepath)=>{
-            if (this.isWatchReady && ~['change'].indexOf(event)) {
-                logger.warn(event, filepath);
+        .on('change', async (filepath)=>{
+            if (this.isWatchReady && !this.isDoingUpade) {
+                this.isDoingUpade = true;
+
+                logger.warn('change', filepath);
                 debug('WATCH file changed %s', filepath);
                 let mdl = this.schedule.$indexOfModule.find((module)=>module.src===filepath);
                 let isChange = true;
@@ -125,8 +129,8 @@ class Builder {
 
                         changedDeps = await this.schedule.$doDPA();
                         await this.optimizeAndGenerate(changedDeps, cmd);
-                        logger.log('Done', '编译完成');
-                        debug('schedule dependencies Tree is %O', this.schedule.$indexOfModule);
+                        // logger.log('Done', '编译完成');
+                        // debug('schedule dependencies Tree is %O', this.schedule.$indexOfModule);
                     } catch (e) {
                         logger.error('编译失败', e);
                     }
@@ -137,8 +141,13 @@ class Builder {
 
                     // unwatch deleted file add watch to new Files;
                     debug('addFiles %O, unlinkFiles %O', addFiles, unlinkFiles);
-                    this.watcher.add(addFiles);
-                    this.watcher.unwatch(unlinkFiles);
+                    if (cmd.verbose) {
+                        logger.info('Add Files', addFiles, ' COUNT:', addFiles.length);
+                        logger.info('Unwatch Files', unlinkFiles, ' COUNT:', unlinkFiles.length);
+                    }
+
+                    if (addFiles && addFiles.length) this.watcher.add(addFiles);
+                    if (unlinkFiles && unlinkFiles.length) this.watcher.unwatch(unlinkFiles);
 
                     files = newFiles;
 
@@ -146,6 +155,8 @@ class Builder {
                 } else {
                     logger.info(`文件无变化(${mdl.hash})`);
                 }
+
+                this.isDoingUpade = false;
             }
         })
         .on('ready', ()=>{
@@ -223,6 +234,14 @@ class Builder {
         }
     }
 
+    /**
+     *
+     * optimize all module in list and generate dest file.
+     * optiming and generating is parallel.
+     *
+     * @param {Array<Object>} list
+     * @param {Object} cmdOptions cmd options
+     */
     async optimizeAndGenerate(list, cmdOptions) {
         try {
             // module optimize, dependencies merge, minor.
@@ -233,11 +252,9 @@ class Builder {
                 return optimizer.do(dep);
             });
 
-            await Promise.all(optimizeTasks).catch((e)=>{
-                logger.error(e);
-            });
+            await Promise.all(optimizeTasks);
 
-            // module dest, dependencies copy,
+            // write module to dest, dependencies copy.
             let generator = new Generator(this.current, this.schedule.meta, this.wxaConfigs, cmdOptions);
             let generateTasks = list.map((mdl)=>{
                 return generator.do(mdl);

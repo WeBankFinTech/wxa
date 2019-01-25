@@ -21,9 +21,8 @@ import simplify from './helpers/simplifyObj';
 
 let debug = debugPKG('WXA:Schedule');
 
-class Schedule extends EventEmitter {
+class Schedule {
     constructor(loader) {
-        super();
         this.current = process.cwd();
         this.loader = loader;
         this.pending = [];
@@ -210,7 +209,7 @@ class Schedule extends EventEmitter {
             this.calcFileSize(dep);
 
             // tick event
-            this.emit('tick', dep);
+            // this.emit('tick', dep);
             return dep;
         } catch (e) {
             debug('编译失败 %O', e);
