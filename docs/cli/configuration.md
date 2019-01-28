@@ -38,13 +38,13 @@ module.exports = {
 - **类型**: `String` Default: `wxa`
 - **用法**: 
 
-编译的目标，当前只支持编译到微信小程序，即`wxa`。
+编译的目标，当前只支持编译到微信小程序，即 `wxa`。
 
 ## context
 - **类型**: `String` Default: `path.resolve(this.cwd, 'src')`
 - **用法**:
 
-上下文。所有项目中的绝对路径都基于`context`计算。
+上下文。所有项目中的绝对路径都基于 `context` 计算。
 
 ## resolve
 - **类型**: `Object`

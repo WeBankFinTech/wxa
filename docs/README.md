@@ -2,7 +2,7 @@
 home: true
 heroImage: /wxa-logo.png
 actionText: Get Started ->
-actionLink: /learn/guide/
+actionLink: /learn/quickStarted/
 features: 
 - title: Decorator
   details: 使用Decorator极速赋能小程序，提高开发效率，优化开发体验
