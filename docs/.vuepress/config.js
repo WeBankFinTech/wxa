@@ -70,12 +70,12 @@ module.exports = {
         },
         sidebar: {
             '/learn/': [
+                '/learn/quickStarted/',
                 {
                     title: '指南',
                     collapsable: false,
                     children: [
                         '/learn/guide/',
-                        '/learn/guide/quickstart',
                         '/learn/guide/construction',
                         '/learn/guide/develop',
                         '/learn/guide/mixin',
@@ -97,7 +97,8 @@ module.exports = {
                     collapsable: false,
                     sidebarDepth: 2,
                     children: [
-                        '/learn/other/migrade1.x'
+                        '/learn/other/migrade1.x',
+                        '/learn/other/migradeNative'
                     ]
                 }
             ],
