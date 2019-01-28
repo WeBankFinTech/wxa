@@ -2,10 +2,8 @@ import * as defaultRule from './rules';
 import { messages as defaultMessages} from './dictionary';
 import { normalizeRules } from './utils';
 
-export default (options={})=>{
-    options = {
-        ...options
-    }
+export default (options = {}) => {
+    options.ignoreErrorRule = options.ignoreErrorRule || [];
 
     const MESSAGES = {...defaultMessages, ...options.messages};
     const VALIDATOR = {...defaultRule, ...options.rule};
