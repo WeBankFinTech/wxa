@@ -1,6 +1,6 @@
 {
   "name": "@wxa/cli2",
-  "version": "2.0.0-beta.020496bf",
+  "version": "2.0.0-rc.0",
   "description": "cli for wxa development",
   "main": "dist/wxa.js",
   "scripts": {
@@ -31,9 +31,9 @@
     "babel-eslint": "^9.0.0",
     "eslint": "^4.15.0",
     "eslint-config-google": "^0.9.1",
+    "semver": "^5.5.0",
     "webpack": "^4.28.3",
-    "webpack-cli": "^3.2.0",
-    "semver": "^5.5.0"
+    "webpack-cli": "^3.2.0"
   },
   "dependencies": {
     "@babel/generator": "^7.1.3",
