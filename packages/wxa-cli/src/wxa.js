@@ -55,7 +55,6 @@ commander
 commander
     .command('build')
     .description('编译项目')
-    // .option('--verbose', '更加详细的log')
     .option('-w, --watch', '监听文件改动')
     .option('-N, --no-cache', '不使用缓存')
     .option('-m, --multi', '三方开发模式，一次编译出多个项目')

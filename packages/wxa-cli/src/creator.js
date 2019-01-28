@@ -40,7 +40,7 @@ class Creator {
                         'miniprogramRoot': './',
                         'compileType': 'miniprogram',
                         'appid': rest.appid || '',
-                        'projectname': name,
+                        'projectname': encodeURIComponent(name),
                     };
 
                     fs.writeFileSync(
