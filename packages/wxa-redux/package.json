@@ -24,7 +24,7 @@
     "repository": "https://github.com/wxajs/wxa.git",
     "homepage": "https://wxajs.github.io/wxa/",
     "dependencies": {
-        "@wxa/core": "^2.0.0-beta.7d9ff778",
+        "@wxa/core": "next",
         "deep-object-diff": "^1.1.0",
         "flat": "^4.1.0",
         "redux": "^3.7.2",
