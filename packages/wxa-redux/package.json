@@ -1,6 +1,6 @@
 {
     "name": "@wxa/redux",
-    "version": "2.0.0-beta.020496bf",
+    "version": "2.0.0-rc.0",
     "description": "redux for wxa ",
     "main": "./dist/index.js",
     "scripts": {
