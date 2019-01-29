@@ -8,14 +8,28 @@ trigger:
 
 pool:
   vmImage: 'Ubuntu-16.04'
-
+strategy:
+  matrix:
+    node_8_x:
+      node_version: 8.15
+    node_10_x:
+      node_version: 10.x
+    node_11_x:
+      node_version: 11.x
+    
 steps:
 - task: NodeTool@0
   inputs:
-    versionSpec: '8.x'
+    versionSpec: $(node_version)
   displayName: 'Install Node.js'
 
 - script: |
-    npm install
-    npm run build
-  displayName: 'npm install and build'
+    mkdir test-wxa && cd test-wxa
+    npm i -g @wxa/cli2@next
+    which wxa2
+    echo 'test' | wxa2 create
+    git clone https://github.com/wxajs/wxa-templates.git
+    cd wxa-templates/base
+    npm i 
+    wxa2 build
+  displayName: 'wxa2 build and create'
