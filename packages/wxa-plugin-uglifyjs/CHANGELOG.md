@@ -1,22 +1,28 @@
-# Change Log
+# 2.0.0-rc.1 (2019-02-01)
 
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-<a name="1.1.0"></a>
-# 1.1.0 (2018-07-26)
+
+# 2.0.0-rc.1 (2019-02-01)
+
+
+
+# 2.0.0-rc.0 (2019-01-28)
 
 
 ### Bug Fixes
 
-* **plugin-uglifyjs:** regexp wrong ([679942a](https://github.com/Genuifx/wxa/commit/679942a))
-* **watch-wxa-plugin:** can not drop onload, unload fn and watcher. ([a93231b](https://github.com/Genuifx/wxa/commit/a93231b))
+* **plugin-uglifyjs:** regexp wrong ([ad0125f](https://github.com/wxajs/wxa/commit/ad0125f))
+* **watch-wxa-plugin:** can not drop onload, unload fn and watcher. ([7b84a73](https://github.com/wxajs/wxa/commit/7b84a73))
+* ext ([626f772](https://github.com/wxajs/wxa/commit/626f772))
+* name of plugin ([df604ff](https://github.com/wxajs/wxa/commit/df604ff))
+* use compilation's code ([d75b282](https://github.com/wxajs/wxa/commit/d75b282))
 
 
 ### Features
 
-* **logger, npmManager, progressBar:** add node-notifier to notify error, add npmManager to auto ins ([59d897e](https://github.com/Genuifx/wxa/commit/59d897e))
-* **wxa-plugin-postcss:** new plugin for wxa ([53cd590](https://github.com/Genuifx/wxa/commit/53cd590))
+* **logger, npmManager, progressBar:** add node-notifier to notify error, add npmManager to auto ins ([80f0279](https://github.com/wxajs/wxa/commit/80f0279))
+* **replace and uglifyjs plugin:** add replace and uglifyjs plugin support ([711ac6f](https://github.com/wxajs/wxa/commit/711ac6f))
+* **wxa-plugin-postcss:** new plugin for wxa ([17e3f8a](https://github.com/wxajs/wxa/commit/17e3f8a))
 
 
 ### BREAKING CHANGES
@@ -26,72 +32,3 @@ compilation.code and code is never used
 
 
 
-<a name="1.0.0"></a>
-# 1.0.0 (2018-06-05)
-
-
-### Bug Fixes
-
-* ext ([d24fadf](https://github.com/Genuifx/wxa/commit/d24fadf))
-* name of plugin ([f0e5591](https://github.com/Genuifx/wxa/commit/f0e5591))
-* use compilation's code ([25ef016](https://github.com/Genuifx/wxa/commit/25ef016))
-
-
-
-
-<a name="1.1.0-beta.84703713"></a>
-# 1.1.0-beta.84703713 (2018-06-17)
-
-
-### Features
-
-* **logger, npmManager, progressBar:** add node-notifier to notify error, add npmManager to auto ins ([59d897e](https://github.com/Genuifx/wxa/commit/59d897e))
-* **wxa-plugin-postcss:** new plugin for wxa ([53cd590](https://github.com/Genuifx/wxa/commit/53cd590))
-
-
-### BREAKING CHANGES
-
-* **wxa-plugin-postcss:** optimizeAssets hook will pass opath obj instea of code, cause developer always use
-compilation.code and code is never used
-
-
-
-<a name="1.0.0"></a>
-# 1.0.0 (2018-06-05)
-
-
-### Bug Fixes
-
-* ext ([d24fadf](https://github.com/Genuifx/wxa/commit/d24fadf))
-* name of plugin ([f0e5591](https://github.com/Genuifx/wxa/commit/f0e5591))
-* use compilation's code ([25ef016](https://github.com/Genuifx/wxa/commit/25ef016))
-
-
-
-
-<a name="1.1.0-beta.c319b649"></a>
-# 1.1.0-beta.c319b649 (2018-06-17)
-
-
-### Features
-
-* **logger, npmManager, progressBar:** add node-notifier to notify error, add npmManager to auto ins ([59d897e](https://github.com/Genuifx/wxa/commit/59d897e))
-* **wxa-plugin-postcss:** new plugin for wxa ([53cd590](https://github.com/Genuifx/wxa/commit/53cd590))
-
-
-### BREAKING CHANGES
-
-* **wxa-plugin-postcss:** optimizeAssets hook will pass opath obj instea of code, cause developer always use
-compilation.code and code is never used
-
-
-
-<a name="1.0.0"></a>
-# 1.0.0 (2018-06-05)
-
-
-### Bug Fixes
-
-* ext ([d24fadf](https://github.com/Genuifx/wxa/commit/d24fadf))
-* name of plugin ([f0e5591](https://github.com/Genuifx/wxa/commit/f0e5591))
-* use compilation's code ([25ef016](https://github.com/Genuifx/wxa/commit/25ef016))

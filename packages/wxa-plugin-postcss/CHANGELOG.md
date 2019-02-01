@@ -1,20 +1,22 @@
-# Change Log
+# 2.0.0-rc.1 (2019-02-01)
 
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-<a name="1.1.0"></a>
-# 1.1.0 (2018-07-26)
+
+# 2.0.0-rc.1 (2019-02-01)
+
+
+
+# 2.0.0-rc.0 (2019-01-28)
 
 
 ### Bug Fixes
 
-* **watch-wxa-plugin:** can not drop onload, unload fn and watcher. ([a93231b](https://github.com/Genuifx/wxa/commit/a93231b))
+* **watch-wxa-plugin:** can not drop onload, unload fn and watcher. ([7b84a73](https://github.com/wxajs/wxa/commit/7b84a73))
 
 
 ### Features
 
-* **wxa-plugin-postcss:** new plugin for wxa ([53cd590](https://github.com/Genuifx/wxa/commit/53cd590))
+* **wxa-plugin-postcss:** new plugin for wxa ([17e3f8a](https://github.com/wxajs/wxa/commit/17e3f8a))
 
 
 ### BREAKING CHANGES
@@ -24,34 +26,3 @@ compilation.code and code is never used
 
 
 
-
-<a name="1.1.0-beta.84703713"></a>
-# 1.1.0-beta.84703713 (2018-06-17)
-
-
-### Features
-
-* **wxa-plugin-postcss:** new plugin for wxa ([53cd590](https://github.com/Genuifx/wxa/commit/53cd590))
-
-
-### BREAKING CHANGES
-
-* **wxa-plugin-postcss:** optimizeAssets hook will pass opath obj instea of code, cause developer always use
-compilation.code and code is never used
-
-
-
-
-<a name="1.1.0-beta.c319b649"></a>
-# 1.1.0-beta.c319b649 (2018-06-17)
-
-
-### Features
-
-* **wxa-plugin-postcss:** new plugin for wxa ([53cd590](https://github.com/Genuifx/wxa/commit/53cd590))
-
-
-### BREAKING CHANGES
-
-* **wxa-plugin-postcss:** optimizeAssets hook will pass opath obj instea of code, cause developer always use
-compilation.code and code is never used

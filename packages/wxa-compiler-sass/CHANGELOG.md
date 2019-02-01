@@ -1,73 +1,30 @@
-# Change Log
+# 2.0.0-rc.1 (2019-02-01)
 
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-<a name="1.1.0"></a>
-# 1.1.0 (2018-07-26)
+
+# 2.0.0-rc.1 (2019-02-01)
+
+
+
+# 2.0.0-rc.0 (2019-01-28)
 
 
 ### Bug Fixes
 
-* **plugin-replace:** code->compilation.code, config array should first judge array ([a0fa023](https://github.com/Genuifx/wxa-compiler-sass/commit/a0fa023))
-* **watch-wxa-plugin:** can not drop onload, unload fn and watcher. ([a93231b](https://github.com/Genuifx/wxa-compiler-sass/commit/a93231b))
+* **cli:** add support for wxa1.0 config ([ee8b6e9](https://github.com/wxajs/wxa/commit/ee8b6e9))
+* **cli:** mark dynamic path and base64 source as uri. drop error message while process this kind of ([4482626](https://github.com/wxajs/wxa/commit/4482626))
+* **plugin-replace:** code->compilation.code, config array should first judge array ([060e7a8](https://github.com/wxajs/wxa/commit/060e7a8))
+* **watch-wxa-plugin:** can not drop onload, unload fn and watcher. ([7b84a73](https://github.com/wxajs/wxa/commit/7b84a73))
+* configs ([c689166](https://github.com/wxajs/wxa/commit/c689166))
+* git page ([ba27e55](https://github.com/wxajs/wxa/commit/ba27e55))
 
 
 ### Features
 
-* **logger, npmManager, progressBar:** add node-notifier to notify error, add npmManager to auto ins ([59d897e](https://github.com/Genuifx/wxa-compiler-sass/commit/59d897e))
+* **babel, sass, schedule:** add cache control to babel loader, add content field to each module ([b3bdd65](https://github.com/wxajs/wxa/commit/b3bdd65))
+* **logger, npmManager, progressBar:** add node-notifier to notify error, add npmManager to auto ins ([80f0279](https://github.com/wxajs/wxa/commit/80f0279))
+* **sass-loader:** sass-loader ([bacbe4c](https://github.com/wxajs/wxa/commit/bacbe4c))
+* **third party mode:** support build multi project once ([dd2bb83](https://github.com/wxajs/wxa/commit/dd2bb83))
 
 
 
-<a name="1.0.0"></a>
-# 1.0.0 (2018-06-05)
-
-
-### Bug Fixes
-
-* configs ([6fcf1f1](https://github.com/Genuifx/wxa-compiler-sass/commit/6fcf1f1))
-* git page ([695f6f3](https://github.com/Genuifx/wxa-compiler-sass/commit/695f6f3))
-
-
-
-
-<a name="1.1.0-beta.84703713"></a>
-# 1.1.0-beta.84703713 (2018-06-17)
-
-
-### Features
-
-* **logger, npmManager, progressBar:** add node-notifier to notify error, add npmManager to auto ins ([59d897e](https://github.com/Genuifx/wxa-compiler-sass/commit/59d897e))
-
-
-
-<a name="1.0.0"></a>
-# 1.0.0 (2018-06-05)
-
-
-### Bug Fixes
-
-* configs ([6fcf1f1](https://github.com/Genuifx/wxa-compiler-sass/commit/6fcf1f1))
-* git page ([695f6f3](https://github.com/Genuifx/wxa-compiler-sass/commit/695f6f3))
-
-
-
-
-<a name="1.1.0-beta.c319b649"></a>
-# 1.1.0-beta.c319b649 (2018-06-17)
-
-
-### Features
-
-* **logger, npmManager, progressBar:** add node-notifier to notify error, add npmManager to auto ins ([59d897e](https://github.com/Genuifx/wxa-compiler-sass/commit/59d897e))
-
-
-
-<a name="1.0.0"></a>
-# 1.0.0 (2018-06-05)
-
-
-### Bug Fixes
-
-* configs ([6fcf1f1](https://github.com/Genuifx/wxa-compiler-sass/commit/6fcf1f1))
-* git page ([695f6f3](https://github.com/Genuifx/wxa-compiler-sass/commit/695f6f3))
