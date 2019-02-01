@@ -1,12 +1,12 @@
 # wxa-plugin-uglifyjs
 [![NPM version](https://img.shields.io/npm/v/@wxa/plugin-uglifyjs/next.svg)](https://www.npmjs.com/package/@wxa/plugin-uglifyjs)
 
-使用`uglifyjs`压缩美化生产代码。
+使用 `uglifyjs` 压缩美化生产代码。
 
 ## 安装
 ``` bash
 # 使用npm安装
-npm i -S @wxa/plugin-uglifyjs
+npm i -D @wxa/plugin-uglifyjs
 ```
 
 ## 用例
