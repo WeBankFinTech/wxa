@@ -1,11 +1,11 @@
 # @wxa/cli2
 [![NPM version](https://img.shields.io/npm/v/@wxa/cli2/next.svg)](https://www.npmjs.com/package/@wxa/cli2)
-![node (scoped with tag, custom registry)](https://img.shields.io/node/v/@stdlib/stdlib/latest.svg?registry_uri=https%3A%2F%2Fregistry.npmjs.com)
+![node (scoped with tag, custom registry)](https://img.shields.io/badge/node-%3E%3D%208.15.0-brightgreen.svg?maxAge=2592000)
 ![NpmLicense](https://img.shields.io/npm/l/@wxa/cli2.svg)
 
-[详细的文档](https://genuifx.github.io/wxa/cli/)
+[详细的文档](https://wxajs.github.io/wxa/cli/)
 
-[More Detail Documentation](https://genuifx.github.io/wxa/cli/)
+[More Detail Documentation](https://wxajs.github.io/wxa/cli/)
 
 为小程序开发定制的命令行工具。以模块化方式处理项目依赖，通过依赖分析得到整个项目的结构，在优化代码后最终生成目标小程序代码。
 
@@ -30,7 +30,7 @@
 ## 安装
 ```bash
 # 使用npm安装
-npm i -g @wxa/cli2
+npm i -g @wxa/cli2@next
 ```
 
 ::: tip 提示
@@ -39,19 +39,19 @@ npm i -g @wxa/cli2
 
 ## 基本用例
 1. 基础编译
-`wxa build`
+`wxa2 build`
 
 2. 监听模式
-`wxa build --watch`
+`wxa2 build --watch`
 
 3. 指定无效缓存以及打印更详细的构建信息
-`wxa build --no-cache --verbose`
+`wxa2 build --no-cache --verbose`
 
 4. 使用模板创建新项目, [template](https://github.com/Genuifx/wxa-templates)
-`wxa create`
+`wxa2 create`
 
-5. 调用微信开发者工具, windows用户需要在`wxa.config.js`设置开发者工具的路径`wechatwebdevtools`
-    - `wxa cli -a open`: 打开开发者工具
-    - `wxa cli -a preview`: 预览项目
-    - `wxa cli -a upload`: 上传项目
-    - `wxa cli -a login`: 登录微信，`preview`和`upload`都需要登录微信后操作
+5. 调用微信开发者工具, windows用户需要在 `wxa.config.js` 设置开发者工具的路径 `wechatwebdevtools`
+    - `wxa2 cli -a open`: 打开开发者工具
+    - `wxa2 cli -a preview`: 预览项目
+    - `wxa2 cli -a upload`: 上传项目
+    - `wxa2 cli -a login`: 登录微信，`preview`和`upload`都需要登录微信后操作

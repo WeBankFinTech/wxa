@@ -34,13 +34,13 @@ wxa是一个AOP框架，主要使用Decorator（运行时改写，拦截）和�
 
 :white_check_mark: `Fetch` 队列管理网络请求，单个请求自动防重。
 
-:white_check_mark: `Router` 简洁的API、预加载特性。
+:white_check_mark: `Router` 简洁的API、预加载特性。
 
 :white_check_mark: `Lock` 防止重复执行函数，前端防重利器。
 
 :white_check_mark: `Debounnce` 防抖动。
 
-:white_check_mark: `Mixin` 混合代码，代码复用。
+:white_check_mark: `Mixin` 混合代码，代码复用。
 
 查看详细的 [Class Decorators](https://wxajs.github.io/wxa/core/decorators/class.html) [Method Decorators](https://wxajs.github.io/wxa/core/decorators/methods.html)
 
@@ -51,7 +51,7 @@ wxa是一个AOP框架，主要使用Decorator（运行时改写，拦截）和�
 - 超低迁移成本，原生小程序只需要安装好相关依赖就可以马上在@wxa/cli中跑起来。支持原生和wxa混杂开发。
 - 三方开发，支持一次性编译出多个三方项目
 
-## Install
+## Install
 
 使用 `yarn` 或 `npm` 全局安装
 
@@ -93,7 +93,7 @@ export default class Index {
 }
 ```
 
-默认导出的方法将会自动调用小程序相应的 `Page`、 `Component`、 `App` 方法进行注册。
+默认导出的方法将会自动调用小程序相应的 `Page`、 `Component`、 `App` 方法进行注册。
 
 更完善的[文档](https://wxajs.github.io/wxa/)
 

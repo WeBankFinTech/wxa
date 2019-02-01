@@ -35,19 +35,19 @@ npm i -g @wxa/cli2@next
 
 ## 基本用例
 1. 基础编译
-`wxa build`
+`wxa2 build`
 
 2. 监听模式
-`wxa build --watch`
+`wxa2 build --watch`
 
 3. 指定无效缓存以及打印更详细的构建信息
-`wxa build --no-cache --verbose`
+`wxa2 build --no-cache --verbose`
 
 4. 使用模板创建新项目, [template](https://github.com/Genuifx/wxa-templates)
-`wxa create`
+`wxa2 create`
 
-5. 调用微信开发者工具, windows用户需要在`wxa.config.js`设置开发者工具的路径`wechatwebdevtools`
-    - `wxa cli -a open`: 打开开发者工具
-    - `wxa cli -a preview`: 预览项目
-    - `wxa cli -a upload`: 上传项目
-    - `wxa cli -a login`: 登录微信，`preview`和`upload`都需要登录微信后操作
+5. 调用微信开发者工具, windows用户需要在 `wxa.config.js` 设置开发者工具的路径 `wechatwebdevtools`
+    - `wxa2 cli -a open`: 打开开发者工具
+    - `wxa2 cli -a preview`: 预览项目
+    - `wxa2 cli -a upload`: 上传项目
+    - `wxa2 cli -a login`: 登录微信，`preview`和`upload`都需要登录微信后操作
