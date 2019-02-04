@@ -26,7 +26,7 @@
 ## 安装
 ```bash
 # 使用npm安装
-npm i -g @wxa/cli2@next
+npm i -g @wxa/cli2
 ```
 
 ::: tip 提示

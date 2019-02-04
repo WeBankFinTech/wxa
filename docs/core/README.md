@@ -24,7 +24,7 @@
 ## 安装
 ```bash
 # 使用npm安装
-npm i @wxa/core@next
+npm i @wxa/core
 ```
 
 ## 简单用例
