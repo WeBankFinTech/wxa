@@ -9,11 +9,11 @@
 在开始升级之前，首先安装好 `@wxa/cli2` 和 `babel-upgrade`。
 
 ```bash
-npm i -g @wxa/cli2@next babel-upgrade
+npm i -g @wxa/cli2 babel-upgrade
 ```
 
 :::warning 注意
-由于目前 2.x 还在beta阶段，安装 `@wxa` 的依赖请指定 tag 为 next，例如 `@wxa/cli2@next`，`@wxa/core@next`。
+由于目前 2.x 还在beta阶段，安装 `@wxa` 的依赖请指定 tag 为 next，例如 `@wxa/cli2`，`@wxa/core`。
 :::
 
 ## 升级依赖
@@ -30,13 +30,13 @@ npm i -g @wxa/cli2@next babel-upgrade
 
 ```bash
 # 安装core包
-npm i -S @wxa/core@next
+npm i -S @wxa/core
 
 # 安装编译包，可以选择是否使用相应插件
-npm i -D @wxa/compiler-babel@next @wxa/compiler-sass@next @wxa/plugin-replace@next @wxa/plugin-uglifyjs@next
+npm i -D @wxa/compiler-babel @wxa/compiler-sass @wxa/plugin-replace @wxa/plugin-uglifyjs
 
 # 可选是否使用 stylus
-npm i -D @wxa/compiler-stylus@next
+npm i -D @wxa/compiler-stylus
 ```
 
 由于 wxa2.x 版本全面转到 babel7 ，同 babel6 相比，毫无疑问 babel7 是一个巨大飞跃的版本，故我们需要升级所有 babel 相关依赖，幸运的是 `babel-upgrade` 可以自动找出所有需要修改的地方，并修改。

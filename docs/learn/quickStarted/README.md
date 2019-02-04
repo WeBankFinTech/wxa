@@ -25,7 +25,7 @@ sidebarDepth: 1
 确保 `node` 版本大于 **8.15.0** 的情况下，直接运行以下命令安装命令行工具：
 
 ``` bash
-npm i -g @wxa/cli2@next
+npm i -g @wxa/cli2
 ```
 
 安装完毕后，运行 `wxa2 create` 开始创建项目，按照提示填写项目模板、名称、appid 完成新建工程。
