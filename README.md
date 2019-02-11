@@ -56,7 +56,7 @@ wxa是一个AOP框架，主要使用Decorator（运行时改写，拦截）和�
 使用 `yarn` 或 `npm` 全局安装
 
 ```bash
-npm i -g @wxa/cli2@next
+npm i -g @wxa/cli2
 ```
 
 ## Quick Started
