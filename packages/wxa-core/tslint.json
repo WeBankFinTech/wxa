@@ -1,0 +1,10 @@
+{
+    "extends": ["tslint:recommended", "tslint-config-airbnb"],
+    "rules": {
+        "no-bitwise": false,
+        "no-empty-interface":false,
+        "max-line-length": false,
+        "align": false,
+        "no-this-assignment": false
+    }
+}

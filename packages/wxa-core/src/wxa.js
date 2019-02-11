@@ -130,6 +130,7 @@ export class Wxa {
             this.$$pageMap.set(_pagePath, vm);
         }
 
+        // console.log(vm);
         Page(vm);
     }
 

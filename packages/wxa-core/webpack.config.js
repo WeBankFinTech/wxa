@@ -5,10 +5,13 @@ module.exports = {
         library: 'wxa',
         libraryTarget: 'umd',
     },
+    resolve: {
+        extensions: ['.js', '.mjs', '.ts'],
+    },
     module: {
         rules: [
             {
-                test: /\.js$/,
+                test: /\.js$|\.tsx?$/,
                 use: {
                     loader: 'babel-loader',
                 },

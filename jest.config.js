@@ -14,5 +14,16 @@ module.exports = {
     'setupFiles': ['./scripts/setupJest.js'],
     "moduleNameMapper": {
         "^@/(.*)$": "<rootDir>/src/$1"
+    },
+    "moduleFileExtensions": [
+        "ts",
+        "tsx",
+        "js",
+        "jsx",
+        "json"
+    ],
+    "transform": {
+        "^.+\\.jsx?$": "babel-jest",
+        "^.+\\.tsx?$": "ts-jest",
     }
 };

@@ -6,6 +6,8 @@
 		"@babel/plugin-proposal-class-properties": "^7.2.0",
 		"@babel/plugin-proposal-decorators": "^7.2.0",
 		"@babel/preset-env": "^7.2.0",
+		"@babel/preset-typescript": "^7.1.0",
+		"@types/jest": "^24.0.0",
 		"@vuepress/plugin-back-to-top": "^1.0.0-alpha.27",
 		"@vuepress/plugin-google-analytics": "^1.0.0-alpha.27",
 		"@vuepress/plugin-medium-zoom": "^1.0.0-alpha.0",
@@ -25,6 +27,8 @@
 		"lerna": "^3.10.7",
 		"lint-staged": "^7.3.0",
 		"regenerator-runtime": "^0.13.1",
+		"ts-jest": "^23.10.5",
+		"typescript": "^3.3.3",
 		"vuepress": "^1.0.0-alpha.27",
 		"vuepress-plugin-sitemap": "^2.1.0"
 	},
