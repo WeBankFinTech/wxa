@@ -61,6 +61,15 @@ describe('App register redux', ()=>{
         expect(vm.$store).not.toBeNull();
         expect(mw.mock.calls.length).toBe(1);
     });
+
+    test('mount redux store with array', ()=>{
+        let reduxFn = wxaRedux([todo]);
+
+        let vm = {};
+        reduxFn(vm, 'App');
+
+        expect(vm.$store).not.toBeFalsy();
+    })
     
     test('middlewares not array', ()=>{
         let mw = jest.fn();

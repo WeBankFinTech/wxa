@@ -39,16 +39,28 @@ let unmountRedux = function (originUnmount) {
     }
 }
 
-export const wxaRedux = ({
-    reducers,
-    middlewares
-}={}) => {
+export const wxaRedux = (options = {}) => {
+    let reducers;
+    let middlewares;
+    let isArray = false;
+    if (Array.isArray(options)) {
+        reducers = options[0];
+        isArray = true;
+    } else {
+        reducers = options.reducers;
+        middlewares = options.middlewares;
+    }
+
     if(reducers == null) console.warn('不存在reducer, redux插件将无法工作。')
 
     return (vm, type) => {
         if (type === 'App' && reducers) {
-            let args = [reducers];
-            if (Array.isArray(middlewares)) args.push(applyMiddleware(...middlewares));
+            let args = options;
+            if (!isArray) {
+                args = [reducers];
+                if (Array.isArray(middlewares)) args.push(applyMiddleware(...middlewares));
+            } 
+            
             vm.$store = createStore.apply(null, args);
         } else if (type === 'Page') {
             vm.$store = getApp().$store;
