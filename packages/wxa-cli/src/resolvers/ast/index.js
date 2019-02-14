@@ -11,9 +11,6 @@ let debug = debugPKG('WXA:ASTManager');
 
 export default class ASTManager {
     constructor(resolve, meta) {
-        debug('resolve %o ', resolve);
-        debug('meta %o ', meta);
-
         this.resolve = resolve;
         this.meta = meta;
 
@@ -24,6 +21,7 @@ export default class ASTManager {
     scanComments(comments, mdl) {
         // match comment string like:
         // WXA_SOURCE_SRC= [../abc/cdb/hehe.js, ajijfidaf.s]
+        // fallback for wxa 1.x
         let libs = [];
 
         comments.forEach((comment)=>{
@@ -67,6 +65,7 @@ export default class ASTManager {
         return libs;
     }
 
+    // traverse the entire AST,
     parse(mdl) {
         debug('parse start');
         if (mdl.ast == null) return [];
@@ -74,28 +73,35 @@ export default class ASTManager {
         let self = this;
         let libs = [];
         traverse(mdl.ast, {
-            'CallExpression|ImportDeclaration'(path) {
+            'CallExpression|ImportDeclaration': (path) => {
                 let dep;
+                let typeOfPath;
+                const StringLiteralRequire = 'StringLiteralRequire';
+                const ImportDeclaration = 'ImportDeclaration';
+
                 // commandJS module
                 if (
-                    path.node.type === 'CallExpression' &&
-                    path.node.callee &&
-                    path.node.callee.name === 'require' &&
+                    t.isCallExpression(path.node) &&
+                    t.isIdentifier(path.node.callee, {name: 'require'}) &&
                     path.node.arguments.length
                 ) {
-                    let type = path.node.arguments[0].type;
-                    if ( type === 'StringLiteral') {
-                        dep = path.node.arguments[0].value;
-                        debug('callExpression %s %O', dep,  path.node.arguments[0]);
+                    let firstParam = path.node.arguments[0];
+                    // debug(firstParam);
+                    if ( t.isStringLiteral(firstParam) ) {
+                        debug('callExpression %s', dep);
+                        dep = firstParam.value;
+                        typeOfPath = StringLiteralRequire;
                     } else {
+                        // dynamic string is not support yet.
                         return;
                     }
                 } else if (
-                    path.node.type === 'ImportDeclaration' &&
+                    t.isImportDeclaration(path.node) &&
                     path.node.source &&
                     path.node.source.value
                 ) {
                     dep = path.node.source.value;
+                    typeOfPath = ImportDeclaration;
                 } else {
                     return;
                 }
@@ -114,34 +120,31 @@ export default class ASTManager {
                         meta: {
                             source, outputPath,
                         },
-                        reference: {
-                            $$ASTPath: path,
-                            $$category: 'ast',
-                            resolved,
-                        },
                     });
+
+                    switch (typeOfPath) {
+                        case StringLiteralRequire:
+                            // path.replaceWithSourceString(`require("${resolved}")`);
+                            path.replaceWith( template(`require(SOURCE)`)({SOURCE: t.stringLiteral(resolved)}) );
+                            break;
+                        case ImportDeclaration:
+                            path.get('source').replaceWith(t.stringLiteral(lib.reference.resolved));
+                            break;
+                    }
+
+                    path.stop();
                 } catch (e) {
                     logger.error('解析失败', e);
                     debug('resolve fail %O', e);
                 }
             },
+            'IfStatement': (path) => {
+                // check Unreachable code
+                this.checkUnreachableCode(path);
+            },
         });
 
-        libs.forEach((lib)=>{
-            try {
-                if (lib.reference.$$ASTPath) {
-                    let path = lib.reference.$$ASTPath;
-                    if (path.node.type === 'CallExpression') {
-                        path.replaceWithSourceString(`require("${lib.reference.resolved}")`);
-                    } else if (path.node.type === 'ImportDeclaration') {
-                        path.get('source').replaceWith(t.stringLiteral(lib.reference.resolved));
-                    }
-                }
-            } catch (e) {
-                logger.error(e);
-            }
-        });
-        // debug('dependencies libs %O', libs);
+        debug('dependencies libs %O', libs);
 
         let wxaSourceLibs = this.scanComments(mdl.ast.comments, mdl);
 
@@ -149,6 +152,31 @@ export default class ASTManager {
         // generate module code.
         mdl.code = this.generate(mdl).code;
         return libs;
+    }
+    /**
+     *
+     *
+     * @param {*} path
+     * @memberof ASTManager
+     */
+    checkUnreachableCode(path) {
+        let cond = path.get('test');
+        if (
+            t.isLiteral(cond.node) &&
+            !cond.node.value
+        ) {
+            // find simple situation, if ('') / if ( false );
+            path.get('consequent').get('body.0').addComment('leading', 'Unreachable Code');
+            path.stop();
+        } else if (
+            t.isBinaryExpression(cond) &&
+            t.isLiteral(cond.node.left) &&
+            t.isLiteral(cond.node.right) &&
+            !eval(`${cond.node.left.extra.raw} ${cond.node.operator} ${cond.node.right.extra.raw}`)
+        ) {
+            path.get('consequent').get('body.0').addComment('leading', 'Unreachable Code');
+            path.stop();
+        }
     }
 
     generate(mdl) {
