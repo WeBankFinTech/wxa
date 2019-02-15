@@ -24,13 +24,9 @@ export default ()=>{
             let onload = vm.onLoad || function() {};
             let onUnload = vm.onUnload || function() {};
 
-            let watcher = [];
-            let isInit = false;
-
             vm.onLoad = function(...args) {
-                if (this.watch && !isInit && this.data) {
-                    isInit = true;
-
+                this.$$WXAWatcher = [];
+                if (this.watch && this.data) {
                     Object.keys(this.watch).forEach((key)=>{
                         let keyArr = key.split(/[.\[\]]/).filter((x)=>x!=null&&x!=='');
 
@@ -46,23 +42,26 @@ export default ()=>{
                         }, this.data);
 
                         if(source) {
-                            watcher.push([source, tar, (prop, action, newValue, oldValue)=>{
+                            this.$$WXAWatcher.push([source, tar, (prop, action, newValue, oldValue)=>{
                                 this.watch[key].apply(this, [newValue, oldValue]);
                             }]);
                         }
                     });
+
+                    this.$$WXAWatcher.forEach((subscriber)=>{
+                        WatchJS.watch(subscriber[0], [subscriber[1]], subscriber[2]);
+                    });
                 }
-                watcher.forEach((subscriber)=>{
-                    WatchJS.watch(subscriber[0], [subscriber[1]], subscriber[2]);
-                });
 
                 onload.apply(this, args);
             };
 
             vm.onUnload = function(...args) {
-                watcher.forEach((subscriber)=>{
-                    WatchJS.unwatch(subscriber[0], [subscriber[1]], subscriber[2]);
-                });
+                if ( Array.isArray(this.$$WXAWatcher) && this.$$WXAWatcher.length ) {
+                    this.$$WXAWatcher.forEach((subscriber)=>{
+                        WatchJS.unwatch(subscriber[0], [subscriber[1]], subscriber[2]);
+                    });
+                }
 
                 onUnload.apply(this, args);
             };
