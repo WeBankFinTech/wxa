@@ -4,8 +4,10 @@
         "sourceMap": true,
         "noImplicitAny": true,
         "noImplicitThis": true,
+        "strictNullChecks": true,
         "module": "commonjs",
         "target": "es5",
+        "lib": ["dom", "es7"],
         "typeRoots" : [
             "./typings"
         ]

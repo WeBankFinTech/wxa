@@ -8,10 +8,10 @@ wxa-validate is a template-based validation framework for Wxa that allows you to
 
 # Get Started
 ```javascript
-    import {
-        wxa
-    } from '@wxa/core';
-    import WxaValidate from '@wxa/validate';
-    
-    wxa.use(WxaValidate);
+import {
+    wxa
+} from '@wxa/core';
+import WxaValidate from '@wxa/validate';
+
+wxa.use(WxaValidate);
 ```
