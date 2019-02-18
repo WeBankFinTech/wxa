@@ -212,6 +212,7 @@ class Schedule {
             // this.emit('tick', dep);
             return dep;
         } catch (e) {
+            // console.log(dep);
             debug('编译失败 %O', e);
             throw e;
         }

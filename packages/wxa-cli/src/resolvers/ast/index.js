@@ -160,22 +160,32 @@ export default class ASTManager {
      * @memberof ASTManager
      */
     checkUnreachableCode(path) {
-        let cond = path.get('test');
-        if (
-            t.isLiteral(cond.node) &&
-            !cond.node.value
-        ) {
-            // find simple situation, if ('') / if ( false );
-            path.get('consequent').get('body.0').addComment('leading', 'Unreachable Code');
-            path.stop();
-        } else if (
-            t.isBinaryExpression(cond) &&
-            t.isLiteral(cond.node.left) &&
-            t.isLiteral(cond.node.right) &&
-            !eval(`${cond.node.left.extra.raw} ${cond.node.operator} ${cond.node.right.extra.raw}`)
-        ) {
-            path.get('consequent').get('body.0').addComment('leading', 'Unreachable Code');
-            path.stop();
+        try {
+            let cond = path.get('test');
+
+            const processCode = ()=>{
+                const body = path.get('consequent');
+                if (body && body.node.body) {
+                    body.get('body.0').addComment('leading', 'Unreachable Code');
+                }
+                path.stop();
+            };
+            if (
+                t.isLiteral(cond.node) &&
+                !cond.node.value
+            ) {
+                // find simple situation, if ('') / if ( false );
+                processCode();
+            } else if (
+                t.isBinaryExpression(cond) &&
+                t.isLiteral(cond.node.left) &&
+                t.isLiteral(cond.node.right) &&
+                !eval(`${cond.node.left.extra.raw} ${cond.node.operator} ${cond.node.right.extra.raw}`)
+            ) {
+                processCode();
+            }
+        } catch (e) {
+            logger.warn('Fail to check UnreachableCode');
         }
     }
 
