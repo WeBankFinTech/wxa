@@ -131,7 +131,6 @@ export default class ASTManager {
                             path.get('source').replaceWith(t.stringLiteral(lib.reference.resolved));
                             break;
                     }
-
                     path.stop();
                 } catch (e) {
                     logger.error('解析失败', e);
@@ -167,8 +166,12 @@ export default class ASTManager {
                 const body = path.get('consequent');
                 if (body && body.node.body) {
                     body.get('body.0').addComment('leading', 'Unreachable Code');
+                    // save ast state and stop travel sub-childen tree.
+                    path.stop();
+                } else {
+                    // just skip travelling.
+                    path.skip();
                 }
-                path.stop();
             };
             if (
                 t.isLiteral(cond.node) &&

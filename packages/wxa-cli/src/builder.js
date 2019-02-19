@@ -188,6 +188,7 @@ class Builder {
         await this.hooks.beforeRun.promise(this);
 
         this.schedule = new Schedule(this.loader);
+        applyPlugins(this.wxaConfigs.plugins || [], this.schedule);
         this.schedule.progress.toggle(cmd.progress);
         this.schedule.set('cmdOptions', cmd);
         this.schedule.set('wxaConfigs', this.wxaConfigs || {});
@@ -307,17 +308,6 @@ class Builder {
 
             let dr = new DependencyResolver(this.schedule.wxaConfigs.resolve, this.schedule.meta);
             let outputPath = dr.getOutputPath(point, defaultPret, root);
-
-            // debug('entry point %O', {
-            //     src: point,
-            //     pret: defaultPret,
-            //     category: isAPP(point) ? 'App' : 'Entry',
-            //     meta: {
-            //         source: point,
-            //         outputPath,
-            //     },
-            //     ...mdl,
-            // });
 
             mdl = {
                 src: point,
