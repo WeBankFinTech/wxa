@@ -35,7 +35,7 @@ export default class Compiler {
         debug('module to parse %O', mdl);
 
         let children = [];
-        let content = mdl.code || readFile(mdl.src);
+        let content = mdl.code || mdl.content || readFile(mdl.src);
         let type = path.extname(mdl.meta.source);
         type = type.replace(/^\.*/, '');
 
@@ -46,14 +46,6 @@ export default class Compiler {
         let {kind, ...rest} = await this.$parse(content, options[type], mdl.meta.source, type, mdl);
 
         debug('kind %s, rest %o', kind, rest);
-        // Todo: app.js or app.wxa will do compile twice.
-        // drop template from app.wxa
-        // if (mdl.category === 'app') delete code.template;
-
-        // support not ever happened.
-        // if (typeof ret === 'string') {
-        //     mdl.code = ret;
-        // }
         mdl.kind = kind;
 
         switch (kind) {

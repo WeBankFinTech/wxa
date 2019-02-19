@@ -1,20 +1,19 @@
-import {readFile, isFile} from './utils';
+import crypto from 'crypto';
+import {unlinkSync, statSync} from 'fs';
 import path from 'path';
-import fs from 'fs';
 import {performance, PerformanceObserver} from 'perf_hooks';
 import globby from 'globby';
+import debugPKG from 'debug';
+import {SyncHook} from 'tapable';
+
+import {readFile, isFile} from './utils';
 import bar from './helpers/progressBar';
 import logger from './helpers/logger';
-import {EventEmitter} from 'events';
-// import loader from './loader';
 import COLOR from './const/color';
 import ROOT from './const/root';
-import debugPKG from 'debug';
 import defaultPret from './const/defaultPret';
 import wrapWxa from './helpers/wrapWxa';
 import Compiler from './compilers/index';
-import crypto from 'crypto';
-import {unlinkSync} from 'fs';
 import DependencyResolver from './helpers/dependencyResolver';
 import ProgressTextBar from './helpers/progressTextBar';
 import simplify from './helpers/simplifyObj';
@@ -88,6 +87,13 @@ class Schedule {
             }
         });
         this.obs.observe({entryTypes: ['measure'], buffered: true});
+
+        // hooks
+        this.hooks = {
+            buildModule: new SyncHook(['module']),
+            succeedModule: new SyncHook(['module']),
+            failedModule: new SyncHook(['module', 'error']),
+        };
     }
 
     set(name, value) {
@@ -139,6 +145,7 @@ class Schedule {
         // calc hash
         // cause not every module is actually exists, we can not promise all module has hash here.
         let content = dep.content ? dep.content : readFile(dep.src);
+        dep.content = content;
         if (content) dep.hash = crypto.createHash('md5').update(content).digest('hex');
         debug('Dep HASH: %s', dep.hash);
         try {
@@ -149,6 +156,7 @@ class Schedule {
 
             performance.mark(`loader started ${dep.src}`);
 
+            this.hooks.buildModule.call(dep);
             // loader: use custom compiler to load resource.
             await this.loader.compile(dep);
 
@@ -208,12 +216,12 @@ class Schedule {
 
             this.calcFileSize(dep);
 
-            // tick event
-            // this.emit('tick', dep);
+            this.hooks.succeedModule.call(dep);
+
             return dep;
         } catch (e) {
-            // console.log(dep);
             debug('编译失败 %O', e);
+            this.hooks.failedModule.call(dep, e);
             throw e;
         }
     }
@@ -488,7 +496,7 @@ class Schedule {
 
     calcFileSize(dep) {
         if (dep.isFile || dep.kind === 'wxa') {
-            let stat = fs.statSync(dep.src);
+            let stat = statSync(dep.src);
 
             dep.size = stat['size'];
         } else if (dep.code) {
