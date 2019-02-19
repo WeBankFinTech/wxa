@@ -16,29 +16,23 @@ module.exports = class ReplacePlugin {
         }
     }   
     apply(compiler) {
-        if(compiler.hooks == null || compiler.hooks.optimizeAssets == null) return;
+        if(compiler.hooks == null || compiler.hooks.buildModule == null) return;
 
-        compiler.hooks.optimizeAssets.tapAsync('ReplacePlugin', (compilation, next)=>{
+        compiler.hooks.buildModule.tap('ReplacePlugin', (mdl)=>{
             if (
-                compilation.meta && 
-                this.configs.test.test(compilation.meta.source)
+                mdl.meta && 
+                this.configs.test.test(mdl.meta.source)
             ) {
-                debug('Plugin replace started %O', compilation)
-                this.run(compilation, next);
-            } else {
-                next();
-            }
+                debug('Plugin replace started %O', mdl.src)
+                this.run(mdl);
+            } 
         })
     }
-    run(compilation, next) {
-        if(this.list.length && compilation.code) {
+    run(mdl) {
+        if (this.list.length && mdl.content) {
             this.list.forEach((rep)=>{
-                compilation.code = compilation.code.replace(rep.regular, rep.value);
+                mdl.content = mdl.content.replace(rep.regular, rep.value);
             });
-            
-            next();
-        } else {
-            next();
         }
     }
     mapConfigsToWxa(configs) {
