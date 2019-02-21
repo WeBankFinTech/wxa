@@ -9,21 +9,25 @@ let mountRedux = function (originHook) {
     return function (...args) {
         this.$$reduxDiff = diff.bind(this);
         if(this.$store) {
+            let connectState = ()=>{
+                let newState = this.$store.getState();
+                let source = this.$$storeLastState;
+                let data = mapState(this.mapState, newState, source);
+
+                if (data !== null) {
+                    // 有效state
+                    this.$$storeLastState = newState;
+                    let diffData = this.$$reduxDiff(data);
+                    this.setData(diffData);
+                }
+            }
             this.$unsubscribe = this.$store.subscribe((...args) => {
                 // Object updated && page is showing
                 if(this.$$isCurrentPage) {
-                    let newState = this.$store.getState();
-                    let source = this.$$storeLastState;
-                    let data = mapState(this.mapState, newState, source);
-    
-                    if (data !== null) {
-                        // 有效state
-                        this.$$storeLastState = newState;
-                        let diffData = this.$$reduxDiff(data);
-                        this.setData(diffData);
-                    }
+                    connectState();
                 }
             });
+            connectState();
         }
         if (originHook) originHook.apply(this, args);
     }
@@ -92,6 +96,7 @@ export const wxaRedux = (options = {}) => {
                 detached
             } = vm;
             vm.created = function (...args) {
+                console.log('com created')
                 this.$store = getApp().$store;
                 if (created) created.apply(this, args);
             }
