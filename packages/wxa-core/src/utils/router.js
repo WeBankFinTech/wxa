@@ -64,7 +64,7 @@ export default class Router {
 
             // ToDo: record time and give some tips to developers.
             if (vm && vm.beforeRouteEnter && typeof vm.beforeRouteEnter === 'function') {
-                vm.beforeRouteEnter.call(null, path, allPage[allPage.length-1].route);
+                vm.beforeRouteEnter.call(vm, path, allPage[allPage.length-1].route);
             } else {
                 wxa.IS_DEBUG && console.info('[beforeRouteEnter] script not find in target route');
             }
