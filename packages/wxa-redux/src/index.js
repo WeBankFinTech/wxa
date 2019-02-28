@@ -96,7 +96,6 @@ export const wxaRedux = (options = {}) => {
                 detached
             } = vm;
             vm.created = function (...args) {
-                console.log('com created')
                 this.$store = getApp().$store;
                 if (created) created.apply(this, args);
             }
