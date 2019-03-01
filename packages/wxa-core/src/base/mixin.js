@@ -134,9 +134,11 @@ export default function mixin(vm, globalMixin=[]) {
         } else {
             vm[name] = function(...opts) {
                 let self = this;
+                let ret;
                 candidate.hooks[name].forEach((fn)=>{
-                    fn.apply(self, opts);
+                    ret = fn.apply(self, opts);
                 });
+                return ret;
             };
         }
     });
