@@ -7,8 +7,13 @@ export default function mapState(map, state, source={}) {
             console.log(`mapState中的${key}必须为函数`);
             return ret;
         }
-        ret.newState[key] = map[key](state);
-        ret.oldState[key] = map[key](source);
+        try {
+            ret.newState[key] = map[key](state);
+            ret.oldState[key] = map[key](source);
+        } catch(e) {
+            throw e;
+        }
+        
         return ret;
     }, {newState: {}, oldState: {}});
     
