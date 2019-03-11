@@ -215,6 +215,8 @@ class Builder {
 
             // do dependencies analysis.
             await this.schedule.doDPA();
+
+            this.schedule.perf.show();
             debug('schedule dependencies Tree is %O', this.schedule.$indexOfModule.map((item)=>{
                 delete item.ast;
                 delete item.xml;
@@ -228,6 +230,8 @@ class Builder {
 
             // done.
             await this.hooks.done.promise(this.schedule);
+
+            debug('Project Pages', this.schedule.$pageArray);
 
             logger.log('Done', 'AT: '+new Date().toLocaleString());
         } catch (e) {

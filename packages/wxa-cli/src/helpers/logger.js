@@ -1,6 +1,4 @@
 import chalk from 'chalk';
-import bar from './progressBar';
-import notifier from 'node-notifier';
 
 class Logger {
     constructor() {
@@ -51,4 +49,5 @@ class Logger {
     }
 }
 
+export {Logger};
 export default new Logger();
