@@ -1,7 +1,6 @@
 import crypto from 'crypto';
 import {unlinkSync, statSync} from 'fs';
 import path from 'path';
-import {performance, PerformanceObserver} from 'perf_hooks';
 import globby from 'globby';
 import debugPKG from 'debug';
 import {SyncHook} from 'tapable';
@@ -16,6 +15,7 @@ import wrapWxa from './helpers/wrapWxa';
 import Compiler from './compilers/index';
 import DependencyResolver from './helpers/dependencyResolver';
 import ProgressTextBar from './helpers/progressTextBar';
+import Preformance from './helpers/performance';
 import simplify from './helpers/simplifyObj';
 
 let debug = debugPKG('WXA:Schedule');
@@ -81,12 +81,7 @@ class Schedule {
         this.cmdOptions = {};
 
         // performance mark
-        this.obs = new PerformanceObserver((list, observer) => {
-            if (process.env.NODE_DEBUG==='performance') {
-                console.log(list.getEntries());
-            }
-        });
-        this.obs.observe({entryTypes: ['measure'], buffered: true});
+        this.perf = new Preformance();
 
         // hooks
         this.hooks = {
@@ -154,14 +149,13 @@ class Schedule {
 
             this.progress.draw(text, 'COMPILING', !this.cmdOptions.verbose);
 
-            performance.mark(`loader started ${dep.src}`);
+            this.perf.markStart(relativeSrc);
 
             this.hooks.buildModule.call(dep);
             // loader: use custom compiler to load resource.
             await this.loader.compile(dep);
 
-            performance.mark(`loader end ${dep.src}`);
-            performance.measure(`loader timing ${dep.src}`, `loader started ${dep.src}`, `loader end ${dep.src}`);
+            this.perf.markEnd(relativeSrc);
 
             // try to wrap wxa every app and page
             this.tryWrapWXA(dep);
