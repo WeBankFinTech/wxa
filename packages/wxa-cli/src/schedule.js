@@ -161,16 +161,10 @@ class Schedule {
             this.tryWrapWXA(dep);
             this.tryAddPolyfill(dep);
 
-            // performance.mark(`compiler started ${dep.src}`);
-
             // Todo: conside if cache is necessary here.
             // debug('dep to process %O', dep);
             let compiler = new Compiler(this.wxaConfigs.resolve, this.meta, this.appConfigs);
             let childNodes = await compiler.parse(dep);
-
-            // performance.mark(`compiler end ${dep.src}`);
-
-            // performance.measure('compiler timing ', `compiler started ${dep.src}`, `compiler end ${dep.src}`);
 
             debug('childNodes', childNodes.map((node)=>simplify(node)));
             let children = childNodes.reduce((children, node)=>{
@@ -234,7 +228,7 @@ class Schedule {
                     return;
                 }
 
-                let idxOfParent = oldChild.reference.findIndex((ref)=>ref.parent.src === mdl.src);
+                let idxOfParent = oldChild.reference.findIndex((ref)=>ref.src === mdl.src);
                 debug('find index %s', idxOfParent);
 
                 if (idxOfParent === -1) {
@@ -288,10 +282,6 @@ class Schedule {
 
         debug('Find Dependencies started %O', simplify(dep));
 
-        // circle referrence.
-        dep.reference = dep.reference || {};
-        dep.reference.parent = mdl;
-
         // pret backup
         dep.pret = dep.pret || defaultPret;
 
@@ -304,7 +294,7 @@ class Schedule {
             isPlugin: dep.pret.isPlugin,
             $target: dep.target,
             $pret: dep.pret,
-            reference: [dep.reference],
+            reference: [mdl],
         };
 
         if (!child.isFile) {
