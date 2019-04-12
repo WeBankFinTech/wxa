@@ -338,7 +338,7 @@ class Schedule {
         if (
             ~['app', 'component', 'page'].indexOf(mdl.category ? mdl.category.toLowerCase() : '') &&
             mdl.meta && path.extname(mdl.meta.source) === '.js' &&
-            /exports\.default/gm.test(mdl.code)
+            (/exports\.default/gm.test(mdl.code) || /exports\[["']default["']/gm.test(mdl.code))
         ) {
             mdl.code = wrapWxa(mdl.code, mdl.category, mdl.pagePath);
             debug('wrap dependencies %O', simplify(mdl));
