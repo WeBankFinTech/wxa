@@ -4,5 +4,6 @@ export default {
     kind: 'root',
     isAbstract: true,
     isROOT: true,
-    childNodes: [],
+    childNodes: new Map(),
+    package: '', // 主包
 };
