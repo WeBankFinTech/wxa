@@ -12,7 +12,7 @@ let mountRedux = function (originHook) {
             let connectState = ()=>{
                 let newState = this.$store.getState();
                 let source = this.$$storeLastState;
-                let data = mapState(this.mapState, newState, source);
+                let data = mapState(this.mapState, newState, source, this);
 
                 if (data !== null) {
                     // 有效state
@@ -77,7 +77,7 @@ export const wxaRedux = (options = {}) => {
             vm.onLoad = mountRedux(onLoad);
             vm.onShow = function (...args) {
                 this.$$isCurrentPage = true;
-                let data = mapState(this.mapState, this.$store.getState(), this.$$storeLastState);
+                let data = mapState(this.mapState, this.$store.getState(), this.$$storeLastState, this);
                 if (data != null) {
                     let diffData = this.$$reduxDiff(data)
                     this.setData(diffData)
