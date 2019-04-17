@@ -23,12 +23,18 @@ const jsOptions = {
  * @class EmptyCompiler
  */
 export default class Compiler {
-    constructor(resolve, meta, appConfigs) {
+    constructor(resolve, meta, appConfigs, scheduler) {
         this.current = meta.current;
-        this.configs = {};
         this.resolve = resolve;
         this.meta = meta;
         this.appConfigs = appConfigs;
+
+        this.$scheduer = scheduler;
+    }
+
+    destroy() {
+        this.appConfigs = null;
+        this.$scheduer = null;
     }
 
     async parse(mdl) {
@@ -131,8 +137,8 @@ export default class Compiler {
             }
 
             default: {
-                // return Promise.reject(`未识别的文件类型%{type}, 请检查是否添加指定的loader`);
-                return Promise.resolve({kind: 'other'});
+                // unknown type, can be define by other compiler.
+                return Promise.resolve({kind: mdl.sourceType || 'other'});
             }
         }
     }
@@ -182,6 +188,12 @@ export default class Compiler {
         ) {
             // Page or Component resolve
             children = new ComponentManager(this.resolve, this.meta, this.appConfigs).parse(mdl);
+        }
+
+        if (mdl.src === this.$scheduer.APP_CONFIG_PATH) {
+            // global components in wxa;
+            // delete custom field in app.json or wechat devtool will get wrong.
+            delete mdl.json['wxa.globalComponents'];
         }
 
 

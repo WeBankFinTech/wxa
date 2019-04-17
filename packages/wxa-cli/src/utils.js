@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import mkdirp from 'mkdirp';
 import cache from './fs-cache';
+import crypto from 'crypto';
 
 let current = process.cwd();
 let pkg = require('../package.json');
@@ -137,4 +138,10 @@ export function applyPlugins(plugins, compiler) {
 
 export function isEmpty(n) {
     return n == null || n === '';
+}
+
+export function getHash(filepath) {
+    let content = readFile(filepath);
+
+    return content == null ? Date.now() : crypto.createHash('md5').update(content).digest('hex');
 }

@@ -102,8 +102,8 @@ class DependencyResolver {
     getOutputPath(source, pret, mdl) {
         if (pret.isRelative || pret.isAPPAbsolute || pret.isNodeModule || pret.isWXALib) {
             let opath = pret.isWXALib ?
-            path.parse(path.join(this.meta.context, '_wxa', pret.name+pret.ext)) :
-            path.parse(source);
+                path.parse(path.join(this.meta.context, '_wxa', pret.name+pret.ext)) :
+                path.parse(source);
 
             return this.getDistPath(opath);
         } else if (pret.isPlugin || pret.isURI) {
@@ -124,7 +124,7 @@ class DependencyResolver {
         let fileOutputPath = (
             mdl.meta &&
             mdl.meta.outputPath ||
-            this.getDistPath(path.parse(mdl.src))
+            this.getDistPath(path.parse(mdl.src), mdl)
         );
 
         resolved = './'+path.relative(path.parse(fileOutputPath).dir, libOutputPath);
@@ -145,18 +145,18 @@ class DependencyResolver {
         return content;
     }
 
-    getDistPath(opath) {
+    getDistPath(absPath, mdl) {
         let relative;
-        opath = typeof opath === 'string' ? path.parse(opath) : opath;
+        absPath = typeof absPath === 'string' ? path.parse(absPath) : absPath;
 
-        if (path.relative(this.meta.current, opath.dir).indexOf('node_modules') === 0) {
-            relative = path.relative(path.join(this.meta.current, 'node_modules'), opath.dir);
-            relative = path.join('npm', relative);
+        if (path.relative(this.meta.current, absPath.dir).indexOf('node_modules') === 0) {
+            relative = path.relative(path.join(this.meta.current, 'node_modules'), absPath.dir);
+            relative = path.join(mdl.package, 'npm', relative);
         } else {
-            relative = path.relative(this.meta.context, opath.dir);
+            relative = path.relative(this.meta.context, absPath.dir);
         }
 
-        return path.join(this.meta.output.path, relative, opath.base);
+        return path.join(this.meta.output.path, relative, absPath.base);
     }
 }
 
