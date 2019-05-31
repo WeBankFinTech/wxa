@@ -177,7 +177,7 @@ class Schedule {
 
             // if watch mode, use childNodes to clean up the dep tree.
             // update each module's childnodes, then according to reference unlink file.
-            this.cleanUpChildren(children, dep);
+            this.cleanUpChildren(new Map(children), dep);
 
             // cover new childNodes
             dep.childNodes = new Map(children);
@@ -228,7 +228,7 @@ class Schedule {
             ) {
                 debug('useless module find %s', oldChild.src);
                 // nested clean children
-                this.cleanUpChildren([], oldChild);
+                this.cleanUpChildren(new Map(), oldChild);
                 // unlink module
                 this.deleteFile(oldChild);
                 this.$indexOfModule.delete(src);
@@ -245,7 +245,7 @@ class Schedule {
         droppedPages.forEach((droppedPage)=>{
             debug('dropped page %O', droppedPage);
             // nested clean up children module
-            this.cleanUpChildren([], droppedPage);
+            this.cleanUpChildren(new Map(), droppedPage);
 
             // drop module from index
             if (this.$indexOfModule.has(droppedPage.src)) {
