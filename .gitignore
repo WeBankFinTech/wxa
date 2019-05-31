@@ -3,3 +3,4 @@ dist
 coverage
 .DS_Store
 lerna-debug.log
+.vscode

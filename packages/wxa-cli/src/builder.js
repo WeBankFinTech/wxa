@@ -216,7 +216,7 @@ class Builder {
             this.schedule.perf.show();
             debug('schedule dependencies Tree is %O', this.schedule.$indexOfModule);
 
-            await this.optimizeAndGenerate(this.schedule.$indexOfModule, cmd);
+            await this.optimizeAndGenerate(this.schedule.$indexOfModule, this.schedule.appConfigs, cmd);
 
             // done.
             await this.hooks.done.promise(this.schedule);
@@ -225,7 +225,8 @@ class Builder {
 
             logger.log('Done', 'AT: '+new Date().toLocaleString());
         } catch (e) {
-            logger.error('编译失败', e);
+            logger.error('编译失败', e.stack);
+            debugger;
         }
     }
 
@@ -237,18 +238,18 @@ class Builder {
      * @param {Array<Object>} indexedMap
      * @param {Object} cmdOptions cmd options
      */
-    async optimizeAndGenerate(indexedMap, cmdOptions) {
+    async optimizeAndGenerate(indexedMap, appConfigs, cmdOptions) {
         try {
             // module optimize, dependencies merge, minor.
-            let optimizer = new Optimizer(this.current, this.wxaConfigs, cmdOptions);
+            let optimizer = new Optimizer({
+                cwd: this.current,
+                wxaConfigs: this.wxaConfigs,
+                cmdOptions: cmdOptions,
+                appConfigs: appConfigs,
+            });
             applyPlugins(this.schedule.wxaConfigs.plugins, optimizer);
 
-            let optimizeTasks = [];
-            indexedMap.forEach((dep)=>{
-                optimizeTasks.push(optimizer.do(dep));
-            });
-
-            await Promise.all(optimizeTasks);
+            await optimizer.run(indexedMap);
 
             // write module to dest, dependencies copy.
             let generator = new Generator(this.current, this.schedule.meta, this.wxaConfigs, cmdOptions);
@@ -261,6 +262,7 @@ class Builder {
 
             this.progress.clean();
         } catch (e) {
+            debugger;
             logger.error(e);
             this.progress.draw('\n');
         }

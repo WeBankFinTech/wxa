@@ -105,7 +105,7 @@ class DependencyResolver {
                 path.parse(path.join(this.meta.context, '_wxa', pret.name+pret.ext)) :
                 path.parse(source);
 
-            return this.getDistPath(opath);
+            return this.getDistPath(opath, mdl);
         } else if (pret.isPlugin || pret.isURI) {
             // url module
             return null;
@@ -151,7 +151,8 @@ class DependencyResolver {
 
         if (path.relative(this.meta.current, absPath.dir).indexOf('node_modules') === 0) {
             relative = path.relative(path.join(this.meta.current, 'node_modules'), absPath.dir);
-            relative = path.join(mdl.package, 'npm', relative);
+            // package is empty meanning the package is main one.
+            relative = path.join('npm', relative);
         } else {
             relative = path.relative(this.meta.context, absPath.dir);
         }

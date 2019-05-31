@@ -99,7 +99,7 @@ class Schedule {
     addEntryPoint(mdl) {
         let child = this.findOrAddDependency(mdl, ROOT);
 
-        if (!~ROOT.childNodes.has(mdl.src)) ROOT.childNodes.set(child.src, child);
+        if (!ROOT.childNodes.has(mdl.src)) ROOT.childNodes.set(child.src, child);
 
         return child;
     }
@@ -171,7 +171,8 @@ class Schedule {
             let children = childNodes.reduce((children, node)=>{
                 let child = this.findOrAddDependency(node, dep);
 
-                return child ? children.concat([child.src, child]) : [children.src, children];
+                if (child) children.push([child.src, child]);
+                return children;
             }, []);
 
             // if watch mode, use childNodes to clean up the dep tree.
@@ -282,18 +283,17 @@ class Schedule {
         // pret backup
         dep.pret = dep.pret || defaultPret;
 
+        // the amount of child output is decided by his parent module.
+        // normally one, emit multi while child module is npm package.
         let child = {
             ...dep,
             color: COLOR.INIT,
             isNpm: dep.pret.isNodeModule,
             isPlugin: dep.pret.isPlugin,
             reference: new Map([[mdl.src, mdl]]),
-            output: new Map([[dep.meta.outputPath, {
-                ...dep.meta,
-                package: mdl.package,
-                reference: mdl,
-            }]]),
+            output: new Set([dep.meta.outputPath]),
         };
+
 
         if (this.$indexOfModule.has(dep.src)) {
             let indexedModule = this.$indexOfModule.get(dep.src);
@@ -306,9 +306,9 @@ class Schedule {
             }
 
             // merge output
-            if (!indexedModule.output.has(dep.meta.outputPath)) {
-                indexedModule.output.set(dep.meta.outputPath, child.get(dep.meta.outputPath));
-            }
+            // if (!indexedModule.output.has(dep.meta.outputPath)) {
+            //     indexedModule.output.set(dep.meta.outputPath, child.get(dep.meta.outputPath));
+            // }
 
             child = indexedModule;
         }
@@ -391,8 +391,17 @@ class Schedule {
         let pkg = this.appConfigs.subpackages || this.appConfigs.subPackages;
 
         if (pkg) {
-            let subPages = pkg.reduce((subPkgs, pkg)=>{
-                return [pkg.root, subPkgs.concat(pkg.pages.map((subpath)=>pkg.root.replace(/\/$/, '')+'/'+subpath))];
+            // flattern pages array and remember the subpackage's root.
+            let subPages = pkg.reduce((prev, pkg)=>{
+                if (Array.isArray(pkg.pages)) {
+                    pkg.pages.forEach((pagePath)=>{
+                        prev.push(
+                            [pkg.root, pkg.root.replace(/\/$/, '')+'/'+pagePath]
+                        );
+                    });
+                }
+
+                return prev;
             }, []);
             pages = pages.concat(subPages);
         }
