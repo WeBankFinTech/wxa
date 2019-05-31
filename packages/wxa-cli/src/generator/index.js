@@ -37,10 +37,11 @@ export default class Generator {
             return;
         }
 
-        mdl.output.forEach((info, outputPath)=>{
-            outputPath = this.tryTransFormExtension(outputPath, info.reference.kind);
+        // 重写输出模块
+        mdl.output.forEach((outputPath)=>{
+            outputPath = this.tryTransFormExtension(outputPath, mdl.kind);
             debug('transform ext %s', outputPath);
-            info.reality = outputPath;
+            // info.reality = outputPath;
             if (mdl.isFile) {
                 copy(mdl.src, outputPath);
             } else {
