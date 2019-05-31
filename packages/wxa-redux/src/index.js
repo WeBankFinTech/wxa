@@ -11,12 +11,12 @@ let mountRedux = function (originHook) {
         if(this.$store) {
             let connectState = ()=>{
                 let newState = this.$store.getState();
-                let source = this.$$storeLastState;
-                let data = mapState(this.mapState, newState, source, this);
+                let lastState = this.$$storeLastState;
+                let data = mapState(this.mapState, newState, lastState, this);
 
                 if (data !== null) {
                     // 有效state
-                    this.$$storeLastState = newState;
+                    this.$$storeLastState = data;
                     let diffData = this.$$reduxDiff(data);
                     this.setData(diffData);
                 }
