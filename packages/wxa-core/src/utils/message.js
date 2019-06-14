@@ -29,7 +29,8 @@ const message = (title, content, opt)=>{
     return _message.show(title, content, opt);
 };
 Object.getOwnPropertyNames(Message.prototype).forEach((key)=>{
-    message[key] = _message[key].bind(_message);
+    let descriptor = Object.getOwnPropertyDescriptor(Message.prototype, key);
+    if (descriptor.writable) message[key] = _message[key].bind(_message);
 });
 
 export {
