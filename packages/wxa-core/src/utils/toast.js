@@ -31,7 +31,8 @@ const toast = (title, opt)=>{
     return _toast.show(title, opt);
 };
 Object.getOwnPropertyNames(Toast.prototype).forEach((key)=>{
-    toast[key] = _toast[key].bind(_toast);
+    let descriptor = Object.getOwnPropertyDescriptor(Toast.prototype, key);
+    if (descriptor.writable) toast[key] = _toast[key].bind(_toast);
 });
 
 export {
