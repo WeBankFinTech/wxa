@@ -11,6 +11,9 @@ let tracePrototypeMethods = (vm)=>{
     Object.getOwnPropertyNames(vm).forEach((key)=>{
         // wxa private methods that prefix with $ should allways not to copy.
         // also, the wxa hooks, un-writable methos and mixins shouldn't too.
+        let descriptor = Object.getOwnPropertyDescriptor(vm, key);
+        if (!descriptor.writable) return;
+
         if (
             !~['constructor', 'mixins'].indexOf(key) &&
             !/^$/.test(key) &&
