@@ -152,7 +152,7 @@ class Schedule {
             this.perf.markStart(relativeSrc);
             this.hooks.buildModule.call(dep);
             // loader: use custom compiler to load resource.
-            await this.loader.compile(dep);
+            await this.loader.compile(dep, this);
 
             this.perf.markEnd(relativeSrc);
 
@@ -294,6 +294,14 @@ class Schedule {
             isPlugin: dep.pret.isPlugin,
             reference: new Map([[mdl.src, mdl]]),
             output: new Set([dep.meta.outputPath]),
+            outerDependencies: new Set(),
+            dependency: function(file) {
+                // let DR = new DependencyResolver(scheduler.wxaConfigs.resolve, scheduler.meta);
+                // let {source} = DR.resolveDep(file, this);
+
+                // debugger;
+                this.outerDependencies.add(file);
+            },
         };
 
 
