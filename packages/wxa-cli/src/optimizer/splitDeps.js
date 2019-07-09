@@ -27,8 +27,9 @@ export default class SplitDeps {
     run(indexedMap) {
         if (this.isNoSubPackage) return;
 
-        let [src, root] = Array.from(indexedMap).find(([src, mdl])=>mdl.isROOT);
+        let [src, root] = Array.from(indexedMap).find(([src, mdl])=>mdl.isROOT) || [];
 
+        if (root == null) return;
         // 从入口开始溯源
         root.childNodes.forEach((entryPoint, src)=>{
             let pkg = this.subPages.find((sub)=>sub.reg.test(src));
