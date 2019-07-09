@@ -27,12 +27,12 @@ class SassCompiler {
         let ret = await this.render(mdl.content || null, mdl.meta.source, configs);
         
         mdl.code = ret.css.toString();
-        if (ret.stats.includedFiles.length) {
+        // 向下兼容
+        if (ret.stats.includedFiles.length && compilation) {
             ret.stats.includedFiles.forEach((file)=>{
                 mdl.dependency(file, compilation);
             });
         }
-        // console.log(ret.stats.includedFiles)
 
         // custom outputPath
         if(mdl.meta) {
