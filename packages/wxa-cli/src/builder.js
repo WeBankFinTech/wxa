@@ -123,11 +123,14 @@ class Builder {
                     let changedDeps;
                     try {
                         this.schedule.$depPending.push(mdl);
-
+                        if (mdl.childNodes && mdl.childNodes.size) this.walkChildNodesTreeAndMark(mdl);
                         await this.hooks.rebuildModule.promise(this.schedule, mdl);
 
                         changedDeps = await this.schedule.$doDPA();
-                        await this.optimizeAndGenerate(changedDeps, cmd);
+
+                        let map = new Map(changedDeps.map((mdl)=>[mdl.src, mdl]));
+
+                        await this.optimizeAndGenerate(map, this.schedule.appConfigs, cmd);
                     } catch (e) {
                         logger.error('编译失败', e);
                     }
@@ -171,6 +174,15 @@ class Builder {
         process.on('SIGINT', h);
         process.on('uncaughtException', h);
         process.on('SIGHUP', h);
+    }
+
+    walkChildNodesTreeAndMark(mdl) {
+        // mark tree nodes as changed
+        mdl.childNodes.forEach((child)=>{
+            child.color = color.CHANGED;
+
+            if (child.childNodes && child.childNodes.size) this.walkChildNodesTreeAndMark(child);
+        });
     }
 
     async build(cmd) {

@@ -5,7 +5,7 @@ import globby from 'globby';
 import debugPKG from 'debug';
 import {SyncHook} from 'tapable';
 
-import {readFile, isFile} from './utils';
+import {readFile, isFile, getHash, getHashWithString} from './utils';
 import bar from './helpers/progressBar';
 import logger from './helpers/logger';
 import COLOR from './const/color';
@@ -190,6 +190,7 @@ class Schedule {
 
                 let oldPages = new Map(this.$pageArray.entries());
                 let newPages = this.addPageEntryPoint();
+                newPages = new Map(newPages.map((page)=>[page.src, page]));
                 this.cleanUpPages(newPages, oldPages);
             }
 
@@ -285,6 +286,7 @@ class Schedule {
 
         // the amount of child output is decided by his parent module.
         // normally one, emit multi while child module is npm package.
+        // debugger;
         let child = {
             ...dep,
             color: COLOR.INIT,
@@ -297,6 +299,16 @@ class Schedule {
 
         if (this.$indexOfModule.has(dep.src)) {
             let indexedModule = this.$indexOfModule.get(dep.src);
+
+            // check hash
+            child.hash = !child.isAbstract && child.content ? getHashWithString(child.content) : getHash(child.src);
+
+            if (child.hash !== indexedModule.hash) {
+                // module changed, clean up mdl.
+                indexedModule.content = child.content;
+                indexedModule.code = void(0);
+                indexedModule.hash = child.hash;
+            }
 
             // merge reference, cause the module is parsed
             if (indexedModule.reference instanceof Map) {
@@ -312,7 +324,7 @@ class Schedule {
 
             child = indexedModule;
         }
-
+        // debugger;
         if (child.color !== COLOR.COMPILED) this.$depPending.push(child);
         if (child.color === COLOR.INIT) this.$indexOfModule.set(child.src, child);
 

@@ -145,3 +145,7 @@ export function getHash(filepath) {
 
     return content == null ? Date.now() : crypto.createHash('md5').update(content).digest('hex');
 }
+
+export function getHashWithString(content) {
+    return content == null ? Date.now() : crypto.createHash('md5').update(content).digest('hex');
+}
