@@ -3,6 +3,7 @@ import {writeFile, getDistPath, readFile, copy} from '../utils';
 import debugPKG from 'debug';
 import DependencyResolver from '../helpers/dependencyResolver';
 import ProgressBar from '../helpers/progressTextBar';
+import logger from '../helpers/logger';
 
 let debug = debugPKG('WXA:Generator');
 
@@ -24,37 +25,49 @@ export default class Generator {
         this.progress.draw(text, 'Generating', !this.cmdOptions.verbose);
 
         debug('module to generate %O', mdl);
-        let outputPath;
-        if (!mdl.meta || !mdl.meta.outputPath) {
-            let dr = new DependencyResolver(this.resolve, this.meta);
-            outputPath = dr.getOutputPath(mdl.src, mdl.pret, mdl);
-        } else {
-            outputPath = mdl.meta.outputPath;
+        // let outputPath;
+        // if (!mdl.meta || !mdl.meta.outputPath) {
+        //     let dr = new DependencyResolver(this.resolve, this.meta);
+        //     outputPath = dr.getOutputPath(mdl.src, mdl.pret, mdl);
+        // } else {
+        //     outputPath = mdl.meta.outputPath;
+        // }
+        if (!mdl.output) {
+            logger.errors('module 数据结构有问题', mdl);
+            return;
         }
-
-        outputPath = this.tryTransFormExtension(outputPath);
-        debug('transform ext %s', outputPath);
-        mdl.meta.accOutputPath = outputPath;
-
-        // https://github.com/wxajs/wxa/issues/5#issuecomment-498186337
-        // if a module is unrecognized, then we just copy it to dist.
-        if (mdl.code != null) {
-            writeFile(outputPath, mdl.code);
-        } else {
-            copy(mdl.src, outputPath);
-        }
+        // 重写输出模块
+        mdl.output.forEach((outputPath)=>{
+            outputPath = this.tryTransFormExtension(outputPath, mdl.kind);
+            debug('transform ext %s', outputPath);
+            mdl.meta.accOutputPath = outputPath;
+            // https://github.com/wxajs/wxa/issues/5#issuecomment-498186337
+            // if a module is unrecognized, then we just copy it to dist.
+            if (mdl.code != null) {
+                writeFile(outputPath, mdl.code);
+            } else {
+                copy(mdl.src, outputPath);
+            }
+        });
     }
 
-    tryTransFormExtension(output) {
+    tryTransFormExtension(output, kind) {
         if (this.wxaConfigs.target === 'wxa') {
             // 小程序相关
             let opath = path.parse(output);
 
             let ext;
-            switch (opath.ext) {
-                case '.css': ext = '.wxss'; break;
-                case '.xml': ext = '.wxml'; break;
-                case '.ts': ext = '.js'; break;
+            switch (kind || opath.ext) {
+                case '.css':
+                case 'css':
+                    ext = '.wxss'; break;
+                case '.xml':
+                case 'xml':
+                    ext = '.wxml'; break;
+                case '.ts':
+                case 'ts':
+                case 'typescript':
+                    ext = '.js'; break;
                 default: ext = opath.ext;
             }
 

@@ -1,7 +1,6 @@
-import {readFile, applyPlugins, isFile} from './utils';
+import {readFile, applyPlugins, isFile, getHash} from './utils';
 import path from 'path';
-import fs, {unlink} from 'fs';
-import crypto from 'crypto';
+import fs from 'fs';
 import chokidar from 'chokidar';
 import globby from 'globby';
 import debugPKG from 'debug';
@@ -16,6 +15,7 @@ import {AsyncParallelHook, SyncBailHook, AsyncSeriesHook} from 'tapable';
 import DependencyResolver from './helpers/dependencyResolver';
 import root from './const/root';
 import ProgressTextBar from './helpers/progressTextBar';
+import color from './const/color';
 
 let debug = debugPKG('WXA:Builder');
 class Builder {
@@ -67,17 +67,17 @@ class Builder {
         return this.loader.mount(this.wxaConfigs.use, cmd);
     }
 
-    filterModule(arr) {
-        return arr.reduce((ret, dep)=>{
+    filterModule(indexedMap) {
+        let ret = [];
+        indexedMap.forEach((dep)=>{
             if (
                 !/src\/_wxa/.test(dep.src)
             ) {
                 ret.push(dep.src);
             }
+        });
 
-
-            return ret;
-        }, []);
+        return ret;
     }
 
     watch(cmd) {
@@ -105,32 +105,32 @@ class Builder {
 
                 logger.warn('change', filepath);
                 debug('WATCH file changed %s', filepath);
-                let mdl = this.schedule.$indexOfModule.find((module)=>module.src===filepath);
+                let mdl = this.schedule.$indexOfModule.get(filepath);
                 let isChange = true;
                 debug('Changed Module %O', mdl);
                 // module with code;
                 if (!mdl.isFile) {
-                    let content = readFile(mdl.src);
-                    debug('changed content %s', content);
-                    let md5 = crypto.createHash('md5').update(content).digest('hex');
-
-                    mdl.content = content;
-                    mdl.code = void(0);
-                    isChange = mdl.hash !== md5;
-                    debug('OLD HASH %s, NEW HASH %s', mdl.hash, md5);
+                    let hash = getHash(filepath);
+                    isChange = mdl.hash !== hash;
+                    debug('OLD HASH %s, NEW HASH %s', mdl.hash, hash);
                 }
 
                 if (isChange) {
+                    mdl.color = color.CHANGED;
+                    mdl.content = void(0);
+                    mdl.code = void(0);
+
                     let changedDeps;
                     try {
                         this.schedule.$depPending.push(mdl);
-
+                        if (mdl.childNodes && mdl.childNodes.size) this.walkChildNodesTreeAndMark(mdl);
                         await this.hooks.rebuildModule.promise(this.schedule, mdl);
 
                         changedDeps = await this.schedule.$doDPA();
-                        await this.optimizeAndGenerate(changedDeps, cmd);
-                        // logger.log('Done', '编译完成');
-                        // debug('schedule dependencies Tree is %O', this.schedule.$indexOfModule);
+
+                        let map = new Map(changedDeps.map((mdl)=>[mdl.src, mdl]));
+
+                        await this.optimizeAndGenerate(map, this.schedule.appConfigs, cmd);
                     } catch (e) {
                         logger.error('编译失败', e);
                     }
@@ -176,6 +176,15 @@ class Builder {
         process.on('SIGHUP', h);
     }
 
+    walkChildNodesTreeAndMark(mdl) {
+        // mark tree nodes as changed
+        mdl.childNodes.forEach((child)=>{
+            child.color = color.CHANGED;
+
+            if (child.childNodes && child.childNodes.size) this.walkChildNodesTreeAndMark(child);
+        });
+    }
+
     async build(cmd) {
         if (cmd.verbose) logger.info('WxaConfigs', this.wxaConfigs);
 
@@ -217,16 +226,9 @@ class Builder {
             await this.schedule.doDPA();
 
             this.schedule.perf.show();
-            debug('schedule dependencies Tree is %O', this.schedule.$indexOfModule.map((item)=>{
-                delete item.ast;
-                delete item.xml;
+            debug('schedule dependencies Tree is %O', this.schedule.$indexOfModule);
 
-                if (item.reference) delete item.reference;
-
-                return item;
-            }));
-
-            await this.optimizeAndGenerate(this.schedule.$indexOfModule, cmd);
+            await this.optimizeAndGenerate(this.schedule.$indexOfModule, this.schedule.appConfigs, cmd);
 
             // done.
             await this.hooks.done.promise(this.schedule);
@@ -235,7 +237,8 @@ class Builder {
 
             logger.log('Done', 'AT: '+new Date().toLocaleString());
         } catch (e) {
-            logger.error('编译失败', e);
+            logger.error('编译失败', e.stack);
+            debugger;
         }
     }
 
@@ -244,31 +247,34 @@ class Builder {
      * optimize all module in list and generate dest file.
      * optiming and generating is parallel.
      *
-     * @param {Array<Object>} list
+     * @param {Array<Object>} indexedMap
      * @param {Object} cmdOptions cmd options
      */
-    async optimizeAndGenerate(list, cmdOptions) {
+    async optimizeAndGenerate(indexedMap, appConfigs, cmdOptions) {
         try {
             // module optimize, dependencies merge, minor.
-            let optimizer = new Optimizer(this.current, this.wxaConfigs, cmdOptions);
+            let optimizer = new Optimizer({
+                cwd: this.current,
+                wxaConfigs: this.wxaConfigs,
+                cmdOptions: cmdOptions,
+                appConfigs: appConfigs,
+            });
             applyPlugins(this.schedule.wxaConfigs.plugins, optimizer);
 
-            let optimizeTasks = list.map((dep)=>{
-                return optimizer.do(dep);
-            });
-
-            await Promise.all(optimizeTasks);
+            await optimizer.run(indexedMap);
 
             // write module to dest, dependencies copy.
             let generator = new Generator(this.current, this.schedule.meta, this.wxaConfigs, cmdOptions);
-            let generateTasks = list.map((mdl)=>{
-                return generator.do(mdl);
+            let generateTasks = [];
+            indexedMap.forEach((mdl)=>{
+                generateTasks.push(generator.do(mdl));
             });
 
             await Promise.all(generateTasks);
 
             this.progress.clean();
         } catch (e) {
+            debugger;
             logger.error(e);
             this.progress.draw('\n');
         }
