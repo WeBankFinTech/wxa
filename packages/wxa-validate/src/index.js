@@ -31,7 +31,7 @@ export default (options = {}) => {
                 }, [])
             }
 
-            vm.$clearErrorMsg = function ({detail: {value}, currentTarget: {dataset: {rule, as, name, opts = {}}}}) {
+            vm.$clearErrorMsg = function (name) {
                 if (!this.data.$form || !this.data.$form.errMap || !this.data.$form.errMap[name]) return;
 
                 delete this.data.$form.errMap[name];
@@ -42,7 +42,7 @@ export default (options = {}) => {
                 })
             }
 
-            vm.$validate = function ({detail: {value}, currentTarget: {dataset: {rule, as, name, opts = {}}}}) {
+            vm.$validate = function ({detail: {value} = {}, currentTarget: {dataset: {rule, as, name, opts = {}} = {}} = {}}) {
 
                 if (rule == null || name == null) return console.warn('[form-wxa-plugin]需要指定data-rule和data-name');
 
