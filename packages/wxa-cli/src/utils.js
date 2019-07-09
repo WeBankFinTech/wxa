@@ -149,3 +149,9 @@ export function getHash(filepath) {
 export function getHashWithString(content) {
     return content == null ? Date.now() : crypto.createHash('md5').update(content).digest('hex');
 }
+
+export function promiseSerial(funs) {
+    return funs.reduce((promise, fun)=>{
+        return promise.then((result)=>fun().then(Array.prototype.concat.bind(result)));
+    }, Promise.resolve([]));
+}

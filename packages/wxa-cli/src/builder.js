@@ -1,4 +1,4 @@
-import {readFile, applyPlugins, isFile, getHash} from './utils';
+import {readFile, applyPlugins, isFile, getHash, promiseSerial} from './utils';
 import path from 'path';
 import fs from 'fs';
 import chokidar from 'chokidar';
@@ -68,16 +68,22 @@ class Builder {
     }
 
     filterModule(indexedMap) {
-        let ret = [];
+        let ret = new Set();
         indexedMap.forEach((dep)=>{
             if (
                 !/src\/_wxa/.test(dep.src)
             ) {
-                ret.push(dep.src);
+                ret.add(dep.src);
+            }
+
+            if (dep.outerDependencies) {
+                // logger.info('Outer Dependencies ', dep.outerDependencies);
+                // if an outer dependencies is change, just compile the module is depended.
+                dep.outerDependencies.forEach((file)=>ret.add(`${file}`));
             }
         });
 
-        return ret;
+        return Array.from(ret);
     }
 
     watch(cmd) {
@@ -106,54 +112,35 @@ class Builder {
                 logger.warn('change', filepath);
                 debug('WATCH file changed %s', filepath);
                 let mdl = this.schedule.$indexOfModule.get(filepath);
-                let isChange = true;
-                debug('Changed Module %O', mdl);
-                // module with code;
-                if (!mdl.isFile) {
-                    let hash = getHash(filepath);
-                    isChange = mdl.hash !== hash;
-                    debug('OLD HASH %s, NEW HASH %s', mdl.hash, hash);
-                }
 
-                if (isChange) {
-                    mdl.color = color.CHANGED;
-                    mdl.content = void(0);
-                    mdl.code = void(0);
+                if (mdl == null) {
+                    // maybe outer dependencies.
+                    let defer = [];
 
-                    let changedDeps;
-                    try {
-                        this.schedule.$depPending.push(mdl);
-                        if (mdl.childNodes && mdl.childNodes.size) this.walkChildNodesTreeAndMark(mdl);
-                        await this.hooks.rebuildModule.promise(this.schedule, mdl);
+                    this.schedule.$indexOfModule.forEach((mdl)=>{
+                        if (!mdl.outerDependencies || !mdl.outerDependencies.size || !mdl.outerDependencies.has(filepath)) return;
 
-                        changedDeps = await this.schedule.$doDPA();
+                        defer.push(async ()=>{
+                            try {
+                                this.schedule.$depPending.push(mdl);
+                                if (mdl.childNodes && mdl.childNodes.size) this.walkChildNodesTreeAndMark(mdl);
 
-                        let map = new Map(changedDeps.map((mdl)=>[mdl.src, mdl]));
+                                await this.hooks.rebuildModule.promise(this.schedule, mdl);
 
-                        await this.optimizeAndGenerate(map, this.schedule.appConfigs, cmd);
-                    } catch (e) {
-                        logger.error('编译失败', e);
-                    }
+                                let changedDeps = await this.schedule.$doDPA();
+                                let map = new Map(changedDeps.map((mdl)=>[mdl.src, mdl]));
+                                await this.optimizeAndGenerate(map, this.schedule.appConfigs, cmd);
+                            } catch (e) {
+                                logger.error('编译失败', e);
+                            }
+                        });
+                    });
 
-                    let newFiles = this.filterModule(this.schedule.$indexOfModule);
-                    let unlinkFiles = files.filter((oldFilePath)=>!~newFiles.indexOf(oldFilePath));
-                    let addFiles = newFiles.filter((filePath)=>!~files.indexOf(filePath));
-
-                    // unwatch deleted file add watch to new Files;
-                    debug('addFiles %O, unlinkFiles %O', addFiles, unlinkFiles);
-                    if (cmd.verbose) {
-                        logger.info('Add Files', addFiles, ' COUNT:', addFiles.length);
-                        logger.info('Unwatch Files', unlinkFiles, ' COUNT:', unlinkFiles.length);
-                    }
-
-                    if (addFiles && addFiles.length) this.watcher.add(addFiles);
-                    if (unlinkFiles && unlinkFiles.length) this.watcher.unwatch(unlinkFiles);
-
-                    files = newFiles;
-
-                    await this.hooks.finishRebuildModule.promise(this.schedule, mdl);
+                    await promiseSerial(defer);
                 } else {
-                    logger.info(`文件无变化(${mdl.hash})`);
+                    // normol deps changed
+                    let {isChange, newFiles} = await this.compileChangedFile({filepath, mdl, files, cmd}) || {};
+                    if (isChange) files = newFiles;
                 }
 
                 this.isDoingUpade = false;
@@ -183,6 +170,57 @@ class Builder {
 
             if (child.childNodes && child.childNodes.size) this.walkChildNodesTreeAndMark(child);
         });
+    }
+
+    async compileChangedFile({filepath, mdl, files, cmd}) {
+        let isChange = true;
+        debug('Changed Module %O', mdl);
+        // module with code;
+        if (!mdl.isFile) {
+            let hash = getHash(filepath);
+            isChange = mdl.hash !== hash;
+            debug('OLD HASH %s, NEW HASH %s', mdl.hash, hash);
+        }
+
+        if (isChange) {
+            mdl.color = color.CHANGED;
+            mdl.content = void(0);
+            mdl.code = void(0);
+
+            let changedDeps;
+            try {
+                this.schedule.$depPending.push(mdl);
+                if (mdl.childNodes && mdl.childNodes.size) this.walkChildNodesTreeAndMark(mdl);
+
+                await this.hooks.rebuildModule.promise(this.schedule, mdl);
+
+                changedDeps = await this.schedule.$doDPA();
+                let map = new Map(changedDeps.map((mdl)=>[mdl.src, mdl]));
+                await this.optimizeAndGenerate(map, this.schedule.appConfigs, cmd);
+            } catch (e) {
+                logger.error('编译失败', e);
+            }
+
+            let newFiles = this.filterModule(this.schedule.$indexOfModule);
+            let unlinkFiles = files.filter((oldFilePath)=>!~newFiles.indexOf(oldFilePath));
+            let addFiles = newFiles.filter((filePath)=>!~files.indexOf(filePath));
+
+            // unwatch deleted file add watch to new Files;
+            debug('addFiles %O, unlinkFiles %O', addFiles, unlinkFiles);
+            if (cmd.verbose) {
+                logger.info('Add Files', addFiles, ' COUNT:', addFiles.length);
+                logger.info('Unwatch Files', unlinkFiles, ' COUNT:', unlinkFiles.length);
+            }
+
+            if (addFiles && addFiles.length) this.watcher.add(addFiles);
+            if (unlinkFiles && unlinkFiles.length) this.watcher.unwatch(unlinkFiles);
+
+            await this.hooks.finishRebuildModule.promise(this.schedule, mdl);
+
+            return {isChange, newFiles};
+        } else {
+            logger.info(`文件无变化(${mdl.hash})`);
+        }
     }
 
     async build(cmd) {

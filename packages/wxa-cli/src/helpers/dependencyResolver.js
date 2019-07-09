@@ -37,26 +37,17 @@ class DependencyResolver {
             // 非完整后缀的路径
             if (isFile(source+this.meta.wxaExt)) ext = '.js'; // .wxa的文件转js
             else if (pext) ext = pext;
-            else if (isDir(source) && isFile(source+path.sep+'index.js')) ext = path.sep+'index.js';
+            else if (pret.isNodeModule) {
+                ext = this.$findNodeModuleEntryFile(lib, source);
+                if (ext == null) throw new Error('找不到文件 '+lib);
+            } else if (isDir(source) && isFile(source+path.sep+'index.js')) ext = path.sep+'index.js';
             else {
-                // 非指定文件的node_modules路径依赖
-                let pkg = this.getPkgConfig(lib);
-                if (!pkg) {
-                    throw new Error('找不到模块'+lib);
-                }
-                let main = pkg.main || 'index.js';
-                if (pkg.browser && typeof pkg.browser === 'string') {
-                    main = pkg.browser;
-                }
-                if (isFile(path.join(source, main))) {
-                    ext = path.sep+main;
-                } else {
-                    throw new Error('找不到文件 '+lib);
-                }
+                throw new Error('找不到文件 '+lib);
             }
         } else {
             ext = '';
         }
+
         source = path.resolve(source+ext);
         lib += ext;
 
@@ -65,6 +56,22 @@ class DependencyResolver {
             pret,
             lib,
         };
+    }
+
+    $findNodeModuleEntryFile(lib, source) {
+        // 非指定文件的node_modules路径依赖
+        let pkg = this.getPkgConfig(lib);
+        if (!pkg) {
+            throw new Error('找不到模块'+lib);
+        }
+
+        let main = pkg.main || 'index.js';
+        // 优先使用依赖的 browser 版本
+        if (pkg.browser && typeof pkg.browser === 'string') {
+            main = pkg.browser;
+        }
+
+        return isFile(path.join(source, main)) ? path.sep+main : null;
     }
 
     $resolve(lib, mdl) {
