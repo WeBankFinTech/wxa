@@ -19,7 +19,7 @@ class SassCompiler {
         if(this.configs == null) this.configs = configs || {};
     }
 
-    async parse(mdl, cmdConfigs) {
+    async parse(mdl, cmdConfigs, compilation) {
         debug('sass module parse started %O', mdl);
 
         let configs  = this.configs;
@@ -27,6 +27,12 @@ class SassCompiler {
         let ret = await this.render(mdl.content || null, mdl.meta.source, configs);
         
         mdl.code = ret.css.toString();
+        if (ret.stats.includedFiles.length) {
+            ret.stats.includedFiles.forEach((file)=>{
+                mdl.dependency(file, compilation);
+            });
+        }
+        // console.log(ret.stats.includedFiles)
 
         // custom outputPath
         if(mdl.meta) {
