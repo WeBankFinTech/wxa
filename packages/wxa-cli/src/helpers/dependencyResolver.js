@@ -28,11 +28,7 @@ class DependencyResolver {
         if (pret.isURI || pret.isDynamic || pret.isBase64) return {pret, source, lib};
         // 处理无后缀情况
         // ext = path.extname(source);
-        if (!isFile(source) && pret.isNodeModule) {
-            ext = this.$findNodeModuleEntryFile(lib, source);
-
-            if (ext == null) throw new Error('找不到文件 '+lib);
-        } else if (!isFile(source) && !pret.isWXALib) {
+        if (!isFile(source) && !pret.isWXALib) {
             // not support resolve extension.
             if (!needFindExt) throw new Error('文件不存在');
 
@@ -41,11 +37,12 @@ class DependencyResolver {
             // 非完整后缀的路径
             if (isFile(source+this.meta.wxaExt)) ext = '.js'; // .wxa的文件转js
             else if (pext) ext = pext;
-            else if (isDir(source) && isFile(source+path.sep+'index.js')) ext = path.sep+'index.js';
-            else {
+            else if (pret.isNodeModule) {
                 ext = this.$findNodeModuleEntryFile(lib, source);
-
                 if (ext == null) throw new Error('找不到文件 '+lib);
+            } else if (isDir(source) && isFile(source+path.sep+'index.js')) ext = path.sep+'index.js';
+            else {
+                throw new Error('找不到文件 '+lib);
             }
         } else {
             ext = '';
