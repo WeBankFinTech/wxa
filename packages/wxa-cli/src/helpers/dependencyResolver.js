@@ -28,7 +28,11 @@ class DependencyResolver {
         if (pret.isURI || pret.isDynamic || pret.isBase64) return {pret, source, lib};
         // 处理无后缀情况
         // ext = path.extname(source);
-        if (!isFile(source) && !pret.isWXALib) {
+        if (!isFile(source) && pret.isNodeModule) {
+            ext = this.$findNodeModuleEntryFile(lib, source);
+
+            if (ext == null) throw new Error('找不到文件 '+lib);
+        } else if (!isFile(source) && !pret.isWXALib) {
             // not support resolve extension.
             if (!needFindExt) throw new Error('文件不存在');
 
@@ -39,24 +43,14 @@ class DependencyResolver {
             else if (pext) ext = pext;
             else if (isDir(source) && isFile(source+path.sep+'index.js')) ext = path.sep+'index.js';
             else {
-                // 非指定文件的node_modules路径依赖
-                let pkg = this.getPkgConfig(lib);
-                if (!pkg) {
-                    throw new Error('找不到模块'+lib);
-                }
-                let main = pkg.main || 'index.js';
-                if (pkg.browser && typeof pkg.browser === 'string') {
-                    main = pkg.browser;
-                }
-                if (isFile(path.join(source, main))) {
-                    ext = path.sep+main;
-                } else {
-                    throw new Error('找不到文件 '+lib);
-                }
+                ext = this.$findNodeModuleEntryFile(lib, source);
+
+                if (ext == null) throw new Error('找不到文件 '+lib);
             }
         } else {
             ext = '';
         }
+
         source = path.resolve(source+ext);
         lib += ext;
 
@@ -65,6 +59,22 @@ class DependencyResolver {
             pret,
             lib,
         };
+    }
+
+    $findNodeModuleEntryFile(lib, source) {
+        // 非指定文件的node_modules路径依赖
+        let pkg = this.getPkgConfig(lib);
+        if (!pkg) {
+            throw new Error('找不到模块'+lib);
+        }
+
+        let main = pkg.main || 'index.js';
+        // 优先使用依赖的 browser 版本
+        if (pkg.browser && typeof pkg.browser === 'string') {
+            main = pkg.browser;
+        }
+
+        return isFile(path.join(source, main)) ? path.sep+main : null;
     }
 
     $resolve(lib, mdl) {
