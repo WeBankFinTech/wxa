@@ -36,7 +36,7 @@ export default class DefaultWxaConfigs {
             ],
             optimization: {
                 splitDeps: {
-                    maxDeps: 1,
+                    maxDeps: -1,
                 },
             },
         };
