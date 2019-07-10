@@ -17,7 +17,7 @@ export default class Optimizer {
         this.cmdOptions = cmdOptions;
         this.cwd = cwd;
         this.progress = new ProgressBar(cwd, wxaConfigs);
-        this.splitDeps = new SplitDeps(appConfigs, wxaConfigs);
+        this.splitDeps = new SplitDeps({appConfigs, wxaConfigs, cwd, cmdOptions});
     }
 
     async run(indexedMap, appConfigs) {
