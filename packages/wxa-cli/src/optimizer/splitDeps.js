@@ -1,10 +1,12 @@
 import path from 'path';
+import logger from '../helpers/logger';
 
 export default class SplitDeps {
-    constructor(appConfigs, wxaConfigs) {
+    constructor({appConfigs, wxaConfigs, cwd, cmdOptions}) {
+        this.cmdOptions = cmdOptions;
         this.wxaConfigs = wxaConfigs;
         this.maxSplitDeps = wxaConfigs.optimization.splitDeps.maxDeps;
-        this.NMReg = new RegExp('node_modules');
+        this.NMReg = new RegExp(path.join(cwd, 'node_modules'));
 
         let pkg = appConfigs.subpackages || appConfigs.subPackages;
         if (pkg) {
@@ -59,12 +61,30 @@ export default class SplitDeps {
                 this.getReferenceSize(child) > this.maxSplitDeps
             ) return;
 
-            let isInMainPackage = Array.from(child.reference).some(([src, mdl])=>!this.subPages.some((sub)=>sub.reg.test(mdl.src)));
-            if (isInMainPackage) return;
+            if ( child.pret.isWXALib ) return;
 
+            if (this.isInMainPackage(child)) return;
+            if (this.cmdOptions.verbose) logger.info('Find NPM need track to subpackages', child.src);
             // fulfill all condition just track all the sub-nodes without any hesitate.
             this.trackChildNodes(child, {output: dep.meta.outputPath, originOutput: dep.meta.outputPath, instance: dep}, pkg);
         });
+    }
+
+    isInMainPackage(child) {
+        let refs = Array.from(child.reference);
+        let inMain = [];
+        refs.forEach(([src, mdl])=>{
+            // if a child module has neigth subpage nor node_modules reference, then it's in main package
+            if (
+                !this.subPages.some((sub)=>sub.reg.test(src)) &&
+                !this.NMReg.test(src)
+            ) {
+                inMain.push(true);
+            } else {
+                inMain.push(false);
+            }
+        });
+        return inMain.some((item)=>item);
     }
 
     trackChildNodes(dep, parent, subpage) {
@@ -97,7 +117,7 @@ export default class SplitDeps {
             });
 
         // clean multi output
-        if (dep.output.has(outputPath)) dep.output.delete(outputPath);
+        if (dep.output.has(outputPath) && !this.isInMainPackage(dep)) dep.output.delete(outputPath);
 
         // update output path
         dep.output.add(newOutputPath);
