@@ -66,7 +66,7 @@ export default class SplitDeps {
             if (this.isInMainPackage(child)) return;
             if (this.cmdOptions.verbose) logger.info('Find NPM need track to subpackages', child.src);
             // fulfill all condition just track all the sub-nodes without any hesitate.
-            this.trackChildNodes(child, {output: dep.meta.outputPath, originOutput: dep.meta.outputPath, instance: dep}, pkg);
+            this.trackChildNodes(child, {output: dep.meta.outputPath, originOutput: dep.meta.outputPath, instance: dep, isSplitEntry: true}, pkg);
         });
     }
 
@@ -89,6 +89,7 @@ export default class SplitDeps {
 
     trackChildNodes(dep, parent, subpage) {
         // depth-first
+        dep.$$isSplit = true;
         let {path: pkg} = subpage;
         // dep is node modules so that nested track sub child-nodes to add all deps to sub-packages
         // four steps to finish deps delivery:
@@ -104,25 +105,38 @@ export default class SplitDeps {
         let newOutputPath = outputPath.replace(new RegExp('^'+this.wxaConfigs.output.path+'/npm'), path.join(this.wxaConfigs.output.path, subNpm));
 
         let newResolvedPath = './'+this.getResolved(parent.output, newOutputPath);
-        parent.instance.code = parent.instance.code.replace(
-            /(?:\/\*[\s\S]*?\*\/|(?:[^\\:]|^)\/\/.*)|(\.)?require\(['"]?([\w\d_\-\.\/@]+)['"]?\)|import\s+['"]?([\w\d_\-\.\/@]+)['"]?/igm,
-            (match, point, dep, importDep)=>{
-                if (point) return match;
-                // ignore comment
-                if (point == null && dep == null && importDep == null) return match;
+        // component dependency
+        if (parent.instance.kind === 'json') {
+            originResolvedPath = this.getPathWithoutExtension(originResolvedPath);
+            newResolvedPath = this.getPathWithoutExtension(newResolvedPath);
+        }
 
-                dep = dep || importDep;
-
-                return match.replace(new RegExp(originResolvedPath, 'gm'), newResolvedPath);
-            });
+        parent.instance.code = parent.instance.code.replace(new RegExp(originResolvedPath, 'gm'), newResolvedPath);
 
         // clean multi output
-        if (dep.output.has(outputPath) && !this.isInMainPackage(dep)) dep.output.delete(outputPath);
+        // if a split module is not an entry module, then we need to check it's reference carefully cause there maybe some other page import it directly. so that we cannot delete it's origin output.
+        if (
+            dep.output.has(outputPath) &&
+            !this.isInMainPackage(dep) &&
+            (parent.isSplitEntry || !this.hasNoSplitReference(dep))
+        ) dep.output.delete(outputPath);
 
         // update output path
         dep.output.add(newOutputPath);
 
         if (dep.childNodes) dep.childNodes.forEach((child)=>this.trackChildNodes(child, {output: newOutputPath, originOutput: outputPath, instance: dep}, subpage));
+    }
+
+    hasNoSplitReference(dep) {
+        return Array.from(dep.reference).some(([src, instance])=>!instance.$$isSplit);
+    }
+
+    getPathWithoutExtension(pathString) {
+        let opath = path.parse(pathString);
+        pathString = opath.dir + '/' + opath.name;
+        pathString = pathString.replace(/\\/g, '/');
+
+        return pathString;
     }
 
     getResolved(from, to) {
@@ -134,7 +148,7 @@ export default class SplitDeps {
 
         dep.reference.forEach((mdl)=>{
             let m = this.subPages.find((sub)=>sub.reg.test(mdl.src));
-            if (m) from.add(mdl.src);
+            if (m) from.add(m.path);
         });
 
         return from.size;

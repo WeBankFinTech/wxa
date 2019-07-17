@@ -33,7 +33,7 @@ export default class Optimizer {
 
         await Promise.all(optimizeTasks);
 
-        this.splitDeps.run(indexedMap);
+        if (!this.cmdOptions.watch) this.splitDeps.run(indexedMap);
     }
 
     async do(dep, indexedMap) {
