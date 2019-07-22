@@ -1,7 +1,7 @@
 // import {DOMParser} from 'xmldom';
 import {
     Parser,
-    DomHandler
+    DomHandler,
 } from 'htmlparser2';
 import domSerializer from 'dom-serializer';
 import Coder from '../helpers/coder';
@@ -41,13 +41,10 @@ export default class XmlCompiler {
         debug('encoded template %s', code);
         let xml;
         if (code !== '') {
-            // xml = this.parseXml(path.parse(filepath)).parseFromString(code);
-            // xml = this.parseXml(path.parse(filepath))
-            xml = this.parseXml(code)
+            xml = this.parseXml(code, path.parse(filepath));
         } else {
             xml = {};
         }
-
 
         code = Array.prototype.slice.call(xml.childNodes||[]).reduce((ret, node)=>{
             ret += coder.decodeTemplate(node.toString());
@@ -56,38 +53,23 @@ export default class XmlCompiler {
 
         debug('decoded template %s', code);
 
-
-        // debugger;
         return {
             xml, code,
         };
     }
 
-    parseXml(code) {
-        // return new DOMParser({
-        //     errorHandler: {
-        //         warn(x) {
-        //             logger.warn('XML警告:'+(opath.dir+path.sep+opath.base));
-        //             logger.warn(x);
-        //         },
-        //         error(x) {
-        //             logger.error('XML错误:'+(opath.dir+path.sep+opath.base));
-        //             logger.error(x);
-        //         },
-        //     },
-        // });
+    parseXml(code, opath) {
         let handler = new DomHandler({
             // normalizeWhitespace: true,   //default:false
             onerror(err) {
                 logger.error('XML错误:'+(opath.dir+path.sep+opath.base));
-                logger.error(x);
-            }
+                logger.error(err);
+            },
         });
         let htmlStr = code;
-        let parser = new Parser(handler).end(htmlStr);
+        new Parser(handler, {xmlMode: true}).end(htmlStr);
         let dom = handler.dom;
-        // debugger;
-        
+
         return dom;
     }
 }
