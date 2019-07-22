@@ -1,10 +1,11 @@
 import * as NODE from '../../const/node';
-import path from 'path';
+// import path from 'path';
 import Coder from '../../helpers/coder';
 import DependencyResolver from '../../helpers/dependencyResolver';
 import CSSManager from '../css/index';
 import debugPKG from 'debug';
 import logger from '../../helpers/logger';
+import domSerializer from 'dom-serializer';
 
 let debug = debugPKG('WXA:XMLManager');
 let debugXMLStyle = debugPKG('WXA:XMLManager-style');
@@ -24,10 +25,7 @@ class XMLManager {
 
         debug('libs in xml %O %O', mdl.xml, libs);
 
-        mdl.code = Array.prototype.slice.call(mdl.xml.childNodes||[]).reduce((ret, node)=>{
-            ret += new Coder().decodeTemplate(node.toString());
-            return ret;
-        }, '');
+        mdl.code = new Coder().decodeTemplate(domSerializer(mdl.xml, {xmlMode: true}));
 
         return libs;
     }
@@ -41,7 +39,7 @@ class XMLManager {
         if (xml.nodeType === NODE.ELEMENT_NODE) {
             // element p view
             debug('xml %O', xml);
-            libs = libs.concat(this.walkAttr(xml.attributes, mdl));
+            libs = libs.concat(this.walkAttr(xml.attribs, mdl));
         }
 
         if (xml.childNodes) {
@@ -59,9 +57,14 @@ class XMLManager {
         for (let name in attributes) {
             if (!attributes.hasOwnProperty(name)) continue;
 
-            let attr = attributes[name];
+            // let attr = attributes[name];
+            // TODO optimize
+            let attr = {
+                nodeName: name,
+                nodeValue: attributes[name],
+            };
 
-            debug('attribute %O', attr);
+            // debug('attribute %O', attr);
             switch (attr.nodeName) {
                 case 'src':
                 case 'href': {
@@ -95,7 +98,6 @@ class XMLManager {
                 case 'style': {
                     debugXMLStyle(attr.nodeName, attr.nodeType, attr.nodeValue, typeof attr.nodeValue);
                     if (!attr.nodeValue) break;
-
                     try {
                         let CM = new CSSManager(this.resolve, this.meta);
                         let {libs: subLibs, code} = CM.resolveStyle(attr.nodeValue, mdl);
