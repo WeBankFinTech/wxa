@@ -185,9 +185,6 @@ class Schedule {
 
             // if module is app.json, then add Page entry points.
             if (dep.meta && dep.meta.source === this.APP_CONFIG_PATH) {
-                this.appConfigs = {...dep.json};
-                debug('app configs is %O', dep.json);
-
                 let oldPages = new Map(this.$pageArray.entries());
                 let newPages = this.addPageEntryPoint();
                 newPages = new Map(newPages.map((page)=>[page.src, page]));

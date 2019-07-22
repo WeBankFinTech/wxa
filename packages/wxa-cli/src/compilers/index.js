@@ -191,11 +191,11 @@ export default class Compiler {
         }
 
         if (mdl.src === this.$scheduer.APP_CONFIG_PATH) {
+            this.$scheduer.appConfigs = Object.assign({}, mdl.json);
             // global components in wxa;
             // delete custom field in app.json or wechat devtool will get wrong.
             delete mdl.json['wxa.globalComponents'];
         }
-
 
         mdl.code = JSON.stringify(mdl.json, void(0), 4);
         return children;
