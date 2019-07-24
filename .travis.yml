@@ -5,6 +5,8 @@ node_js:
 os:
 - osx
 install: 
+- rm package-lock.json
+- npm cache clear --force
 - npm i
 - npm install -g codecov
 - npx lerna bootstrap
