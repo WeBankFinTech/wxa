@@ -23,7 +23,7 @@ class Toolcli {
             throw new Error('微信开发者工具不支持的系统类型');
         }
 
-        this.cli = `${this.appPath}${this.cliPath}`;
+        this.cli = path.normalize(`"${this.appPath}${this.cliPath}"`);
     }
 
     async run(cmd) {
