@@ -1,0 +1,29 @@
+{
+  "name": "@wxa/plugin-minify-wxml",
+  "version": "1.0.0",
+  "description": "minify plugin for wxml use in wxa",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wxajs/wxa.git"
+  },
+  "keywords": [
+    "minify",
+    "wxml"
+  ],
+  "author": "lucaszhu <lucaszhu@webank.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wxajs/wxa/issues"
+  },
+  "homepage": "https://github.com/wxajs/wxa#readme",
+  "devDependencies": {
+    "debug": "^4.1.1"
+  },
+  "dependencies": {
+    "html-minifier": "^4.0.0"
+  }
+}
