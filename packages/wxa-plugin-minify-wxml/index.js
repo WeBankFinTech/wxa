@@ -6,7 +6,7 @@ module.exports = class MinifyWxmlPlugin {
         this.configs = Object.assign({}, {
             test: /\.wxml$/,
             plugins: []
-        }, options);
+        }, {options});
     }
 
     apply(compiler){
@@ -27,11 +27,13 @@ module.exports = class MinifyWxmlPlugin {
 
     run(compilation, next) {
       try {
-        compilation.code = minify(compilation.code, {
+        const mconfig = Object.assign({
           caseSensitive: true,
           keepClosingSlash: true,
-          collapseWhitespace: true
-        });
+          collapseWhitespace: true,
+          removeComments: true,
+        }, this.configs.options);
+        compilation.code = minify(compilation.code, mconfig);
         next(null);
       } catch (error) {
         next(error);
