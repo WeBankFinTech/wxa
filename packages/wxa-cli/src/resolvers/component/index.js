@@ -95,7 +95,4 @@ export default class ComponentManager {
             }
         }, []);
     }
-
-    findComponentSource(com, mdl) {
-    }
 }

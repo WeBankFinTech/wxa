@@ -138,6 +138,8 @@ class Schedule {
     }
 
     async $parse(dep) {
+        if (dep.color === COLOR.COMPILED) return [];
+        if (dep.color === COLOR.CHANGED) dep.code = void(0);
         // calc hash
         // cause not every module is actually exists, we can not promise all module has hash here.
         let content = dep.content ? dep.content : readFile(dep.src);
@@ -293,14 +295,10 @@ class Schedule {
             output: new Set([dep.meta.outputPath]),
             outerDependencies: new Set(),
             dependency: function(file) {
-                // let DR = new DependencyResolver(scheduler.wxaConfigs.resolve, scheduler.meta);
-                // let {source} = DR.resolveDep(file, this);
-
                 // debugger;
                 this.outerDependencies.add(file);
             },
         };
-
 
         if (this.$indexOfModule.has(dep.src)) {
             let indexedModule = this.$indexOfModule.get(dep.src);
@@ -308,11 +306,14 @@ class Schedule {
             // check hash
             child.hash = !child.isAbstract && child.content ? getHashWithString(child.content) : getHash(child.src);
 
-            if (child.hash !== indexedModule.hash) {
-                // module changed, clean up mdl.
+            // module changed: clean up mdl, mark module as changed.
+            if (
+                child.hash !== indexedModule.hash &&
+                indexedModule.color === COLOR.COMPILED
+            ) {
                 indexedModule.content = child.content;
-                indexedModule.code = void(0);
                 indexedModule.hash = child.hash;
+                indexedModule.color = COLOR.CHANGED;
             }
 
             // merge reference, cause the module is parsed
@@ -329,7 +330,7 @@ class Schedule {
 
             child = indexedModule;
         }
-        // debugger;
+
         if (child.color !== COLOR.COMPILED) this.$depPending.push(child);
         if (child.color === COLOR.INIT) this.$indexOfModule.set(child.src, child);
 
