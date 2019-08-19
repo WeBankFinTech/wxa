@@ -17,7 +17,7 @@ module.exports = {
 }
 ```
 
-### 指定 sass 配置
+### 指定 sass 配置
 
 ```javascript
 // wxa.config.js
