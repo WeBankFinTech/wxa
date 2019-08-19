@@ -74,7 +74,7 @@ App装饰器并不是必须的，如果觉得项目中并不需要用到那么�
 ## 注册页面
 
 ### 原生示例
-原生的小程序开发使用`Page()`函数用来注册一个小程序。一个典型的`index.js`如下： 
+原生的小程序开发使用`Page()`函数用来注册一个页面。一个典型的`index.js`如下： 
 
 ``` js
 let instance = {
@@ -94,7 +94,7 @@ Page(instance);
 详细的[官方链接](https://developers.weixin.qq.com/miniprogram/dev/framework/app-service/page.html)
 
 ### wxa示例
-在`wxa2`开发者无需手动注册App，直接`export`一个默认实例即可：
+在`wxa2`开发者无需手动注册Page，直接`export`一个默认实例即可：
 
 ``` js
 import {Page} from '@wxa/core';
