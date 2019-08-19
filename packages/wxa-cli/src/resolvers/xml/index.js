@@ -21,9 +21,11 @@ class XMLManager {
     parse(mdl) {
         if (mdl.xml == null) return null;
 
-        let libs = this.walkXML(mdl.xml, mdl);
+        let libs = [];
 
-        debug('libs in xml %O %O', mdl.xml, libs);
+        mdl.xml.forEach((element) => {
+            libs = libs.concat(this.walkXML(element, mdl));
+        });
 
         mdl.code = new Coder().decodeTemplate(domSerializer(mdl.xml, {xmlMode: true}));
 
@@ -31,19 +33,16 @@ class XMLManager {
     }
 
     walkXML(xml, mdl) {
-        debug('walk xml start %s', xml.nodeType);
         let libs = [];
         // ignore comment
-        if (xml.nodeType === NODE.COMMENT_NODE) return libs;
+        if (xml.type === 'comment') return libs;
 
-        if (xml.nodeType === NODE.ELEMENT_NODE) {
-            // element p view
-            debug('xml %O', xml);
+        if (xml.type === 'tag') {
             libs = libs.concat(this.walkAttr(xml.attribs, mdl));
         }
 
-        if (xml.childNodes) {
-            libs = libs.concat(Array.prototype.slice.call(xml.childNodes).reduce((ret, child)=>{
+        if (xml.children) {
+            libs = libs.concat(Array.prototype.slice.call(xml.children).reduce((ret, child)=>{
                 return ret.concat(this.walkXML(child, mdl));
             }, []));
         }
