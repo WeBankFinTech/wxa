@@ -1,6 +1,6 @@
 {
   "name": "@wxa/plugin-minify-wxml",
-  "version": "2.0.7",
+  "version": "2.0.8",
   "description": "minify plugin for wxml use in wxa",
   "main": "index.js",
   "scripts": {
