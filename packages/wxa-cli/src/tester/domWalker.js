@@ -59,14 +59,33 @@ class XMLManager {
             // generate unique id for tag.
             // pagePath + hash(parentNode + prevNode) + optional(class/id)
             let pagePath = path.relative(this.scheduler.wxaConfigs.context, path.dirname(this.mdl.src) + path.sep + path.basename(this.mdl.src, path.extname(this.mdl.src)));
+
             let ele = this.getParentAndPrevNode(element);
             let eleString = new Coder().decodeTemplate(domSerializer(ele, {xmlMode: true}));
             let hash= getHashWithString(eleString);
 
-            let id = this.assembleUniqueId([pagePath, hash, element.attribs.id]);
+            let {isIeration, indexVariable} = this.findSelfOrAncestorIterationDirective(element);
+
+            let keyElement = [pagePath, hash, element.attribs.id];
+            if (isIeration) keyElement.push(`-{{${indexVariable}}}`);
+
+            let id = this.assembleUniqueId(keyElement);
             element.attribs['data-_wxaTestUniqueId'] = id;
             element.attribs['class'] = this.dropSpace((element.attribs['class'] || '') + ' '+ id);
         }
+    }
+
+    findSelfOrAncestorIterationDirective(element) {
+        const IterationDireactive = 'wx:for';
+        const IterationIndexDireactive = 'wx:for-index';
+        let isIterationDirective = !!element.attribs[IterationDireactive];
+
+        if (!isIterationDirective && element.parent) return this.findSelfOrAncestorIterationDirective(element.parent);
+
+        return {
+            isIeration: isIterationDirective,
+            indexVariable: element.attribs[IterationIndexDireactive] || 'index',
+        };
     }
 
     getParentAndPrevNode(element) {
