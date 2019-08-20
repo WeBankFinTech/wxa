@@ -138,7 +138,7 @@ class Schedule {
     }
 
     async $parse(dep) {
-        if (dep.color === COLOR.COMPILED) return [];
+        if (dep.color === COLOR.COMPILED) return dep;
         if (dep.color === COLOR.CHANGED) dep.code = void(0);
         // calc hash
         // cause not every module is actually exists, we can not promise all module has hash here.
