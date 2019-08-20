@@ -51,6 +51,7 @@ class XMLManager {
                 let [, $1] = /bind(?::)?([\w]*)/g.exec(attr);
 
                 eventMap += `|${$1}:${attributes[attr]}`;
+                element.attribs[`bind${$1}`] = `$$e2e_${$1}`;
             });
 
             eventMap = eventMap.replace(/^\|/, '');
