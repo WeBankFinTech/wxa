@@ -87,3 +87,10 @@ export const toArray = (arrayLike) => {
 
     return array;
 };
+
+export const arraySomeSync = async function (arr, callback) {
+    for (let [index, item] of Object.entries(arr)) {
+        if (await callback(item, index, arr)) return true;
+    }
+    return false;
+}
