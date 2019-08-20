@@ -1,10 +1,9 @@
 
-let record = [];
+
 const IDKEY = '_wxatestuniqueid';
 const EVENTMAPKEY = '_wxatesteventmap';
-const PLUGINKEY = '$$e2e';
 let lastEventTime = {};
-let currentPage = '';
+let record = [];
 
 // 获取eventMap中对应事件方法
 function getEventFunc(eventType, eventMap) {
@@ -51,7 +50,7 @@ const wrapEvent = {
         addRecord.bind(this)('change', ...args);
     },
     $$e2e_input(...args) {
-        // input事件 自动化测试不支持 要用callMethod
+        // input事件 自动化测试不支持，回放要用callMethod
         addRecord.bind(this)('input', ...args);
     }
 }
