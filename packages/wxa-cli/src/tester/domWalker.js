@@ -13,6 +13,7 @@ class XMLManager {
     constructor(mdl, scheduler) {
         this.mdl = mdl;
         this.scheduler = scheduler;
+        this.supportEvents = ['tap', 'longpress', 'change'];
     }
 
     parse(xml) {
@@ -49,9 +50,10 @@ class XMLManager {
             let eventMap = '';
             events.forEach((attr)=>{
                 let [, $1] = /bind(?::)?([\w]*)/g.exec(attr);
-
-                eventMap += `|${$1}:${attributes[attr]}`;
-                element.attribs[`bind${$1}`] = `$$e2e_${$1}`;
+                if (!!~this.supportEvents.indexOf($1)) {
+                    eventMap += `|${$1}:${attributes[attr]}`;
+                    element.attribs[`bind${$1}`] = `$$e2e_${$1}`;
+                }
             });
 
             eventMap = eventMap.replace(/^\|/, '');
