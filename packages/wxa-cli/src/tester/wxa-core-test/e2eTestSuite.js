@@ -3,7 +3,10 @@
 const IDKEY = '_wxatestuniqueid';
 const EVENTMAPKEY = '_wxatesteventmap';
 let lastEventTime = {};
-let record = [];
+let state = {
+    record: [],
+    recording: false
+}
 
 // 获取eventMap中对应事件方法
 function getEventFunc(eventType, eventMap) {
@@ -18,27 +21,30 @@ function getEventFunc(eventType, eventMap) {
 
 // 增加一条操作记录
 const addRecord = function (type, ...args) {
-    let e = args[0];
-    // 已经记录过相同timestamp的事件，说明是冒泡的，不再记录
-    if (lastEventTime[type] && lastEventTime[type] === e.timeStamp) {
-        return;
+    if (state.recording) {
+        let e = args[0];
+        // 已经记录过相同timestamp的事件，说明是冒泡的，不再记录
+        if (lastEventTime[type] && lastEventTime[type] === e.timeStamp) {
+            return;
+        }
+        lastEventTime[type] = e.timeStamp;
+        let target = e.target.dataset[IDKEY] ? e.target : e.currentTarget;
+        let id = target.dataset[IDKEY];
+        state.record.push({
+            page: this.route,
+            event: type,
+            id,
+            timeStamp: e.timeStamp
+        });
+        // 调用eventMap中原方法
+        let eventFunc = getEventFunc(type, target.dataset[EVENTMAPKEY]);
+        if (eventFunc) {
+            this[eventFunc](...args);
+        }
+        console.log(state.record);
     }
-    lastEventTime[type] = e.timeStamp;
-    let target = e.target.dataset[IDKEY] ? e.target : e.currentTarget;
-    let id = target.dataset[IDKEY];
-    record.push({
-        page: this.route,
-        event: type,
-        id,
-        timeStamp: e.timeStamp
-    });
-    // 调用eventMap中原方法
-    let eventFunc = getEventFunc(type, target.dataset[EVENTMAPKEY]);
-    if (eventFunc) {
-        this[eventFunc](...args);
-    }
-    console.log(record);
 }
+
 const wrapEvent = {
     $$e2e_tap(...args) {
         addRecord.bind(this)('tap', ...args);
@@ -56,22 +62,23 @@ const wrapEvent = {
 }
 
 // 将替换事件挂载到vm上
-const mountWrapEvent = (vm) => {
+const mountStateAndWrapEvent = (vm) => {
     for (let key in wrapEvent) {
         vm[key] = wrapEvent[key]
     }
+    vm.$$e2e_state = state;
 }
 
 let $$testSuitePlugin = (options) => {
     // vm是当前实例，type为实例类型
     return (vm, type)=>{
         if(['App', 'Page'].indexOf(type) > -1){
-            mountWrapEvent(vm);
+            mountStateAndWrapEvent(vm);
         }else if (type === 'Component') {
             // component特殊处理，created后再挂载，否则会被清除
             let { created } = vm;
             vm.created = function (...args) {
-                mountWrapEvent(this);
+                mountStateAndWrapEvent(this);
                 if (created) created.apply(this, args);
             }
         } else {
