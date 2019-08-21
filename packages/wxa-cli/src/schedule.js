@@ -200,6 +200,7 @@ class Schedule {
             return dep;
         } catch (e) {
             debug('编译失败 %O', e);
+            dep.color = COLOR.COMPILE_ERROR;
             this.hooks.failedModule.call(dep, e);
             throw e;
         }
@@ -308,8 +309,7 @@ class Schedule {
 
             // module changed: clean up mdl, mark module as changed.
             if (
-                child.hash !== indexedModule.hash &&
-                indexedModule.color === COLOR.COMPILED
+                child.hash !== indexedModule.hash
             ) {
                 indexedModule.content = child.content;
                 indexedModule.hash = child.hash;

@@ -4,4 +4,5 @@ export default {
     COMPILED: 1,
     INIT: 0,
     CHANGED: -1,
+    COMPILE_ERROR: -2,
 };
