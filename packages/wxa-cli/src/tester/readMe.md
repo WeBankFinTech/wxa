@@ -1,8 +1,9 @@
 * 支持事件
-	* tap、longpress、change
+	* bindtap、bindlongpress、bindchange
 * 目前无法支持：
+    * catchtap、catchlongpress等阻止冒泡事件（自动化element.tap、element.longpress等方法无法阻止冒泡）
     * input事件（自动化不支持模拟input）
 	* 主动操作返回（因无法监听返回事件，所以录制过程中 *点击物理返回键*、*小程序titlebar返回键*、*ios手势返回*等返回操作，暂无法支持）
 
 
-2019年8月20日
+2019年8月22日

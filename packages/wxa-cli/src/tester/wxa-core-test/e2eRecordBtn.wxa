@@ -1,12 +1,23 @@
 <template>
-    <view>
-        <button class="e2e-startRecord" style="top: {{top}}px; left: {{left}}px;" catchtap="tap" bindtouchstart="touchstart" catchtouchmove="touchmove" bindtouchend="touchend" catchtouchcancel="touchend">{{btnText}}</button>
+    <view >
+        <button class="e2e-startRecord" style="top: {{top}}px; left: {{left}}px;" catchtap="tap" bindtouchstart="touchstart" catchtouchmove="touchmove">{{btnText}}</button>
+        <view class="e2e-mask" wx:if="{{showInput}}">
+            <view class="e2e-input">
+                <input bindinput="bindInput" value="{{scriptRemark}}" placeholder="测试用例命名" />
+                <view class="e2e-btnGroup">
+                    <button catchtap="closeInput">取消</button>
+                    <button catchtap="createScript">创建</button>
+                </view>
+            </view>
+        </view>
     </view>
 </template>
 
 <script>
 
-import {wxa, Throttle, Debounce} from '@wxa/core';
+import {wxa, Throttle} from '@wxa/core';
+const START_BTN_TEXT = '开始录制';
+const END_BTN_TEXT = '结束录制';
 class e2eBtn {
     properties = {
     }
@@ -15,13 +26,48 @@ class e2eBtn {
         left: 1,
         diffX: 0,
         diffY: 0,
-        btnText: '开始录制'
+        btnText: '',
+        scriptRemark: '',
+        showInput: false
+    }
+    // 关闭测试用例命名弹框
+    closeInput() {
+        this.setData({
+            showInput: false
+        })
+    }
+    attached() {
+        this.setData({
+            btnText: this.$$e2e_state.recording ? END_BTN_TEXT : START_BTN_TEXT
+        });
+    }
+    // 创建测试脚本，record上传
+    createScript() {
+        console.log('upload record:', this.$$e2e_state.record);
+        console.log('upload remark:', this.data.scriptRemark);
+        this.closeInput();
+    }
+    bindInput(e) {
+        console.log(3);
+        this.setData({
+            scriptRemark: e.detail.value
+        });
     }
     tap() {
-        let btnText = '开始录制';
+        let btnText = START_BTN_TEXT;
         this.$$e2e_state.recording = !this.$$e2e_state.recording;
+
+        // 开始录制 清空record数组
         if (this.$$e2e_state.recording) {
-             btnText = '结束录制';
+            btnText = END_BTN_TEXT;
+            this.$$e2e_state.record.splice(0,this.$$e2e_state.record.length);
+        } else {
+            // 结束录制 至少有一步录制操作，才显示弹框允许上传脚本
+            if (this.$$e2e_state.record.length > 0) {
+                this.setData({
+                    showInput: true
+                });
+            }
         }
          this.setData({
             btnText
@@ -29,6 +75,7 @@ class e2eBtn {
 
     }
     touchstart(e) {
+        // touchstart的时候，算出触摸点于btn内的位置，后续move时，计算btn的top、left需要减去这个差值
         this.setData({
             diffX: e.touches[0].pageX - e.currentTarget.offsetLeft,
             diffY: e.touches[0].pageY - e.currentTarget.offsetTop
@@ -39,7 +86,8 @@ class e2eBtn {
     }
     @Throttle(100)
     touchmove(e) {
-        let systemInfo = wx.getSystemInfoSync();
+        // 移动范围不能超出屏幕
+       let systemInfo = wx.getSystemInfoSync();
         let minLeft = -this.data.diffX;
         let minTop = -this.data.diffY;
         let maxLeft = systemInfo.windowWidth - this.data.diffX;
@@ -50,9 +98,6 @@ class e2eBtn {
             left: this.handleMinMax(left, minLeft, maxLeft),
             top: this.handleMinMax(top, minTop, maxTop)
         })
-    }
-    touchend() {
-
     }
 }
 
@@ -69,5 +114,36 @@ wxa.launchComponent(e2eBtn);
     width: 200rpx;
     left: 0;
     z-index: 100;
+}
+.e2e-input{
+    background-color: #fff;
+    position: fixed;
+    width: 90%;
+    left: 5%;
+    top: 30%;
+    z-index: 100;
+    padding: 10rpx;
+    border: 1px solid #ccc;
+    border-radius: 5rpx;
+    box-sizing: border-box;
+}
+.e2e-input input{
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 20rpx;
+    padding: 10rpx;
+}
+.e2e-btnGroup{
+    display: flex;
+}
+.e2e-btnGroup button{
+    flex: 1;
+    border-radius: 0;
+}
+.e2e-mask{
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    z-index: 100;
+    background: rgba(0,0,0,0.6)
 }
 </style>

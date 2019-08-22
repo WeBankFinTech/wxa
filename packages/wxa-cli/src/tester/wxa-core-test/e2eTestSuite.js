@@ -21,27 +21,29 @@ function getEventFunc(eventType, eventMap) {
 
 // 增加一条操作记录
 const addRecord = function (type, ...args) {
+    let e = args[0];
+    let target = e.target.dataset[IDKEY] ? e.target : e.currentTarget;
     if (state.recording) {
-        let e = args[0];
+        let id = target.dataset[IDKEY];
         // 已经记录过相同timestamp的事件，说明是冒泡的，不再记录
-        if (lastEventTime[type] && lastEventTime[type] === e.timeStamp) {
+        if (lastEventTime[type] && lastEventTime[type].id === id && lastEventTime[type].timeStamp === e.timeStamp) {
             return;
         }
-        lastEventTime[type] = e.timeStamp;
-        let target = e.target.dataset[IDKEY] ? e.target : e.currentTarget;
-        let id = target.dataset[IDKEY];
+        lastEventTime[type] = {};
+        lastEventTime[type].timeStamp = e.timeStamp;
+        lastEventTime[type].id = id;
+        let pages = getCurrentPages();
         state.record.push({
-            page: this.route,
+            page: pages[pages.length - 1].route,
             event: type,
             id,
-            timeStamp: e.timeStamp
+            timeStamp: +new Date()
         });
-        // 调用eventMap中原方法
-        let eventFunc = getEventFunc(type, target.dataset[EVENTMAPKEY]);
-        if (eventFunc) {
-            this[eventFunc](...args);
-        }
-        console.log(state.record);
+    }
+    // 调用eventMap中原方法
+    let eventFunc = getEventFunc(type, target.dataset[EVENTMAPKEY]);
+    if (eventFunc) {
+        this[eventFunc](...args);
     }
 }
 
