@@ -93,9 +93,10 @@ class DependencyResolver {
             ext = '';
         } else if (pret.isWXALib) {
             // polyfill from wxa cli.
+            // 不返回后缀，避免引入组件报错
             ext = /\.\w+$/.test(pret.name) ? '' : '.js';
             pret.ext = ext;
-            source = path.join(this.meta.libSrc, pret.name+ext);
+            source = path.join(this.meta.libSrc, pret.name);
         } else if (pret.isPlugin || pret.isURI) {
             // url module
             source = lib;
