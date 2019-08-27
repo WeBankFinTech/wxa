@@ -32,17 +32,8 @@ export default class ComponentManager {
         if (mdl.json.usingComponents == null) return [];
 
         debug('coms %O', Object.keys(mdl.json.usingComponents));
-        if (
-            Object.keys(mdl.json.usingComponents).length === 0
-        ) {
-            return [];
-        }
 
-        let childNodes = this.resolveComponents(mdl.json.usingComponents, mdl);
-
-        debug('component childNodes %O', childNodes);
-
-        return childNodes;
+        return Object.keys(mdl.json.usingComponents).length === 0 ? [] : this.resolveComponents(mdl.json.usingComponents, mdl);
     }
 
     resolveComponents(coms, mdl) {
@@ -52,6 +43,8 @@ export default class ComponentManager {
 
             try {
                 let {lib, source, pret} = dr.$resolve(com, mdl);
+                // pret shouldn't set ext to .js
+                if (pret.isWXALib) pret.ext = '';
                 let outputPath = dr.getOutputPath(source, pret, mdl);
                 let resolved = dr.getResolved(lib, outputPath, mdl);
 
@@ -82,6 +75,7 @@ export default class ComponentManager {
                             });
                         } else if (ext === '.json') {
                             logger.warn(alias+'组件不存在json配置文件');
+                            debugger;
                         }
                     });
                 }

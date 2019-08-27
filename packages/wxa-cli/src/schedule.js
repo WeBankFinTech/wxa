@@ -365,7 +365,7 @@ class Schedule {
                 },
                 wrap(mdl) {
                     mdl.code = `
-                    var regeneratorRuntime = require('wxa://regenerator-runtime/runtime');
+                    var regeneratorRuntime = require('wxa://regenerator-runtime/runtime.js');
 
                     ${mdl.code}
                     `;
