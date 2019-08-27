@@ -13,9 +13,11 @@ import {applyPlugins, readFile} from '../utils.js';
 import COLOR from '../const/color';
 
 const debug = debugPKG('WXA:E2ETester');
-
+const E2E_TEST_COMPONENT = 'wxa-e2e-record-btn';
 class TesterScheduler extends Schedule {
     async $parse(dep) {
+        if (dep.color === COLOR.COMPILED) return dep;
+        if (dep.color === COLOR.CHANGED) dep.code = void(0);
         // calc hash
         // cause not every module is actually exists, we can not promise all module has hash here.
         let content = dep.content ? dep.content : readFile(dep.src);
@@ -38,6 +40,10 @@ class TesterScheduler extends Schedule {
             // Inject test suite into app.js
             if (dep.meta && dep.meta.source === this.APP_SCRIPT_PATH) {
                 this.tryWrapWXATestSuite(dep);
+            }
+
+            if (dep.meta && dep.meta.source === this.APP_CONFIG_PATH) {
+                this.tryAddGlobalTestComponent(dep);
             }
 
             // try to wrap wxa every app and page
@@ -67,7 +73,11 @@ class TesterScheduler extends Schedule {
             dep.childNodes = new Map(children);
 
             if (dep.kind === 'xml') {
-                await this.walkDOMAndWrapTestSuite(dep);
+                await domWalker(dep, this);
+            }
+
+            if (dep.category === 'Page' && dep.kind === 'xml') {
+                this.tryAddTestComponent(dep);
             }
 
             dep.color = COLOR.COMPILED;
@@ -87,6 +97,7 @@ class TesterScheduler extends Schedule {
             return dep;
         } catch (e) {
             debug('编译失败 %O', e);
+            dep.color = COLOR.COMPILE_ERROR;
             this.hooks.failedModule.call(dep, e);
             throw e;
         }
@@ -99,15 +110,30 @@ class TesterScheduler extends Schedule {
             (/exports\.default/gm.test(mdl.code) || /exports\[["']default["']/gm.test(mdl.code))
         ) {
             mdl.code = `
-                ${fs.readFileSync(path.join(__dirname, './wxa-core-test/e2eTestSuite.js'))}
+                let $$testSuitePlugin = require('wxa://wxa-e2eTest/e2eTestSuite.js');
                 require('@wxa/core').wxa.use($$testSuitePlugin);
                 ${mdl.code}
             `;
         }
     }
 
-    async walkDOMAndWrapTestSuite(mdl) {
-        await domWalker(mdl, this);
+    tryAddGlobalTestComponent(mdl) {
+        try {
+            let appConfigs = JSON.parse(mdl.code);
+
+            appConfigs['wxa.globalComponents'] = {
+                ...appConfigs['wxa.globalComponents'],
+                [E2E_TEST_COMPONENT]: 'wxa://wxa-e2eTest/e2eRecordBtn',
+            };
+
+            mdl.code = JSON.stringify(appConfigs);
+        } catch (e) {
+            logger.warn('wrap global test component fail', e);
+        }
+    }
+
+    tryAddTestComponent(mdl) {
+        mdl.code = (mdl.code || '') + `<${E2E_TEST_COMPONENT}></${E2E_TEST_COMPONENT}>`;
     }
 }
 
