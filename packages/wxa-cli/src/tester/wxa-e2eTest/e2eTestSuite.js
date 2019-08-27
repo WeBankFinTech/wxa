@@ -47,9 +47,16 @@ const addRecord = function(type, ...args) {
     }
     // 调用eventMap中原方法
     let eventFunc = getEventFunc(type, target.dataset[EVENTMAPKEY]);
-    if (eventFunc) {
-        this[eventFunc](...args);
+    if (!eventFunc) {
+        console.warn(`wxa e2eTest, event "${type}" is lost`);
+        return;
     }
+    console.log(this[eventFunc], typeof this[eventFunc]);
+    if (!this[eventFunc] || typeof this[eventFunc] !== 'function') {
+        console.warn(`Component "${this.is}" does not have a method "${eventFunc}" to handle event "${type}". `);
+        return;
+    }
+    this[eventFunc](...args);
 };
 
 const wrapEvent = {
