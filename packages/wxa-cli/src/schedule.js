@@ -118,12 +118,12 @@ class Schedule {
 
     async $doDPA() {
         let tasks = [];
-        // while (this.$depPending.length) {
+        while (this.$depPending.length) {
             let dep = this.$depPending.shift();
 
             // debug('file to parse %O', dep);
             tasks.push(this.$parse(dep));
-        // }
+        }
 
         let succ = await Promise.all(tasks);
 
@@ -331,7 +331,7 @@ class Schedule {
             child = indexedModule;
         }
 
-        if (child.color !== COLOR.COMPILED) this.$depPending.push(child);
+        if (~[COLOR.CHANGED, COLOR.COMPILE_ERROR, COLOR.INIT].indexOf(child.color)) this.$depPending.push(child);
         if (child.color === COLOR.INIT) this.$indexOfModule.set(child.src, child);
 
         return child;
