@@ -37,7 +37,10 @@ const addRecord = function (type, ...args) {
             page: pages[pages.length - 1].route,
             event: type,
             id,
-            timeStamp: +new Date()
+            timeStamp: +new Date(),
+            detail: {
+                ...e.detail
+            }
         });
     }
     // 调用eventMap中原方法

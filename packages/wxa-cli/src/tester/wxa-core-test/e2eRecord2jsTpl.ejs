@@ -1,0 +1,23 @@
+const automator = require('miniprogram-automator')
+const path = require('path');
+
+const miniProgram = automator.launch({
+    // cliPath: '/Applications/wechatwebdevtools.app/Contents/Resources/app.nw/bin/cli', // 工具 cli 位置，如果你没有更改 过默认安装位置，可以忽略此项
+    projectPath: path.resolve(__dirname, './dist/')
+}).then(async miniProgram => {
+    let page = await miniProgram.reLaunch("/<%= record[0].page%>");
+    let element;
+    await page.waitFor(5000)
+
+    <% record.forEach(function(item){ %>
+        page = await miniProgram.currentPage()
+        console.log(JSON.stringify(page.path));
+        element = await page.$('.<%= item.id %>')
+        <% if (!!~['tap', 'longpress'].indexOf(item.event)) { %>
+        await element.<%= item.event%>();
+        <% } else { %>
+        await element.trigger('<%=item.event%>', <%-JSON.stringify(item.detail)%>);
+        <% } %>
+        await page.waitFor(5000)
+    <% }); %>
+})
