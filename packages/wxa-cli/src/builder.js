@@ -123,7 +123,8 @@ class Builder {
                         defer.push(async ()=>{
                             try {
                                 this.schedule.$depPending.push(mdl);
-                                if (mdl.childNodes && mdl.childNodes.size) this.walkChildNodesTreeAndMark(mdl);
+                                // 2019-08-20 childNodes will auto mark in scheduler
+                                // if (mdl.childNodes && mdl.childNodes.size) this.walkChildNodesTreeAndMark(mdl);
 
                                 await this.hooks.rebuildModule.promise(this.schedule, mdl);
 
@@ -190,7 +191,8 @@ class Builder {
             let changedDeps;
             try {
                 this.schedule.$depPending.push(mdl);
-                if (mdl.childNodes && mdl.childNodes.size) this.walkChildNodesTreeAndMark(mdl);
+                // 2019-08-20 childNodes will auto mark in scheduler
+                // if (mdl.childNodes && mdl.childNodes.size) this.walkChildNodesTreeAndMark(mdl);
 
                 await this.hooks.rebuildModule.promise(this.schedule, mdl);
 

@@ -56,11 +56,11 @@ export default class Compiler {
 
         switch (kind) {
             case 'wxa': {
-                mdl.rst = rest.wxa;
+                mdl.wxaDefinition = rest.wxa;
                 // app.wxa do not have template to compile.
-                if (mdl.category && mdl.category.toUpperCase() === 'APP') delete mdl.rst.template;
+                if (mdl.category && mdl.category.toUpperCase() === 'APP') delete mdl.wxaDefinition.template;
 
-                children = children.concat(this.$$parseRST(mdl));
+                children = children.concat(this.$$parseWxaDefinition(mdl));
                 break;
             }
 
@@ -101,7 +101,7 @@ export default class Compiler {
         switch (type) {
             case 'wxa': {
                 mdl.isAbstract = true;
-                return new WxaCompiler(this.resolve, this.meta).parse(filepath, code);
+                return new WxaCompiler(this.resolve, this.meta, mdl).parse(filepath, code);
             }
 
             case 'js': {
@@ -143,12 +143,12 @@ export default class Compiler {
         }
     }
 
-    $$parseRST(mdl) {
+    $$parseWxaDefinition(mdl) {
         // spread mdl with child nodes
-        return Object.keys(mdl.rst).map((key)=>{
-            let dep = Object.assign({}, mdl.rst[key]);
+        return Object.keys(mdl.wxaDefinition).map((key)=>{
+            let dep = {...mdl.wxaDefinition[key]};
             // wxa file pret object should as same as his parent node.
-            dep.content = mdl.rst[key].code;
+            dep.content = mdl.wxaDefinition[key].code;
             dep.pret = mdl.pret || defaultPret;
             dep.category = mdl.category || '';
             dep.pagePath = mdl.pagePath || void(0);

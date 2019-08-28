@@ -1,3 +1,5 @@
+/* eslint-disable no-invalid-this */
+/* eslint-disable no-undef */
 
 
 const IDKEY = '_wxatestuniqueid';
@@ -5,8 +7,8 @@ const EVENTMAPKEY = '_wxatesteventmap';
 let lastEventTime = {};
 let state = {
     record: [],
-    recording: false
-}
+    recording: false,
+};
 
 // 获取eventMap中对应事件方法
 function getEventFunc(eventType, eventMap) {
@@ -20,7 +22,7 @@ function getEventFunc(eventType, eventMap) {
 }
 
 // 增加一条操作记录
-const addRecord = function (type, ...args) {
+const addRecord = function(type, ...args) {
     let e = args[0];
     let target = e.target.dataset[IDKEY] ? e.target : e.currentTarget;
     if (state.recording) {
@@ -39,23 +41,23 @@ const addRecord = function (type, ...args) {
             id,
             timeStamp: +new Date(),
             detail: {
-                ...e.detail
-            }
+                ...e.detail,
+            },
         });
     }
     // 调用eventMap中原方法
     let eventFunc = getEventFunc(type, target.dataset[EVENTMAPKEY]);
     if (!eventFunc) {
-        console.warn(`wxa e2eTest, event "${type}" is lost`)
+        console.warn(`wxa e2eTest, event "${type}" is lost`);
         return;
     }
-    console.log(this[eventFunc], typeof this[eventFunc])
+    console.log(this[eventFunc], typeof this[eventFunc]);
     if (!this[eventFunc] || typeof this[eventFunc] !== 'function') {
-        console.warn(`Component "${this.is}" does not have a method "${eventFunc}" to handle event "${type}". `)
+        console.warn(`Component "${this.is}" does not have a method "${eventFunc}" to handle event "${type}". `);
         return;
     }
     this[eventFunc](...args);
-}
+};
 
 const wrapEvent = {
     $$e2e_tap(...args) {
@@ -70,31 +72,33 @@ const wrapEvent = {
     $$e2e_input(...args) {
         // input事件 自动化测试不支持，回放要用callMethod
         addRecord.bind(this)('input', ...args);
-    }
-}
+    },
+};
 
 // 将替换事件挂载到vm上
 const mountStateAndWrapEvent = (vm) => {
     for (let key in wrapEvent) {
-        vm[key] = wrapEvent[key]
+        vm[key] = wrapEvent[key];
     }
     vm.$$e2e_state = state;
-}
+};
 
 let $$testSuitePlugin = (options) => {
     // vm是当前实例，type为实例类型
     return (vm, type)=>{
-        if(['App', 'Page'].indexOf(type) > -1){
+        if (['App', 'Page'].indexOf(type) > -1) {
             mountStateAndWrapEvent(vm);
-        }else if (type === 'Component') {
+        } else if (type === 'Component') {
             // component特殊处理，created后再挂载，否则会被清除
-            let { created } = vm;
-            vm.created = function (...args) {
+            let {created} = vm;
+            vm.created = function(...args) {
                 mountStateAndWrapEvent(this);
                 if (created) created.apply(this, args);
-            }
+            };
         } else {
             throw new Error('不合法的wxa组件类型');
         }
-    }
-}
+    };
+};
+
+module.exports = $$testSuitePlugin;

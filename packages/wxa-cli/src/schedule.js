@@ -118,12 +118,12 @@ class Schedule {
 
     async $doDPA() {
         let tasks = [];
-        // while (this.$depPending.length) {
+        while (this.$depPending.length) {
             let dep = this.$depPending.shift();
 
             // debug('file to parse %O', dep);
             tasks.push(this.$parse(dep));
-        // }
+        }
 
         let succ = await Promise.all(tasks);
 
@@ -138,7 +138,7 @@ class Schedule {
     }
 
     async $parse(dep) {
-        if (dep.color === COLOR.COMPILED) return [];
+        if (dep.color === COLOR.COMPILED) return dep;
         if (dep.color === COLOR.CHANGED) dep.code = void(0);
         // calc hash
         // cause not every module is actually exists, we can not promise all module has hash here.
@@ -200,6 +200,7 @@ class Schedule {
             return dep;
         } catch (e) {
             debug('编译失败 %O', e);
+            dep.color = COLOR.COMPILE_ERROR;
             this.hooks.failedModule.call(dep, e);
             throw e;
         }
@@ -308,8 +309,7 @@ class Schedule {
 
             // module changed: clean up mdl, mark module as changed.
             if (
-                child.hash !== indexedModule.hash &&
-                indexedModule.color === COLOR.COMPILED
+                child.hash !== indexedModule.hash
             ) {
                 indexedModule.content = child.content;
                 indexedModule.hash = child.hash;
@@ -331,7 +331,7 @@ class Schedule {
             child = indexedModule;
         }
 
-        if (child.color !== COLOR.COMPILED) this.$depPending.push(child);
+        if (~[COLOR.CHANGED, COLOR.COMPILE_ERROR, COLOR.INIT].indexOf(child.color)) this.$depPending.push(child);
         if (child.color === COLOR.INIT) this.$indexOfModule.set(child.src, child);
 
         return child;
@@ -365,7 +365,7 @@ class Schedule {
                 },
                 wrap(mdl) {
                     mdl.code = `
-                    var regeneratorRuntime = require('wxa://regenerator-runtime/runtime');
+                    var regeneratorRuntime = require('wxa://regenerator-runtime/runtime.js');
 
                     ${mdl.code}
                     `;

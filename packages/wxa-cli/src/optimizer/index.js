@@ -37,6 +37,11 @@ export default class Optimizer {
     }
 
     async do(dep, indexedMap) {
+        if (!dep.src) {
+            // deadcode normally
+            debugger;
+            return;
+        }
         const text = path.relative(this.cwd, dep.src);
         this.progress.draw(text, 'Optimizing', !this.cmdOptions.verbose);
         switch (this.wxaConfigs.target) {
