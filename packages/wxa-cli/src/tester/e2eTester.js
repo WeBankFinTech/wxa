@@ -2,18 +2,22 @@ import Builder from '../Builder';
 import Schedule from '../schedule.js';
 import Compiler from '../compilers/index';
 import domWalker from './domWalker.js';
+import Server from './server.js';
+import e2eRecord2js from './wxa-e2eTest/e2eRecord2js';
+import logger from '../helpers/logger';
+import simplify from '../helpers/simplifyObj';
+import {applyPlugins, readFile, writeFile} from '../utils.js';
+import COLOR from '../const/color';
 
 import crypto from 'crypto';
 import debugPKG from 'debug';
-import fs from 'fs';
 import path from 'path';
-import logger from '../helpers/logger';
-import simplify from '../helpers/simplifyObj';
-import {applyPlugins, readFile} from '../utils.js';
-import COLOR from '../const/color';
+import mkdirp from 'mkdirp';
 
 const debug = debugPKG('WXA:E2ETester');
 const E2E_TEST_COMPONENT = 'wxa-e2e-record-btn';
+const E2E_TEST_URL = '/record';
+
 class TesterScheduler extends Schedule {
     async $parse(dep) {
         if (dep.color === COLOR.COMPILED) return dep;
@@ -170,6 +174,38 @@ class TesterBuilder extends Builder {
 
         // if (cmd.watch) this.watch(cmd);
     }
+
+    listen(cmdOptions) {
+        let {port=9421} = cmdOptions;
+        let server = new Server({port}, logger);
+        server.post(E2E_TEST_URL, async (data)=>{
+            logger.info('Recieved Data: ', data);
+            if (!this.validFileName(data.name)) return logger.error('用例名不合法');
+            if (!data.record) return logger.error('用例数据不能为空');
+            // generate the record and save to project
+            let clipath = {
+                darwin: '/Contents/Resources/app.nw/bin/cli',
+                win32: '/cli.bat',
+            };
+
+            try {
+                let recordString = await e2eRecord2js(data.record, {cliPath: clipath[process.platform], wechatwebdevtools: this.wxaConfigs.wechatwebdevtools});
+
+                let outputPath = path.join(this.current, cmdOptions.outDir, data.name+'.test.js');
+                // save file;
+                writeFile(outputPath, recordString);
+            } catch (e) {
+                logger.error('生成测试案例失败', e);
+            }
+        });
+
+        server.start();
+    }
+
+    validFileName(name) {
+        // relative paths is not allowed.
+        return /^[^\.]+[\w\/\.]*$/.test(name);
+    }
 }
 
 export default class E2ETester {
@@ -180,6 +216,9 @@ export default class E2ETester {
 
     build() {
         console.log('e2e tester start');
-        new TesterBuilder(this.wxaConfigs).build(this.cmdOptions);
+        let testerBuilder = new TesterBuilder(this.wxaConfigs, );
+
+        testerBuilder.build(this.cmdOptions);
+        testerBuilder.listen(this.cmdOptions);
     }
 }

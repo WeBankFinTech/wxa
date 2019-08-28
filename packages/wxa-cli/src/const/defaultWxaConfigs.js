@@ -10,6 +10,7 @@ export default class DefaultWxaConfigs {
         return {
             target: 'wxa',
             dependencyManager: 'npm',
+            wechatwebdevtools: '/Applications/wechatwebdevtools.app',
             context,
             resolve: {
                 wxaExt: '.wxa',

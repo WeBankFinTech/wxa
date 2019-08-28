@@ -12,7 +12,7 @@ class Logger {
             ['warn', {color: chalk.bold.yellow, info: console.info.bind(console)}],
             ['error', {color: chalk.red, info: (...args)=>{
                     console.log('');
-                    debugger;
+                    // debugger;
                     console.error.bind(console)(...args);
                 },
             }],
