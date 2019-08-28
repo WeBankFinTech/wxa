@@ -34,6 +34,11 @@ export default class DefaultWxaConfigs {
                     name: 'sass',
                 },
             ],
+            optimization: {
+                splitDeps: {
+                    maxDeps: -1,
+                },
+            },
         };
     }
 }

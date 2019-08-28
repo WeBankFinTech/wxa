@@ -1,10 +1,11 @@
 import * as NODE from '../../const/node';
-import path from 'path';
+// import path from 'path';
 import Coder from '../../helpers/coder';
 import DependencyResolver from '../../helpers/dependencyResolver';
 import CSSManager from '../css/index';
 import debugPKG from 'debug';
 import logger from '../../helpers/logger';
+import domSerializer from 'dom-serializer';
 
 let debug = debugPKG('WXA:XMLManager');
 let debugXMLStyle = debugPKG('WXA:XMLManager-style');
@@ -20,32 +21,28 @@ class XMLManager {
     parse(mdl) {
         if (mdl.xml == null) return null;
 
-        let libs = this.walkXML(mdl.xml, mdl);
+        let libs = [];
 
-        debug('libs in xml %O %O', mdl.xml, libs);
+        mdl.xml.forEach((element) => {
+            libs = libs.concat(this.walkXML(element, mdl));
+        });
 
-        mdl.code = Array.prototype.slice.call(mdl.xml.childNodes||[]).reduce((ret, node)=>{
-            ret += new Coder().decodeTemplate(node.toString());
-            return ret;
-        }, '');
+        mdl.code = new Coder().decodeTemplate(domSerializer(mdl.xml, {xmlMode: true}));
 
         return libs;
     }
 
     walkXML(xml, mdl) {
-        debug('walk xml start %s', xml.nodeType);
         let libs = [];
         // ignore comment
-        if (xml.nodeType === NODE.COMMENT_NODE) return libs;
+        if (xml.type === 'comment') return libs;
 
-        if (xml.nodeType === NODE.ELEMENT_NODE) {
-            // element p view
-            debug('xml %O', xml);
-            libs = libs.concat(this.walkAttr(xml.attributes, mdl));
+        if (xml.type === 'tag') {
+            libs = libs.concat(this.walkAttr(xml.attribs, mdl));
         }
 
-        if (xml.childNodes) {
-            libs = libs.concat(Array.prototype.slice.call(xml.childNodes).reduce((ret, child)=>{
+        if (xml.children) {
+            libs = libs.concat(Array.prototype.slice.call(xml.children).reduce((ret, child)=>{
                 return ret.concat(this.walkXML(child, mdl));
             }, []));
         }
@@ -59,9 +56,14 @@ class XMLManager {
         for (let name in attributes) {
             if (!attributes.hasOwnProperty(name)) continue;
 
-            let attr = attributes[name];
+            // let attr = attributes[name];
+            // TODO optimize
+            let attr = {
+                nodeName: name,
+                nodeValue: attributes[name],
+            };
 
-            debug('attribute %O', attr);
+            // debug('attribute %O', attr);
             switch (attr.nodeName) {
                 case 'src':
                 case 'href': {
@@ -95,7 +97,6 @@ class XMLManager {
                 case 'style': {
                     debugXMLStyle(attr.nodeName, attr.nodeType, attr.nodeValue, typeof attr.nodeValue);
                     if (!attr.nodeValue) break;
-
                     try {
                         let CM = new CSSManager(this.resolve, this.meta);
                         let {libs: subLibs, code} = CM.resolveStyle(attr.nodeValue, mdl);

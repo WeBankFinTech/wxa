@@ -118,7 +118,7 @@ export default class ASTManager {
                         src: source,
                         pret: pret,
                         meta: {
-                            source, outputPath,
+                            source, outputPath, resolved,
                         },
                     });
 
@@ -150,6 +150,7 @@ export default class ASTManager {
         libs = libs.concat(wxaSourceLibs);
         // generate module code.
         mdl.code = this.generate(mdl).code;
+        delete mdl.ast;
         return libs;
     }
     /**

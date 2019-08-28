@@ -2,11 +2,12 @@ import path from 'path';
 import debugPKG from 'debug';
 import {AsyncSeriesHook} from 'tapable';
 import ProgressBar from '../helpers/progressTextBar';
+import SplitDeps from './splitDeps';
 
 let debug = debugPKG('WXA:Optimizer');
 
 export default class Optimizer {
-    constructor(cwd, wxaConfigs, cmdOptions) {
+    constructor({cwd, wxaConfigs, cmdOptions, appConfigs}) {
         this.wxaConfigs = wxaConfigs;
 
         this.hooks = {
@@ -16,19 +17,50 @@ export default class Optimizer {
         this.cmdOptions = cmdOptions;
         this.cwd = cwd;
         this.progress = new ProgressBar(cwd, wxaConfigs);
+        this.splitDeps = new SplitDeps({appConfigs, wxaConfigs, cwd, cmdOptions});
     }
 
-    async do(dep) {
+    async run(indexedMap, appConfigs) {
+        let optimizeTasks = [];
+
+        indexedMap.forEach((dep)=>{
+            let task = async ()=>{
+                await this.do(dep, appConfigs, indexedMap);
+            };
+
+            optimizeTasks.push(task());
+        });
+
+        await Promise.all(optimizeTasks);
+
+        if (!this.cmdOptions.watch) this.splitDeps.run(indexedMap);
+    }
+
+    async do(dep, indexedMap) {
+        if (!dep.src) {
+            // deadcode normally
+            debugger;
+            return;
+        }
         const text = path.relative(this.cwd, dep.src);
         this.progress.draw(text, 'Optimizing', !this.cmdOptions.verbose);
-        // if compile to mini-program, process.env will not available, so we have to replace it.
-        if (this.wxaConfigs.target === 'wxa' && dep.code) {
-            dep.code = dep.code.replace(/process\.env\.NODE_ENV/g, JSON.stringify(process.env.NODE_ENV));
+        switch (this.wxaConfigs.target) {
+            case 'wxa':
+                this.doWxaOptimize(dep, indexedMap);
         }
 
-        if (dep.meta && dep.meta.source.indexOf(`node_modules${path.sep}`) !== -1) dep.code = this.hackNodeMoudule(dep.meta.source, dep.code);
-
         await this.hooks.optimizeAssets.promise(dep);
+    }
+
+    doWxaOptimize(dep, indexedMap) {
+        // if compile to mini-program, process.env will not available, so we have to replace it.
+        if (dep.code) {
+            dep.code = dep.code.replace(/process\.env\.NODE_ENV/g, JSON.stringify(process.env.NODE_ENV));
+        };
+
+        if (dep.meta && dep.meta.source.indexOf(`node_modules${path.sep}`) !== -1) {
+            dep.code = this.hackNodeMoudule(dep.meta.source, dep.code);
+        }
     }
 
     hackNodeMoudule(filepath, code) {
