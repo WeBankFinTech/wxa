@@ -13,4 +13,6 @@ else
     echo "There isn't package-lock.json file here."
 fi
 
+rm -rf dist/
+
 npm run build
