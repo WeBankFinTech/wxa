@@ -24,5 +24,4 @@ const e2eRecord2js = (record) => {
 //     console.log(str);
 // });
 
-e2eRecord2js(record, './automator.js');
 module.exports = e2eRecord2js;
