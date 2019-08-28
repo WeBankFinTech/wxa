@@ -133,7 +133,7 @@ class CompilerLoader {
         }, Promise.resolve([]));
     }
 
-    async compile(mdl) {
+    async compile(mdl, compilation) {
         let tasks = [];
 
         let fn = async (task, mdl)=>{
@@ -143,7 +143,7 @@ class CompilerLoader {
             if (test.test(mdl.src)) {
                 debug('loader is working %O, dep %O', loader, mdl);
                 try {
-                    let {code, ...rest} = await loader.parse(mdl, cmdOptions);
+                    let {code, ...rest} = await loader.parse(mdl, cmdOptions, compilation);
 
                     // Todo: Multi loader with one string
                     mdl.code = code;

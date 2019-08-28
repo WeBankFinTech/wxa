@@ -113,12 +113,10 @@ export default class WxaCompiler {
                     });
                 }
 
-                if (!rstTypeObject.src) {
-                    let opath = path.parse(filepath);
-
-
-                    rstTypeObject.src = opath.dir + path.sep + opath.name + '.' + rstTypeObject.type;
-                }
+                // if (!rstTypeObject.src) {
+                // }
+                let opath = path.parse(filepath);
+                rstTypeObject.src = opath.dir + path.sep + opath.name + '.' + rstTypeObject.type;
 
                 rstTypeObject.$from = filepath;
 

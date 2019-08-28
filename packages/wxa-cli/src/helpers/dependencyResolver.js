@@ -37,26 +37,17 @@ class DependencyResolver {
             // 非完整后缀的路径
             if (isFile(source+this.meta.wxaExt)) ext = '.js'; // .wxa的文件转js
             else if (pext) ext = pext;
-            else if (isDir(source) && isFile(source+path.sep+'index.js')) ext = path.sep+'index.js';
+            else if (pret.isNodeModule) {
+                ext = this.$findNodeModuleEntryFile(lib, source);
+                if (ext == null) throw new Error('找不到文件 '+lib);
+            } else if (isDir(source) && isFile(source+path.sep+'index.js')) ext = path.sep+'index.js';
             else {
-                // 非指定文件的node_modules路径依赖
-                let pkg = this.getPkgConfig(lib);
-                if (!pkg) {
-                    throw new Error('找不到模块'+lib);
-                }
-                let main = pkg.main || 'index.js';
-                if (pkg.browser && typeof pkg.browser === 'string') {
-                    main = pkg.browser;
-                }
-                if (isFile(path.join(source, main))) {
-                    ext = path.sep+main;
-                } else {
-                    throw new Error('找不到文件 '+lib);
-                }
+                throw new Error('找不到文件 '+lib);
             }
         } else {
             ext = '';
         }
+
         source = path.resolve(source+ext);
         lib += ext;
 
@@ -65,6 +56,22 @@ class DependencyResolver {
             pret,
             lib,
         };
+    }
+
+    $findNodeModuleEntryFile(lib, source) {
+        // 非指定文件的node_modules路径依赖
+        let pkg = this.getPkgConfig(lib);
+        if (!pkg) {
+            throw new Error('找不到模块'+lib);
+        }
+
+        let main = pkg.main || 'index.js';
+        // 优先使用依赖的 browser 版本
+        if (pkg.browser && typeof pkg.browser === 'string') {
+            main = pkg.browser;
+        }
+
+        return isFile(path.join(source, main)) ? path.sep+main : null;
     }
 
     $resolve(lib, mdl) {
@@ -102,10 +109,10 @@ class DependencyResolver {
     getOutputPath(source, pret, mdl) {
         if (pret.isRelative || pret.isAPPAbsolute || pret.isNodeModule || pret.isWXALib) {
             let opath = pret.isWXALib ?
-            path.parse(path.join(this.meta.context, '_wxa', pret.name+pret.ext)) :
-            path.parse(source);
+                path.parse(path.join(this.meta.context, '_wxa', pret.name+pret.ext)) :
+                path.parse(source);
 
-            return this.getDistPath(opath);
+            return this.getDistPath(opath, mdl);
         } else if (pret.isPlugin || pret.isURI) {
             // url module
             return null;
@@ -124,7 +131,7 @@ class DependencyResolver {
         let fileOutputPath = (
             mdl.meta &&
             mdl.meta.outputPath ||
-            this.getDistPath(path.parse(mdl.src))
+            this.getDistPath(path.parse(mdl.src), mdl)
         );
 
         resolved = './'+path.relative(path.parse(fileOutputPath).dir, libOutputPath);
@@ -145,18 +152,19 @@ class DependencyResolver {
         return content;
     }
 
-    getDistPath(opath) {
+    getDistPath(absPath, mdl) {
         let relative;
-        opath = typeof opath === 'string' ? path.parse(opath) : opath;
+        absPath = typeof absPath === 'string' ? path.parse(absPath) : absPath;
 
-        if (path.relative(this.meta.current, opath.dir).indexOf('node_modules') === 0) {
-            relative = path.relative(path.join(this.meta.current, 'node_modules'), opath.dir);
+        if (path.relative(this.meta.current, absPath.dir).indexOf('node_modules') === 0) {
+            relative = path.relative(path.join(this.meta.current, 'node_modules'), absPath.dir);
+            // package is empty meanning the package is main one.
             relative = path.join('npm', relative);
         } else {
-            relative = path.relative(this.meta.context, opath.dir);
+            relative = path.relative(this.meta.context, absPath.dir);
         }
 
-        return path.join(this.meta.output.path, relative, opath.base);
+        return path.join(this.meta.output.path, relative, absPath.base);
     }
 }
 
