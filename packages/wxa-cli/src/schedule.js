@@ -301,9 +301,10 @@ class Schedule {
             },
         };
 
-        if (this.$indexOfModule.has(dep.src)) {
-            let indexedModule = this.$indexOfModule.get(dep.src);
-
+        let indexedModule = this.$indexOfModule.get(dep.src);
+        if (indexedModule && indexedModule.color === COLOR.INIT) {
+            return indexedModule;
+        } else if (indexedModule) {
             // check hash
             child.hash = !child.isAbstract && child.content ? getHashWithString(child.content) : getHash(child.src);
 
