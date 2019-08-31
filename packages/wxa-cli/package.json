@@ -9,7 +9,7 @@
     "build:lib": "babel lib --out-dir lib-dist",
     "build:polyfill": "sh scripts/buildLib.sh",
     "dev": "npm run dev:src & npm run dev:lib",
-    "dev:src": "babel --watch src --out-dir dist --source-maps",
+    "dev:src": "node scripts/dev.js",
     "dev:lib": "babel --watch lib --out-dir lib-dist",
     "prepublishOnly": "sh scripts/prepublish.sh",
     "travis-dev": "babel src --out-dir dist"
