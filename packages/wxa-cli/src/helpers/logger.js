@@ -12,7 +12,6 @@ class Logger {
             ['warn', {color: chalk.bold.yellow, info: console.info.bind(console)}],
             ['error', {color: chalk.red, info: (...args)=>{
                     console.log('');
-                    debugger;
                     console.error.bind(console)(...args);
                 },
             }],
@@ -50,5 +49,20 @@ class Logger {
     }
 }
 
-export {Logger};
-export default new Logger();
+const logger = new Logger();
+
+const error = (kind, {name, code, error})=>{
+    let str = '\n';
+    if (name) str += `file: ${name}\n`;
+    if (code) str += `code: ${code}\n`;
+    if (error) str += `${error.stack}\n`;
+
+    logger.error(kind, str);
+};
+
+export {
+    Logger,
+    error,
+    logger,
+};
+export default logger;

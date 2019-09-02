@@ -6,7 +6,7 @@ import globby from 'globby';
 import debugPKG from 'debug';
 
 import Schedule from './schedule';
-import logger from './helpers/logger';
+import {logger, error} from './helpers/logger';
 import CompilerLoader from './loader';
 import defaultPret from './const/defaultPret';
 import Optimizer from './optimizer';
@@ -132,7 +132,7 @@ class Builder {
                                 let map = new Map(changedDeps.map((mdl)=>[mdl.src, mdl]));
                                 await this.optimizeAndGenerate(map, this.schedule.appConfigs, cmd);
                             } catch (e) {
-                                logger.error('编译失败', e);
+                                error('编译失败', {error: e});
                             }
                         });
                     });
@@ -200,7 +200,7 @@ class Builder {
                 let map = new Map(changedDeps.map((mdl)=>[mdl.src, mdl]));
                 await this.optimizeAndGenerate(map, this.schedule.appConfigs, cmd);
             } catch (e) {
-                logger.error('编译失败', e);
+                // error('编译失败', {error: e});
             }
 
             let newFiles = this.filterModule(this.schedule.$indexOfModule);
@@ -232,7 +232,7 @@ class Builder {
             // initial loader and entry options.
             await this.init(cmd);
         } catch (e) {
-            logger.error('挂载失败', e);
+            error('挂载失败', {error: e});
         }
         await this.hooks.beforeRun.promise(this);
 
@@ -247,7 +247,7 @@ class Builder {
         try {
             await this.handleEntry(cmd);
         } catch (error) {
-            logger.error('编译入口参数有误', error);
+            error('编译入口参数有误', {error});
             throw error;
         }
 
@@ -259,15 +259,15 @@ class Builder {
     async run(cmd) {
         process.title = this.name;
         logger.info('Building', `Project: ${this.name} `+'AT: '+new Date().toLocaleString());
+        await this.hooks.run.promise(this);
+
+        // do dependencies analysis.
+        await this.schedule.doDPA();
+
+        this.schedule.perf.show();
+
         try {
-            await this.hooks.run.promise(this);
-
-            // do dependencies analysis.
-            await this.schedule.doDPA();
-
-            this.schedule.perf.show();
             debug('schedule dependencies Tree is %O', this.schedule.$indexOfModule);
-
             await this.optimizeAndGenerate(this.schedule.$indexOfModule, this.schedule.appConfigs, cmd);
 
             // done.
@@ -277,8 +277,7 @@ class Builder {
 
             logger.log('Done', 'AT: '+new Date().toLocaleString());
         } catch (e) {
-            logger.error('编译失败', e.stack);
-            debugger;
+            error('编译失败', {error: e});
         }
     }
 

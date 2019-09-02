@@ -43,7 +43,7 @@ export default class PathParser {
             ret.isURI = true;
             ret.isDynamic = true;
         } else {
-            logger.error('Path Error', '无法解析的路径类型: '+x);
+            throw new Error('Path Error', '无法解析的路径类型: '+x);
         }
 
         return ret;
