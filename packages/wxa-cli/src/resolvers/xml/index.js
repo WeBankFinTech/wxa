@@ -4,7 +4,7 @@ import Coder from '../../helpers/coder';
 import DependencyResolver from '../../helpers/dependencyResolver';
 import CSSManager from '../css/index';
 import debugPKG from 'debug';
-import logger from '../../helpers/logger';
+import {logger, error} from '../../helpers/logger';
 import domSerializer from 'dom-serializer';
 
 let debug = debugPKG('WXA:XMLManager');
@@ -87,8 +87,7 @@ class XMLManager {
 
                         attr.nodeValue = resolved;
                     } catch (e) {
-                        console.log('');
-                        logger.warn(`${attr.nodeValue} `, '找不到文件, 或者文件路径为动态路径');
+                        error('Resolve Error', {name: mdl.src, error: e, code: attr.nodeValue});
                     }
 
                     break;
@@ -108,7 +107,7 @@ class XMLManager {
 
                         attr.nodeValue = code;
                     } catch (e) {
-                        logger.error('解析失败', e);
+                        error('Resolve Error', {name: mdl.src, error: e, code: attr.nodeValue});
                     }
 
                     break;
