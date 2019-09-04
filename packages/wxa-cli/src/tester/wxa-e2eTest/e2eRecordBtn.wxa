@@ -3,7 +3,7 @@
         <button class="e2e-startRecord" style="top: {{top}}px; left: {{left}}px;" catchtap="tap" bindtouchstart="touchstart" catchtouchmove="touchmove">{{btnText}}</button>
         <view class="e2e-mask" wx:if="{{showInput}}">
             <view class="e2e-input">
-                <input bindinput="bindInput" value="{{scriptRemark}}" placeholder="测试用例命名" />
+                <input bindinput="bindInput" value="{{fileName}}" placeholder="未命名测试用例" />
                 <view class="e2e-btnGroup">
                     <button catchtap="closeInput">取消</button>
                     <button catchtap="createScript">创建</button>
@@ -15,7 +15,7 @@
 
 <script>
 
-import {wxa, Throttle} from '@wxa/core';
+import {wxa, Throttle, toast, fetch} from '@wxa/core';
 const START_BTN_TEXT = '开始录制';
 const END_BTN_TEXT = '结束录制';
 class e2eBtn {
@@ -27,7 +27,7 @@ class e2eBtn {
         diffX: 0,
         diffY: 0,
         btnText: '',
-        scriptRemark: '',
+        fileName: '',
         showInput: false
     }
     // 关闭测试用例命名弹框
@@ -42,15 +42,27 @@ class e2eBtn {
         });
     }
     // 创建测试脚本，record上传
-    createScript() {
+    async createScript() {
         console.log('upload record:', this.$$e2e_state.record);
-        console.log('upload remark:', this.data.scriptRemark);
-        this.closeInput();
+        console.log('upload fileName:', this.data.fileName);
+        
+        try {
+            let result = fetch('http://127.0.0.1:9421/record', {
+                name: this.data.fileName,
+                record: this.$$e2e_state.record
+            }, {}, 'post');
+            console.log(result);
+            this.closeInput();
+        } catch (err) {
+            console.log(err);
+            toast('脚本创建失败，请重试');
+        }
+        
     }
     bindInput(e) {
         console.log(3);
         this.setData({
-            scriptRemark: e.detail.value
+            fileName: e.detail.value
         });
     }
     tap() {
@@ -144,6 +156,8 @@ wxa.launchComponent(e2eBtn);
     height: 100%;
     position: fixed;
     z-index: 100;
-    background: rgba(0,0,0,0.6)
+    background: rgba(0,0,0,0.6);
+    top: 0;
+    left: 0;
 }
 </style>
