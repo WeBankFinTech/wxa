@@ -1,4 +1,8 @@
 import {wxaRedux, combineReducers, reducerRegistry} from '../src/index'
+import fs from 'fs';
+import path from 'path';
+
+import 'jest-plugin-console-matchers/setup';
 
 getCurrentPages = function() {
     return [{route: 'pages/index/index'}];
@@ -10,6 +14,10 @@ let todo = function(state=[], action) {
     switch(action.type) {
         case 'add' : {
             state = [...state, action.payload]
+            return state;
+        }
+        case 'repl': {
+            state = action.payload;
             return state;
         }
         default : return state;
@@ -316,6 +324,38 @@ describe('registry reducer', ()=>{
             expect(page.$store.getState().todo.length).toBe(1);
         });
     });
+})
+
+describe('while dispatch long long data', ()=>{
+    let reduxFn = wxaRedux({
+        reducers: {
+            todo
+        }
+    });
+
+    let page = {
+        setData,
+        mapState: {
+            todo: (state)=>state.todo
+        },
+        data: {}
+    }; 
+    
+    reduxFn(page, 'Page');
+
+    test('long data', ()=>{
+        page.onLoad();
+        // page.onHide();
+        expect(page.$$reduxDiff).not.toBeFalsy();
+        let pic = fs.readFileSync(path.join(__dirname, './pic.base64.txt')).toString();
+        page.$store.dispatch({type: 'add', payload: pic});
+        expect(page.$store.getState().todo.length).toBe(1);
+        expect(()=>page.onShow()).toConsoleError();
+        expect(page.data.todo.length).toBe(0);
+        
+        page.$store.dispatch({type: 'add', payload: 'hey'});
+        expect(page.data.todo.length).toBe(2);
+    })
 })
 
 afterAll(()=>{
