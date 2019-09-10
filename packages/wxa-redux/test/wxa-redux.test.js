@@ -1,4 +1,4 @@
-import {wxaRedux, combineReducers} from '../src/index'
+import {wxaRedux, combineReducers, reducerRegistry} from '../src/index'
 
 getCurrentPages = function() {
     return [{route: 'pages/index/index'}];
@@ -38,6 +38,7 @@ let todoDel = function(state=[], action) {
 
 describe('App register redux', ()=>{
     test('mount redux store and middlewares', ()=>{
+
         let reduxFn = wxaRedux({
             reducers: combineReducers({todo})
         });
@@ -98,16 +99,16 @@ describe('App register redux', ()=>{
         }).toThrowErrorMatchingSnapshot();
     });
 
-    test('reducers is null', ()=>{
-        let warn = jest.fn();
-        let ogWarn = console.warn;
-        console.warn = warn;
+    // test('reducers is null', ()=>{
+    //     let warn = jest.fn();
+    //     let ogWarn = console.warn;
+    //     console.warn = warn;
         
-        let reduxFn = wxaRedux();
-        expect(warn).toHaveBeenCalled();
+    //     let reduxFn = wxaRedux();
+    //     expect(warn).toHaveBeenCalled();
 
-        console.warn = ogWarn;
-    })
+    //     console.warn = ogWarn;
+    // })
 })
 
 let app = {};
@@ -273,6 +274,7 @@ describe('Component use redux', ()=>{
         expect(com.data).toMatchObject({});
         expect(com.$unsubscribe).not.toBeFalsy();
 
+        com.pageLifetimes.show.bind(com)();
         com.$store.dispatch({type: 'comAdd', payload: 'testcom'});
         expect(com.data.todoList.length).toBe(1);
         com.$store.dispatch({type: 'comAdd', payload: 'testcom'});
@@ -283,6 +285,37 @@ describe('Component use redux', ()=>{
         com.detached();
         expect(com.$unsubscribe).toBeNull();
     })
+})
+
+describe('registry reducer', ()=>{
+    let reduxFn = wxaRedux({
+        reducers: {
+            todo
+        }
+    });
+
+    let page = {
+        setData
+    }; 
+    
+    reduxFn(page, 'Page');
+
+    test("check reduers' amount", () => {
+        expect(page.$store).not.toBeFalsy();
+        expect(Object.keys(page.$store.getState()).length).toBe(1);
+    });
+    
+    test("lazy register reducer", ()=>{
+        page.$store.dispatch({type: 'add', payload: 'xxx'});
+        expect(page.$store.getState().todo.length).toBe(1);
+        
+        reducerRegistry.register('todoDel', todoDel);
+        reducerRegistry.register('comTodo', comTodo);
+        setTimeout(() => {
+            expect(Object.keys(page.$store.getState()).length).toBe(3);
+            expect(page.$store.getState().todo.length).toBe(1);
+        });
+    });
 })
 
 afterAll(()=>{
