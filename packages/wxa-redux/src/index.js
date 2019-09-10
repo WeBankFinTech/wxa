@@ -21,6 +21,33 @@ const combine = (registryReducers, userReducers) => {
     return combineReducers({...registryReducers, ...userReducers});
 };
 
+const checkAndFilterDataField = (data, maxSize = 1024 * 1000)=>{
+    const check = (key, value)=>{
+        let str = JSON.stringify(value);
+        if (typeof str !== 'string') return true;
+
+        let len = str.length;
+        if (len > maxSize) {
+            console.error(`${key} 数据长度为${len}, 数据大于${maxSize}将无法同步到webview`);
+
+            return false;
+        } 
+        return true;
+    }
+
+    let ret = Array.isArray(data)? [] : {};
+    if (typeof data === 'object' && data != null) {
+        Object.keys(data).forEach((key)=>{
+            if(check(key, data[key])) {
+                ret[key] = data[key];
+            };
+        });
+    } else {
+        ret = data;
+    }
+    return ret;
+}
+
 let mountRedux = function (originHook) {
     return function (...args) {
         this.$$reduxDiff = diff.bind(this);
@@ -29,12 +56,12 @@ let mountRedux = function (originHook) {
                 let newState = this.$store.getState();
                 let lastState = this.$$storeLastState;
                 let data = mapState(this.mapState, newState, lastState, this);
-
                 if (data !== null) {
                     // 有效state
                     this.$$storeLastState = data;
                     let diffData = this.$$reduxDiff(data);
-                    this.setData(diffData);
+                    let validData = checkAndFilterDataField(diffData)
+                    if(validData != null) this.setData(validData);
                 }
             }
             this.$unsubscribe = this.$store.subscribe((...args) => {
@@ -89,8 +116,9 @@ export const wxaRedux = (options = {}) => {
         this.$$isCurrentPage = true;
         let data = mapState(this.mapState, this.$store.getState(), this.$$storeLastState, this);
         if (data != null) {
-            let diffData = this.$$reduxDiff(data)
-            this.setData(diffData)
+            let diffData = this.$$reduxDiff(data);
+            let validData = checkAndFilterDataField(diffData);
+            this.setData(validData);
         };
     }
 
