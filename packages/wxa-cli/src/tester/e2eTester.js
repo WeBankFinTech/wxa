@@ -176,7 +176,7 @@ class TesterBuilder extends Builder {
     }
 
     listen(cmdOptions) {
-        let {port=9421} = cmdOptions;
+        let {port=9421, cliPath} = cmdOptions;
         let server = new Server({port}, logger);
         server.post(E2E_TEST_URL, async (data)=>{
             logger.info('Recieved Data: ', data);
@@ -188,8 +188,10 @@ class TesterBuilder extends Builder {
                 win32: '/cli.bat',
             };
 
+            let cli = cliPath || path.join(this.wxaConfigs.wechatwebdevtools, clipath[process.platform]);
+
             try {
-                let recordString = await e2eRecord2js(data.record, {cliPath: clipath[process.platform], wechatwebdevtools: this.wxaConfigs.wechatwebdevtools});
+                let recordString = await e2eRecord2js(data.record, {cliPath: cli, name: data.name});
 
                 let outputPath = path.join(this.current, cmdOptions.outDir, data.name+'.test.js');
                 // save file;

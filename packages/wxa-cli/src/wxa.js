@@ -109,6 +109,7 @@ commander
 .option('-e, --e2e', 'e2e测试模式')
 .option('-p, --port', '监听端口')
 .option('-o, --out-dir [outDir]', '测试用例输出文件夹', '__wxa_e2e_test__')
+.option('--cli-path [cliPath]', '微信开发者工具路径')
 .action((cmd)=>{
     logger.info('Hey', `This is ${chalk.keyword('orange')('wxa@'+version)}, Running in ${chalk.keyword('orange')(process.env.NODE_ENV || 'development')}, Tester Mode`);
     let wxaConfigs = getWxaConfigs();

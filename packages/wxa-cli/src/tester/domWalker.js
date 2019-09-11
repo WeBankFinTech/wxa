@@ -128,7 +128,7 @@ class XMLManager {
     assembleUniqueId(keyElement) {
         return keyElement.reduce((prev, key)=>{
             if (key) {
-                key = key.replace(/\//g, '');
+                key = key.replace(/[^\w]/g, '');
                 key = key[0].toUpperCase() + key.slice(1);
 
                 return prev + key;

@@ -45,7 +45,7 @@ class e2eBtn {
     async createScript() {
         console.log('upload record:', this.$$e2e_state.record);
         console.log('upload fileName:', this.data.fileName);
-        
+
         try {
             let result = fetch('http://127.0.0.1:9421/record', {
                 name: this.data.fileName,
@@ -57,7 +57,7 @@ class e2eBtn {
             console.log(err);
             toast('脚本创建失败，请重试');
         }
-        
+
     }
     bindInput(e) {
         console.log(3);
@@ -125,7 +125,7 @@ wxa.launchComponent(e2eBtn);
     position: fixed;
     width: 200rpx;
     left: 0;
-    z-index: 100;
+    z-index: 99999999999;
 }
 .e2e-input{
     background-color: #fff;
@@ -155,7 +155,7 @@ wxa.launchComponent(e2eBtn);
     width: 100%;
     height: 100%;
     position: fixed;
-    z-index: 100;
+    z-index: 99999999999;
     background: rgba(0,0,0,0.6);
     top: 0;
     left: 0;

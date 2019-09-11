@@ -3,10 +3,12 @@ const ejs = require('ejs');
 
 let tpl = fs.readFileSync(__dirname + '/e2eRecord2jsTpl.ejs', 'utf8');
 
-const e2eRecord2js = (record) => {
+const e2eRecord2js = (record, {cliPath, name}) => {
     return new Promise((resolve, reject) => {
         ejs.renderFile(__dirname + '/e2eRecord2jsTpl.ejs', {
             record,
+            cliPath,
+            name,
         }, (err, str) => {
             if (err) {
                 return reject(err);
