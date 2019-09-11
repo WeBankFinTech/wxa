@@ -7,7 +7,7 @@ import {SyncHook} from 'tapable';
 
 import {readFile, isFile, getHash, getHashWithString} from './utils';
 import bar from './helpers/progressBar';
-import logger from './helpers/logger';
+import {logger, error} from './helpers/logger';
 import COLOR from './const/color';
 import ROOT from './const/root';
 import defaultPret from './const/defaultPret';
@@ -202,7 +202,7 @@ class Schedule {
             debug('编译失败 %O', e);
             dep.color = COLOR.COMPILE_ERROR;
             this.hooks.failedModule.call(dep, e);
-            throw e;
+            error('编译失败', {name: dep.src, error: e});
         }
     }
 
@@ -240,7 +240,7 @@ class Schedule {
     cleanUpPages(newPages, oldPages) {
         let droppedPages = [];
         oldPages.forEach((oldPage)=>{
-            if (newPages.has(oldPage.src)) droppedPages.push(oldPage);
+            if (!newPages.has(oldPage.src)) droppedPages.push(oldPage);
         });
 
         droppedPages.forEach((droppedPage)=>{
@@ -301,9 +301,10 @@ class Schedule {
             },
         };
 
-        if (this.$indexOfModule.has(dep.src)) {
-            let indexedModule = this.$indexOfModule.get(dep.src);
-
+        let indexedModule = this.$indexOfModule.get(dep.src);
+        if (indexedModule && indexedModule.color === COLOR.INIT) {
+            return indexedModule;
+        } else if (indexedModule) {
             // check hash
             child.hash = !child.isAbstract && child.content ? getHashWithString(child.content) : getHash(child.src);
 
@@ -341,7 +342,8 @@ class Schedule {
         if (
             ~['app', 'component', 'page'].indexOf(mdl.category ? mdl.category.toLowerCase() : '') &&
             mdl.meta && path.extname(mdl.meta.source) === '.js' &&
-            (/exports\.default/gm.test(mdl.code) || /exports\[["']default["']/gm.test(mdl.code))
+            (/exports\.default/gm.test(mdl.code) || /exports\[["']default["']/gm.test(mdl.code)) &&
+            !/wrapWxa\(exports/gm.test(mdl.code)
         ) {
             mdl.code = wrapWxa(mdl.code, mdl.category, mdl.pagePath);
             debug('wrap dependencies %O', simplify(mdl));

@@ -1,4 +1,8 @@
-import {wxaRedux, combineReducers} from '../src/index'
+import {wxaRedux, combineReducers, reducerRegistry} from '../src/index'
+import fs from 'fs';
+import path from 'path';
+
+import 'jest-plugin-console-matchers/setup';
 
 getCurrentPages = function() {
     return [{route: 'pages/index/index'}];
@@ -10,6 +14,10 @@ let todo = function(state=[], action) {
     switch(action.type) {
         case 'add' : {
             state = [...state, action.payload]
+            return state;
+        }
+        case 'repl': {
+            state = action.payload;
             return state;
         }
         default : return state;
@@ -38,6 +46,7 @@ let todoDel = function(state=[], action) {
 
 describe('App register redux', ()=>{
     test('mount redux store and middlewares', ()=>{
+
         let reduxFn = wxaRedux({
             reducers: combineReducers({todo})
         });
@@ -98,16 +107,16 @@ describe('App register redux', ()=>{
         }).toThrowErrorMatchingSnapshot();
     });
 
-    test('reducers is null', ()=>{
-        let warn = jest.fn();
-        let ogWarn = console.warn;
-        console.warn = warn;
+    // test('reducers is null', ()=>{
+    //     let warn = jest.fn();
+    //     let ogWarn = console.warn;
+    //     console.warn = warn;
         
-        let reduxFn = wxaRedux();
-        expect(warn).toHaveBeenCalled();
+    //     let reduxFn = wxaRedux();
+    //     expect(warn).toHaveBeenCalled();
 
-        console.warn = ogWarn;
-    })
+    //     console.warn = ogWarn;
+    // })
 })
 
 let app = {};
@@ -273,6 +282,7 @@ describe('Component use redux', ()=>{
         expect(com.data).toMatchObject({});
         expect(com.$unsubscribe).not.toBeFalsy();
 
+        com.pageLifetimes.show.bind(com)();
         com.$store.dispatch({type: 'comAdd', payload: 'testcom'});
         expect(com.data.todoList.length).toBe(1);
         com.$store.dispatch({type: 'comAdd', payload: 'testcom'});
@@ -282,6 +292,69 @@ describe('Component use redux', ()=>{
 
         com.detached();
         expect(com.$unsubscribe).toBeNull();
+    })
+})
+
+describe('registry reducer', ()=>{
+    let reduxFn = wxaRedux({
+        reducers: {
+            todo
+        }
+    });
+
+    let page = {
+        setData
+    }; 
+    
+    reduxFn(page, 'Page');
+
+    test("check reduers' amount", () => {
+        expect(page.$store).not.toBeFalsy();
+        expect(Object.keys(page.$store.getState()).length).toBe(1);
+    });
+    
+    test("lazy register reducer", ()=>{
+        page.$store.dispatch({type: 'add', payload: 'xxx'});
+        expect(page.$store.getState().todo.length).toBe(1);
+        
+        reducerRegistry.register('todoDel', todoDel);
+        reducerRegistry.register('comTodo', comTodo);
+        setTimeout(() => {
+            expect(Object.keys(page.$store.getState()).length).toBe(3);
+            expect(page.$store.getState().todo.length).toBe(1);
+        });
+    });
+})
+
+describe('while dispatch long long data', ()=>{
+    let reduxFn = wxaRedux({
+        reducers: {
+            todo
+        }
+    });
+
+    let page = {
+        setData,
+        mapState: {
+            todo: (state)=>state.todo
+        },
+        data: {}
+    }; 
+    
+    reduxFn(page, 'Page');
+
+    test('long data', ()=>{
+        page.onLoad();
+        // page.onHide();
+        expect(page.$$reduxDiff).not.toBeFalsy();
+        let pic = fs.readFileSync(path.join(__dirname, './pic.base64.txt')).toString();
+        page.$store.dispatch({type: 'add', payload: pic});
+        expect(page.$store.getState().todo.length).toBe(1);
+        expect(()=>page.onShow()).toConsoleError();
+        expect(page.data.todo.length).toBe(0);
+        
+        page.$store.dispatch({type: 'add', payload: 'hey'});
+        expect(page.data.todo.length).toBe(2);
     })
 })
 
