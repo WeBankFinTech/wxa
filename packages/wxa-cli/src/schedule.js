@@ -153,6 +153,7 @@ class Schedule {
             this.progress.draw(text, 'COMPILING', !this.cmdOptions.verbose);
             this.perf.markStart(relativeSrc);
             this.hooks.buildModule.call(dep);
+
             // loader: use custom compiler to load resource.
             await this.loader.compile(dep, this);
 
@@ -380,7 +381,7 @@ class Schedule {
                     },
                     wrap(mdl) {
                         mdl.code = `
-                        require('wxa://core-js/es.promise.finally.js');
+                        require('wxa://es/promise.finally.js');
 
                         ${mdl.code}
                         `;
