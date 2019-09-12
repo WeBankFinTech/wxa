@@ -147,6 +147,7 @@ class CompilerLoader {
 
                     // Todo: Multi loader with one string
                     mdl.code = code;
+                    mdl.sourceMap = rest.sourceMap;
                     mdl.restResource = rest;
                 } catch (e) {
                     debug('parse Error %O', e);

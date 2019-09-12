@@ -24,46 +24,46 @@ describe('watch plugin', ()=>{
         expect(mock).not.toBeCalled();
     })
 
-    test('test mobx function', ()=>{
+    // test('test mobx function', ()=>{
 
-        let vm = {
-            store: {
-                a: 1,
-                add(){this.a++}
-            },
-            add(){
-                this.$store.add();
-            }
-        };
+    //     let vm = {
+    //         store: {
+    //             a: 1,
+    //             add(){this.a++}
+    //         },
+    //         add(){
+    //             this.$store.add();
+    //         }
+    //     };
 
-        // test started.
-        mobxFn(vm, 'Page');
-        vm.onLoad();
-        vm.$store.add();
-        expect(vm.$store.a).toBe(2);
+    //     // test started.
+    //     mobxFn(vm, 'Page');
+    //     vm.onLoad();
+    //     vm.$store.add();
+    //     expect(vm.$store.a).toBe(2);
 
-    })
+    // })
 
-    test('test mobx comouted property', ()=>{
+    // test('test mobx comouted property', ()=>{
 
-        let vm = {
-            store: {
-                a: 1,
-                b: 2,
-                get c(){
-                    return this.a + this.b;
-                }
-            }
-        };
+    //     let vm = {
+    //         store: {
+    //             a: 1,
+    //             b: 2,
+    //             get c(){
+    //                 return this.a + this.b;
+    //             }
+    //         }
+    //     };
 
-        // test started.
-        mobxFn(vm, 'Page');
-        vm.onLoad();
-        expect(vm.$store.c).toBe(3);
-        vm.$store.a = 2;
-        expect(vm.$store.c).toBe(4);
+    //     // test started.
+    //     mobxFn(vm, 'Page');
+    //     vm.onLoad();
+    //     expect(vm.$store.c).toBe(3);
+    //     vm.$store.a = 2;
+    //     expect(vm.$store.c).toBe(4);
 
-    })
+    // })
 
     // test('test mobx async', ()=>{
 

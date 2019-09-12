@@ -44,6 +44,10 @@ export default class Generator {
             // https://github.com/wxajs/wxa/issues/5#issuecomment-498186337
             // if a module is unrecognized, then we just copy it to dist.
             if (mdl.code != null) {
+                if (mdl.sourceMap && mdl.kind === 'js') {
+                    writeFile(outputPath+'.map', JSON.stringify(mdl.sourceMap));
+                    mdl.code += `\n//@ sourceMappingURL=${path.basename(outputPath)}.map`;
+                }
                 writeFile(outputPath, mdl.code);
             } else {
                 copy(mdl.src, outputPath);

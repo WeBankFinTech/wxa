@@ -57,6 +57,7 @@ commander
     .description('编译项目')
     .option('-w, --watch', '监听文件改动')
     .option('-N, --no-cache', '不使用缓存')
+    .option('--source-map', '生成sourceMap并输出')
     .option('-m, --multi', '三方开发模式，一次编译出多个项目')
     .option('-p, --project <project>', '三方开发模式，单独指定需要编译监听的项目')
     .option('--no-progress', '不展示文件进度')
