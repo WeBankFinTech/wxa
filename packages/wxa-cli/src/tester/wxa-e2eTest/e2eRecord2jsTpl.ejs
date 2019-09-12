@@ -28,7 +28,15 @@ describe('==== <%= name %> ====', () => {
         await page.waitFor(300);
 
         <% record.forEach(function(item){ %>
-            page = await miniProgram.currentPage()
+            while (true) {
+                page = await miniProgram.currentPage()
+                if (page.path === '<%= item.page %>') {
+                    break;
+                }
+                await sleep(1000);
+            }
+
+            await page.waitFor('.<%= item.id %>');
             console.log(JSON.stringify(page.path));
             element = await page.$('.<%= item.id %>')
             <% if (!!~['tap', 'longpress'].indexOf(item.event)) { %>

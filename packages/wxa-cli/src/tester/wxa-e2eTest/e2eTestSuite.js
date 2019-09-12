@@ -20,20 +20,40 @@ function getEventFunc(eventType, eventMap) {
     }
     return null;
 }
+// 判断是否需要记录操作
+const shouldRecord = function(type, ...args) {
+    let e = args[0];
+    // 点击开始录制按钮后，才记录
+    if (!state.recording) {
+        return false;
+    }
+    // change且autoplay，不记录
+    if (type === 'change' && e.detail.source === 'autoplay') {
+        return false;
+    }
+    // 当前页面的操作才记录
+    if (!this.$$isCurrentPage) {
+        return false;
+    }
+    let target = e.target.dataset[IDKEY] ? e.target : e.currentTarget;
+    let id = target.dataset[IDKEY];
+    // 已经记录过相同timestamp的事件，说明是冒泡的，不再记录
+    if (lastEventTime[type] && lastEventTime[type].id === id && lastEventTime[type].timeStamp === e.timeStamp) {
+        return false;
+    }
+    lastEventTime[type] = {};
+    lastEventTime[type].timeStamp = e.timeStamp;
+    lastEventTime[type].id = id;
+    return true;
+}
 
 // 增加一条操作记录
 const addRecord = function(type, ...args) {
     let e = args[0];
     let target = e.target.dataset[IDKEY] ? e.target : e.currentTarget;
-    if (state.recording) {
-        let id = target.dataset[IDKEY];
-        // 已经记录过相同timestamp的事件，说明是冒泡的，不再记录
-        if (lastEventTime[type] && lastEventTime[type].id === id && lastEventTime[type].timeStamp === e.timeStamp) {
-            return;
-        }
-        lastEventTime[type] = {};
-        lastEventTime[type].timeStamp = e.timeStamp;
-        lastEventTime[type].id = id;
+    let id = target.dataset[IDKEY];
+    // 先判断是否需要记录
+    if (shouldRecord.bind(this)(type, ...args)) {
         let pages = getCurrentPages();
         state.record.push({
             page: pages[pages.length - 1].route,
@@ -44,14 +64,15 @@ const addRecord = function(type, ...args) {
                 ...e.detail,
             },
         });
+        console.log('e2eRecord:', e)
     }
+
     // 调用eventMap中原方法
     let eventFunc = getEventFunc(type, target.dataset[EVENTMAPKEY]);
     if (!eventFunc) {
         console.warn(`wxa e2eTest, event "${type}" is lost`);
         return;
     }
-    console.log(this[eventFunc], typeof this[eventFunc]);
     if (!this[eventFunc] || typeof this[eventFunc] !== 'function') {
         console.warn(`Component "${this.is}" does not have a method "${eventFunc}" to handle event "${type}". `);
         return;
