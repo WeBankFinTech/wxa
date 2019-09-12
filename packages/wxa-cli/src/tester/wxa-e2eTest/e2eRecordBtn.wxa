@@ -40,18 +40,22 @@ class e2eBtn {
         this.setData({
             btnText: this.$$e2e_state.recording ? END_BTN_TEXT : START_BTN_TEXT
         });
+        wx.onAppRouteDone(() => {
+            this.setData({
+                btnText: this.$$e2e_state.recording ? END_BTN_TEXT : START_BTN_TEXT
+            });
+        });
     }
     // 创建测试脚本，record上传
     async createScript() {
-        console.log('upload record:', this.$$e2e_state.record);
-        console.log('upload fileName:', this.data.fileName);
+        console.log('e2etest upload record:', this.$$e2e_state.record);
+        console.log('e2etest upload fileName:', this.data.fileName);
 
         try {
             let result = fetch('http://127.0.0.1:9421/record', {
                 name: this.data.fileName,
                 record: this.$$e2e_state.record
             }, {}, 'post');
-            console.log(result);
             this.closeInput();
         } catch (err) {
             console.log(err);
@@ -60,7 +64,6 @@ class e2eBtn {
 
     }
     bindInput(e) {
-        console.log(3);
         this.setData({
             fileName: e.detail.value
         });
@@ -68,7 +71,6 @@ class e2eBtn {
     tap() {
         let btnText = START_BTN_TEXT;
         this.$$e2e_state.recording = !this.$$e2e_state.recording;
-
         // 开始录制 清空record数组
         if (this.$$e2e_state.recording) {
             btnText = END_BTN_TEXT;
