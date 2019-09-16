@@ -38,6 +38,7 @@
 		}
 	},
 	"scripts": {
+		"bootstrap": "lerna bootstrap",
 		"publish-next": "lerna publish --dist-tag=next --canary --preid rc",
 		"commit": "git-cz",
 		"test": "jest"
