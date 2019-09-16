@@ -5,6 +5,7 @@
         "no-empty-interface":false,
         "max-line-length": false,
         "align": false,
-        "no-this-assignment": false
+        "no-this-assignment": false,
+        "no-console": false,
     }
 }

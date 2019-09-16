@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        // "allowJs": true,
         "outDir": "./dist/",
         "sourceMap": true,
         "noImplicitAny": true,
@@ -10,9 +11,16 @@
         "lib": ["dom", "es7"],
         "typeRoots" : [
             "./typings"
-        ]
+        ],
+        "declaration": true,
+        // "declarationDir": "./dist/types/",
+        // "paths": {
+        //     "*": ["typings/*"]
+        // }
     },
     "include": [
-        "./src/**/*"
-    ]
+        "./src/**/*",
+        "./ts/**/*",
+    ],
+    "exclude": ["**/*.js"]
 }

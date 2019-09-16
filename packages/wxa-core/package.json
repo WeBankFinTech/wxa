@@ -13,7 +13,9 @@
         "precommit": "lint-staged",
         "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0",
         "prepublishOnly": "npm run prebuild && npm run build",
-        "commit": "git cz"
+        "commit": "git cz",
+        "ts-build": "webpack ts/index.ts --output-path ./dist/ --optimize-minimize",
+        "ts-dev": "npm run prebuild && webpack ts/index.ts --output-path ./dist/ -w"
     },
     "author": "iveswen",
     "license": "MIT",
@@ -25,6 +27,7 @@
         "@babel/plugin-proposal-decorators": "^7.1.0",
         "@babel/preset-env": "^7.1.0",
         "@babel/preset-typescript": "^7.1.0",
+        "@types/lodash": "^4.14.138",
         "babel-core": "^7.0.0-bridge.0",
         "babel-eslint": "^10.0.0",
         "babel-loader": "^8.0.0",
@@ -37,6 +40,7 @@
         "husky": "^0.14.3",
         "jest": "^23.6.0",
         "lint-staged": "^6.1.1",
+        "ts-loader": "^6.0.4",
         "tslint": "^5.12.1",
         "tslint-config-airbnb": "^5.11.1",
         "typescript": "^3.3.1",
@@ -46,7 +50,8 @@
     },
     "dependencies": {
         "deep-object-diff": "^1.1.0",
-        "lodash": "^4.17.11"
+        "lodash": "^4.17.11",
+        "miniprogram-api-typings": "^2.8.2"
     },
     "lint-staged": {
         "*.js": [
@@ -55,11 +60,6 @@
         ]
     },
     "sideEffects": false,
-    "config": {
-        "commitizen": {
-            "path": "./node_modules/cz-conventional-changelog"
-        }
-    },
     "publishConfig": {
         "access": "public"
     }
