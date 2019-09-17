@@ -1,0 +1,21 @@
+{
+  "name": "@wxa/hooks",
+  "version": "0.1.0",
+  "description": "Hooks for MiniApp ",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "keywords": [
+    "hooks"
+  ],
+  "author": "Genuifx",
+  "license": "MIT",
+  "devDependencies": {
+    "tslint": "^5.20.0"
+  },
+  "dependencies": {
+    "@wxa/core": "^2.0.7"
+  }
+}
