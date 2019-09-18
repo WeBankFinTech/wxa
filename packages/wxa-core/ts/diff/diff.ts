@@ -1,7 +1,7 @@
-import { diff } from 'deep-object-diff';
+import {diff} from 'deep-object-diff';
 import flatten from './flatten';
 
-export default function (newData: {} | null) {
+export default function(newData: {} | null) {
   if (
         newData == null ||
         Object.prototype.toString.call(newData) !== '[object Object]'

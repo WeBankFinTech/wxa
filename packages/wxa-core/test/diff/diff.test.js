@@ -1,4 +1,4 @@
-import diff from '../../src/diff/diff';
+import diff from '../../../ts/diff/diff';
 
 
 describe('get diff flatten data with this.data', ()=>{

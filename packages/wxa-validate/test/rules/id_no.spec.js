@@ -1,4 +1,4 @@
-import { validate } from '../../src/rules/id_no';
+import { validate } from '../../ts/rules/id_no';
 
 const invalid = [
     '文字',

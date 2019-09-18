@@ -1,4 +1,4 @@
-import { validate } from '../../src/rules/digits';
+import { validate } from '../../ts/rules/digits';
 
 const valid = [
   '123',

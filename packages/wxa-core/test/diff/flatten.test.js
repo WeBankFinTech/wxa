@@ -1,4 +1,4 @@
-import flatten from '../../src/diff/flatten';
+import flatten from '../../../ts/diff/flatten';
 
 describe('flatten object for wxa', ()=>{
     test('normal object without array', ()=>{

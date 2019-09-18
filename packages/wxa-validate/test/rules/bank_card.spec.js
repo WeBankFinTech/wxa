@@ -1,4 +1,4 @@
-import { validate } from '../../src/rules/bank_card';
+import { validate } from '../../ts/rules/bank_card';
 
 const valid = [
     '6222023602099932110',

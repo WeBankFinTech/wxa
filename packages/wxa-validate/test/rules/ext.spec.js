@@ -1,4 +1,4 @@
-import { validate } from '../../src/rules/ext';
+import { validate } from '../../ts/rules/ext';
 import helpers from '../helpers';
 
 it('validates files extensions', () => {

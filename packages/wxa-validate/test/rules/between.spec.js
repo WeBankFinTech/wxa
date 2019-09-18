@@ -1,4 +1,4 @@
-import { validate } from '../../src/rules/between';
+import { validate } from '../../ts/rules/between';
 
 const valid = [
   '1',

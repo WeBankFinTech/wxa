@@ -3,19 +3,14 @@ import promisify from './promisify';
 /**
  * promise化微信的api
  */
-type Wxapi = Partial<Record<keyof wx.WX, any>>;
-type WxCallback = wx.WX[keyof wx.WX];
-type UnionToIntersection<U> =
-    (U extends any ? (k: U)=>void : never) extends ((k: infer I)=>void) ? I : never;
-
-let _wxapi: Wxapi = {};
+let _wxapi: any = {};
 let noPromiseApi = ['getUpdateManager', 'nextTick'];
 let isInit = false;
 
-export default function wxapi(wx: wx.WX): Wxapi {
+export default function wxapi(wx) {
     if (isInit) return _wxapi;
     else {
-        Object.keys(wx).forEach((key: keyof wx.WX) => {
+        Object.keys(wx).forEach((key)=>{
             // 同步方法
             if (
                 /^create.+/.test(key) ||
@@ -25,14 +20,16 @@ export default function wxapi(wx: wx.WX): Wxapi {
             ) {
                 _wxapi[key] = wx[key];
             } else {
-                _wxapi[key] = promisify((wx[key] as UnionToIntersection<WxCallback>));
+                // FIXME: 这里也是，addNoPromiseApi 只用到了第一个参数
+                // _wxapi[key] = promisify(wx[key], key);
+                _wxapi[key] = promisify(wx[key]);
             }
         });
         return _wxapi;
     }
 };
 
-export function addNoPromiseApi(name: string | any[]): void | boolean {
+export function addNoPromiseApi(name) {
     if (typeof name === 'string') {
         noPromiseApi.push(name);
     } else if (Array.isArray(name)) {

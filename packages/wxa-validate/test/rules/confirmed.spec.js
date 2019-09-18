@@ -1,4 +1,4 @@
-import { validate } from '../../src/rules/confirmed';
+import { validate } from '../../ts/rules/confirmed';
 
 it('validates a field confirmation', () => {
   expect(validate('p@$$word', { targetValue: 'p@$$word' })).toBe(true);

@@ -2,7 +2,7 @@ import {
     formatDate,
     trim,
     compareVersion,
-} from '../src/utils/helpers';
+} from '../ts/utils/helpers';
 
 describe('formatDate', ()=>{
     test('empty stamp', ()=>{

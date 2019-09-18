@@ -18,7 +18,9 @@ export let methodDescriptorGenerator = (name, fn, placement='prototype')=>{
 
 export let classFactory = (name, fn)=>{
     return function(classDescriptor) {
-        let {elements} = classDescriptor;
+        console.log('!!!!!!!!!!!!!!!!');
+        console.log(classDescriptor.elements);
+        let {elements} = classDescriptor || [];
 
         return {
             ...classDescriptor,

@@ -1,5 +1,5 @@
 import path from 'path';
-import BabelCompiler from '../src/index';
+import BabelCompiler from '../ts/index';
 import { default as fs, mock } from 'jest-plugin-fs'
 
 let defaultBabelRc = `{
@@ -29,10 +29,10 @@ describe('basic feature', ()=>{
     });
     afterEach(() => fs.restore());
 
-    
+
     test('default compiler', ()=>{
         let babel = new BabelCompiler(path.join(__dirname, '../'), null);
-        
+
         expect(babel.configs).not.toBeFalsy();
         expect(babel.configs.ignore).toEqual(['node_modules'])
         expect(babel.test.toString()).toBe(/\.js$|\.wxs$/.toString());
@@ -60,7 +60,7 @@ describe('basic feature', ()=>{
     });
 
     // TODO:
-    
+
     // test('read babel.config.js from current dir', ()=>{})
 
     // test('read package.config from current dri', ()=>{})
@@ -72,11 +72,11 @@ describe('basic feature', ()=>{
         let babel = new BabelCompiler(path.join(__dirname, '../'), {
             presets: [require('@babel/preset-env')]
         });
-        
+
         let {code} = await babel.parse({meta: {source: path.join(__dirname, 'test.js')}, content: esString}, {cache: false});
-        
+
         expect(code).toMatch(exp);
-        
+
         mock.writeFileSync(path.join(__dirname, 'file.test.js'), esString);
         let fileRet = await babel.parse({meta: {source: path.join(__dirname, 'file.test.js')}}, {cache: false});
 
@@ -105,11 +105,11 @@ describe('basic feature', ()=>{
         })
 
         let mdl = {meta: {source: path.join(__dirname, 'test.js')}, content: esString};
-        
+
         expect(babel.parse(mdl, {cache: false})).rejects.toThrowError();
 
         expect(babel.parse((mdl.meta.source=void(0), mdl), {cache: false})).rejects.toThrowError();
-        
+
     })
 
     test('throw error while ignore not string or array', ()=>{

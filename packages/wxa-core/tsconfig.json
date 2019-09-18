@@ -2,20 +2,13 @@
     "compilerOptions": {
         "outDir": "./dist/",
         "allowJs": true,
-        // "sourceMap": true,
+        // "declaration": true,
         "noImplicitAny": false,
-        // "noImplicitThis": true,
-        // "strictNullChecks": true,
-        // "module": "commonjs",
+        "module": "commonjs",
         "target": "es5",
         "lib": ["dom", "es7"],
-        // "typeRoots" : [
-        //     "./typings"
-        // ],
-        // "declaration": true,
         "esModuleInterop": true,
         "experimentalDecorators": true,
-        // "declarationDir": "./dist/types/",
         "typeRoots": [
             "node_modules/@types",
             "typings"
@@ -23,6 +16,6 @@
         "types": ["miniprogram-api-typings"]
     },
     "include": [
-        "./ts/**/*"
+        "./ts/**/*", "./test/**/*"
     ]
 }

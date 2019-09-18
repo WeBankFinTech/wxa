@@ -1,4 +1,4 @@
-import { validate } from '../../src/rules/mobile';
+import { validate } from '../../ts/rules/mobile';
 
 const valid = [
     '12345678901',

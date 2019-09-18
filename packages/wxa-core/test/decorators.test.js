@@ -29,7 +29,7 @@ import {
     Loading,
 
     Mixins,
-} from '../src/decorators/index';
+} from '../ts/decorators/index';
 
 describe('wxa decorator', ()=>{
     test('mount eventbus to class', ()=>{

@@ -1,4 +1,4 @@
-import { validate } from '../../src/rules/mimes';
+import { validate } from '../../ts/rules/mimes';
 import helpers from '../helpers';
 
 it('validates mime types', () => {

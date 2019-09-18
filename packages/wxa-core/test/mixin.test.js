@@ -1,4 +1,4 @@
-import mixin from '../src/base/mixin.ts';
+import mixin from '../ts/base/mixin.ts';
 
 
 describe('mixin', ()=>{

@@ -1,4 +1,4 @@
-import { validate } from '../../src/rules/before';
+import { validate } from '../../ts/rules/before';
 
 it('sets the format and inclusion params if not passed', () => {
   const format = 'DD/MM/YYYY';

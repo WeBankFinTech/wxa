@@ -83,9 +83,12 @@ function Time(name, ...rest) {
     if (typeof name === 'string') {
         return h;
     } else {
-        let args = [name, ...rest];
-        name = void(0);
-        h(...args);
+        // FIXME: 这段看不懂了，h 没有用到除第一个参数以外的任何参数
+        // 为什么不直接传 name 要用 seprate operator
+        // let args = [name, ...rest];
+        // name = void(0);
+        // h(...args);
+        h(name);
     }
 }
 /**

@@ -1,8 +1,8 @@
 import {
     default as Router,
-} from '../src/utils/router';
+} from '../ts/utils/router';
 
-import {wxa} from '../src/wxa';
+import {wxa} from '../../ts/wxa';
 
 describe('router', ()=>{
     test('fn call', ()=>{
@@ -68,4 +68,3 @@ describe('router', ()=>{
         expect(preExec).toHaveBeenCalledTimes(2);
     });
 });
-

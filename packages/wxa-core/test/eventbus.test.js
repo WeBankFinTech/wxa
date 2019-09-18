@@ -1,4 +1,4 @@
-const eventbus = require('../src/utils/eventbus.js').Eventbus;
+const eventbus = require('../ts/utils/eventbus.js').Eventbus;
 
 test('add event', ()=>{
     let bus = new eventbus();

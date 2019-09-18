@@ -1,4 +1,4 @@
-import { validate } from '../../src/rules/ip';
+import { validate } from '../../ts/rules/ip';
 
 it('validates that the string is a valid ipv4 address', () => {
   // valid.

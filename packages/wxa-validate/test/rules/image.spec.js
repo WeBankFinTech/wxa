@@ -1,4 +1,4 @@
-import { validate } from '../../src/rules/image';
+import { validate } from '../../ts/rules/image';
 import helpers from '../helpers';
 
 it('validates image files', () => {

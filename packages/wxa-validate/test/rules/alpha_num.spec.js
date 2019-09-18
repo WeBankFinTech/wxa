@@ -1,4 +1,4 @@
-import { validate } from '../../src/rules/alpha_num';
+import { validate } from '../../ts/rules/alpha_num';
 
 const valid = [
   'a',

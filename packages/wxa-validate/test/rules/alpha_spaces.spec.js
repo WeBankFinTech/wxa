@@ -1,4 +1,4 @@
-import { validate } from '../../src/rules/alpha_spaces';
+import { validate } from '../../ts/rules/alpha_spaces';
 
 const valid = [
   'a',

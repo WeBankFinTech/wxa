@@ -1,4 +1,4 @@
-import { validate } from '../../src/rules/username';
+import { validate } from '../../ts/rules/username';
 
 const valid = [
     '姓名',

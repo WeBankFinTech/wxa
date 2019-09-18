@@ -1,4 +1,4 @@
-import { validate } from '../../src/rules/is_not';
+import { validate } from '../../ts/rules/is_not';
 
 it('checks if the value matches another', () => {
   expect(validate(1, ['1'])).toBe(true);

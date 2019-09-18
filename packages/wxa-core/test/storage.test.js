@@ -1,6 +1,6 @@
 import {
     default as Storage,
-} from '../src/utils/storage';
+} from '../../ts/utils/storage';
 
 import 'jest-plugin-console-matchers/setup';
 

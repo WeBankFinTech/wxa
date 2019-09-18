@@ -1,4 +1,4 @@
-import { validate } from '../../src/rules/size';
+import { validate } from '../../ts/rules/size';
 import helpers from '../helpers';
 
 it('validates file size', () => {

@@ -11,17 +11,17 @@ interface Diff {
   [propName: string]: any;
 }
 
-function flatten(oldValue: string, newValue: string, diff: Diff, opts: Opts) {
+function flatten(oldValue: any, newValue: any, diff: Diff, opts?: Opts) {
     // if diff element is an array, then just return the array in wxa. so we allways need safe options in wxa.
-  opts = opts || { safe: true };
+  opts = opts || {safe: true};
 
   const delimiter = opts.delimiter || '.';
   const maxDepth = opts.maxDepth;
   const output = {};
 
-  function step(oldValue: string, newValue: string, diff: Diff, prev: string, currentDepth: number) {
+  function step(oldValue: string, newValue: string, diff: Diff, prev?: string, currentDepth?: number) {
     currentDepth = currentDepth || 1;
-    Object.keys(diff).forEach(function (key) {
+    Object.keys(diff).forEach(function(key) {
       const diffChildValue = diff[key];
       const isDiffChildValueArray = opts.safe && Array.isArray(diffChildValue);
 
@@ -52,7 +52,7 @@ function flatten(oldValue: string, newValue: string, diff: Diff, opts: Opts) {
                 // return new array or object.
           output[newKey] = newChildValue;
           return;
-        }  if (Array.isArray(oldValue)) {
+        } if (Array.isArray(oldValue)) {
                 // array element changed or added.
           newKey = prev ? prev + `[${key}]` : key;
         }

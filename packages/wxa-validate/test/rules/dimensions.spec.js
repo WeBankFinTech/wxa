@@ -1,4 +1,4 @@
-import { validate } from '../../src/rules/dimensions';
+import { validate } from '../../ts/rules/dimensions';
 import helpers from '../helpers';
 
 let fails = false;

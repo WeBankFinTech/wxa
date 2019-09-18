@@ -1,4 +1,4 @@
-import { validate } from '../../src/rules/length';
+import { validate } from '../../ts/rules/length';
 
 it('validates number of characters in a string', () => {
   // exact length

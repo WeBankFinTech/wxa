@@ -1,4 +1,4 @@
-import { validate } from '../../src/rules/required';
+import { validate } from '../../ts/rules/required';
 
 const valid = [
   'asjdj',

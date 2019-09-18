@@ -4,7 +4,7 @@ import {
     default as fetch,
     setMaxRequest,
     setRequestExpiredTime,
-} from '../src/utils/fetch';
+} from '../../ts/utils/fetch';
 
 let originConsole = console;
 describe('fetch api', ()=>{
