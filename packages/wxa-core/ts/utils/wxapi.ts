@@ -1,4 +1,5 @@
 import promisify from './promisify';
+
 /**
  * promise化微信的api
  */

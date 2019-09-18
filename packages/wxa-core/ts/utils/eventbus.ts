@@ -1,4 +1,6 @@
 class Eventbus {
+    private storage;
+
     constructor() {
         this.storage = {};
     }

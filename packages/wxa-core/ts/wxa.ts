@@ -22,8 +22,8 @@ export class Wxa {
   public setMaxRequest;
   public setRequestExpiredTime;
   public IS_DEBUG;
+  public $$pageMap;
   private $$globalMixins;
-  private $$pageMap;
   private $$plugins;
 
   constructor() {

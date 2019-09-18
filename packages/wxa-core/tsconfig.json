@@ -1,26 +1,28 @@
 {
     "compilerOptions": {
-        // "allowJs": true,
         "outDir": "./dist/",
-        "sourceMap": true,
-        "noImplicitAny": true,
-        "noImplicitThis": true,
-        "strictNullChecks": true,
-        "module": "commonjs",
+        "allowJs": true,
+        // "sourceMap": true,
+        "noImplicitAny": false,
+        // "noImplicitThis": true,
+        // "strictNullChecks": true,
+        // "module": "commonjs",
         "target": "es5",
         "lib": ["dom", "es7"],
-        "typeRoots" : [
-            "./typings"
-        ],
-        "declaration": true,
+        // "typeRoots" : [
+        //     "./typings"
+        // ],
+        // "declaration": true,
+        "esModuleInterop": true,
+        "experimentalDecorators": true,
         // "declarationDir": "./dist/types/",
-        // "paths": {
-        //     "*": ["typings/*"]
-        // }
+        "typeRoots": [
+            "node_modules/@types",
+            "typings"
+        ],
+        "types": ["miniprogram-api-typings"]
     },
     "include": [
-        "./src/**/*",
-        "./ts/**/*",
-    ],
-    "exclude": ["**/*.js"]
+        "./ts/**/*"
+    ]
 }

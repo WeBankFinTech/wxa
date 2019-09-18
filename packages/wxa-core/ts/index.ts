@@ -1,4 +1,4 @@
-/// <reference path="../typings/wx/index.d.ts" />
+/// <reference path="./node_modules/miniprogram-api-typings/index.d.ts" />
 
 import {wxa} from './wxa';
 import {default as wxapiFn} from './utils/wxapi';

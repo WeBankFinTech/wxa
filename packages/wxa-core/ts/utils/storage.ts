@@ -1,6 +1,8 @@
 import wxapi from './wxapi';
 
 export default class Storage {
+    private wxapi;
+
     constructor(wx) {
         this.wxapi = wxapi(wx);
     }

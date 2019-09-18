@@ -169,7 +169,7 @@ function Time(name, ...rest) {
     } else {
         let args = [name, ...rest];
         name = void(0);
-        h(...args);
+        (h as Function)(...args);
     }
 }
 /**
@@ -264,4 +264,3 @@ export {
     Deprecate,
     Time,
 };
-

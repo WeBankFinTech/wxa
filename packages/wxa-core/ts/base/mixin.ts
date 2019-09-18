@@ -1,4 +1,4 @@
-import deepMergeJs from '../utils/deep-merge.js';
+import deepMergeJs from '../utils/deep-merge';
 
 import { hooksName, IHooks, IHooksArray } from './hook';
 
