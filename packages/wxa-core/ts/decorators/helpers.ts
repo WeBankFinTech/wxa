@@ -16,15 +16,23 @@ export let methodDescriptorGenerator = (name, fn, placement='prototype')=>{
     };
 };
 
-export let classFactory = (name, fn)=>{
-    return function(classDescriptor) {
-        console.log('!!!!!!!!!!!!!!!!');
-        console.log(classDescriptor.elements);
-        let {elements} = classDescriptor || [];
+// export let classFactory = (name, fn)=>{
+//     return function(classDescriptor) {
+//         console.log('!!!!!!!!!!!!!!!!');
+//         console.log(classDescriptor.elements);
+//         let {elements} = classDescriptor || [];
 
-        return {
-            ...classDescriptor,
-            elements: elements.concat([methodDescriptorGenerator(name, fn)]),
-        };
+//         return {
+//             ...classDescriptor,
+//             elements: elements.concat([methodDescriptorGenerator(name, fn)]),
+//         };
+//     };
+// };
+
+
+export let classFactory = (name: string, fn)=>{
+    return function(constructor) {
+        console.log('!!!!!!!!!!!!!!!!!!!!');
+        constructor.prototype[name] = fn;
     };
 };
