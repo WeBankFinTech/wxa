@@ -80,22 +80,23 @@ describe('App register redux', ()=>{
         expect(vm.$store).not.toBeFalsy();
     })
     
-    test('middlewares not array', ()=>{
-        let mw = jest.fn();
+    // middlewares not can be handled by user.
+    // test('middlewares not array', ()=>{
+    //     let mw = jest.fn();
     
-        let reduxFnMW = wxaRedux({
-            reducers: combineReducers({todo}),
-            middlewares: function(store){
-                return function(){
-                    mw();
-                }
-            }
-        });
+    //     let reduxFnMW = wxaRedux({
+    //         reducers: combineReducers({todo}),
+    //         middlewares: function(store){
+    //             return function(){
+    //                 mw();
+    //             }
+    //         }
+    //     });
     
-        reduxFnMW({}, 'App');
+    //     reduxFnMW({}, 'App');
     
-        expect(mw).not.toHaveBeenCalled();
-    })
+    //     expect(mw).not.toHaveBeenCalled();
+    // })
     
     test('throw error while type undefined', ()=>{
         let reduxFn = wxaRedux({}, 'Hello');

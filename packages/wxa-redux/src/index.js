@@ -22,7 +22,7 @@ const combine = (registryReducers, userReducers) => {
 };
 
 const checkAndFilterDataField = (data, maxSize = 1024 * 1000)=>{
-    const check = (key, value)=>{
+    const check = (key, value) => {
         let str = JSON.stringify(value);
         if (typeof str !== 'string') return true;
 
@@ -90,12 +90,14 @@ export const wxaRedux = (options = {}) => {
     // get options.
     let args = [];
     let userReducers;
+    let debug = false;
     if (Array.isArray(options)) {
         userReducers = options[0];
         // object reducer
         args = [combine(reducerRegistry.getReducers(), userReducers), ...options.slice(1)];
     } else {
         userReducers = options.reducers; 
+        debug = options.debug;
         let {
             middlewares,
             initialState
@@ -103,13 +105,23 @@ export const wxaRedux = (options = {}) => {
 
         args = [combine(reducerRegistry.getReducers(), userReducers), initialState];
         if (Array.isArray(middlewares)) args.push(applyMiddleware(...middlewares));
+        else if (typeof middlewares === 'function') args.push(middlewares);
     }
 
     // create Store directly;
     // cause the reducer may be attached at subpackages.
     let store = createStore.apply(null, args);
     reducerRegistry.setChangeListener((reducer)=>{
-        store.replaceReducer(combine(reducer, userReducers));
+        let reducers = combine(reducer, userReducers);
+        if(debug) {
+            console.group('%c[@wxa/redux] Replacing reducers', 'font-size: 12px; color: green;');
+            console.table({
+                'registered reducer': reducer,
+                'init reducer': userReducers
+            });
+            console.groupEnd();
+        }
+        store.replaceReducer(reducers);
     });
 
     let syncStore = function(){
