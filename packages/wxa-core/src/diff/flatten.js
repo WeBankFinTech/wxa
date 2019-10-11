@@ -25,7 +25,7 @@ function flatten(oldValue, newValue, diff, opts) {
         let newKey;
         let newChildValue = newValue[key];
 
-        newKey = prev ? prev + delimiter + key : key;
+        newKey = prev ? prev + '[\'' + key + '\']' : key;
 
         if (oldValue) {
             // hasValue, meaning that new value still contain old one.
@@ -38,6 +38,7 @@ function flatten(oldValue, newValue, diff, opts) {
                 ) &&
                 Object.keys(diffChildValue).some((key)=>diffChildValue[key]===void(0))
             ) {
+                // console.log(currentDepth, ' element deleted ', newKey);
                 // some array or object element have been deleted.
                 // return new array or object.
                 output[newKey] = newChildValue;
@@ -62,4 +63,4 @@ function flatten(oldValue, newValue, diff, opts) {
     return output;
   }
 
-  export default flatten;
+export default flatten;

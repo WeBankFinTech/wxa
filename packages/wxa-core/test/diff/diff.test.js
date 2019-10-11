@@ -35,3 +35,21 @@ describe('get diff flatten data with this.data', ()=>{
         expect(bindDiff({name: 'genuifx', toString: ()=>{}})).toMatchObject({name: 'genuifx'});
     });
 });
+
+describe('diff array', ()=>{
+    let arr1 = [{a: 1, b: 2, c: 3}];
+
+    let arr2 = [{a: 1, b: 2}];
+
+    test('get diff properties', ()=>{
+        let page = {
+            data: {
+                x: arr1,
+            },
+        };
+
+        let pageDiff = diff.bind(page);
+
+        expect(pageDiff({x: arr2})).toMatchObject({'x[\'0\']': {a: 1, b: 2}});
+    });
+});
