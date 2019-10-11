@@ -20,7 +20,7 @@ describe('flatten object for wxa', ()=>{
                     b: 3,
                 },
             }
-        )).toMatchObject({'a[\'b\']': 3});
+        )).toMatchObject({'a.b': 3});
 
         expect(flatten(
             {
@@ -32,7 +32,7 @@ describe('flatten object for wxa', ()=>{
             {
                 a: {c: {d: 1}},
             }
-        )).toMatchObject({'a[\'c\'][\'d\']': 1});
+        )).toMatchObject({'a.c.d': 1});
 
         expect(flatten(
             {
@@ -53,7 +53,7 @@ describe('flatten object for wxa', ()=>{
                 },
                 score: 2000,
             }
-        )).toMatchObject({'userInfo[\'name\']': 'Genuifx', 'score': 2000});
+        )).toMatchObject({'userInfo.name': 'Genuifx', 'score': 2000});
     });
 
     test('normal object with array', ()=>{
@@ -76,7 +76,7 @@ describe('flatten object for wxa', ()=>{
                     '1': {b: 1},
                 },
             },
-        })).toMatchObject({'a[\'c\'][1][\'b\']': 1});
+        })).toMatchObject({'a.c[1].b': 1});
 
         expect(flatten(
             {
@@ -96,7 +96,7 @@ describe('flatten object for wxa', ()=>{
                     c: [1, 2, 3],
                 },
             }
-        )).toMatchObject({'a[\'c\']': [1, 2, 3]});
+        )).toMatchObject({'a.c': [1, 2, 3]});
 
         // delete
         expect(flatten(
@@ -119,7 +119,7 @@ describe('flatten object for wxa', ()=>{
                     },
                 },
             }
-        )).toMatchObject({'a[\'c\']': [1, 2]});
+        )).toMatchObject({'a.c': [1, 2]});
     });
 
     test('setting undefine to newValue', ()=>{
