@@ -25,7 +25,9 @@ function flatten(oldValue, newValue, diff, opts) {
         let newKey;
         let newChildValue = newValue[key];
 
-        newKey = prev ? prev + '[\'' + key + '\']' : key;
+        // Only digits (0-9) can be put inside [] in the path string
+        newKey = prev ? /^\d+$/.test(key) ? prev + '[' + key + ']' : prev + delimiter + key : key;
+
 
         if (oldValue) {
             // hasValue, meaning that new value still contain old one.

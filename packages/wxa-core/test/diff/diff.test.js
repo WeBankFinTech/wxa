@@ -50,6 +50,6 @@ describe('diff array', ()=>{
 
         let pageDiff = diff.bind(page);
 
-        expect(pageDiff({x: arr2})).toMatchObject({'x[\'0\']': {a: 1, b: 2}});
+        expect(pageDiff({x: arr2})).toMatchObject({'x[0]': {a: 1, b: 2}});
     });
 });
