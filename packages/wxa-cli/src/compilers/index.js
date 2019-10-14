@@ -41,7 +41,10 @@ export default class Compiler {
         debug('module to parse %O', mdl);
 
         let children = [];
-        let content = mdl.code || mdl.content || readFile(mdl.src);
+        let content = mdl.code;
+        // generate empty string is allowed.
+        content = content == null ? mdl.content || readFile(mdl.src) : content;
+
         let type = path.extname(mdl.meta.source);
         type = type.replace(/^\.*/, '');
 
