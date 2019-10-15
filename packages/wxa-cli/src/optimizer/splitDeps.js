@@ -1,6 +1,11 @@
 import path from 'path';
 import logger from '../helpers/logger';
 
+const COLOR = {
+    SKIP: 1,
+    INIT: 0,
+};
+
 export default class SplitDeps {
     constructor({appConfigs, wxaConfigs, cwd, cmdOptions}) {
         this.cmdOptions = cmdOptions;
@@ -42,8 +47,22 @@ export default class SplitDeps {
         });
     }
 
+    clean(dep) {
+        dep.$depSplitColor = COLOR.INIT;
+        dep.childNodes.forEach((child)=> {
+            if (dep.$depSplitColor !== COLOR.INIT) {
+                this.clean(child);
+            }
+        });
+    }
+
     start(dep, pkg) {
+        dep.$depSplitColor = COLOR.SKIP;
+
         dep.childNodes.forEach((child, src)=>{
+            // circular dependency
+            if (child.$depSplitColor === COLOR.SKIP) return;
+
             if (
                 // an abstract file will never be output, but we still need to track it's childNodes.
                 child.isAbstract ||
