@@ -169,6 +169,9 @@ class Schedule {
 
             compiler.destroy();
 
+            // empty loader handle this module.
+            if (dep.code == null && !dep.isFile) dep.code = dep.content;
+
             debug('childNodes', childNodes.map((node)=>simplify(node)));
             let children = childNodes.reduce((children, node)=>{
                 let child = this.findOrAddDependency(node, dep);
@@ -380,7 +383,7 @@ class Schedule {
                     },
                     wrap(mdl) {
                         mdl.code = `
-                        require('wxa://core-js/es.promise.finally.js');
+                        require('wxa://es/promise.finally.js');
 
                         ${mdl.code}
                         `;
