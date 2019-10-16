@@ -155,6 +155,8 @@ export default class Compiler {
             dep.pret = mdl.pret || defaultPret;
             dep.category = mdl.category || '';
             dep.pagePath = mdl.pagePath || void(0);
+            // in case output the original file, we should delete code here.
+            delete dep.code;
             return dep;
         });
     }
