@@ -57,6 +57,9 @@ export class Wxa {
         // globalMixins
         // every Page, Component will receive these guys.
         this.$$globalMixins = [];
+
+        // enable automatic embed app instance
+        this.enableAppEmbed = true;
     }
 
     setDebugMode(val) {
@@ -130,6 +133,16 @@ export class Wxa {
             this.$$pageMap.set(_pagePath, vm);
         }
 
+        // fallback for wxa1.0 and old wxa2 project.
+        if (this.enableAppEmbed) {
+            let onLoad = vm.onLoad;
+            vm.onLoad = function(...args) {
+                this.$app = getApp();
+
+                onLoad.apply(this, args);
+            };
+        }
+
         Page(vm);
     }
 
@@ -187,6 +200,10 @@ export class Wxa {
             fn: pluginFn,
             options,
         });
+    }
+
+    disabledAppEmbed() {
+        this.enableAppEmbed = false;
     }
 }
 

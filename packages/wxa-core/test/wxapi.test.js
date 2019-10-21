@@ -3,24 +3,41 @@ import {
     addNoPromiseApi,
 } from '../src/utils/wxapi';
 
+let originWx = wx;
+beforeAll(()=>{
+    // 更新缓存
+
+    addNoPromiseApi('nextTick');
+
+    wx = {
+        getSystemInfo(opt) {
+            setTimeout(()=>opt.success());
+        },
+        getSomething(opt) {
+            setTimeout(()=>opt.success());
+        },
+        getSystemInfoSync() {
+
+        },
+        getUpdateManager() {
+
+        },
+        onNetworkStatusChange() {
+
+        },
+        nextTick() {
+
+        },
+    };
+});
+
+afterAll(()=>{
+    wx = originWx;
+});
+
+
 describe('wxapi', ()=>{
     test('sync api', ()=>{
-        wx = {
-            ...wx,
-            getSystemInfoSync() {
-
-            },
-            getUpdateManager() {
-
-            },
-            onNetworkStatusChange() {
-
-            },
-            nextTick() {
-
-            },
-        };
-
         let w = wxapi(wx);
 
         expect(w.getSystemInfoSync()).toBeFalsy();
@@ -30,26 +47,12 @@ describe('wxapi', ()=>{
     });
 
     test('async api', ()=>{
-        wx = {
-            ...wx,
-            getSystemInfo(opt) {
-                setTimeout(()=>opt.success());
-            },
-        };
-
         let w = wxapi(wx);
 
         expect(w.getSystemInfo().then).not.toBeFalsy();
     });
 
     test('addNoPromiseApi', ()=>{
-        wx = {
-            ...wx,
-            getSystemInfo(opt) {
-                setTimeout(()=>opt.success());
-            },
-        };
-
         addNoPromiseApi('getSystemInfo');
         let w = wxapi(wx);
 
@@ -57,16 +60,6 @@ describe('wxapi', ()=>{
     });
 
     test('addNoPromiseApi with arrow', ()=>{
-        wx = {
-            ...wx,
-            getSystemInfo(opt) {
-                setTimeout(()=>opt.success());
-            },
-            getSomething(opt) {
-                setTimeout(()=>opt.success());
-            },
-        };
-
         addNoPromiseApi(['getSystemInfo', 'getSomething']);
         let w = wxapi(wx);
 
@@ -75,16 +68,6 @@ describe('wxapi', ()=>{
     });
 
     test('addNoPromiseApi with sp', ()=>{
-        wx = {
-            ...wx,
-            getSystemInfo(opt) {
-                setTimeout(()=>opt.success());
-            },
-            getSomething(opt) {
-                setTimeout(()=>opt.success());
-            },
-        };
-
         let r1 = addNoPromiseApi();
         let r2 = addNoPromiseApi(null);
         let r3 = addNoPromiseApi({});
