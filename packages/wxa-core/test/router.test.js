@@ -1,6 +1,9 @@
 import {
     default as Router,
 } from '../src/utils/router';
+import {
+    addNoPromiseApi,
+} from '../src/utils/wxapi';
 
 import {wxa} from '../src/wxa';
 
@@ -19,6 +22,7 @@ describe('router', ()=>{
             redirectTo,
             navigateTo,
         };
+        addNoPromiseApi([]);
 
         let router = new Router();
 
