@@ -139,7 +139,7 @@ export class Wxa {
             vm.onLoad = function(...args) {
                 this.$app = getApp();
 
-                onLoad.apply(this, args);
+                onLoad && onLoad.apply(this, args);
             };
         }
 
