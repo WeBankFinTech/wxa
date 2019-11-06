@@ -37,6 +37,8 @@ commander
     .option('--no-progress', '不展示文件进度')
     .option('--verbose', '展示多余的信息')
     .option('-t, --target', '编译目标平台，如微信小程序wechat, 头条小程序tt')
+    .option('-d-mock', '开启mock指令')
+    // .option('--max-watch-project <max>', '三方开发模式，最多同时监听几个项目, default: 3')
     .action(async (cmd)=>{
         showSlogan();
         console.info(`🤖 Building with ${chalk.keyword('orange')(process.env.NODE_ENV || 'development')} env` );
