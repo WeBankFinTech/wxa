@@ -143,7 +143,14 @@ export default class SplitDeps {
         // update output path
         dep.output.add(newOutputPath);
 
-        if (dep.childNodes) dep.childNodes.forEach((child)=>this.trackChildNodes(child, {output: newOutputPath, originOutput: outputPath, instance: dep}, subpage));
+        if (dep.childNodes) {
+            dep.childNodes.forEach((child)=>{
+                // check node_modules's dependencies.
+                if (this.isInMainPackage(child)) return;
+
+                this.trackChildNodes(child, {output: newOutputPath, originOutput: outputPath, instance: dep}, subpage);
+            });
+        }
     }
 
     hasNoSplitReference(dep) {
