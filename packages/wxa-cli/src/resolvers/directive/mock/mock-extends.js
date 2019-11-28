@@ -4,6 +4,7 @@ export default function extend(random) {
     return {
         // 身份证号
         idNo,
+        bankcardNo,
         // 星座
         constellation
     }
@@ -11,6 +12,10 @@ export default function extend(random) {
 
 function idNo(oldest, youngest) {
     return getIDCardNo(this, oldest, youngest);
+}
+
+function bankcardNo() {
+    return getBankCardNo(this);
 }
 
 function constellation(rule) {
@@ -44,8 +49,22 @@ function getIDCardNo(mock, oldest, youngest) {
 }
 
 
+// 生成银行卡号
+function getBankCardNo(mock) {
+    let prefixList = ['622202','622848','622700','622262','621661'];
+    let noList = [1,2,3,4,5,6,7,8,9,0]
+    let prefixNo = mock.pick(prefixList);
+    let cardNo = prefixNo;
+    let cardNoLen = 7;
+    for(let i = 0; i < cardNoLen; i++) {
+        cardNo += mock.pick(noList);
+    }
+    return cardNo;
+}
+
 function paddingZero(num) {
     let number = num + '';
     let res = (Number(num) > 9) ? number : 0 + number;
     return res;
 }
+
