@@ -14,13 +14,11 @@ npm install -S @wxa/log
 1、wxa目前只能在`页面(page)、组件(component)`中注入全局方法。在项目的`app.js`中使用如下代码全局引用：
 ```
 import logPlugin from '@wxa/log';
-...
+wxa.use(logPlugin);
+
 @App
 class Main {
-    onLaunch(){
-        console.log(logPlugin,$log);
-        wxa.use(logPlugin);
-    }
+    ...
 }
 ```
 2、在页面或者组件的具体位置打印日志：
