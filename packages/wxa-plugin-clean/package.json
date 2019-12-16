@@ -1,0 +1,18 @@
+{
+  "name": "@wxa/plugin-dist-clean",
+  "version": "1.0.0",
+  "description": "clean plugin for wxa",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "lucaszhu <lucaszhu@webank.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wxajs/wxa.git"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "del": "^5.1.0"
+  }
+}
