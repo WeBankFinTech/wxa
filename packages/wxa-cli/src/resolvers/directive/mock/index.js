@@ -1,7 +1,7 @@
 /*
     # wxa:mock
     为input自动填入响应字符，避免开发时重复花时间手动输入
-    *仅开发时启用(NODE_ENV为空或==='development')*
+    *仅开发时启用(NODE_ENV为'development')*
     指令格式1：`wxa:mock="占位符"` 或 `wxa:mock="占位符(参数[,参数])"`
 */
 
@@ -66,6 +66,8 @@ function setWarningStyle(el){
 // 判断开发环境，避免mock信息上生产环境
 function isDev() {
     let env = process.env.NODE_ENV;
-    let isDevEnv = Boolean(~[undefined, 'development'].indexOf(env));
+    // let envList = [undefined, 'development'];
+    let envList = ['development'];
+    let isDevEnv = Boolean(~envList.indexOf(env));
     return isDevEnv;
 }
