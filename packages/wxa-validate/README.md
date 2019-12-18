@@ -18,6 +18,7 @@ wxa.use(WxaValidate);
 ```
 ## 在具体页面中使用
 引入wxa-validate之后，在页面里中可以直接通过`this.func`的格式使用入以下属性和方法：
+
 |名称|类型|作用|
 |------|-----|-----|
 |$form|属性|{<br>&nbsp;&nbsp;&nbsp;&nbsp;dirty: false, // 用户是否有接触表单 <br>&nbsp;&nbsp;&nbsp;&nbsp;valid: { //已经校验的表单信息<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name: true // 表单中data-name的输入框输入值符合要求<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;errMsgs: ['请输入name'] // 用于反显给用户的错误信息<br>}<br>`可以在开发者工具中AppData页卡查看完整数据`|
