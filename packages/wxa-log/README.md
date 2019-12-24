@@ -3,6 +3,8 @@
 ![avatar](public/wechat.png)
 也能在控制台输出console打印信息
 ![avatar](public/devconsole.png)
+如果用户[反馈了相关问题](https://developers.weixin.qq.com/miniprogram/dev/api/base/debug/LogManager.html)，在微信管理台下载的日志，除去原有的调用流程，使用wxa-log上报的日志也会一并出现在日志中
+![avatar](public/feedback.png)
 `注意：开发者工具中目前不会上报日志，请用真机操作之后，在管理台-开发-运维中心-实时日志中查看`
 
 ## 安装
