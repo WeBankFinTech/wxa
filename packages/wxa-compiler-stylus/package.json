@@ -1,6 +1,6 @@
 {
     "name": "@wxa/compiler-stylus",
-    "version": "2.0.7",
+    "version": "2.1.14",
     "description": "wxa stylus compiler",
     "main": "dist/index.js",
     "scripts": {
