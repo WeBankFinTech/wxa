@@ -170,6 +170,9 @@ class Schedule {
 
             compiler.destroy();
 
+            // empty loader handle this module.
+            if (dep.code == null && !dep.isFile) dep.code = dep.content;
+
             debug('childNodes', childNodes.map((node)=>simplify(node)));
             let children = childNodes.reduce((children, node)=>{
                 let child = this.findOrAddDependency(node, dep);
@@ -304,6 +307,12 @@ class Schedule {
 
         let indexedModule = this.$indexOfModule.get(dep.src);
         if (indexedModule && indexedModule.color === COLOR.INIT) {
+            // merge reference, cause the module is parsed
+            if (indexedModule.reference instanceof Map) {
+                indexedModule.reference.set(mdl.src, mdl);
+            } else {
+                indexedModule.reference = new Map([[mdl.src, mdl]]);
+            }
             return indexedModule;
         } else if (indexedModule) {
             // check hash

@@ -1,6 +1,6 @@
 {
   "name": "@wxa/cli2",
-  "version": "2.1.7",
+  "version": "2.1.14",
   "description": "cli for wxa development",
   "main": "dist/wxa.js",
   "scripts": {
@@ -71,5 +71,6 @@
   },
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "gitHead": "b925c4fe80f493edd89c0c39a70e6eda3b97d915"
 }

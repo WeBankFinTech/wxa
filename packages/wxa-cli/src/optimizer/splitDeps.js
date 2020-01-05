@@ -80,7 +80,7 @@ export default class SplitDeps {
                 this.getReferenceSize(child) > this.maxSplitDeps
             ) return;
 
-            if ( child.pret.isWXALib ) return;
+            if (child.pret.isWXALib) return;
 
             if (this.isInMainPackage(child)) return;
             if (this.cmdOptions.verbose) logger.info('Find NPM need track to subpackages', child.src);
@@ -90,6 +90,14 @@ export default class SplitDeps {
     }
 
     isInMainPackage(child) {
+        if (!child.reference || !child.reference.size) {
+            // entry point.
+            return (
+                !this.subPages.some((sub)=>sub.reg.test(child.src)) ||
+                // if a node_module pkg is push in entry. then we always compiler its' to main-package.
+                this.NMReg.test(child.src)
+            );
+        }
         let refs = Array.from(child.reference);
         let inMain = [];
         refs.forEach(([src, mdl])=>{
@@ -103,7 +111,21 @@ export default class SplitDeps {
                 inMain.push(false);
             }
         });
-        return inMain.some((item)=>item);
+        let isInMainPkg = inMain.some((item)=>item);
+
+        if (!isInMainPkg && this.NMReg.test(child.src)) {
+            // deep check third party module.
+            for (let i = 0; i < refs.length; i ++) {
+                let parentNode = refs[i][1];
+                if (parentNode.isROOT) continue;
+
+                isInMainPkg = this.isInMainPackage(parentNode);
+                // if one of parent is in main, then just stop the loop.
+                if (isInMainPkg) break;
+            }
+        }
+
+        return isInMainPkg;
     }
 
     trackChildNodes(dep, parent, subpage) {
@@ -143,7 +165,27 @@ export default class SplitDeps {
         // update output path
         dep.output.add(newOutputPath);
 
-        if (dep.childNodes) dep.childNodes.forEach((child)=>this.trackChildNodes(child, {output: newOutputPath, originOutput: outputPath, instance: dep}, subpage));
+        if (dep.childNodes) {
+            dep.childNodes.forEach((child)=>{
+                // check node_modules's dependencies.
+                if (this.isInMainPackage(child)) {
+                    // if (/wxa_wrap/.test(child.src)) {
+                    //     debugger;
+                    // }
+                    let originResolvedPath = './' + this.getResolved(outputPath, child.meta.outputPath);
+                    let newChildResolvedPath = './' + this.getResolved(newOutputPath, child.meta.outputPath);
+                    if (dep.kind === 'json') {
+                        originResolvedPath = this.getPathWithoutExtension(originResolvedPath);
+                        newChildResolvedPath = this.getPathWithoutExtension(newChildResolvedPath);
+                    }
+                    dep.code = dep.code.replace(new RegExp('["\']'+originResolvedPath+'["\']', 'gm'), '"'+newChildResolvedPath+'"');
+                    // debugger;
+                    return;
+                };
+
+                this.trackChildNodes(child, {output: newOutputPath, originOutput: outputPath, instance: dep}, subpage);
+            });
+        }
     }
 
     hasNoSplitReference(dep) {

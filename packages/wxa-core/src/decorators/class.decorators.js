@@ -1,4 +1,4 @@
-import {classFactory, methodDescriptorGenerator} from './helpers';
+import {classFactory} from './helpers';
 import promisify from '../utils/promisify';
 import {eventbus} from '../utils/eventbus';
 import {router} from '../utils/router';
@@ -38,7 +38,7 @@ const Page = (classDescriptor)=>{
     // 兼容wxa1.0 还是挂载一个app对象到每个页面实例
     return {
         ...classDescriptor,
-        elements: elements.concat([methodDescriptorGenerator('$app', getApp())]),
+        elements,
     };
 };
 
@@ -49,6 +49,7 @@ const App = (classDescriptor)=> {
     classDescriptor = Router(classDescriptor);
     classDescriptor = Eventbus(classDescriptor);
     classDescriptor = Fetch(classDescriptor);
+
     // console.log(classDescriptor);
     return classDescriptor;
 };
