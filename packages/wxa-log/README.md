@@ -3,6 +3,8 @@
 ![avatar](public/wechat.png)
 也能在控制台输出console打印信息
 ![avatar](public/devconsole.png)
+如果用户[反馈了相关问题](https://developers.weixin.qq.com/miniprogram/dev/api/base/debug/LogManager.html)，在微信管理台下载的日志，除去原有的调用流程，使用wxa-log上报的日志也会一并出现在日志中
+![avatar](public/feedback.png)
 `注意：开发者工具中目前不会上报日志，请用真机操作之后，在管理台-开发-运维中心-实时日志中查看`
 
 ## 安装
@@ -22,8 +24,12 @@ class Main {
 }
 ```
 2、在页面或者组件的具体位置打印日志：
+推荐如下格式日志上传：
 ```
-this.$log.info(`页面唤起时间: ${timestamp}`);
+// 该格式日志将会针对文本中身份证、手机号码、邮箱信息进行校验并给开发者提示，但依旧会上传日志
+this.$log.info('这是什么日志');
+// 该格式日志将会针对第一个参数进行身份证、手机号码、邮箱信息校验并给开发者提示，后续参数中的敏感信息将会做掩码处理，但依旧会上传日志
+this.$log.info('页面唤起时间: ', data);
 this.$log.warn('warn');
 this.$log.error('error');
 this.$log.setFilterMsg('filterkeyword');
@@ -38,8 +44,10 @@ import {$log} from '@wxa/log';
 ```
 2、在文件具体位置打印日志：
 ```
-$log.info(`关键日志: ${JSON.stringify(data)}`);
-$log.warn('warn');
+// 该格式日志将会针对文本中身份证、手机号码、邮箱信息进行校验并给开发者提示，但依旧会上传日志
+$log.info('这是什么日志');
+// 该格式日志将会针对第一个参数进行身份证、手机号码、邮箱信息校验并给开发者提示，后续参数中的敏感信息将会做掩码处理，但依旧会上传日志
+$log.info('页面唤起时间: ', data);
 $log.error('error');
 $log.setFilterMsg('filterkeyword');
 $log.setFilterMsg('addfilterkeyword');

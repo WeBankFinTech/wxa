@@ -4,7 +4,8 @@
   "description": "集合小程序实时日志上报以及普通console",
   "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "cover": "jest --coverage",
+    "test": "jest --no-cache"
   },
   "keywords": [
     "wxa",
@@ -13,5 +14,9 @@
   "repository": "https://github.com/wxajs/wxa.git",
   "homepage": "https://wxajs.github.io/wxa/",
   "author": "lucaszhu <lucaszhu@webank.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "lodash": "^4.17.15"
+  },
+  "devDependencies": {}
 }
