@@ -1,26 +1,37 @@
 import {
     default as Storage,
 } from '../src/utils/storage';
+import {
+    addNoPromiseApi,
+} from '../src/utils/wxapi';
 
 import 'jest-plugin-console-matchers/setup';
 
+let origin = wx;
+beforeAll(()=>{
+    addNoPromiseApi('nextTick');
+    wx = {
+        setStorageSync() {
+            throw new Error('test');
+        },
+        getStorageSync() {
+            throw new Error('test');
+        },
+        removeStorageSync() {
+            throw new Error('test');
+        },
+        clearStorageSync() {
+            throw new Error('test');
+        },
+    };
+});
+
+afterAll(()=>{
+    wx = origin;
+});
+
 describe('storage unitTester', ()=>{
     test('throw error', ()=>{
-        const wx = {
-            setStorageSync() {
-                throw new Error('test');
-            },
-            getStorageSync() {
-                throw new Error('test');
-            },
-            removeStorageSync() {
-                throw new Error('test');
-            },
-            clearStorageSync() {
-                throw new Error('test');
-            },
-        };
-
         const storage = new Storage(wx);
 
         expect(()=>storage.get()).toConsoleError();
@@ -35,7 +46,7 @@ describe('storage unitTester', ()=>{
                 return null;
             },
         };
-
+        addNoPromiseApi([]); // 更新缓存
         const storage1 = new Storage(wx1);
 
         expect(storage1.get()).toBe(null);
@@ -45,6 +56,7 @@ describe('storage unitTester', ()=>{
                 return '';
             },
         };
+        addNoPromiseApi([]); // 更新缓存
         const storage2 = new Storage(wx2);
         expect(storage2.get()).toBe(null);
 
@@ -53,6 +65,7 @@ describe('storage unitTester', ()=>{
                 return JSON.stringify('');
             },
         };
+        addNoPromiseApi([]); // 更新缓存
         const storage3 = new Storage(wx3);
         expect(storage3.get()).toBe('');
     });
@@ -70,6 +83,8 @@ describe('storage unitTester', ()=>{
             clearStorageSync,
         };
 
+        // 更新缓存
+        addNoPromiseApi([]);
         let storage = new Storage(wx);
 
         storage.get();

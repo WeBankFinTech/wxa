@@ -1,18 +1,22 @@
 {
-  "name": "@wxa/plugin-uglifyjs",
+  "name": "@wxa/log",
   "version": "2.1.14",
-  "description": "",
-  "main": "index.js",
-  "scripts": {},
+  "description": "集合小程序实时日志上报以及普通console",
+  "main": "src/index.js",
+  "scripts": {
+    "cover": "jest --coverage",
+    "test": "jest --no-cache"
+  },
   "keywords": [
-    "uglify"
+    "wxa",
+    "log"
   ],
   "repository": "https://github.com/wxajs/wxa.git",
   "homepage": "https://wxajs.github.io/wxa/",
-  "author": "iveswen",
+  "author": "lucaszhu <lucaszhu@webank.com>",
   "license": "MIT",
   "dependencies": {
-    "uglify-js": "^3.3.8"
+    "lodash": "^4.17.15"
   },
   "publishConfig": {
     "access": "public"
