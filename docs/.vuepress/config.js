@@ -46,15 +46,16 @@ module.exports = {
                         text: '插件',
                         items: [
                             {
-                                text: 'CORE',
+                                text: 'CORE 运行时插件',
                                 items: [
                                     {text: 'Form', link: '/plugin/core/form'},
                                     {text: 'Watch', link: '/plugin/core/watch'},
                                     {text: 'Redux', link: '/plugin/core/redux'},
+                                    {text: 'Log', link: '/plugin/core/log'},
                                 ]
                             },
                             {
-                                text: 'CLI',
+                                text: 'CLI 预编译插件',
                                 items: [
                                     {text: 'Copy', link: '/plugin/cli/copy'},
                                     {text: 'Dependencies Analysis', link: '/plugin/cli/da'},
