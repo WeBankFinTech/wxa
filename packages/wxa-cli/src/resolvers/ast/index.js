@@ -130,6 +130,7 @@ export default class ASTManager {
                             break;
                         case ImportDeclaration:
                             path.get('source').replaceWith(t.stringLiteral(resolved));
+                            path.skip();
                             break;
                     }
                 } catch (e) {
