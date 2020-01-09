@@ -98,12 +98,12 @@ export default class Compiler {
                 break;
             }
 
-            // case 'wxs': {
-            //     mdl.ast = rest.ast;
+            case 'wxs': {
+                mdl.ast = rest.ast;
 
-            //     children = children.concat(this.$$parseWXS(mdl));
-            //     break;
-            // }
+                children = children.concat(this.$$parseWXS(mdl));
+                break;
+            }
         }
 
         return children;
@@ -134,9 +134,9 @@ export default class Compiler {
                 return new ConfigCompiler().parse(filepath, code);
             }
 
-            // case 'wxs': {
-            //     return new WxsCompiler().parse(filepath, code);
-            // }
+            case 'wxs': {
+                return new WxsCompiler().parse(filepath, code);
+            }
 
             case 'png':
             case 'jpg':
