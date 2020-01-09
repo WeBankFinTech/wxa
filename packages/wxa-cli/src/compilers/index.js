@@ -11,7 +11,7 @@ import debugPKG from 'debug';
 import path from 'path';
 import ComponentManager from '../resolvers/component';
 import {readFile} from '../utils';
-import extractWxsDependencies from '../resolvers/wxs';
+import resolveWxsDependencies from '../resolvers/wxs';
 
 let debug = debugPKG('WXA:Compilers');
 
@@ -220,7 +220,7 @@ export default class Compiler {
     }
 
     $$parseWXS(mdl) {
-        let deps = extractWxsDependencies(mdl, this.resolve||{}, this.meta);
+        let deps = resolveWxsDependencies(mdl, this.resolve||{}, this.meta);
         
         debug('wxs dependencies %o', deps);
         // analysis deps;

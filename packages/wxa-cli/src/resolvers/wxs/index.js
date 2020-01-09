@@ -5,31 +5,30 @@ import * as types from '@babel/types';
 import DependencyResolver from '../../helpers/dependencyResolver';
 import logger from '../../helpers/logger';
 
-const debug = debugPKG('WXA:ASTManager');
+const debug = debugPKG('WXA:WxsResolver');
 
-export default function extractDependencies(
+export default function resolveWxsDependencies(
     mdl,
     resolve,
     meta
 ) {
-    debug('parse start');
+    debug('Resolving %O', mdl.src);
     if (mdl.ast == null) return [];
-    const dependencies = analyzeDependencies(mdl.ast);
-    const resolver = new DependencyResolver(resolve, meta);
-    const libs = dependencies.map((dependency) => resolveDependency(resolver, dependency, mdl));
-    mdl.code = generate(mdl);
-    delete mdl.ast;
+    const dependencies = findDependencies(mdl.ast);
+    const libs = resolveDependencies(dependencies, mdl, resolve, meta);
+    deriveCodeFromAst(mdl); // FIXME: 放 Resolve 阶段不太合适
+    debug('Resolved %O', mdl.src);
     return libs;
 }
 
-function analyzeDependencies(ast) {
+function findDependencies(ast) {
     const dependencies = [];
     traverse(ast, {
         'CallExpression': (path) => {
             if (isDependencyRequire(path.node)) {
                 const firstParam = path.node.arguments[0];
                 if (types.isStringLiteral(firstParam) ) {
-                    debug('callExpression %s', firstParam.value);
+                    debug('Found Dependency: %O', firstParam.value);
                     dependencies.push(firstParam.value);
                 }
             }
@@ -47,6 +46,11 @@ function isDependencyRequire(node) {
     return types.isCallExpression(node) &&
         types.isIdentifier(node.callee, {name: 'require'}) &&
         node.arguments.length;
+}
+
+function resolveDependencies(dependencies, mdl, resolve, meta) {
+    const resolver = new DependencyResolver(resolve, meta);
+    return dependencies.map((dependency) => resolveDependency(resolver, dependency, mdl));
 }
 
 function resolveDependency(resolver, dependency, mdl) {
@@ -74,10 +78,8 @@ function failIfNotRelative(isRelative, source) {
     logger.error(`wxs 中仅允许 require 相对路径: ${source} (https://developers.weixin.qq.com/miniprogram/dev/reference/wxs/01wxs-module.html#require%E5%87%BD%E6%95%B0)`);
 }
 
-function generate(mdl) {
-    debug('generate start');
+function deriveCodeFromAst(mdl) {
     if (mdl.ast == null) return;
-
-    debug('generating wxs %O', mdl.ast);
-    return generator(mdl.ast, {}).code;
+    mdl.code = generator(mdl.ast, {}).code;
+    delete mdl.ast;
 }
