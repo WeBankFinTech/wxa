@@ -1,5 +1,6 @@
 import WxaCompiler from './wxa';
 import ScriptCompiler from './script';
+import WxsCompiler from './wxs';
 import XmlCompiler from './xml';
 import ConfigCompiler from './config';
 import ASTManager from '../resolvers/ast/index';
@@ -10,6 +11,7 @@ import debugPKG from 'debug';
 import path from 'path';
 import ComponentManager from '../resolvers/component';
 import {readFile} from '../utils';
+import resolveWxsDependencies from '../resolvers/wxs';
 
 let debug = debugPKG('WXA:Compilers');
 
@@ -95,6 +97,13 @@ export default class Compiler {
                 children = children.concat(this.$$parseJSON(mdl));
                 break;
             }
+
+            case 'wxs': {
+                mdl.ast = rest.ast;
+
+                children = children.concat(this.$$parseWXS(mdl));
+                break;
+            }
         }
 
         return children;
@@ -123,6 +132,10 @@ export default class Compiler {
             case 'json':
             case 'config': {
                 return new ConfigCompiler().parse(filepath, code);
+            }
+
+            case 'wxs': {
+                return new WxsCompiler().parse(filepath, code);
             }
 
             case 'png':
@@ -204,5 +217,13 @@ export default class Compiler {
 
         mdl.code = JSON.stringify(mdl.json, void(0), 4);
         return children;
+    }
+
+    $$parseWXS(mdl) {
+        let deps = resolveWxsDependencies(mdl, this.resolve||{}, this.meta);
+        
+        debug('wxs dependencies %o', deps);
+        // analysis deps;
+        return deps;
     }
 }
