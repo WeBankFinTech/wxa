@@ -2,6 +2,10 @@ import mock from './mock/index';
 // import anotherDirective from './anotherDirective';
 // ...
 
+// 指令区块变量名建议：
+//   wxa:drcName     =  "drcFn(...drcParam)"
+// |- drcFullName -|    |----- drcVal -----|
+
 export default directive;
 
 const directiveHandlerList = {
