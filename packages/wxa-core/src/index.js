@@ -16,6 +16,9 @@ import toast from './utils/toast';
 
 import diff from './diff/diff';
 
+// directive
+import drcMock from './directive/mock/mock';
+
 export * from './decorators/index';
 export const wxapi = wxapiFn(wx);
 export {
@@ -36,4 +39,7 @@ export {
     diff,
 
     wxa,
+
+    // directive
+    drcMock
 };
