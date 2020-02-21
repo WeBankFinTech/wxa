@@ -155,3 +155,21 @@ export function promiseSerial(funs) {
         return promise.then((result)=>fun().then(Array.prototype.concat.bind(result)));
     }, Promise.resolve([]));
 }
+
+export function getClassSet(classStr) {
+    let classList = [];
+    if(classStr && typeof classStr === 'string') {
+        classList = classStr.split(' ');
+    }
+    return new Set(classList);
+}
+export function addClass(classStr, newClass) {
+    let classSet = getClassSet(classStr);
+    classSet.add(newClass);
+    return Array.from(classSet);
+}
+export function removeClass(classStr, destClass) {
+    let classSet = getClassSet(classStr);
+    classSet.delete(destClass);
+    return Array.from(classSet);
+}
