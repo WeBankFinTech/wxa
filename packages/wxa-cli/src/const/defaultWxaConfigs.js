@@ -26,7 +26,7 @@ export default class DefaultWxaConfigs {
             },
             use: [
                 {
-                    test: /\.js$|\.wxs$/,
+                    test: /\.js$/,
                     name: 'babel',
                 },
                 {
