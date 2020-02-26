@@ -9,14 +9,14 @@ import mock from './mock/index';
 export default directive;
 
 const directiveHandlerList = {
-    mock
+    mock,
     // anotherDirective
     // ...
-}
+};
 
-function directive(drc, element, mdl){
+function directive(drc, element, mdl) {
     let drcName = drc.name;
-    if(drcName && directiveHandlerList[drcName]) {
+    if (drcName && directiveHandlerList[drcName]) {
         directiveHandlerList[drcName](drc, element, mdl);
     }
 }
