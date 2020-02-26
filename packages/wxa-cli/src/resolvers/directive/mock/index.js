@@ -8,7 +8,7 @@
 import Mock from 'mockjs';
 import wxaMockExtends from './mock-extends';
 // import wxaMock from './wxa-mock';
-import { addClass } from '../../../utils';
+import {addClass} from '../../../utils';
 
 const Random = Mock.Random;
 Random.extend(wxaMockExtends(Random));
@@ -23,17 +23,17 @@ const WXA_MOCK_VAR = 'wxaMockVar';
 
 let idCount = 1;
 
-function mock(drc, element, mdl){
+function mock(drc, element, mdl) {
     // drc: {name, value}
-    if(isDev()) {
+    if (isDev()) {
         let targetList = findMockTarget(element);
-        targetList.forEach(target => {
+        targetList.forEach((target) => {
             element.attribs.class = addClass(element.attribs.class, DRC_CLASS_NAME);
             element.attribs[DRC_ATTR_NAME] = drc.value;
             delete target.attribs[DRC_FULL_NAME];
             setWarningStyle(target);
             processDataBinding(target);
-        })
+        });
     }
 }
 
@@ -49,20 +49,20 @@ function mock(drc, element, mdl){
 //         // mock.js
 //         mockResult = Mock.mock(drc.value);
 //     }
-    
+
 //     return mockResult;
 // }
 
 function findMockTarget(el) {
     let targetList = [];
     let tagName = el.name;
-    if(tagName === 'input') {
+    if (tagName === 'input') {
         targetList.push(el);
-    }else {
-        if(el.children && el.children.length) {
-            el.children.forEach(child => {
+    } else {
+        if (el.children && el.children.length) {
+            el.children.forEach((child) => {
                 targetList = targetList.concat(findMockTarget(child));
-            })
+            });
         }
     }
     return targetList;
@@ -70,15 +70,15 @@ function findMockTarget(el) {
 
 // input的value对数据绑定的处理
 function processDataBinding(target) {
-    let valueAttr = target.attribs.value || ''
+    let valueAttr = target.attribs.value || '';
     valueAttr = valueAttr.trim();
     let hasVarNameReg = /\{\{\s*(\w+(\.\w+)*)+\s*\}\}/;
     let bindVarRegResult = hasVarNameReg.exec(valueAttr);
     // 绑定的Data的key，{{a.b.c}} => a.b.c
     let bindVarName = '';
-    if(bindVarRegResult && bindVarRegResult[1]) {
+    if (bindVarRegResult && bindVarRegResult[1]) {
         bindVarName = bindVarRegResult[1];
-    }else {
+    } else {
         bindVarName = WXA_MOCK_VAR + getIdCount();
         target.attribs.value = `{{${bindVarName}}}`;
     }
@@ -99,7 +99,7 @@ function getIdCount() {
     return ++idCount;
 }
 
-function setWarningStyle(el){
+function setWarningStyle(el) {
     let originStyle = el.attribs.style || '';
-    el.attribs.style = originStyle + '; outline: 1px dashed rgba(255,0,0,0.2); text-shadow: #FC0 1px 0 2px !important;'
+    el.attribs.style = originStyle + '; outline: 1px dashed rgba(255,0,0,0.2); text-shadow: #FC0 1px 0 2px !important;';
 }

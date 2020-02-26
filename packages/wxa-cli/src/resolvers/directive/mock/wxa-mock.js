@@ -1,8 +1,8 @@
 // wxa自定义的mock规则
 
 export default {
-    mock
-}
+    mock,
+};
 
 function mock(rule) {
     let ruleValue = rule.substr(1);
