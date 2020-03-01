@@ -70,6 +70,7 @@ let mountRedux = function (originHook) {
                     connectState();
                 }
             });
+            // 直接挂载一次数据，这样子onLoad阶段可以直接使用现有数据
             connectState();
         }
         if (originHook) originHook.apply(this, args);
@@ -84,6 +85,14 @@ let unmountRedux = function (originUnmount) {
         }
         if (originUnmount) originUnmount.apply(this, args);
     }
+}
+
+let _store;
+
+export function getStore() {
+    if (_store == null) console.warn('%c[@wxa/redux] store is null, initial redux plugin first in app.wxa', 'font-size: 12px; color: red;');
+
+    return _store;
 }
 
 export const wxaRedux = (options = {}) => {
@@ -111,6 +120,8 @@ export const wxaRedux = (options = {}) => {
     // create Store directly;
     // cause the reducer may be attached at subpackages.
     let store = createStore.apply(null, args);
+    _store = store;
+
     reducerRegistry.setChangeListener((reducer)=>{
         let reducers = combine(reducer, userReducers);
         if(debug) {
