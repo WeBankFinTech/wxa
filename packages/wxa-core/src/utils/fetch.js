@@ -1,10 +1,12 @@
-import wxapi from './wxapi';
+import {getPromise} from './helpers.js';
 
 let MAXREQUEST = 5; // 最大请求数
 // 增加请求队列
 let requestQueue = [];
 // 请求排队队列
 let waitQueue = [];
+// 标记请求
+let requestMap = new Map();
 /**
  * 请求的uuid
  */
@@ -97,24 +99,31 @@ function continueQueue() {
     // 队列里面有任务，继续请求。
     while (requestQueue.length < MAXREQUEST && waitQueue.length) {
         // 出队
-        let {resolve, reject, configs} = waitQueue.shift();
         // 获取uuid, 根据uuid唯一确定某个请求
-        let uuid = new Uuid(requestQueue).get();
+        let {resolve, reject, configs, uuid} = waitQueue.shift();
         // 压入请求队列
         requestQueue.push({resolve, reject, configs, uuid});
         // 记录请求
         cacheRequest.record(configs);
 
-        $$fetch(configs).then((succ)=>{
+        let promise = $$fetch(configs);
+        // 记录请求
+        requestMap.set(uuid, promise.$requestTask);
+
+        promise.then((succ)=>{
             let idx = requestQueue.findIndex((req)=>req.uuid===uuid);
             if (idx >-1) requestQueue.splice(idx, 1);
             continueQueue();
             resolve(succ);
+
+            requestMap.delete(uuid);
         }, (fail)=>{
             let idx = requestQueue.findIndex((req)=>req.uuid===uuid);
             if (idx >-1) requestQueue.splice(idx, 1);
             continueQueue();
             reject(fail);
+
+            requestMap.delete(uuid);
         });
     }
 }
@@ -138,16 +147,25 @@ function $$fetch(configs) {
         ...axiosConfigs,
     };
 
-    return wxapi(wx).request(postconfig)
-    .then((response)=>{
-        if (response && response.statusCode === 200) {
-            return Promise.resolve(response);
-        } else {
-            return Promise.reject(response);
-        }
-    }, (fail)=>{
-        return Promise.reject(fail);
+    // 改写 promise
+    let defer = getPromise();
+    let requestTask = wx.request({
+        ...postconfig,
+        success(response) {
+            if (response && response.statusCode === 200) {
+                defer.resolve(response);
+            } else {
+                defer.reject(response);
+            }
+        },
+        fail(fail) {
+            defer.reject(fail);
+        },
     });
+
+    defer.promise.$requestTask = requestTask;
+
+    return defer.promise;
 }
 
 
@@ -162,9 +180,10 @@ function $$fetch(configs) {
  */
 export default function fetch(url, data = {}, axiosConfigs = {}, method = 'get') {
     let configs = {url, data, axiosConfigs, method};
-    let {$top, $noCache} = axiosConfigs;
+    let {$top, $noCache, $withCancel} = axiosConfigs;
     delete axiosConfigs.$top;
     delete axiosConfigs.$noCache;
+    delete axiosConfigs.$withCancel;
 
     axiosConfigs = {
         dataType: 'json',
@@ -183,13 +202,30 @@ export default function fetch(url, data = {}, axiosConfigs = {}, method = 'get')
     }
 
     function $request() {
-        return new Promise((resolve, reject) => {
-            // 排队
-            $top ?
-                waitQueue.unshift({resolve, reject, configs}) :
-                waitQueue.push({resolve, reject, configs});
-            continueQueue();
-        });
+        let defer = getPromise();
+        // 排队
+        // 获取uuid, 根据uuid唯一确定某个请求
+        let uuid = new Uuid(requestQueue).get();
+
+        $top ?
+            waitQueue.unshift({resolve: defer.resolve, reject: defer.reject, configs, uuid}) :
+            waitQueue.push({resolve: defer.resolve, reject: defer.reject, configs, uuid});
+        continueQueue();
+
+        let cancel = () => {
+            let task = requestMap.get(uuid);
+
+            if (task) {
+                // 已发送
+                task.abort();
+            } else {
+                // 待发送，出队
+                let idx = requestQueue.findIndex((req)=>req.uuid===uuid);
+                if (idx >-1) requestQueue.splice(idx, 1);
+            }
+        };
+
+        return $withCancel ? {request: defer.promise, defer, cancel} : defer.promise;
     }
 }
 
