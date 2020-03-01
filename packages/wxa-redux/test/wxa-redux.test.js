@@ -1,4 +1,4 @@
-import {wxaRedux, combineReducers, reducerRegistry} from '../src/index'
+import {wxaRedux, combineReducers, reducerRegistry, getStore} from '../src/index'
 import fs from 'fs';
 import path from 'path';
 
@@ -357,6 +357,10 @@ describe('while dispatch long long data', ()=>{
         page.$store.dispatch({type: 'add', payload: 'hey'});
         expect(page.data.todo.length).toBe(2);
     })
+})
+
+test('get store instance', () => {
+    expect(getStore()).not.toBeFalsy();
 })
 
 afterAll(()=>{
