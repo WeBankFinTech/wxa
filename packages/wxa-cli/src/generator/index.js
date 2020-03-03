@@ -4,6 +4,7 @@ import debugPKG from 'debug';
 import DependencyResolver from '../helpers/dependencyResolver';
 import ProgressBar from '../helpers/progressTextBar';
 import logger from '../helpers/logger';
+import types from '../const/types';
 
 let debug = debugPKG('WXA:Generator');
 
@@ -56,7 +57,7 @@ export default class Generator {
     }
 
     tryTransFormExtension(output, kind) {
-        if (this.wxaConfigs.target === 'wxa') {
+        if ( ~types.WECHAT.concat(types.TT).indexOf(this.wxaConfigs.target) ) {
             // 小程序相关
             let opath = path.parse(output);
 

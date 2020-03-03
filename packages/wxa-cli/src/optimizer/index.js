@@ -3,6 +3,7 @@ import debugPKG from 'debug';
 import {AsyncSeriesHook} from 'tapable';
 import ProgressBar from '../helpers/progressTextBar';
 import SplitDeps from './splitDeps';
+import types from '../const/types';
 
 let debug = debugPKG('WXA:Optimizer');
 
@@ -44,9 +45,9 @@ export default class Optimizer {
         }
         const text = path.relative(this.cwd, dep.src);
         this.progress.draw(text, 'Optimizing', !this.cmdOptions.verbose);
-        switch (this.wxaConfigs.target) {
-            case 'wxa':
-                this.doWxaOptimize(dep, indexedMap);
+
+        if (~types.WECHAT.concat(types.TT).indexOf(this.wxaConfigs.target)) {
+            this.doWxaOptimize(dep, indexedMap);
         }
 
         await this.hooks.optimizeAssets.promise(dep);
