@@ -1,3 +1,5 @@
+import "regenerator-runtime/runtime";
+
 export const parseRule = (rule) => {
     let params = [];
     const name = rule.split(':')[0];
