@@ -1,6 +1,6 @@
 {
     "name": "@wxa/validate",
-    "version": "2.1.14",
+    "version": "2.2.0-alpha.26+c4680f9",
     "description": "form plugin for wxa",
     "main": "dist/main.js",
     "scripts": {
@@ -44,5 +44,5 @@
     "publishConfig": {
         "access": "public"
     },
-    "gitHead": "b925c4fe80f493edd89c0c39a70e6eda3b97d915"
+    "gitHead": "c4680f927059251e559301836c2521b0b07ebfcc"
 }
