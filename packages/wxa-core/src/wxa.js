@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import './polyfill/bind';
 
 import debounce from 'lodash/debounce';
@@ -60,6 +61,9 @@ export class Wxa {
 
         // enable automatic embed app instance
         this.enableAppEmbed = true;
+
+        this.__WXA_PLATFORM__ = void(0);
+        this.platform = this.getWxaPlatform();
     }
 
     setDebugMode(val) {
@@ -204,6 +208,16 @@ export class Wxa {
 
     disabledAppEmbed() {
         this.enableAppEmbed = false;
+    }
+
+    /**
+     * @return {String}
+     * return mini-program platform.
+     */
+    getWxaPlatform() {
+        if (typeof this.__WXA_PLATFORM__ !== 'undefined') return this.__WXA_PLATFORM__;
+        else if (typeof tt !== 'undefined') return 'tt';
+        else return 'wechat';
     }
 }
 
