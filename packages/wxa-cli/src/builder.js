@@ -378,5 +378,24 @@ class Builder {
     }
 }
 
+export function spawnBuilder(configs, cmdOptions) {
+    let projects = cmdOptions.project || 'default';
+    projects = projects.split(',');
+
+    for (let name of projects) {
+        let projectConfigs = configs.find((item)=> item.$name === name);
+
+        if (!projectConfigs) {
+            logger.error(`找不到${name}的项目配置文件，请检查wxa.config.js中的三方配置`);
+            break;
+        }
+
+        let builder = new Builder(projectConfigs);
+
+        applyPlugins(builder.wxaConfigs.plugins || [], builder);
+
+        builder.build(cmdOptions);
+    }
+}
 
 export default Builder;
