@@ -1,7 +1,7 @@
 import * as defaultRule from './rules';
 import {messages as defaultMessages} from './dictionary';
 import {normalizeRules, arraySomeSync} from './utils';
-import "regenerator-runtime/runtime";
+import regeneratorRuntime from "regenerator-runtime/runtime";
 
 export default (options = {}) => {
     options.ignoreErrorRule = options.ignoreErrorRule || [];

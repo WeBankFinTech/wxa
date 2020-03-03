@@ -1,4 +1,4 @@
-import "regenerator-runtime/runtime";
+import regeneratorRuntime from "regenerator-runtime/runtime";
 
 export const parseRule = (rule) => {
     let params = [];
