@@ -91,10 +91,12 @@ export default (options = {}) => {
                 console.error(e);
             }
 
+            this.$clearErrorMsg(name);
             let errorMap = {
                 ...this.data.$form.errMap,
                 ...$errMap,
             };
+            // console.log('校验规则', rule, '校验值', value, '非法', invalid)
             this.setData({
                 '$form.dirty': true,
                 [`$form.valid.${name}`]: !invalid,
@@ -115,6 +117,7 @@ export default (options = {}) => {
         };
 
         vm.$validateAll = function (except = '') {
+            let exceptRule = Array.isArray(except) ? except : [except];
             return new Promise((resolve, reject) => {
                 let q = wx.createSelectorQuery();
 
@@ -125,15 +128,18 @@ export default (options = {}) => {
                         dataset: true,
                         id: true,
                         properties: ['value'],
-                    }, (res) => {
+                    }, async (res) => {
                         if (res == null || res.length === 0) {
                             reject('没有找到类名为wxa-input的Input组件');
                         }
+                        let tasks = [];
                         for (let {value, dataset} of res) {
-                            if (dataset.name === except) break;
-                            this.$validate({currentTarget: {dataset}, detail: {value}})
+                            if (~exceptRule.indexOf(dataset.name)) break;
+                            tasks.push(this.$validate({currentTarget: {dataset}, detail: {value}}))
                         }
-                        let valid = !this.data.$form.errMsgs.length;
+                        await Promise.all(tasks);
+
+                        let valid = !(this.data.$form.errMsgs && this.data.$form.errMsgs.length);
                         resolve({valid, ...res});
                     })
                     .exec()
