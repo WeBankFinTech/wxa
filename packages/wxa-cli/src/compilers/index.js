@@ -175,7 +175,7 @@ export default class Compiler {
     }
 
     $$parseAST(mdl) {
-        let deps = new ASTManager(this.resolve||{}, this.meta).parse(mdl);
+        let deps = new ASTManager(this.resolve||{}, this.meta, this.$scheduer.wxaConfigs).parse(mdl);
 
         // analysis deps;
         return deps;
@@ -221,7 +221,7 @@ export default class Compiler {
 
     $$parseWXS(mdl) {
         let deps = resolveWxsDependencies(mdl, this.resolve||{}, this.meta);
-        
+
         debug('wxs dependencies %o', deps);
         // analysis deps;
         return deps;

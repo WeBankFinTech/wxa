@@ -10,9 +10,10 @@ import logger from '../../helpers/logger';
 let debug = debugPKG('WXA:ASTManager');
 
 export default class ASTManager {
-    constructor(resolve, meta) {
+    constructor(resolve, meta, wxaConfigs) {
         this.resolve = resolve;
         this.meta = meta;
+        this.wxaConfigs = wxaConfigs;
 
         this.modulesPath = path.join(meta.current, 'node_modules');
         this.npmPath = path.join(meta.output.path, 'npm');
@@ -73,7 +74,7 @@ export default class ASTManager {
         let self = this;
         let libs = [];
         traverse(mdl.ast, {
-            'CallExpression|ImportDeclaration': (path) => {
+            [t.callExpression.name+'|'+t.importDeclaration.name]: (path) => {
                 let dep;
                 let typeOfPath;
                 const StringLiteralRequire = 'StringLiteralRequire';
@@ -138,9 +139,23 @@ export default class ASTManager {
                     debug('resolve fail %O', e);
                 }
             },
-            'IfStatement': (path) => {
+            [t.ifStatement.name]: (path) => {
                 // check Unreachable code
                 this.checkUnreachableCode(path);
+            },
+            [t.assignmentExpression.name]: (path) => {
+                if (
+                    t.isMemberExpression(path.node.left) &&
+                    t.isThisExpression(path.node.left.object) &&
+                    t.isIdentifier(path.node.left.property, {name: '__WXA_PLATFORM__'})
+                ) {
+                    let rightExpressionPath = path.get('right');
+
+                    rightExpressionPath.replaceWith(
+                        t.stringLiteral(this.wxaConfigs.target)
+                    );
+                    // debugger;
+                }
             },
         });
 
