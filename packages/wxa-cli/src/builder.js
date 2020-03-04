@@ -379,8 +379,7 @@ class Builder {
 }
 
 export function spawnBuilder(configs, cmdOptions) {
-    let projects = cmdOptions.project || 'default';
-    projects = projects.split(',');
+    let projects = cmdOptions.project;
 
     for (let name of projects) {
         let projectConfigs = configs.find((item)=> item.$name === name);
