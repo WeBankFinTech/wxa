@@ -73,12 +73,19 @@ export default class ASTManager {
 
         let self = this;
         let libs = [];
+        let importStatement = [
+            t.callExpression.name,
+            t.importDeclaration.name,
+            t.exportAllDeclaration.name,
+            t.exportNamedDeclaration.name].join('|');
+
         traverse(mdl.ast, {
-            [t.callExpression.name+'|'+t.importDeclaration.name]: (path) => {
+            [importStatement]: (path) => {
                 let dep;
                 let typeOfPath;
                 const StringLiteralRequire = 'StringLiteralRequire';
                 const ImportDeclaration = 'ImportDeclaration';
+                const ExportDeclaration = 'ExportDeclaration';
 
                 // commandJS module
                 if (
@@ -103,6 +110,13 @@ export default class ASTManager {
                 ) {
                     dep = path.node.source.value;
                     typeOfPath = ImportDeclaration;
+                } else if (
+                    (t.isExportAllDeclaration(path.node) || t.isExportNamedDeclaration(path.node)) &&
+                    t.isLiteral(path.node.source) &&
+                    path.node.source.value
+                ) {
+                    dep = path.node.source.value;
+                    typeOfPath = ExportDeclaration;
                 } else {
                     return;
                 }
@@ -133,6 +147,10 @@ export default class ASTManager {
                             path.get('source').replaceWith(t.stringLiteral(resolved));
                             path.skip();
                             break;
+                        case ExportDeclaration:
+                            path.get('source').replaceWith(t.stringLiteral(resolved));
+                            path.skip();
+                            break;
                     }
                 } catch (e) {
                     logger.error('解析失败', e);
@@ -144,6 +162,7 @@ export default class ASTManager {
                 this.checkUnreachableCode(path);
             },
             [t.assignmentExpression.name]: (path) => {
+                // inject platform env to runtime app.
                 if (
                     t.isMemberExpression(path.node.left) &&
                     t.isThisExpression(path.node.left.object) &&
