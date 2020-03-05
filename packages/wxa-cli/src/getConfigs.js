@@ -30,7 +30,7 @@ function loadConfigs(wxaConfigsPath) {
 
 
 function spawnConfigs(configs) {
-    if (!configs.thirdParty && configs.dispense) return [configs];
+    if (!configs.thirdParty && !configs.dispense) return [configs];
 
     let platform = configs.thirdParty || configs.dispense || [];
 
@@ -38,7 +38,7 @@ function spawnConfigs(configs) {
     delete configs.dispense;
 
     let platformConfigs = platform.map((item) => {
-        return {configs, ...item, $name: item.name};
+        return {...configs, ...item, $name: item.name};
     });
 
     platformConfigs.unshift({...configs, $name: 'default'});
