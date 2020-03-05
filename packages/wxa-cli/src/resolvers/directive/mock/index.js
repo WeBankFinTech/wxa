@@ -28,7 +28,7 @@ function mock(drc, element, mdl) {
     if (isDev()) {
         let targetList = findMockTarget(element);
         targetList.forEach((target) => {
-            element.attribs.class = addClass(element.attribs.class, DRC_CLASS_NAME);
+            element.attribs.class = addClass(element.attribs.class, DRC_CLASS_NAME).join(' ');
             element.attribs[DRC_ATTR_NAME] = drc.value;
             delete target.attribs[DRC_FULL_NAME];
             setWarningStyle(target);
