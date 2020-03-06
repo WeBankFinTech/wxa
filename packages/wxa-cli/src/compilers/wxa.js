@@ -5,7 +5,6 @@ import logger from '../helpers/logger';
 import DependencyResolver from '../helpers/dependencyResolver';
 import defaultPret from '../const/defaultPret';
 import {parseXML, serializeXML} from './xml';
-import domSerializer from 'dom-serializer';
 
 const SCRIPT_TAG = 'script';
 const CONFIG_TAG = 'config';
