@@ -66,8 +66,7 @@
     "promise.prototype.finally": "^3.1.0",
     "shelljs": "^0.8.3",
     "tapable": "^1.0.0",
-    "valid-url": "^1.0.9",
-    "xmldom": "^0.1.27"
+    "valid-url": "^1.0.9"
   },
   "publishConfig": {
     "access": "public"
