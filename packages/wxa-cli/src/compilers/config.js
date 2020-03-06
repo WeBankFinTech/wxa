@@ -1,8 +1,6 @@
 import {readFile} from '../utils';
 import logger from '../helpers/logger';
-import debugPKG from 'debug';
-
-let debug = debugPKG('WXA:ConfigCompiler');
+import json5 from 'json5';
 
 export default class ConfigCompiler {
     parse(filepath, code) {
@@ -12,11 +10,12 @@ export default class ConfigCompiler {
             logger.error(`文件不存在, ${filepath}`);
             return Promise.reject(null);
         }
-        // debug('code, %O', JSON.parse(code));
+
+        let jsonData = json5.parse(code);
 
         return Promise.resolve({
             kind: 'json',
-            json: JSON.parse(code),
+            json: jsonData,
         });
     }
 }
