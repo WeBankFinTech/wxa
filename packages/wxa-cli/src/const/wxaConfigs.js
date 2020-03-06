@@ -1,5 +1,7 @@
 import path from 'path';
 
+export const WXA_PROJECT_NAME = 'default';
+
 export default class DefaultWxaConfigs {
     constructor(cwd) {
         this.cwd = cwd;
