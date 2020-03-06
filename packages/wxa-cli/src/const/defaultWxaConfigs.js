@@ -38,6 +38,7 @@ export default class DefaultWxaConfigs {
                 splitDeps: {
                     maxDeps: -1,
                 },
+                allowEmptyAttributes: true,
             },
         };
     }

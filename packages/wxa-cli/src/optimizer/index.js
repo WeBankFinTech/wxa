@@ -4,6 +4,7 @@ import {AsyncSeriesHook} from 'tapable';
 import ProgressBar from '../helpers/progressTextBar';
 import SplitDeps from './splitDeps';
 import types from '../const/types';
+import {stuffEmptyAttributs} from './stuffEmptyAttributes';
 
 let debug = debugPKG('WXA:Optimizer');
 
@@ -34,6 +35,7 @@ export default class Optimizer {
 
         await Promise.all(optimizeTasks);
 
+
         if (!this.cmdOptions.watch) this.splitDeps.run(indexedMap);
     }
 
@@ -43,11 +45,20 @@ export default class Optimizer {
             debugger;
             return;
         }
+
         const text = path.relative(this.cwd, dep.src);
         this.progress.draw(text, 'Optimizing', !this.cmdOptions.verbose);
 
         if (~types.WECHAT.concat(types.TT).indexOf(this.wxaConfigs.target)) {
             this.doWxaOptimize(dep, indexedMap);
+        }
+
+        // stuff xml empty Attributes
+        if (
+            this.wxaConfigs.optimization.allowEmptyAttributes &&
+            ~['xml', 'wxml'].indexOf(dep.kind)
+        ) {
+            stuffEmptyAttributs(dep);
         }
 
         await this.hooks.optimizeAssets.promise(dep);
