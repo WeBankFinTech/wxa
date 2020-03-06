@@ -5,6 +5,8 @@ import chalk from 'chalk';
 import Creator from './creator';
 import {spawnDevToolCli} from './toolcli';
 import {getConfigs} from './getConfigs';
+import {WXA_PROJECT_NAME} from './const/wxaConfigs';
+import {isEmpty} from './utils';
 
 const version = require('../package.json').version;
 
@@ -13,9 +15,16 @@ let showSlogan = () => {
 };
 
 let processProjectsOptions = (configs, cmdOptions) => {
-    let projects = cmdOptions.project || 'default';
-    if (projects === '*') projects = configs.reduce((p, i) => p+','+i.$name, '');
+    let projects = cmdOptions.project;
+
+    if (isEmpty(projects)) {
+        projects = configs[0].name !== WXA_PROJECT_NAME ? configs[0].name : WXA_PROJECT_NAME;
+    }
+
+    if (projects === '*') projects = configs.reduce((p, i) => (p+','+i.name), '');
+
     projects = projects.split(',');
+    projects = projects.filter((p)=>!isEmpty(p));
 
     cmdOptions.project = projects;
 
@@ -33,7 +42,7 @@ commander
     .option('-w, --watch', '监听文件改动')
     .option('-N, --no-cache', '不使用缓存')
     .option('--source-map', '生成sourceMap并输出')
-    .option('-p, --project <project>', '指定需要监听的项目，默认是default， * 表示编译所有项目')
+    .option('-p, --project <project>', '指定需要编译的项目，默认是default， * 表示编译所有项目')
     .option('--no-progress', '不展示文件进度')
     .option('--verbose', '展示多余的信息')
     .option('-t, --target', '编译目标平台，如微信小程序wechat, 头条小程序tt')

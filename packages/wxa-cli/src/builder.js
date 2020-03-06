@@ -29,14 +29,14 @@ class Builder {
 
         // get project name,
         // priority: wxa.config -> package.json -> 'WXA';
-        if (!this.wxaConfigs.$name) {
+        if (!this.wxaConfigs.name) {
             try {
                 this.name = require(path.join(this.current, 'package.json')).name;
             } catch (e) {
                 this.name = 'WXA';
             }
         } else {
-            this.name = this.wxaConfigs.$name;
+            this.name = this.wxaConfigs.name;
         }
 
         // chokidar options.
@@ -382,7 +382,7 @@ export function spawnBuilder(configs, cmdOptions) {
     let projects = cmdOptions.project;
 
     for (let name of projects) {
-        let projectConfigs = configs.find((item)=> item.$name === name);
+        let projectConfigs = configs.find((item)=> item.name === name);
 
         if (!projectConfigs) {
             logger.error(`找不到${name}的项目配置文件，请检查wxa.config.js中的三方配置`);
