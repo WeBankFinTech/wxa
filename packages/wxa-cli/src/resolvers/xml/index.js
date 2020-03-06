@@ -1,11 +1,10 @@
-import * as NODE from '../../const/node';
 // import path from 'path';
 import Coder from '../../helpers/coder';
 import DependencyResolver from '../../helpers/dependencyResolver';
 import CSSManager from '../css/index';
 import debugPKG from 'debug';
 import {logger, error} from '../../helpers/logger';
-import domSerializer from 'dom-serializer';
+import {serializeXML} from '../../compilers/xml';
 
 let debug = debugPKG('WXA:XMLManager');
 let debugXMLStyle = debugPKG('WXA:XMLManager-style');
@@ -27,7 +26,7 @@ class XMLManager {
             libs = libs.concat(this.walkXML(element, mdl));
         });
 
-        mdl.code = new Coder().decodeTemplate(domSerializer(mdl.xml, {xmlMode: true}));
+        mdl.code = new Coder().decodeTemplate( serializeXML(mdl.xml) );
 
         return libs;
     }
