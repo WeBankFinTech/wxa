@@ -1,7 +1,7 @@
 // import path from 'path';
 import Coder from '../../helpers/coder';
 import DependencyResolver from '../../helpers/dependencyResolver';
-import CSSManager from '../css/index';
+import CSSManager from '../../compilers/style/styleResolver';
 import debugPKG from 'debug';
 import {logger, error} from '../../helpers/logger';
 import {serializeXML} from '../../compilers/xml';

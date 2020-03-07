@@ -41,6 +41,7 @@ export default class DefaultWxaConfigs {
                     maxDeps: -1,
                 },
                 allowEmptyAttributes: true,
+                transformPxToRpx: false,
             },
         };
     }

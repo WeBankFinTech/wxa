@@ -5,7 +5,7 @@ import XmlCompiler from './xml';
 import ConfigCompiler from './config';
 import ASTManager from '../resolvers/ast/index';
 import XMLManager from '../resolvers/xml/index';
-import CSSManager from '../resolvers/css/index';
+import CSSManager from './style/styleResolver';
 import defaultPret from '../const/defaultPret';
 import debugPKG from 'debug';
 import path from 'path';
@@ -109,7 +109,7 @@ export default class Compiler {
         return children;
     }
 
-    $parse(code, configs={}, filepath, type, mdl) {
+    async $parse(code, configs={}, filepath, type, mdl) {
         switch (type) {
             case 'wxa': {
                 mdl.isAbstract = true;
