@@ -1,16 +1,39 @@
 import path from 'path';
 import {readFile, error, isFile, isEmpty} from '../utils';
-import {DOMParser} from 'xmldom';
 import Coder from '../helpers/coder';
 import logger from '../helpers/logger';
 import DependencyResolver from '../helpers/dependencyResolver';
 import defaultPret from '../const/defaultPret';
+import {parseXML, serializeXML} from './xml';
 
+const SCRIPT_TAG = 'script';
+const CONFIG_TAG = 'config';
+const STYLE_TAG = 'style';
+const TEMPLATE_TAG = 'template';
+
+const defaultTypeMap = new Map([
+    [SCRIPT_TAG, 'js'],
+    [CONFIG_TAG, 'json'],
+    [STYLE_TAG, 'css'],
+    [TEMPLATE_TAG, 'wxml'],
+]);
+
+let getWxaDefinition = ()=>{
+    return [SCRIPT_TAG, CONFIG_TAG, TEMPLATE_TAG, STYLE_TAG].reduce((prev, item)=>{
+        prev[item] = {
+            code: '',
+            src: '',
+            type: defaultTypeMap.get(item),
+        };
+        return prev;
+    }, {});
+};
 export default class WxaCompiler {
     constructor(resolve, meta) {
         this.resolve = resolve;
         this.meta = meta;
     }
+
     parse(filepath, code) {
         let wxa = this.resolveWxa(filepath, code);
 
@@ -53,112 +76,63 @@ export default class WxaCompiler {
             content = encodeXml(content, startTemplate, '</template>', true);
         }
 
-        xml = this.parserXml(path.parse(filepath)).parseFromString(content);
+        xml = parseXML(content, path.parse(filepath));
 
-        let rst = {
-            style: {
-                code: '',
-                src: '',
-                type: 'css',
-            },
-            template: {
-                code: '',
-                src: '',
-                type: 'wxml',
-            },
-            script: {
-                code: '',
-                src: '',
-                type: 'js',
-            },
-            config: {
-                code: '',
-                src: '',
-                type: 'json',
-            },
-        };
+        let wxaDefinition = getWxaDefinition();
 
-        Array.prototype.slice.call(xml.childNodes || []).forEach((child)=>{
-            const nodeName = child.nodeName;
-            if (nodeName === 'style' || nodeName === 'template' || nodeName === 'script' || nodeName === 'config') {
-                let rstTypeObject;
+        xml.forEach((node) => {
+            const nodeName = node.name;
+            if (~[SCRIPT_TAG, CONFIG_TAG, STYLE_TAG, TEMPLATE_TAG].indexOf(nodeName)) {
+                let definition = wxaDefinition[nodeName];
+                definition.src = node.attribs.src;
+                definition.type = node.attribs.lang || node.attribs.type || defaultTypeMap.get(nodeName);
 
-                rstTypeObject = rst[nodeName];
-                rstTypeObject.src = child.getAttribute('src');
-                rstTypeObject.type = child.getAttribute('lang') || child.getAttribute('type');
+                if (definition.src) definition.src = path.resolve(path.dirname(filepath), definition.src);
 
-                if (isEmpty(rstTypeObject.type)) {
-                    let map = {
-                        style: 'css',
-                        template: 'wxml',
-                        script: 'js',
-                        config: 'json',
-                    };
-                    rstTypeObject.type = map[nodeName];
-                }
-
-                if (rstTypeObject.src) rstTypeObject.src = path.resolve(path.parse(filepath).dir, rstTypeObject.src);
-
-                if (rstTypeObject.src && isFile(rstTypeObject.src)) {
-                    const code = readFile(rstTypeObject.src);
-                    if (code == null) throw new Error('打开文件失败:', rstTypeObject.src);
-                    else rstTypeObject.code += code;
+                if (definition.src && isFile(definition.src)) {
+                    const code = readFile(definition.src);
+                    if (code == null) throw new Error('打开文件失败:', definition.src);
+                    else definition.code += code;
                 } else {
-                    Array.prototype.slice.call(child.childNodes||[]).forEach((code)=>{
+                    Array.prototype.slice.call(node.children||[]).forEach((code)=>{
+                        let data = serializeXML(code);
                         if (nodeName !== 'template') {
-                            rstTypeObject.code += coder.decode(code.toString());
+                            definition.code += coder.decode(data);
                         } else {
-                            rstTypeObject.code += coder.decodeTemplate(code.toString());
+                            definition.code += coder.decodeTemplate(data);
                         }
                     });
                 }
 
-                // if (!rstTypeObject.src) {
-                // }
                 let opath = path.parse(filepath);
-                rstTypeObject.src = opath.dir + path.sep + opath.name + '.' + rstTypeObject.type;
+                definition.src = opath.dir + path.sep + opath.name + '.' + definition.type;
 
-                rstTypeObject.$from = filepath;
+                definition.$from = filepath;
 
                 // calc meta object.
                 let dr = new DependencyResolver(this.resolve, this.meta);
-                let outputPath = dr.getOutputPath(rstTypeObject.src, defaultPret, rst);
+                let outputPath = dr.getOutputPath(definition.src, defaultPret, wxaDefinition);
 
-                rstTypeObject.meta = {
-                    source: rstTypeObject.src,
+                definition.meta = {
+                    source: definition.src,
                     outputPath,
                 };
             }
         });
 
-        rst = Object.keys(rst).reduce((ret, key)=>{
+        wxaDefinition = Object.keys(wxaDefinition).reduce((ret, key)=>{
             // in wxa tempate and script is alway generated cause they are required.
             // but config and style is optional
             // https://developers.weixin.qq.com/miniprogram/dev/framework/structure.html
             if (
-                (rst[key].src && rst[key].code !== '') ||
+                (wxaDefinition[key].src && wxaDefinition[key].code !== '') ||
                 ~['script', 'template'].indexOf(key)
             ) {
-                ret[key] = rst[key];
+                ret[key] = wxaDefinition[key];
             }
             return ret;
         }, {});
 
-        return rst;
-    }
-
-    parserXml(opath) {
-        return new DOMParser({
-            errorHandler: {
-                warn(x) {
-                    logger.error('XML警告:'+(opath.dir+path.sep+opath.base));
-                    logger.warn(x);
-                },
-                error(x) {
-                    logger.error('XML错误:'+(opath.dir+path.sep+opath.base));
-                    logger.error(x);
-                },
-            },
-        });
+        return wxaDefinition;
     }
 }

@@ -118,7 +118,7 @@ export async function spawnDevToolCli(configs, cmdOptions) {
     let projects = cmdOptions.project;
 
     for (let name of projects) {
-        let projectConfigs = configs.find((item) => item.$name === name);
+        let projectConfigs = configs.find((item) => item.name === name);
 
         if (!projectConfigs) {
             logger.error(`找不到${name}的项目配置文件，请检查wxa.config.js中的三方配置`);
