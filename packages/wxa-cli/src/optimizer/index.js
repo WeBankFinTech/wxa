@@ -5,6 +5,7 @@ import ProgressBar from '../helpers/progressTextBar';
 import SplitDeps from './splitDeps';
 import types from '../const/types';
 import {stuffEmptyAttributs} from './stuffEmptyAttributes';
+import transformPixelsToRpx from './pxtorpx';
 
 let debug = debugPKG('WXA:Optimizer');
 
@@ -59,6 +60,13 @@ export default class Optimizer {
             ~['xml', 'wxml'].indexOf(dep.kind)
         ) {
             stuffEmptyAttributs(dep);
+        }
+
+        if (
+            ~['css'].indexOf(dep.kind) &&
+            this.wxaConfigs.optimization.transformPxToRpx
+        ) {
+            transformPixelsToRpx(dep, this.wxaConfigs);
         }
 
         await this.hooks.optimizeAssets.promise(dep);
