@@ -1,12 +1,11 @@
-import * as NODE from '../../const/node';
 // import path from 'path';
 import Coder from '../../helpers/coder';
 import DependencyResolver from '../../helpers/dependencyResolver';
-import CSSManager from '../css/index';
+import CSSManager from '../../compilers/style/styleResolver';
 import debugPKG from 'debug';
 import {logger, error} from '../../helpers/logger';
-import domSerializer from 'dom-serializer';
 import directive from '../directive';
+import {serializeXML} from '../../compilers/xml';
 
 let debug = debugPKG('WXA:XMLManager');
 let debugXMLStyle = debugPKG('WXA:XMLManager-style');
@@ -33,11 +32,11 @@ class XMLManager {
         // Node <-- Element
         // Node <-- Attr
         // Node <-- CharacterData <-- Text
-        mdl.xml.forEach(node => {
+        mdl.xml.forEach((node) => {
             libs = libs.concat(this.walkXML(node, mdl));
         });
 
-        mdl.code = new Coder().decodeTemplate(domSerializer(mdl.xml, {xmlMode: true}));
+        mdl.code = new Coder().decodeTemplate( serializeXML(mdl.xml) );
 
         return libs;
     }
@@ -78,18 +77,18 @@ class XMLManager {
                 value: attributes[attrFullName],
             };
             // debug('attribute %O', attr);
-            if(!attr.prefix) {
+            if (!attr.prefix) {
                 // 无前缀普通属性
                 switch (attr.name) {
                     case 'src':
                     case 'href': {
                         try {
                             let dr = new DependencyResolver(this.resolve, this.meta);
-    
+
                             let {lib, source, pret} = dr.resolveDep(attr.value, mdl);
                             let libOutputPath = dr.getOutputPath(source, pret, mdl);
                             let resolved = dr.getResolved(lib, libOutputPath, mdl);
-    
+
                             libs.push({
                                 src: source,
                                 pret: pret,
@@ -100,12 +99,12 @@ class XMLManager {
                                     resolved,
                                 },
                             });
-    
+
                             attr.value = resolved;
                         } catch (e) {
                             error('Resolve Error', {name: mdl.src, error: e, code: attr.value});
                         }
-    
+
                         break;
                     }
 
@@ -115,17 +114,17 @@ class XMLManager {
                         try {
                             let CM = new CSSManager(this.resolve, this.meta);
                             let {libs: subLibs, code} = CM.resolveStyle(attr.value, mdl);
-    
+
                             // add parentNode to it.
                             subLibs = subLibs.map((lib)=>(lib.$$AttrNode=attr, lib));
                             // normalize dependencies.
                             libs = libs.concat(subLibs);
-    
+
                             attr.value = code;
                         } catch (e) {
                             error('Resolve Error', {name: mdl.src, error: e, code: attr.value});
                         }
-    
+
                         break;
                     }
 
@@ -133,15 +132,15 @@ class XMLManager {
                         // 其他属性不处理
                     }
                 }
-            }else {
+            } else {
                 // 带前缀的属性处理
-                switch(attr.prefix) {
+                switch (attr.prefix) {
                     // wxa指令
                     case WXA_DIRECTIVE_PREFIX: {
                         let drc = {
                             name: attr.name,
-                            value: attr.value
-                        }
+                            value: attr.value,
+                        };
                         directive(drc, element, mdl);
                     }
 
