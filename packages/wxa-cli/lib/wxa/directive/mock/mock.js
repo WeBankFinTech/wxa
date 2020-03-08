@@ -1,22 +1,26 @@
 import Mock from 'mockjs';
+import wxaMockExtends from './mock-extends';
 
-export default useMock
+const Random = Mock.Random;
+Random.extend(wxaMockExtends(Random));
 
-function useMock(page){
+export default useMock;
+
+function useMock(page) {
     // drc: {name, value}
     // 指令名称，指令属性值
-    if(isDev()) {
+    if (isDev()) {
         // let targetList = await findMockTarget(page);
         findMockTarget(page).then((targetList) => {
-            targetList.map(target => {
+            targetList.map((target) => {
                 // setWarningStyle(target);
                 let mockResult = getMockResult(target);
                 let bindVarName = target.dataset.bindVar;
                 setInputData(page, target, bindVarName, mockResult);
-            })
-        })
-    }else {
-        console.warn('[wxa:mock]: disabled unless in devolopment env')
+            });
+        });
+    } else {
+        console.warn('[wxa:mock]: disabled unless in devolopment env');
     }
 }
 
@@ -24,8 +28,8 @@ function useMock(page){
 function setInputData(page, target, bindVarName, mockResult) {
     console.log('>>> setInput', page, target, bindVarName, mockResult);
     page.setData({
-        [bindVarName]: mockResult
-    })
+        [bindVarName]: mockResult,
+    });
 }
 
 function getMockResult(target) {
@@ -34,18 +38,18 @@ function getMockResult(target) {
     let drcValuePrefix = mockDrc[0];
     console.log('mockDrc', mockDrc);
 
-    if(drcValuePrefix === '$') {
+    if (drcValuePrefix === '$') {
         // wxa提供
         try {
             mockResult = wxaMock.mock(mockDrc);
-        }catch {
+        } catch {
             console.error(`[wxa:mock]: WXA规则占位符格式有误:[${mockDrc}]`);
         }
-    }else {
+    } else {
         // mock.js
         try {
             mockResult = Mock.mock(mockDrc);
-        }catch {
+        } catch {
             console.error(`[wxa:mock]: Mock.js规则占位符格式有误:[${mockDrc}]`);
         }
     }
@@ -57,29 +61,29 @@ function findMockTarget(page) {
         const query = wx.createSelectorQuery();
         query.selectAll('._drc-mock').fields({
             dataset: true,
-            properties: ['value']
-        }).exec(res => {
+            properties: ['value'],
+        }).exec((res) => {
             // ？此处res返回二维数组。
             let result = [];
-            if(res && res[0]) {
+            if (res && res[0]) {
                 result = res[0];
             }
             resolve(result);
-        })
-    })
+        });
+    });
 }
 
 // 判断开发环境，避免mock信息上生产环境
 function isDev() {
     // 依赖app.config.js内的APP_ENV配置
-    let env = 'APP_ENV';
+    // let env = 'APP_ENV';
     // let envList = [undefined, 'development'];
-    let envList = ['development'];
-    let devPlatformList = [ 'devtools' ];
-    let isDevEnv = Boolean(~envList.indexOf(env));
-    let isDevTool = Boolean(~devPlatformList.indexOf(wx.getSystemInfoSync().platform));
-    let isDev = isDevEnv && isDevTool;
-    return isDev;
+    // let envList = ['development'];
+    // let devPlatformList = ['devtools'];
+    // let isDevEnv = Boolean(~envList.indexOf(env));
+    // let isDevTool = Boolean(~devPlatformList.indexOf(wx.getSystemInfoSync().platform));
+    // let isDev = isDevEnv && isDevTool;
+    return true;
 }
 
 // 设置警示样式，避免mock信息上生产环境

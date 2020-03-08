@@ -4,13 +4,12 @@
   "description": "cli for wxa development",
   "main": "dist/wxa.js",
   "scripts": {
-    "build": "npm run build:src && npm run build:lib && npm run build:polyfill",
+    "build": "npm run build:src && npm run build:lib",
     "build:src": "babel src --out-dir dist",
-    "build:lib": "babel lib --out-dir lib-dist",
-    "build:polyfill": "sh scripts/buildLib.sh",
+    "build:lib": "sh ./scripts/buildLib.sh",
     "dev": "npm run dev:src & npm run dev:lib",
     "dev:src": "babel --watch src --out-dir dist --source-maps",
-    "dev:lib": "babel --watch lib --out-dir lib-dist",
+    "dev:lib": "MODE=dev sh ./scripts/buildLib.sh",
     "prepublishOnly": "sh scripts/prepublish.sh",
     "travis-dev": "babel src --out-dir dist"
   },

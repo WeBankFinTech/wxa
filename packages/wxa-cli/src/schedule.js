@@ -160,6 +160,7 @@ class Schedule {
             this.perf.markEnd(relativeSrc);
 
             // try to wrap wxa every app and page
+            this.tryWrapDirective(dep);
             this.tryWrapWXA(dep);
             this.tryAddPolyfill(dep);
 
@@ -357,6 +358,17 @@ class Schedule {
         ) {
             mdl.code = wrapWxa(mdl.code, mdl.category, mdl.pagePath);
             debug('wrap dependencies %O', simplify(mdl));
+        }
+    }
+
+    tryWrapDirective(mdl) {
+        if (
+            mdl.category &&
+            mdl.category.toLowerCase() === 'app' &&
+            path.extname(mdl.src) === '.js' &&
+            !/wxa:\/\/wxa\/directive/g.test(mdl.code)
+        ) {
+            mdl.code = `require('wxa://wxa/directive/index.js'); ${mdl.code}`;
         }
     }
 
