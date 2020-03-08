@@ -23,9 +23,12 @@ const WXA_MOCK_VAR = 'wxaMockVar';
 
 let idCount = 1;
 
-function mock(drc, element, mdl) {
-    // drc: {name, value}
-    if (isDev()) {
+function mock(drc, element, options) {
+    if (
+        options.cmdOptions.mock &&
+        // 非生产环境
+        ['prod', 'production'].indexOf(process.env.NODE_ENV) === -1
+    ) {
         let targetList = findMockTarget(element);
         targetList.forEach((target) => {
             element.attribs.class = addClass(element.attribs.class, DRC_CLASS_NAME).join(' ');
@@ -34,6 +37,9 @@ function mock(drc, element, mdl) {
             setWarningStyle(target);
             processDataBinding(target);
         });
+    } else {
+        // 清理元素
+        delete element.attribs[drc.raw];
     }
 }
 
@@ -88,11 +94,12 @@ function processDataBinding(target) {
 
 // 判断开发环境，避免mock信息上生产环境
 function isDev() {
-    let env = process.env.NODE_ENV;
+    return true;
+    // let env = process.env.NODE_ENV;
     // let envList = [undefined, 'development'];
-    let envList = ['development'];
-    let isDevEnv = Boolean(~envList.indexOf(env));
-    return isDevEnv;
+    // let envList = ['development'];
+    // let isDevEnv = Boolean(~envList.indexOf(env));
+    // return isDevEnv;
 }
 
 function getIdCount() {

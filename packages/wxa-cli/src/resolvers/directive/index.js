@@ -14,9 +14,9 @@ const directiveHandlerList = {
     // ...
 };
 
-function directive(drc, element, mdl) {
+function directive(drc, element, options) {
     let drcName = drc.name;
     if (drcName && directiveHandlerList[drcName]) {
-        directiveHandlerList[drcName](drc, element, mdl);
+        directiveHandlerList[drcName](drc, element, options);
     }
 }
