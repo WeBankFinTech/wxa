@@ -1,32 +1,34 @@
 import Mock from 'mockjs';
 import wxaMockExtends from './mock-extends';
 
+export default useMock;
+
+// ============================================================
+
+// Preprocessor -----------------------------
 const Random = Mock.Random;
 Random.extend(wxaMockExtends(Random));
 
-export default useMock;
-
+// >>>> Main -----------------------------
 function useMock(page) {
     // drc: {name, value}
     // 指令名称，指令属性值
-    if (isDev()) {
-        // let targetList = await findMockTarget(page);
+    try {
         findMockTarget(page).then((targetList) => {
             targetList.map((target) => {
-                // setWarningStyle(target);
                 let mockResult = getMockResult(target);
                 let bindVarName = target.dataset.bindVar;
+                // 根据mock结果，调用setData设置页面对应的data属性
                 setInputData(page, target, bindVarName, mockResult);
             });
         });
-    } else {
-        console.warn('[wxa:mock]: disabled unless in devolopment env');
+    } catch(e) {
+        console.warn('[wxa:mock runtime]: error', e);
     }
 }
 
-// 根据mock结果，调用setData设置页面对应的data属性
 function setInputData(page, target, bindVarName, mockResult) {
-    console.log('>>> setInput', page, target, bindVarName, mockResult);
+    console.log('[wxa:mock] set input data', target, bindVarName, mockResult);
     page.setData({
         [bindVarName]: mockResult,
     });
@@ -36,7 +38,6 @@ function getMockResult(target) {
     let mockDrc = target.dataset._drcMock;
     let mockResult = '';
     let drcValuePrefix = mockDrc[0];
-    console.log('mockDrc', mockDrc);
 
     if (drcValuePrefix === '$') {
         // wxa提供
@@ -72,22 +73,3 @@ function findMockTarget(page) {
         });
     });
 }
-
-// 判断开发环境，避免mock信息上生产环境
-function isDev() {
-    // 依赖app.config.js内的APP_ENV配置
-    // let env = 'APP_ENV';
-    // let envList = [undefined, 'development'];
-    // let envList = ['development'];
-    // let devPlatformList = ['devtools'];
-    // let isDevEnv = Boolean(~envList.indexOf(env));
-    // let isDevTool = Boolean(~devPlatformList.indexOf(wx.getSystemInfoSync().platform));
-    // let isDev = isDevEnv && isDevTool;
-    return true;
-}
-
-// 设置警示样式，避免mock信息上生产环境
-// function setWarningStyle(el){
-    // let originStyle = el.attribs.style || '';
-    // el.attribs.style = originStyle + '; outline: 1px dashed rgba(255,0,0,0.2); text-shadow: #FC0 1px 0 2px !important;'
-// }

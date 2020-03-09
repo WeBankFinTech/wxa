@@ -29,7 +29,7 @@ function constellation(rule) {
 function getIDCardNo(mock, oldest, youngest) {
     let coefficientArray = ['7', '9', '10', '5', '8', '4', '2', '1', '6', '3', '7', '9', '10', '5', '8', '4', '2'];// 加权因子
     let lastNumberArray = ['1', '0', 'X', '9', '8', '7', '6', '5', '4', '3', '2'];// 校验码
-    let address = '420101'; // 住址
+    let address = '440304'; // 住址（深圳市南山区）
     let oldestYear = oldest ? oldest : 1900;
     let youngestYear = youngest ? youngest : 2019;
     // let year = getRandom(youngestYear, oldestYear);
