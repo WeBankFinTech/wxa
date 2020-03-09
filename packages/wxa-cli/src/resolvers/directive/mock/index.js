@@ -1,40 +1,51 @@
 /*
     # wxa:mock
     为input自动填入响应字符，避免开发时重复花时间手动输入
-    *仅开发时启用(NODE_ENV为'development')*
+    *仅开发时启用*
     指令格式1：`wxa:mock="占位符"` 或 `wxa:mock="占位符(参数[,参数])"`
 */
 
-import Mock from 'mockjs';
-import wxaMockExtends from './mock-extends';
-// import wxaMock from './wxa-mock';
 import {addClass} from '../../../utils';
-
-const Random = Mock.Random;
-Random.extend(wxaMockExtends(Random));
-
 export default mock;
 
-const DRC_NAME = 'mock';
-const DRC_FULL_NAME = 'wxa:' + DRC_NAME;
-const DRC_CLASS_NAME = '_drc-' + DRC_NAME;
-const DRC_ATTR_NAME = 'data-' + DRC_CLASS_NAME;
-const WXA_MOCK_VAR = 'wxaMockVar';
+// ============================================================
 
+// Const -------------------------------
+// *[指令名称]
+const DRC_NAME = 'mock';
+// *[指令全名] 包含'wxa:'前缀的全名
+const DRC_FULL_NAME = 'wxa:' + DRC_NAME;
+// *[目标节点的className] 指令对应className，添加到目标节点上，便于运行时进行选择
+const DRC_CLASS_NAME = '_drc-' + DRC_NAME;
+// *[目标节点的dataset属性名] 保存对应指令内容的dataset属性名，添加到目标节点上，便于运行时进行读取
+const DRC_ATTR_NAME = 'data-' + DRC_CLASS_NAME;
+
+// Config -------------------------------
+// 用于随机生成model名的前缀
+const WXA_MOCK_VAR = 'wxaMockVar';
 let idCount = 1;
 
+
+// >>>> Main -----------------------------
 function mock(drc, element, options) {
+    console.log(options.cmdOptions);
     if (
         options.cmdOptions.mock &&
         // 非生产环境
         ['prod', 'production'].indexOf(process.env.NODE_ENV) === -1
     ) {
+        // 找到需要执行指令命令的节点
         let targetList = findMockTarget(element);
         targetList.forEach((target) => {
+            // 设置指令相应的class
             element.attribs.class = addClass(element.attribs.class, DRC_CLASS_NAME).join(' ');
+            // 将指令内容存入dataset，方便运行时获取
             element.attribs[DRC_ATTR_NAME] = drc.value;
+            // 在元素上删除指令代码
             delete target.attribs[DRC_FULL_NAME];
+            // 设置警告样式
             setWarningStyle(target);
+            // 进行model绑定
             processDataBinding(target);
         });
     } else {
@@ -42,22 +53,6 @@ function mock(drc, element, options) {
         delete element.attribs[drc.raw];
     }
 }
-
-// 已迁移到runtime
-// function getMockResult(drc) {
-//     let mockResult = '';
-//     let drcValuePrefix = drc.value[0];
-
-//     if(drcValuePrefix === '$') {
-//         // wxa提供
-//         mockResult = wxaMock.mock(drc.value);
-//     }else {
-//         // mock.js
-//         mockResult = Mock.mock(drc.value);
-//     }
-
-//     return mockResult;
-// }
 
 function findMockTarget(el) {
     let targetList = [];
@@ -90,16 +85,6 @@ function processDataBinding(target) {
     }
     // 将input绑定的变量名存到dataset，方便运行时获取使用
     target.attribs['data-bind-var'] = bindVarName;
-}
-
-// 判断开发环境，避免mock信息上生产环境
-function isDev() {
-    return true;
-    // let env = process.env.NODE_ENV;
-    // let envList = [undefined, 'development'];
-    // let envList = ['development'];
-    // let isDevEnv = Boolean(~envList.indexOf(env));
-    // return isDevEnv;
 }
 
 function getIdCount() {
