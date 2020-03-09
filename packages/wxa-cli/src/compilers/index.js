@@ -5,7 +5,7 @@ import XmlCompiler from './xml';
 import ConfigCompiler from './config';
 import ASTManager from '../resolvers/ast/index';
 import XMLManager from '../resolvers/xml/index';
-import CSSManager from './style/styleResolver';
+import CSSManager from '../resolvers/styleResolver';
 import defaultPret from '../const/defaultPret';
 import debugPKG from 'debug';
 import path from 'path';
@@ -182,7 +182,7 @@ export default class Compiler {
     }
 
     $$parseXML(mdl) {
-        let deps = new XMLManager(this.resolve||{}, this.meta).parse(mdl);
+        let deps = new XMLManager(this.resolve || {}, this.meta, this.$scheduer.wxaConfigs, this.$scheduer.cmdOptions).parse(mdl);
 
         debug('xml dependencies %o', deps);
         // analysis deps;

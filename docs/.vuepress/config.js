@@ -88,9 +88,11 @@ module.exports = {
                 {
                     title: '进阶',
                     collapsable: false,
+                    sidebarDepth: 3,
                     children: [
                         '/learn/advance/preload',
-                        '/learn/advance/third-party-wxa'
+                        '/learn/advance/third-party-wxa',
+                        '/learn/advance/wxa-directive'
                     ]
                 },
                 {
