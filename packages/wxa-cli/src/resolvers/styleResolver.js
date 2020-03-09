@@ -1,6 +1,6 @@
 import path from 'path';
-import logger from '../../helpers/logger';
-import DependencyResolver from '../../helpers/dependencyResolver';
+import logger from '../helpers/logger';
+import DependencyResolver from '../helpers/dependencyResolver';
 import debugPKG from 'debug';
 
 let debug = debugPKG('WXA:CSSManager');

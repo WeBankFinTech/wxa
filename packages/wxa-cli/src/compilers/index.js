@@ -5,7 +5,7 @@ import XmlCompiler from './xml';
 import ConfigCompiler from './config';
 import ASTManager from '../resolvers/ast/index';
 import XMLManager from '../resolvers/xml/index';
-import CSSManager from './style/styleResolver';
+import CSSManager from '../resolvers/styleResolver';
 import defaultPret from '../const/defaultPret';
 import debugPKG from 'debug';
 import path from 'path';
