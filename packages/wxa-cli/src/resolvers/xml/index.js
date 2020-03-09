@@ -1,7 +1,7 @@
 // import path from 'path';
 import Coder from '../../helpers/coder';
 import DependencyResolver from '../../helpers/dependencyResolver';
-import CSSManager from '../../compilers/style/styleResolver';
+import CSSManager from '../styleResolver';
 import debugPKG from 'debug';
 import {logger, error} from '../../helpers/logger';
 import directive from '../directive';
