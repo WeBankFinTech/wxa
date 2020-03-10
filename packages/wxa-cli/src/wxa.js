@@ -1,5 +1,5 @@
 import commander from 'commander';
-import inquirer from 'inquirer';
+import https from 'https';
 import {spawnBuilder} from './builder';
 import chalk from 'chalk';
 import Creator from './creator';
@@ -59,52 +59,12 @@ commander
 commander
     .command('create')
     .description('新建模板')
+    .option('--repo <repo>', '仓库地址，可选github或gitee，允许传自定义的repo地址，网速考虑，默认gitee', 'gitee')
     .action(async (cmd)=>{
         showSlogan();
         console.info('🦊 Creating 新建项目中');
 
-        let opts = await inquirer.prompt([
-            {
-                type: 'input',
-                name: 'projectName',
-                message: '输入项目名',
-                validate: (input)=>{
-                    return !(input == null || input === '');
-                },
-            },
-            {
-                type: 'list',
-                name: 'template',
-                message: '选择模板',
-                default: 'base',
-                choices: [
-                    {
-                        name: '基础模板，默认配置文件',
-                        value: 'base',
-                    },
-                    {
-                        name: 'Redux模板，使用redux管理全局状态',
-                        value: 'redux',
-                    },
-                    {
-                        name: 'Vant模板, 使用有赞ui加速小程序开发',
-                        value: 'vant',
-                    },
-                    {
-                        name: 'Echart模板, 使用echart开发小程序图表',
-                        value: 'echart',
-                    },
-                ],
-            },
-            {
-                type: 'input',
-                name: 'appid',
-                message: '小程序APPID',
-                default: '',
-            },
-        ]);
-
-        new Creator(cmd).run(opts);
+        new Creator(cmd).run();
     });
 
 commander
