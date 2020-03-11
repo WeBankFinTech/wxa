@@ -22,7 +22,7 @@ function useMock(page) {
                 setInputData(page, target, bindVarName, mockResult);
             });
         });
-    } catch(e) {
+    } catch (e) {
         console.warn('[wxa:mock runtime]: error', e);
     }
 }
@@ -39,21 +39,21 @@ function getMockResult(target) {
     let mockResult = '';
     let drcValuePrefix = mockDrc[0];
 
-    if (drcValuePrefix === '$') {
-        // wxa提供
-        try {
-            mockResult = wxaMock.mock(mockDrc);
-        } catch {
-            console.error(`[wxa:mock]: WXA规则占位符格式有误:[${mockDrc}]`);
-        }
-    } else {
+    // if (drcValuePrefix === '$') {
+    //     // wxa提供
+    //     try {
+    //         mockResult = wxaMock.mock(mockDrc);
+    //     } catch (e) {
+    //         console.error(`[wxa:mock]: WXA规则占位符格式有误:[${mockDrc}]`);
+    //     }
+    // } else {
         // mock.js
         try {
             mockResult = Mock.mock(mockDrc);
-        } catch {
+        } catch (e) {
             console.error(`[wxa:mock]: Mock.js规则占位符格式有误:[${mockDrc}]`);
         }
-    }
+    // }
     return mockResult;
 }
 
