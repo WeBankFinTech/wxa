@@ -4,6 +4,8 @@ import {normalizeRules, arraySomeSync} from './utils';
 import regeneratorRuntime from "regenerator-runtime/runtime";
 
 export default (options = {}) => {
+    options.enableComponentInputValidate = options.enableComponentInputValidate || false;
+    options.componentClassName = ['.wxa-input-component', '.wxa-input-com'] || options.componentClassName;
     options.ignoreErrorRule = options.ignoreErrorRule || [];
 
     const MESSAGES = {...defaultMessages, ...options.messages};
@@ -14,6 +16,12 @@ export default (options = {}) => {
             VALIDATOR[item]['getMessage'] = MESSAGES[item] ? MESSAGES[item] : MESSAGES['_default'];
         }
     })
+
+    let generateQuery = (componentClassName) => {
+        componentClassName = Array.isArray(componentClassName) ? componentClassName : [componentClassName];
+
+        return componentClassName.map((item)=>item+' >>> .wxa-input').join(', ');
+    }
 
     return (vm, type) => {
         if (['Page', 'Component'].indexOf(type) == -1) return;
@@ -116,14 +124,17 @@ export default (options = {}) => {
             this.$validate(e);
         };
 
-        vm.$validateAll = function (except = '') {
+        vm.$validateAll = function (except = '', {enableComponentInputValidate} = {}) {
+            enableComponentInputValidate = enableComponentInputValidate == null ? options.enableComponentInputValidate : enableComponentInputValidate;
             let exceptRule = Array.isArray(except) ? except : [except];
             return new Promise((resolve, reject) => {
                 let q = wx.createSelectorQuery();
 
-                if (type === 'Component') q.in(this);
+                if(type === 'Component') q.in(this);
 
-                q.selectAll('.wxa-input')
+                let query = '.wxa-input' + (enableComponentInputValidate ? ', '+generateQuery(options.componentClassName) : '');
+
+                q.selectAll(query)
                     .fields({
                         dataset: true,
                         id: true,

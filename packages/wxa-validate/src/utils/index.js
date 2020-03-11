@@ -91,8 +91,8 @@ export const toArray = (arrayLike) => {
 };
 
 export const arraySomeSync = async function (arr, callback) {
-    for (let [index, item] of Object.entries(arr)) {
-        if (await callback(item, index, arr)) return true;
+    for (let i = 0; i < arr.length; i ++) {
+        if (await callback(arr[i], i, arr)) return true;
     }
     return false;
 }
