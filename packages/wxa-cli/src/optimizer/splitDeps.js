@@ -72,21 +72,28 @@ export default class SplitDeps {
                 return this.start(child, pkg);
             }
 
-            // not match condition meanning all it's sub-child needn't handle.
-            // or the main packages depend on it.
-            // just stop the spliting loop.
-            if (
-                child.reference.size >= this.maxSplitDeps &&
-                this.getReferenceSize(child) > this.maxSplitDeps
-            ) return;
+            if (!this.ifMatchRule(child)) return;
 
-            if (child.pret.isWXALib) return;
-
-            if (this.isInMainPackage(child)) return;
             if (this.cmdOptions.verbose) logger.info('Find NPM need track to subpackages', child.src);
             // fulfill all condition just track all the sub-nodes without any hesitate.
             this.trackChildNodes(child, {output: dep.meta.outputPath, originOutput: dep.meta.outputPath, instance: dep, isSplitEntry: true}, pkg);
         });
+    }
+
+    ifMatchRule(child) {
+        // not match condition meanning all it's sub-child needn't handle.
+        // or the main packages depend on it.
+        // just stop the spliting loop.
+        if (
+            child.reference.size >= this.maxSplitDeps &&
+            this.getReferenceSize(child) > this.maxSplitDeps
+        ) return false;
+
+        if (child.pret.isWXALib) return false;
+
+        if (this.isInMainPackage(child)) return false;
+
+        return true;
     }
 
     isInMainPackage(child) {
@@ -129,6 +136,7 @@ export default class SplitDeps {
     }
 
     trackChildNodes(dep, parent, subpage) {
+        // if (/select\-revenue/g.test(dep.src)) debugger;
         // depth-first
         dep.$$isSplit = true;
         let {path: pkg} = subpage;
@@ -168,7 +176,7 @@ export default class SplitDeps {
         if (dep.childNodes) {
             dep.childNodes.forEach((child)=>{
                 // check node_modules's dependencies.
-                if (this.isInMainPackage(child)) {
+                if (!this.ifMatchRule(child)) {
                     // if (/wxa_wrap/.test(child.src)) {
                     //     debugger;
                     // }
