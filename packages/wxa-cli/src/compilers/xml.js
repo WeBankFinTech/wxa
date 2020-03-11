@@ -73,6 +73,8 @@ export function parseXML(code, opath) {
         xmlMode: false, // forgiving html parser
         recognizeSelfClosing: true,
         lowerCaseTags: false, // needn't make tag lower case
+        lowerCaseAttributeNames: false,
+        recognizeCDATA: true,
     }).end(htmlStr);
 
     let dom = handler.dom;
