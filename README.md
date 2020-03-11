@@ -22,15 +22,11 @@
 
 :tada::tada::tada:AOP Framework for writing wechart mini-program.
 
-:100:More detail [documents](https://wxajs.github.io/wxa/)
-
-:100:更完善的[文档](https://wxajs.github.io/wxa/)
-
 **框架优势**
 
 🖖 极速上手。无额外的学习门槛，可以完全使用原生的小程序语法开发。
 
-:surfer: 零配置。无需任何配置，即可使标准项目运行起来。
+:surfer: 零配置。标准项目无需任何配置，即可运行。
 
 :penguin: 专注。解决小程序开发中的各种痛点，譬如状态管理、表单校验等。
 
@@ -43,6 +39,10 @@
 :light_rail: 低成本。超低迁移成本，原生小程序只需安装好依赖就可以马上在 `@wxa/cli2` 中跑起来。支持原生和wxa混杂开发。
 
 :alien: 多实例。一次性编译出多个三方项目或其他平台的小程序，如头条小程序。
+
+More detail [documents](https://wxajs.github.io/wxa/)
+
+更完善的[文档](https://wxajs.github.io/wxa/)
 
 ## 简介
 
