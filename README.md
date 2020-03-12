@@ -24,21 +24,21 @@
 
 **框架优势**
 
-🖖 极速上手。无额外的学习门槛，可以完全使用原生的小程序语法开发。
+🖖 **极速上手** 无额外的学习门槛，可以完全使用原生的小程序语法开发。
 
-:surfer: 零配置。标准项目无需任何配置，即可运行。
+:surfer: **零配置** 标准项目无需任何配置，即可运行。
 
-:penguin: 专注。解决小程序开发中的各种痛点，譬如状态管理、表单校验等。
+:penguin: **全方位** 解决小程序开发中的各种痛点，譬如状态管理、表单校验等。
 
-:rocket: 依赖分包算法。自研的依赖分包算法，帮助开发者充分的利用[分包空间](https://developers.weixin.qq.com/miniprogram/dev/framework/subpackages/basic.html)。
+:rocket: **依赖分包算法** 自研的依赖分包算法，帮助开发者充分的利用[分包空间](https://developers.weixin.qq.com/miniprogram/dev/framework/subpackages/basic.html)。
 
-:curly_loop: 依赖分析。自动分析项目依赖，无需手动 copy 三方依赖到项目中。
+:curly_loop: **依赖分析** 自动分析项目依赖，无需手动 copy 三方依赖到项目中。
 
-🤖组件库。任意第三方组件库，随时安装使用，完美适配 weui, vant-weapp, wux-weapp, iview-weapp 等组件库。
+🤖 **组件库** 任意第三方组件库，随时安装使用，完美适配 weui, vant-weapp, wux-weapp, iview-weapp 等组件库。
 
-:light_rail: 低成本。超低迁移成本，原生小程序只需安装好依赖就可以马上在 `@wxa/cli2` 中跑起来。支持原生和wxa混杂开发。
+:light_rail: **低成本** 超低迁移成本，原生小程序只需安装好依赖就可以马上在 `@wxa/cli2` 中跑起来。支持原生和wxa混杂开发。
 
-:alien: 多实例。一次性编译出多个三方项目或其他平台的小程序，如头条小程序。
+:alien: **多实例** 一次性编译出多个三方项目或其他平台的小程序，如头条小程序。
 
 More detail [documents](https://wxajs.github.io/wxa/)
 
