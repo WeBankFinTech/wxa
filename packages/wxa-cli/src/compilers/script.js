@@ -1,10 +1,7 @@
-import path from 'path';
 import {readFile} from '../utils';
 import logger from '../helpers/logger';
-import debugPKG from 'debug';
-let parser = require('@babel/parser');
-
-let debug = debugPKG('WXA:ScriptCompiler');
+import generator from '@babel/generator';
+import {parse} from '@babel/parser';
 
 export default class scriptCompiler {
     parse(filepath, code, configs) {
@@ -14,24 +11,50 @@ export default class scriptCompiler {
 
         let ast;
         try {
-            ast = parser.parse(code, {
-                plugins: [
-                    ['decorators', {decoratorsBeforeExport: true}],
-                    'classProperties',
-                ],
-                sourceType: 'unambiguous',
-                ...configs,
-            });
+            ast = parseESCode(code, [], configs);
         } catch (e) {
             logger.error('编译失败', e);
             return Promise.reject(e);
         }
-
-        // debug('AST generate %O', ast);
 
         return Promise.resolve({
             ast,
             kind: 'js',
         });
     }
+}
+
+export function parseESCode(code, plugins = [], options) {
+    plugins = [
+        ['decorators', {decoratorsBeforeExport: true}],
+        'classProperties',
+        'jsx',
+        'typescript',
+        'exportNamespaceFrom',
+        'exportDefaultFrom',
+        'objectRestSpread',
+        ...plugins,
+    ];
+
+    return parse(
+        code,
+        {
+            plugins,
+            sourceType: 'unambiguous',
+            ...options,
+        }
+    );
+}
+
+export function generateCodeFromAST(ast, options = {}, mdl) {
+    let opts = {};
+    if (mdl.isNodeModule || mdl.isWXARuntime) {
+        opts.concise = true;
+        opts.compact = true;
+        opts.minified = true;
+    }
+
+    opts = {...opts, ...options};
+
+    return generator(ast, opts, mdl.content);
 }

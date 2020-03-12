@@ -32,6 +32,7 @@ class Schedule {
         this.meta = {
             current: this.current,
             wxaExt: 'wxa',
+            nodeModule: path.join(this.current, 'node_modules'),
             libSrc: path.join(__dirname, '../lib-dist'),
             libs: ['wxa_wrap.js'],
             context: path.join(this.current, 'src'),
@@ -68,7 +69,8 @@ class Schedule {
         this.$depPending = []; // pending dependencies
         // this.$indexOfModule = [ROOT];
         this.$indexOfModule = new Map([['__root__', ROOT]]); // all module
-        this.$isMountingCompiler = false; // if is mounting compiler, all task will be blocked.
+        // if is mounting compiler, all task will be blocked.
+        this.$isMountingCompiler = false;
         this.progress = new ProgressTextBar(this.current, wxaConfigs);
 
         // save all app configurations for compile time.
@@ -295,7 +297,8 @@ class Schedule {
         let child = {
             ...dep,
             color: COLOR.INIT,
-            isNpm: dep.pret.isNodeModule,
+            isNodeModule: dep.src.indexOf(this.meta.nodeModule) > -1,
+            isWXARuntime: dep.src.indexOf(this.meta.libSrc) > -1,
             isPlugin: dep.pret.isPlugin,
             reference: new Map([[mdl.src, mdl]]),
             output: new Set([dep.meta.outputPath]),

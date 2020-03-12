@@ -1,11 +1,11 @@
 import traverse from '@babel/traverse';
 import * as t from '@babel/types';
 import template from '@babel/template';
-import generate from '@babel/generator';
 import path from 'path';
 import DependencyResolver from '../../helpers/dependencyResolver';
 import debugPKG from 'debug';
 import logger from '../../helpers/logger';
+import {generateCodeFromAST} from '../../compilers/script';
 
 let debug = debugPKG('WXA:ASTManager');
 
@@ -184,7 +184,9 @@ export default class ASTManager {
 
         libs = libs.concat(wxaSourceLibs);
         // generate module code.
-        mdl.code = this.generate(mdl).code;
+        let {code, map} = this.generate(mdl);
+        mdl.code = code;
+        // mdl.sourceMap = map;
         delete mdl.ast;
         return libs;
     }
@@ -231,8 +233,6 @@ export default class ASTManager {
     generate(mdl) {
         debug('generate start');
         if (mdl.ast == null) return;
-
-        // debug('module to generate %O', mdl.ast);
-        return generate(mdl.ast, {});
+        return generateCodeFromAST(mdl.ast, {}, mdl);
     }
 }
