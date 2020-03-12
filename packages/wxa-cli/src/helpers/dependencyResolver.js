@@ -80,7 +80,7 @@ class DependencyResolver {
         let source = '';
         let ext = '';
         // resolve alias;
-        if (this.resolve.alias && !mdl.isNpm) lib = resolveAlias(lib, this.resolve.alias, mdl.meta.source);
+        if (this.resolve.alias && !mdl.isNodeModule) lib = resolveAlias(lib, this.resolve.alias, mdl.meta.source);
 
         let pret = new PathParser().parse(lib);
 
