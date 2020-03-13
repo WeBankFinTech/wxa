@@ -5,7 +5,7 @@
     指令格式1：`wxa:mock="占位符"` 或 `wxa:mock="占位符(参数[,参数])"`
 */
 
-import {addClass} from '../../../utils';
+import {addClass} from '../../utils';
 export default mock;
 
 // ============================================================
@@ -27,13 +27,15 @@ let idCount = 1;
 
 
 // >>>> Main -----------------------------
-function mock(drc, element, options) {
-    console.log(options.cmdOptions);
+function mock(drc, element, app) {
+    console.log(app.cmdOptions);
     if (
-        options.cmdOptions.mock &&
+        app.cmdOptions.mock &&
         // 非生产环境
         ['prod', 'production'].indexOf(process.env.NODE_ENV) === -1
     ) {
+        app.addDirective('mock');
+
         // 找到需要执行指令命令的节点
         let targetList = findMockTarget(element);
         targetList.forEach((target) => {

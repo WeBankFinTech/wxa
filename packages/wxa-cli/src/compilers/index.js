@@ -182,7 +182,7 @@ export default class Compiler {
     }
 
     $$parseXML(mdl) {
-        let deps = new XMLManager(this.resolve || {}, this.meta, this.$scheduer.wxaConfigs, this.$scheduer.cmdOptions).parse(mdl);
+        let deps = new XMLManager(this.resolve || {}, this.meta, this.$scheduer).parse(mdl);
 
         debug('xml dependencies %o', deps);
         // analysis deps;

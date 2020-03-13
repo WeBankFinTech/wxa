@@ -10,8 +10,6 @@ export default directive;
 
 const directiveHandlerList = {
     mock,
-    // anotherDirective
-    // ...
 };
 
 function directive(drc, element, options) {

@@ -158,7 +158,7 @@ export function promiseSerial(funs) {
 
 export function getClassSet(classStr) {
     let classList = [];
-    if(classStr && typeof classStr === 'string') {
+    if (classStr && typeof classStr === 'string') {
         classList = classStr.split(' ');
     }
     return new Set(classList);
