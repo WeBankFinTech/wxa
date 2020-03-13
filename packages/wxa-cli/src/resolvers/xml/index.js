@@ -4,7 +4,7 @@ import DependencyResolver from '../../helpers/dependencyResolver';
 import CSSManager from '../styleResolver';
 import debugPKG from 'debug';
 import {logger, error} from '../../helpers/logger';
-import directive from '../directive';
+import directive from '../../directive/index';
 import {serializeXML} from '../../compilers/xml';
 
 let debugXMLStyle = debugPKG('WXA:XMLManager-style');
@@ -13,12 +13,13 @@ const WXA_DIRECTIVE_PREFIX = 'wxa';
 const WECHAT_DIRECTIVE_PREFIX = 'wx';
 
 class XMLManager {
-    constructor(resolve, meta, wxaConfigs, cmdOptions) {
+    constructor(resolve, meta, scheduler) {
+        this.$scheduler = scheduler;
         this.resolve = resolve;
         this.meta = meta;
 
-        this.wxaConfigs = wxaConfigs;
-        this.cmdOptions = cmdOptions;
+        this.wxaConfigs = scheduler.wxaConfigs;
+        this.cmdOptions = scheduler.cmdOptions;
     }
 
     parse(mdl) {
@@ -152,7 +153,18 @@ class XMLManager {
                     name: attr.name,
                     value: attr.value,
                 };
-                directive(drc, element, {mdl, cmdOptions: this.cmdOptions, wxaConfigs: this.wxaConfigs});
+                directive(drc, element, {
+                    mdl,
+                    cmdOptions: this.cmdOptions,
+                    wxaConfigs: this.wxaConfigs,
+                    addDirective: (name) => {
+                        debugger;
+                        this.$scheduler.directiveBroker.emit('add', name);
+                    },
+                    removeDirective: (name) => {
+                        this.$scheduler.directiveBroker.emit('remove', name);
+                    },
+                });
             }
             // 微信小程序指令
             case WECHAT_DIRECTIVE_PREFIX: {
