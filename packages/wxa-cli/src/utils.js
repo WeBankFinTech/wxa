@@ -109,7 +109,7 @@ export function amazingCache(params, needCache) {
     let defaultOpts = {
         directory: true,
         identifier: JSON.stringify({
-            '@webank/wxa-cli': pkg.version,
+            '@wxa/cli2': pkg.version,
             'env': process.env.NODE_ENV || 'development',
         }),
     };
