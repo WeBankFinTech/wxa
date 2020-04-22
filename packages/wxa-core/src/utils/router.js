@@ -13,8 +13,8 @@ export default class Router {
         ]);
 
         this.$apiMap.forEach((fn, name)=>{
-            this[name] = (url)=> {
-                let promise = fn.call(this, {url});
+            this[name] = (url, options = {})=> {
+                let promise = fn.call(this, {url, ...options});
                 this.preExec(url);
 
                 return promise;
