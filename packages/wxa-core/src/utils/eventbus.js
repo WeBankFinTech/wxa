@@ -1,39 +1,51 @@
 class Eventbus {
     constructor() {
-        this.storage = {};
+        this._storage = {};
     }
+
     findIndex(arr, x) {
-        return arr.findIndex((item)=>item===x);
+        return arr.findIndex((item)=>item.fn===x);
     };
 
-    on(name, fn) {
-        if (Object.prototype.toString.call(this.storage[name]) === '[object Array]') {
-            this.storage[name].push(fn);
+    on(name, fn, scope) {
+        if (Object.prototype.toString.call(this._storage[name]) === '[object Array]') {
+            this._storage[name].push({scope, fn});
         } else {
-            this.storage[name] = [fn];
+            this._storage[name] = [{scope, fn}];
         }
     }
 
-    off(name, fn) {
-        if (this.storage[name]) {
-            let i = this.findIndex(this.storage[name], fn);
+    once(name, fn, scope) {
+        let self = this;
+        let wrapFn = function(payload) {
+            fn.call(scope, payload);
 
-            if (i !==-1) this.storage[name].splice(i, 1);
+            self.off(name, wrapFn);
+        };
+
+        this.on(name, wrapFn, scope);
+    }
+
+    off(name, fn) {
+        if (this._storage[name]) {
+            let i = this.findIndex(this._storage[name], fn);
+
+            if (i !==-1) this._storage[name].splice(i, 1);
         }
     }
 
     clear(name) {
         if (name) {
-            this.storage[name] = [];
+            this._storage[name] = [];
         } else {
-            this.storage = {};
+            this._storage = {};
         }
-        return this.storage;
+        return this._storage;
     }
 
     emit(name, payload) {
-        if (this.storage[name]) {
-            this.storage[name].forEach((f)=>f(payload));
+        if (this._storage[name]) {
+            this._storage[name].forEach((f)=>f.fn.call(f.scope, payload));
         }
     }
 }
