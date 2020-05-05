@@ -3,7 +3,7 @@ import {default as wxapiFn} from './utils/wxapi';
 import {storage} from './utils/storage';
 import {router} from './utils/router';
 import promisify from './utils/promisify';
-import {eventbus} from './utils/eventbus';
+import {eventbus, Eventbus} from './utils/eventbus';
 import fetch from './utils/fetch';
 
 import debounce from 'lodash/debounce';
@@ -22,7 +22,7 @@ export {
     storage,
     router,
     promisify,
-    eventbus,
+    eventbus, Eventbus,
     fetch,
 
     debounce,
