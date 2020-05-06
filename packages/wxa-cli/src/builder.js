@@ -248,9 +248,9 @@ class Builder {
 
         try {
             await this.handleEntry(cmd);
-        } catch (error) {
-            error('编译入口参数有误', {error});
-            throw error;
+        } catch (err) {
+            error('编译入口参数有误', {err});
+            throw err;
         }
 
         await this.run(cmd);
@@ -348,13 +348,13 @@ class Builder {
             let mdl = {};
             point = path.isAbsolute(point) ? point : path.join(this.current, point);
 
-            if (cmd.multi) {
-                let matchedPoint = Object.keys(this.wxaConfigs.thirdParty.point).find((key)=>new RegExp(key).test(point));
+            if (this.wxaConfigs.point) {
+                let matchedPoint = Object.keys(this.wxaConfigs.point).find((key)=>new RegExp(key).test(point));
                 // console.log(matchedPoint);
 
                 if (matchedPoint) {
-                    mdl.src = this.wxaConfigs.thirdParty.point[matchedPoint];
-                    mdl.content = readFile(this.wxaConfigs.thirdParty.point[matchedPoint]);
+                    mdl.src = this.wxaConfigs.point[matchedPoint];
+                    mdl.content = readFile(this.wxaConfigs.point[matchedPoint]);
                 }
             }
 
