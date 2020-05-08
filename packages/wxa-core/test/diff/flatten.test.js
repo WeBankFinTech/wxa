@@ -24,7 +24,7 @@ describe('flatten object for wxa', ()=>{
 
         expect(flatten(
             {
-                a: 2,
+                a: {c: {d: 3}},
             },
             {
                 a: {c: {d: 1}},
@@ -76,7 +76,7 @@ describe('flatten object for wxa', ()=>{
                     '1': {b: 1},
                 },
             },
-        })).toMatchObject({'a.c[1].b': 1});
+        })).toMatchObject({'a.c[1]': {'b': 1}});
 
         expect(flatten(
             {
@@ -151,5 +151,69 @@ describe('flatten object for wxa', ()=>{
         expect(flatten(oldValue, newValue, {school: void(0)})).toMatchObject({school: void(0)});
 
         expect(flatten(oldValue, newValueWithDelete, {school: void(0), fav: {a: void(0), b: 'football'}})).toMatchObject({school: void(0), fav: {b: 'football'}});
+    });
+
+    test('Big Different Object', ()=>{
+        expect(flatten(
+            {
+                user$: {
+                    b: 3,
+                    order: {
+                        c: [1, 2],
+                        d: 1,
+                        e: 2,
+                        f: 3,
+                        d1: 1,
+                        e22: 2,
+                        f2: 4,
+                    },
+                },
+            },
+            {
+                user$: {
+                    b: 3,
+                    order: {
+                        c: [1, 2],
+                        d: 1,
+                        e: 2,
+                        f: 3,
+                        d1: 1,
+                        e22: 2,
+                        f2: 4,
+                    },
+                },
+            },
+            {
+                user$: {
+                    b: 4,
+                    order: {
+                        c: [1, 2],
+                        d: 1,
+                        e: 2,
+                        f: 3,
+                        d1: 1,
+                    },
+                },
+            }
+        )).toMatchObject({
+            'user$.b': 4,
+            'user$.order': {c: [1, 2], d: 1, e: 2, f: 3, d1: 1, e22: 2, f2: 4},
+          });
+    });
+
+    test('diff data Array to Object', ()=>{
+        expect(flatten(
+            {
+                user$: {},
+            },
+            {
+                user$: [],
+            },
+            {
+                user$: [],
+            }
+        )).toMatchObject({
+            'user$': [],
+          });
     });
 });

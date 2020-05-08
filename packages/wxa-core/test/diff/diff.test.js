@@ -52,4 +52,16 @@ describe('diff array', ()=>{
 
         expect(pageDiff({x: arr2})).toMatchObject({'x[0]': {a: 1, b: 2}});
     });
+
+    test('get diff properties', ()=>{
+        let page = {
+            data: {
+                x: arr1,
+            },
+        };
+
+        let pageDiff = diff.bind(page);
+
+        expect(pageDiff({x: [{a: 1, b: 2, c: {a: 1}}]})).toMatchObject({'x[0].c': {a: 1}});
+    });
 });
