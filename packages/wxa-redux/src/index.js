@@ -48,42 +48,18 @@ const checkAndFilterDataField = (data, maxSize = 1024 * 1000)=>{
     return ret;
 }
 
-let mountRedux = function (originHook) {
-    return function (...args) {
-        this.$$reduxDiff = diff.bind(this);
-        if(this.$store) {
-            let connectState = ()=>{
-                let newState = this.$store.getState();
-                let lastState = this.$$storeLastState;
-                let data = mapState(this.mapState, newState, lastState, this);
-                if (data !== null) {
-                    // 有效state
-                    this.$$storeLastState = data;
-                    let diffData = this.$$reduxDiff(data);
-                    let validData = checkAndFilterDataField(diffData)
-                    if(validData != null) this.setData(validData);
-                }
-            }
-            this.$unsubscribe = this.$store.subscribe((...args) => {
-                // Object updated && page is showing
-                if(this.$$isCurrentPage) {
-                    connectState();
-                }
-            });
-            // 直接挂载一次数据，这样子onLoad阶段可以直接使用现有数据
-            connectState();
-        }
-        if (originHook) originHook.apply(this, args);
-    }
-}
+const isEmpty = (val) => {
+    return val == null || !Object.keys(val).length;
+}   
 
-let unmountRedux = function (originUnmount) {
-    return function (...args) {
-        if (this.$unsubscribe) {
-            this.$unsubscribe();
-            this.$unsubscribe = null;
-        }
-        if (originUnmount) originUnmount.apply(this, args);
+const simpleDeepClone = (val) => {
+    if (val == null) return val;
+    try {
+        let ret = JSON.parse(JSON.stringify(val));
+        return ret;
+    } catch(e) {
+        console.error('[@wxa/redux] 深拷贝失败 ', e);
+        return Object.assign({}, val);
     }
 }
 
@@ -138,11 +114,58 @@ export const wxaRedux = (options = {}) => {
     let syncStore = function(){
         this.$$isCurrentPage = true;
         let data = mapState(this.mapState, this.$store.getState(), this.$$storeLastState, this);
-        if (data != null) {
+        if (!isEmpty(data)) {
+            // 有效state
+            data = simpleDeepClone(data);
+            this.$$storeLastState = data;
             let diffData = this.$$reduxDiff(data);
             let validData = checkAndFilterDataField(diffData);
+            if (debug) console.log('[@wxa/redux] data ready to set ', {...validData})
             this.setData(validData);
         };
+    }
+
+    let mountRedux = function (originHook) {
+        return function (...args) {
+            this.$$reduxDiff = diff.bind(this);
+            if(this.$store) {
+                let connectState = ()=>{
+                    let newState = this.$store.getState();
+                    let lastState = this.$$storeLastState;
+                    let data = mapState(this.mapState, newState, lastState, this);
+                    if (!isEmpty(data)) {
+                        // 防止引用类型错误修改
+                        data = simpleDeepClone(data);
+                        // 有效state
+                        this.$$storeLastState = data;
+                        let diffData = this.$$reduxDiff(data);
+                        let validData = checkAndFilterDataField(diffData)
+                        if (debug) console.log('[@wxa/redux] data ready to set ', {...validData})
+                        if(validData != null) this.setData(validData);
+                    }
+                }
+                this.$unsubscribe = this.$store.subscribe((...args) => {
+                    // Object updated && page is showing
+                    if (this.$$isCurrentPage) {
+                        connectState();
+                    }
+                });
+                // 直接挂载一次数据，这样子onLoad阶段可以直接使用现有数据
+                connectState();
+            }
+            if (originHook) originHook.apply(this, args);
+        }
+    }
+    
+    let unmountRedux = function (originUnmount) {
+        return function (...args) {
+            if (this.$unsubscribe) {
+                this.$unsubscribe();
+                this.$unsubscribe = null;
+                this.$$storeLastState = null;
+            }
+            if (originUnmount) originUnmount.apply(this, args);
+        }
     }
 
     return (vm, type) => {
