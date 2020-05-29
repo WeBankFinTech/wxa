@@ -1,4 +1,4 @@
-var ncp = require('ncp').ncp;
+var fs = require('fs-extra');
 var path = require('path');
 var mkdirp = require('mkdirp');
 
@@ -33,7 +33,7 @@ module.exports = class CopyPlugin {
         mkdirp(dist, function(err) {
             if(err) return next(err);
 
-            ncp(source, dist, {
+            fs.copy(source, dist, {
                 filter(filename){
                     return !options.ignore.some((value)=>{
                         let reg = value instanceof RegExp ? value : new RegExp(value);
