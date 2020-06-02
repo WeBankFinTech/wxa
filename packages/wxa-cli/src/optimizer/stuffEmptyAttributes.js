@@ -3,6 +3,11 @@ import {parseXML, serializeXML} from '../compilers/xml.js';
 import {Parser} from 'htmlparser2';
 import path from 'path';
 
+let whiteDirectiveList = [
+    'hidden',
+    'wx:else',
+];
+
 let whitePropsList = [
     'scale-area',
     'inertia',
@@ -79,6 +84,8 @@ let whitePropsList = [
     'disable-scroll',
 ];
 
+let whiteList = whitePropsList.concat(whiteDirectiveList);
+
 export function stuffEmptyAttributs(mdl) {
     let dom = parseXML(mdl.code, path.parse(mdl.src));
 
@@ -94,7 +101,7 @@ function walkDOM(dom) {
                 // suff empty attribs
                 if (
                     ele.attribs[attrName] === '' &&
-                    ~whitePropsList.indexOf(attrName)
+                    ~whiteList.indexOf(attrName)
                 ) ele.attribs[attrName] = attrName;
             });
         }
