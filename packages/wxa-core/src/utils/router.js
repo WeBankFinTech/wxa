@@ -17,7 +17,13 @@ export default class Router {
                 let promise = fn.call(this, {url, ...options});
                 this.preExec(url);
 
-                return promise;
+                return promise.catch((err)=>{
+                    if (err && /fail\scan\s[a-zA-Z\s]*\stabbar\spage/.test(err.errMsg)) {
+                        return this.wxapi.switchTab.call(this, {url, ...options});
+                    } else {
+                        return Promise.reject(err);
+                    }
+                });
             };
         });
     }
