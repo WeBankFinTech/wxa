@@ -1,5 +1,5 @@
 class Coder {
-    constructor(pmap=['<', '&', '"'], amap=['&lt;', '&amp;', '&quot;']) {
+    constructor(pmap=['<', '&', '"', '>'], amap=['&lt;', '&amp;', '&quot;', '&gt;']) {
         this.amap = amap;
         this.pmap = pmap;
     }
