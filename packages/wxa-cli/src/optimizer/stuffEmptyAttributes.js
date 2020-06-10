@@ -2,6 +2,7 @@
 import {parseXML, serializeXML} from '../compilers/xml.js';
 import {Parser} from 'htmlparser2';
 import path from 'path';
+import Coder from '../helpers/coder.js';
 
 let whiteDirectiveList = [
     'hidden',
@@ -87,11 +88,18 @@ let whitePropsList = [
 let whiteList = whitePropsList.concat(whiteDirectiveList);
 
 export function stuffEmptyAttributs(mdl) {
-    let dom = parseXML(mdl.code, path.parse(mdl.src));
+    let coder = new Coder();
+    let code = mdl.code;
+    code = coder.encodeTemplate(code, 0, code.length);
+    let dom = parseXML(
+        code,
+        path.parse(mdl.src)
+    );
+
 
     walkDOM(dom);
 
-    mdl.code = serializeXML(dom);
+    mdl.code = coder.decodeTemplate(serializeXML(dom));
 }
 
 function walkDOM(dom) {
