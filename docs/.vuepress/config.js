@@ -112,9 +112,7 @@ module.exports = {
             ],
             '/cli/': [
                 '',
-                'build',
-                'create',
-                'tool',
+                'command',
                 'configuration'
             ]
         },
