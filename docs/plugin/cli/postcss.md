@@ -1,6 +1,6 @@
 
 # @wxa/plugin-postcss
-[![NPM version](https://img.shields.io/npm/v/@wxa/plugin-postcss/next.svg)](https://www.npmjs.com/package/@wxa/plugin-postcss)
+[![NPM version](https://img.shields.io/npm/v/@wxa/plugin-postcss/latest.svg)](https://www.npmjs.com/package/@wxa/plugin-postcss)
 
 虽然微信开发者工具提供了自动补全样式的能力（其实也是通过postcss），但是灵活性可能欠佳，本插件允许开发者自定义需要引入的postcss插件:kissing_smiling_eyes:
 

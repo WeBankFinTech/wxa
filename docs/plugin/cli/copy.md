@@ -1,5 +1,5 @@
 # @wxa/plugin-copy
-[![NPM version](https://img.shields.io/npm/v/@wxa/plugin-copy/next.svg)](https://www.npmjs.com/package/@wxa/plugin-copy)
+[![NPM version](https://img.shields.io/npm/v/@wxa/plugin-copy/latest.svg)](https://www.npmjs.com/package/@wxa/plugin-copy)
 
 一般来说，对于动态路径：
 ::: v-pre 

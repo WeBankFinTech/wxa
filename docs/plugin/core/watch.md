@@ -1,6 +1,6 @@
 # @wxa/watch
-[![NPM version](https://img.shields.io/npm/v/@wxa/watch/next.svg)](https://www.npmjs.com/package/@wxa/watch)
-![npm bundle size (minified + gzip)](https://img.shields.io/bundlephobia/minzip/@wxa/watch/next.svg)
+[![NPM version](https://img.shields.io/npm/v/@wxa/watch/latest.svg)](https://www.npmjs.com/package/@wxa/watch)
+![npm bundle size (minified + gzip)](https://img.shields.io/bundlephobia/minzip/@wxa/watch/latest.svg)
 
 watch插件基于[`melanke-watchjs`](https://github.com/melanke/Watch.JS/)实现，本插件只是简单包装，以适配小程序环境。
 

@@ -1,5 +1,5 @@
 # wxa-plugin-uglifyjs
-[![NPM version](https://img.shields.io/npm/v/@wxa/plugin-uglifyjs/next.svg)](https://www.npmjs.com/package/@wxa/plugin-uglifyjs)
+[![NPM version](https://img.shields.io/npm/v/@wxa/plugin-uglifyjs/latest.svg)](https://www.npmjs.com/package/@wxa/plugin-uglifyjs)
 
 使用 `uglifyjs` 压缩美化生产代码。
 
