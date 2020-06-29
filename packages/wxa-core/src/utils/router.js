@@ -18,7 +18,10 @@ export default class Router {
                 this.preExec(url);
 
                 return promise.catch((err)=>{
-                    if (err && /fail\scan\s[a-zA-Z\s]*\stabbar\spage/.test(err.errMsg)) {
+                    if (
+                        err && err.errMsg &&
+                        /fail[a-zA-Z\s]*can[a-zA-Z\s]*tabbarpage/i.test(err.errMsg.replace(/[\s\:]*/g, ''))
+                    ) {
                         return this.wxapi.switchTab.call(this, {url, ...options});
                     } else {
                         return Promise.reject(err);
