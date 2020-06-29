@@ -1,6 +1,7 @@
 import {wxa} from './wxa';
 import {default as wxapiFn} from './utils/wxapi';
 import {storage} from './utils/storage';
+import {sessionStorage, SessionStorage} from './utils/sessionStorage';
 import {router} from './utils/router';
 import promisify from './utils/promisify';
 import {eventbus, Eventbus} from './utils/eventbus';
@@ -20,6 +21,7 @@ export * from './decorators/index';
 export const wxapi = wxapiFn(wx);
 export {
     storage,
+    sessionStorage, SessionStorage,
     router,
     promisify,
     eventbus, Eventbus,
