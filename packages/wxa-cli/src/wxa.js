@@ -72,7 +72,6 @@ commander
     .description('微信开发者工具命令行调用')
     .option('--configs-path <configsPath>', 'wxa.configs.js文件路径，默认项目根目录')
     .option('-a, --action <action>', '指定操作, open, login, preview, upload')
-    .option('-m, --multi', '三方开发模式，一次操作多个项目')
     .option('-p, --project <project>', '三方开发模式，单独指定操作的项目')
     .action(async (cmd)=>{
         showSlogan();
