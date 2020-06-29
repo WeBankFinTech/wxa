@@ -1,5 +1,5 @@
 # @wxa/plugin-replace
-[![NPM version](https://img.shields.io/npm/v/@wxa/plugin-replace/next.svg)](https://www.npmjs.com/package/@wxa/plugin-replace)
+[![NPM version](https://img.shields.io/npm/v/@wxa/plugin-replace/latest.svg)](https://www.npmjs.com/package/@wxa/plugin-replace)
 
 实际开发项目中，我们往往需要区分测试和生产环境参数，针对不同环境做不同处理，譬如测试环境下允许debug，生产环境又严格禁止。
 

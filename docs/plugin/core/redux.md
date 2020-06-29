@@ -1,6 +1,6 @@
 # @wxa/redux
-[![NPM version](https://img.shields.io/npm/v/@wxa/redux/next.svg)](https://www.npmjs.com/package/@wxa/redux)
-![npm bundle size (minified + gzip)](https://img.shields.io/bundlephobia/minzip/@wxa/redux/next.svg)
+[![NPM version](https://img.shields.io/npm/v/@wxa/redux/latest.svg)](https://www.npmjs.com/package/@wxa/redux)
+![npm bundle size (minified + gzip)](https://img.shields.io/bundlephobia/minzip/@wxa/redux/latest.svg)
 
 redux小程序适配方案，在小程序开发中使用redux管理全局状态。
 
