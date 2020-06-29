@@ -6,6 +6,7 @@ import {router} from './utils/router';
 import promisify from './utils/promisify';
 import {eventbus, Eventbus} from './utils/eventbus';
 import fetch from './utils/fetch';
+import * as utils from './utils/helpers';
 
 import debounce from 'lodash/debounce';
 import throttle from 'lodash/throttle';
@@ -26,6 +27,7 @@ export {
     promisify,
     eventbus, Eventbus,
     fetch,
+    utils,
 
     debounce,
     throttle,
