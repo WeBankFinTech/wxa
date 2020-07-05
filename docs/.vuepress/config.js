@@ -21,6 +21,9 @@ module.exports = {
         //     description: 'wxa | Wechat mini program framework'
         // }
     },
+    markdown: {
+        lineNumbers: true
+    },
     themeConfig: {
         displayAllHeaders: true,
         repo: 'wxajs/wxa',
