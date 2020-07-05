@@ -89,7 +89,7 @@ export default class Index {
 ```js
 // 任意 api.js
 import {fetch} from '@wxa/core`;
-import {getStore} from `@wxa/redux`;
+import {getStore} from '@wxa/redux';
 
 export default const customFetch = (...args) => {
     let {idNo, name} = getStore().getState().UserModel;
