@@ -61,19 +61,11 @@ describe('fetch api', ()=>{
     });
 
     test('reject same request in expired time (default 500ms)', async ()=>{
-        let warn = jest.fn();
-        global.console = {
-            warn,
-        };
         let noo = ()=>{};
         await fetch('/users/1', {}, {}, 'post').catch(noo);
         await fetch('/users/1', {boo: 1}, {}, 'post').catch(noo);
-        await fetch('/users/2', {}, {}, 'post').catch(noo);
-        await fetch('/users/3', {}, {}, 'post').catch(noo);
 
-        expect(warn).toHaveBeenCalledTimes(3);
-
-        await expect(fetch('/users/1', {}, {}, 'post')).rejects.toEqual({data: {code: -101, msg: '重复的请求'}});
+        expect(fetch('/users/1', {}, {}, 'post')).rejects.toEqual({data: {code: -101, msg: '重复的请求'}});
     });
 
     test('set Multi request', async ()=>{
