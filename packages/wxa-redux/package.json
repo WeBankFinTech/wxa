@@ -4,7 +4,8 @@
     "description": "redux for wxa ",
     "main": "./dist/index.js",
     "scripts": {
-        "build": "babel src --out-dir ./dist/",
+        "build:lib": "babel ./libs/wx.storage.js --out-file ./libs/wx.storage.min.js",
+        "build": "babel src --out-dir ./dist/ && npm run build:lib",
         "prepublishOnly": "npm run build",
         "dev": "babel --watch src --out-dir ./dist/",
         "test": "jest",
