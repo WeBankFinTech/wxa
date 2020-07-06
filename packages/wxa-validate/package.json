@@ -1,6 +1,6 @@
 {
     "name": "@wxa/validate",
-    "version": "2.2.0-alpha.26+c4680f9",
+    "version": "2.2.0",
     "description": "form plugin for wxa",
     "main": "dist/main.js",
     "scripts": {

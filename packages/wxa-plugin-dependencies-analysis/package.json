@@ -1,6 +1,6 @@
 {
   "name": "@wxa/plugin-dependencies-analysis",
-  "version": "2.1.14",
+  "version": "2.2.0",
   "description": "dependencies analysis plugin for wxa",
   "scripts": {
     "dev:client": "webpack-dev-server",
