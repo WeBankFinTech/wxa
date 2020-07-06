@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.2.0](https://github.com/wxajs/wxa/compare/v2.1.14...v2.2.0) (2020-07-06)
+
+
+### Features
+
+* **compiler-sass:** Sourcemap generating ([8ac1420](https://github.com/wxajs/wxa/commit/8ac14202daeda61508784be15ea79fd880b10d6a))
+
+
+
+
+
 # [2.1.0](https://github.com/wxajs/wxa/compare/v2.0.8...v2.1.0) (2019-08-28)
 
 

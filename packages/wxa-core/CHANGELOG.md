@@ -1,3 +1,38 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [2.2.0](https://github.com/wxajs/wxa/compare/v2.1.14...v2.2.0) (2020-07-06)
+
+
+### Bug Fixes
+
+* fix test suite ([0a2bf3f](https://github.com/wxajs/wxa/commit/0a2bf3f184d528b81251e35671fb8cf2e8d04694))
+* **core:** fix tarbar errmsg regepx ([284537d](https://github.com/wxajs/wxa/commit/284537d57b2c80bc556b6d36b826ba7c8408a4fe))
+
+
+### Features
+
+* **cli core:** dynamic add directive to runtime ([50b80dc](https://github.com/wxajs/wxa/commit/50b80dccd3e78a4f0b363819eacb2ff09d000085))
+* **core:** Add sessionStorage and coopreate decorator ([5cf9961](https://github.com/wxajs/wxa/commit/5cf9961bbe2a08ff8407b2fc544ec50038760cf4))
+* **core:** add wxa.platform, indicate which platform app running at ([fd9214e](https://github.com/wxajs/wxa/commit/fd9214ec6dd34dd47d085b417057b50a82d5dfad))
+* **core:** auto switch while using redirectTo/navigateTo with tabbar page ([fe35479](https://github.com/wxajs/wxa/commit/fe354799b0f3e03d18d0e330b933332a722ab057))
+* **core:** enabled abort request with fetch methods ([f7665ab](https://github.com/wxajs/wxa/commit/f7665ab7885d373d2aebe31e58a4314101dc471b))
+* **core:** eventbus support once and scope ([0af5ac6](https://github.com/wxajs/wxa/commit/0af5ac6b2356548e765b8b700ca79eb18d0c1889))
+* **core:** export Eventbus class ([b48739f](https://github.com/wxajs/wxa/commit/b48739fc4afd63f9c9bdb1f8d2a4acc3c3903c33))
+* **core:** export util function ([bc51b2f](https://github.com/wxajs/wxa/commit/bc51b2f6efef0c6bc3e324667ac63d4aedb2b903))
+* **core:** support pass alter options to router methods ([d3aa925](https://github.com/wxajs/wxa/commit/d3aa9255e30a15b98e1242436a0099da585896d1))
+
+
+### Performance Improvements
+
+* **core:** optimize diff algorithme to adopt complex production mode data ([16b6293](https://github.com/wxajs/wxa/commit/16b62931b18d3a04240a18e32778b8965556041d))
+
+
+
+
+
 <a name="2.0.0-rc.1"></a>
 # 2.0.0-rc.1 (2019-02-01)
 
@@ -66,6 +101,3 @@
 * **fetch.js:** response without 200 statusCode will reject
 * **app.js, page.js, component.js:** if user define two same name function both in class and class.methods object, the
 one in class prototype will cover methods object one.
-
-
-
