@@ -118,14 +118,13 @@ class Builder {
                     // maybe outer dependencies.
                     let defer = [];
 
-                    this.scheduler.$indexOfModule.forEach((mdl)=>{
-                        if (!mdl.outerDependencies || !mdl.outerDependencies.size || !mdl.outerDependencies.has(filepath)) return;
-
+                    let addTask = (mdl)=>{
                         defer.push(async ()=>{
                             try {
                                 this.scheduler.$depPending.push(mdl);
                                 // 2019-08-20 childNodes will auto mark in scheduler
                                 // if (mdl.childNodes && mdl.childNodes.size) this.walkChildNodesTreeAndMark(mdl);
+                                mdl.color = color.CHANGED;
 
                                 await this.hooks.rebuildModule.promise(this.scheduler, mdl);
 
@@ -136,9 +135,19 @@ class Builder {
                                 error('编译失败', {error: e});
                             }
                         });
+                    };
+
+                    this.scheduler.$indexOfModule.forEach((mdl)=>{
+                        if (!mdl.outerDependencies || !mdl.outerDependencies.size || !mdl.outerDependencies.has(filepath)) return;
+
+                        addTask(mdl);
                     });
 
-                    await promiseSerial(defer);
+                    try {
+                        await promiseSerial(defer);
+                    } catch (e) {
+                        logger.error(e);
+                    }
                 } else {
                     // normol deps changed
                     let {isChange, newFiles} = await this.compileChangedFile({filepath, mdl, files, cmd}) || {};
