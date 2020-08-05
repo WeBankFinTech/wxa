@@ -439,6 +439,18 @@ class Schedule {
             pages = pages.concat(subPages);
         }
 
+        // tarbar configs
+        let tabBarList = (this.appConfigs.tabBar && this.appConfigs.tabBar.list) || [];
+        tabBarList.forEach((val) => {
+            if (val.iconPath) {
+                console.log();
+                pages = pages.concat([['', val.iconPath.substr(2)]]);
+            }
+            if (val.selectedIconPath) {
+                pages = pages.concat([['', val.selectedIconPath.substr(2)]]);
+            }
+        });
+
         // pages spread
         let newPages = pages.reduce((ret, [pkg, page])=>{
             // wxa file
@@ -446,8 +458,27 @@ class Schedule {
 
             debug('page %s %s', wxaPage, page);
             let dr = new DependencyResolver(this.wxaConfigs.resolve, this.meta);
-
-            if (isFile(wxaPage)) {
+            
+            if (/.+(png|jpg|jpeg|webp|eot|woff|woff2|ttf|file')$/.test(page)) {
+                let src = path.join(this.meta.context, page);
+                try {
+                    return ret.concat([this.addEntryPoint({
+                        content: '',
+                        src,
+                        category: '',
+                        pagePath: src,
+                        pret: defaultPret,
+                        package: pkg,
+                        isFile: true,
+                        meta: {
+                            source: src,
+                            outputPath: dr.getOutputPath(src, defaultPret, ROOT),
+                        },
+                    })]);
+                } catch (e) {
+                    logger.error(e);
+                }
+            } else if (isFile(wxaPage)) {
                 try {
                     let pagePoint = this.addEntryPoint({
                         content: readFile(wxaPage),
@@ -494,7 +525,6 @@ class Schedule {
         }, []);
 
         newPages.forEach((page)=>this.$pageArray.set(page.src, page));
-
         return newPages;
     }
 
