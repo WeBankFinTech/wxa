@@ -451,6 +451,13 @@ class Schedule {
             }
         });
 
+        // usingComponents
+        if (this.appConfigs.usingComponents) {
+            Object.values(this.appConfigs.usingComponents).forEach((val) => {
+                pages = pages.concat([['', val]]);
+            });
+        }
+
         // pages spread
         let newPages = pages.reduce((ret, [pkg, page])=>{
             // wxa file
