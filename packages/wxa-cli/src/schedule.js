@@ -443,7 +443,6 @@ class Schedule {
         let tabBarList = (this.appConfigs.tabBar && this.appConfigs.tabBar.list) || [];
         tabBarList.forEach((val) => {
             if (val.iconPath) {
-                console.log();
                 pages = pages.concat([['', val.iconPath.substr(2)]]);
             }
             if (val.selectedIconPath) {
