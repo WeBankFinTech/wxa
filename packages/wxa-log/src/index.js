@@ -20,20 +20,20 @@ const emailReg = /[a-z0-9](\w|\.|-)*@([a-z0-9]+-?[a-z0-9]+\.|[a-z0-9]+\.){1,3}[a
 const tranDataByRules = (data) => {
   // 处理身份证或者长数字，通常是一些比较敏感的用数字字符串表示的用户信息
   data = data.replace(idNoReg, (d) => {
-    return `${d.slice(0,6)}****`;
+    return `{${d.slice(0,6)}****}`;
   });
   // 处理中文（姓名）相关的字符串
   data = data.replace(nameReg, (d) => {
-    return `${d.slice(0,1)}***`;
+    return `{${d.slice(0,1)}***}`;
   });
   // 处理国内手机号码
   data = data.replace(phoneReg, (d) => {
-    return `${d.slice(0,3)}****${d.slice(-4)}}`;
+    return `{${d.slice(0,3)}****${d.slice(-4)}}`;
   });
   // 处理邮箱
   data = data.replace(emailReg, (d) => {
     const splitData = d.split('@');
-    return `${splitData[0].slice(0,4)}***@${splitData[1]}`
+    return `{${splitData[0].slice(0,4)}***@${splitData[1]}}`
   });
   return data;
 };
@@ -144,7 +144,7 @@ const logFn = (e, key) => {
         const params = processParams(cloneDeep(e));
         if (params) {
           // 调用三种log
-          console[key](params);
+          console[key](e);
           // logger没有error方法，需要fallback
           logger && logger[key === 'error' ? 'warn' : key](params);
           log && log[key](params);
