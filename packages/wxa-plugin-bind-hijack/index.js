@@ -2,12 +2,18 @@ var debug = require('debug')('WXA:PLUGIN-REPLACE')
 var htmlparser2 = require('htmlparser2');
 
 let { Parser, DomHandler, DomUtils } = htmlparser2;
+const defaultOptions = {
+    tap: 'wxaTapCapture',
+}
+
 module.exports = class BindCapture {
     constructor(options = {}) {
         this.configs = Object.assign({}, {
             test: /\.wxml$/,
             plugins: []
-        }, { options });
+        }, { options: defaultOptions });
+        this.pmap=['<', '&', '"', '>'];
+        this.amap=['&lt;', '&amp;', '&quot;', '&gt;'];
     }
     apply(compiler) {
         if (compiler.hooks == null || compiler.hooks.buildModule == null) return;
@@ -23,18 +29,19 @@ module.exports = class BindCapture {
         })
     }
     run(mdl) {
-        if (mdl.content) {
-            let tapFnName = this.configs.options.tap || 'wxaTapCapture';
+        if (mdl.content && mdl.content.replace) {
+            let tapFnName = this.configs.options.tap;
+
             let handler = new DomHandler((err, dom) => {
                 if (err) {
-                    logger.error('XML错误:'+(opath.dir+path.sep+opath.base));
+                    logger.error('XML错误:'+mdl.meta.source);
                     logger.error(err);
                 }
             }, {
                 normalizeWhitespace: true,   //default:false
             });
 
-            let htmlStr = mdl.content;
+            let htmlStr = mdl.content.replace(/{{([^{}]*)}}/g, (match, express) => `{{${this.encode(express)}}}`);
             new Parser(handler, {
                 xmlMode: false, // forgiving html parser
                 recognizeSelfClosing: true,
@@ -42,6 +49,7 @@ module.exports = class BindCapture {
                 lowerCaseAttributeNames: false,
                 recognizeCDATA: true,
             }).end(htmlStr);
+
             let dom = handler.dom;
             let rewrite = function (dom) {
                 dom.forEach(v => {
@@ -70,7 +78,37 @@ module.exports = class BindCapture {
                 });
             }
             rewrite(dom);
-            mdl.content = DomUtils.getOuterHTML(dom);
+
+            mdl.content = DomUtils.getOuterHTML(dom)
+                    .replace(/{{([^{}]*)}}/g, (match, express) => `{{${this.decode(express)}}}`);
         }
+    }
+    decode(content, pmap, amap) {
+        pmap = pmap || this.pmap;
+        amap = amap || this.amap;
+
+        let ret = amap.reduce((ret, item)=>(ret+'|'+item), '').replace(/^\|/, '');
+        let reg = new RegExp(`(${ret})`, 'ig');
+        return content.replace(reg, (match, m) => {
+            return pmap[amap.indexOf(m)];
+        });
+    }
+    encode(content, start, end, pmap, amap) {
+        start = start || 0;
+        end = end || content.length;
+        pmap = pmap || this.pmap;
+        amap = amap || this.amap;
+        let buffer = [];
+
+        for (let i=0, len=content.length; i < len; i++) {
+            if (i < start || i > end) {
+                buffer.push(content[i]);
+            } else {
+                let idx = pmap.indexOf(content[i]);
+                buffer.push(idx === -1 ? content[i] : amap[idx]);
+            }
+        }
+
+        return buffer.join('');
     }
 }
