@@ -1,5 +1,5 @@
 {
-  "name": "@wxa/plugin-bind-capture",
+  "name": "@wxa/plugin-bind-hijack",
   "version": "2.2.0",
   "description": "log everything",
   "main": "index.js",
@@ -7,7 +7,7 @@
   "keywords": [
     "wxa",
     "bind",
-    "capture"
+    "hijack"
   ],
   "repository": "https://github.com/wxajs/wxa.git",
   "homepage": "https://wxajs.github.io/wxa/",
