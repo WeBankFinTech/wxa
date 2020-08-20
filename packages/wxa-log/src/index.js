@@ -144,7 +144,7 @@ const logFn = (e, key) => {
         const params = processParams(cloneDeep(e));
         if (params) {
           // 调用三种log
-          console[key](e);
+          console[key](...e);
           // logger没有error方法，需要fallback
           logger && logger[key === 'error' ? 'warn' : key](params);
           log && log[key](params);

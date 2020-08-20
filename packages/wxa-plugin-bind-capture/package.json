@@ -1,0 +1,26 @@
+{
+  "name": "@wxa/plugin-bind-capture",
+  "version": "2.2.0",
+  "description": "log everything",
+  "main": "index.js",
+  "scripts": {},
+  "keywords": [
+    "wxa",
+    "bind",
+    "capture"
+  ],
+  "repository": "https://github.com/wxajs/wxa.git",
+  "homepage": "https://wxajs.github.io/wxa/",
+  "author": "iveswen",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "debug": "^4.1.1"
+  },
+  "gitHead": "b925c4fe80f493edd89c0c39a70e6eda3b97d915",
+  "dependencies": {
+    "htmlparser2": "^4.1.0"
+  }
+}
