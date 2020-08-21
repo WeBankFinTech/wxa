@@ -5,11 +5,11 @@ let { Parser, DomHandler, DomUtils } = htmlparser2;
 const defaultOptions = ['tap'];
 
 module.exports = class BindCapture {
-    constructor(options = {}) {
+    constructor(options = defaultOptions) {
         this.configs = Object.assign({}, {
             test: /\.wxml$/,
             plugins: []
-        }, { options: defaultOptions });
+        }, { options });
         this.pmap=['<', '&', '"', '>'];
         this.amap=['&lt;', '&amp;', '&quot;', '&gt;'];
     }
