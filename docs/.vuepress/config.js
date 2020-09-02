@@ -61,6 +61,7 @@ module.exports = {
                             {text: 'UglifyJS 代码压缩', link: '/plugin/cli/uglifyjs'},
                             {text: 'Replace 字符替换', link: '/plugin/cli/replace'},
                             {text: 'Copy 静态资源引入', link: '/plugin/cli/copy'},
+                            {text: 'hijack 事件劫持', link: '/plugin/cli/hijack'},
                             {text: 'Minify-wxml wxml压缩', link: '/plugin/cli/minify-wxml'},
                             {text: 'Postcss CSS预处理', link: '/plugin/cli/postcss'},
                             {text: 'DA 依赖分析', link: '/plugin/cli/da'},
