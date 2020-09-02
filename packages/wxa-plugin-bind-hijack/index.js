@@ -21,7 +21,7 @@ module.exports = class BindCapture {
                 mdl.meta &&
                 this.configs.test.test(mdl.meta.source)
             ) {
-                debug('Plugin replace started %O', mdl.src);
+                debug('Plugin bind hijack started %O', mdl.src);
                 this.run(mdl);
             }
         })
@@ -52,22 +52,31 @@ module.exports = class BindCapture {
             let rewrite = function (dom) {
                 dom.forEach(v => {
                     if(v.attribs){
-                        configsOptions.forEach(event => {
-                            if (v.attribs[`data-${event}`]) {
-                                logger.error(`data-${event} 属性已存在: ${mdl.meta.source}`);
-                            }
-                            let hijackFnName = `wxaHijack${event[0].toUpperCase()}${event.substr(1)}`;
-                            let bindAttr = v.attribs[`bind${event}`] || v.attribs[`bind:${event}`];
-                            if (bindAttr) {
-                                v.attribs[`bind${event}`] = hijackFnName;
-                                v.attribs[`data-${event}`] = bindAttr;
-                            }
-                            let catchAttr = v.attribs[`catch${event}`] || v.attribs[`catch:${event}`];
-                            if (catchAttr) {
-                                v.attribs[`catch${event}`] = hijackFnName;
-                                v.attribs[`data-${event}`] = catchAttr;
-                            }
-                        })
+                        if(!configsOptions || configsOptions.length === 0){ //拦截所有事件
+                            Object.keys(v.attribs).forEach(attr => {
+                                if(attr.indexOf('bind') === 0 || attr.indexOf('catch') === 0){
+                                    v.attribs[`data-${attr.replace(/^bind:|catch:|bind|catch/, '')}`] = v.attribs[attr];
+                                    v.attribs[attr] = 'wxaHijack';
+                                }
+                            });
+                        } else {
+                            configsOptions.forEach(event => {
+                                if (v.attribs[`data-${event}`]) {
+                                    logger.error(`data-${event} 属性已存在: ${mdl.meta.source}`);
+                                }
+                                let hijackFnName = `wxaHijack${event[0].toUpperCase()}${event.substr(1)}`;
+                                let bindAttr = v.attribs[`bind${event}`] || v.attribs[`bind:${event}`];
+                                if (bindAttr) {
+                                    v.attribs[`bind${event}`] = hijackFnName;
+                                    v.attribs[`data-${event}`] = bindAttr;
+                                }
+                                let catchAttr = v.attribs[`catch${event}`] || v.attribs[`catch:${event}`];
+                                if (catchAttr) {
+                                    v.attribs[`catch${event}`] = hijackFnName;
+                                    v.attribs[`data-${event}`] = catchAttr;
+                                }
+                            })
+                        }
                     }
                     if (v.children) {
                         rewrite(v.children);
