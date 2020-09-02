@@ -52,11 +52,13 @@ module.exports = class BindCapture {
             let rewrite = function (dom) {
                 dom.forEach(v => {
                     if(v.attribs){
+                        let hasEvent = false;
                         if(!configsOptions || configsOptions.length === 0){ //拦截所有事件
                             Object.keys(v.attribs).forEach(attr => {
                                 if(attr.indexOf('bind') === 0 || attr.indexOf('catch') === 0){
                                     v.attribs[`data-${attr.replace(/^bind:|catch:|bind|catch/, '')}`] = v.attribs[attr];
                                     v.attribs[attr] = 'wxaHijack';
+                                    hasEvent = true;
                                 }
                             });
                         } else {
@@ -69,13 +71,21 @@ module.exports = class BindCapture {
                                 if (bindAttr) {
                                     v.attribs[`bind${event}`] = hijackFnName;
                                     v.attribs[`data-${event}`] = bindAttr;
+                                    hasEvent = true;
                                 }
                                 let catchAttr = v.attribs[`catch${event}`] || v.attribs[`catch:${event}`];
                                 if (catchAttr) {
                                     v.attribs[`catch${event}`] = hijackFnName;
                                     v.attribs[`data-${event}`] = catchAttr;
+                                    hasEvent = true;
                                 }
                             })
+                        }
+                        if(hasEvent){ // 为事件参数增加一些标记
+                            if(v.data) v.attribs['data-wxa-data'] = v.data;
+                            if(v.type) v.attribs['data-wxa-type'] = v.type;
+                            if(v.attribs.class) v.attribs['data-wxa-class'] = v.attribs.class;
+                            if(v.attribs.id) v.attribs['data-wxa-id'] = v.attribs.id;
                         }
                     }
                     if (v.children) {

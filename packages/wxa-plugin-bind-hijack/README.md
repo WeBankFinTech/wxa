@@ -85,3 +85,4 @@ export default ()=>(vm, type)=>{
 ### 其他说明
 1. 拦截事件支持bind和catch（阻止冒泡），支持冒号写法（bind:tap）
 2. 自动执行执行的事件也会触发拦截，如：swiper设置了autoplay时，bindchange事件会自动执行
+3. 事件对象的dataset中注入节点相关信息，包括：data、type、class、id
