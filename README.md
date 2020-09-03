@@ -20,7 +20,7 @@
 
 # @wxa
 
-:tada::tada::tada:AOP Framework for writing wechart mini-program.
+:tada::tada::tada:AOP Framework for writing wechat mini-program.
 
 **框架优势**
 
