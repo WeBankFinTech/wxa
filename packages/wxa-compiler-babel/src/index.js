@@ -119,7 +119,7 @@ class BabelLoader {
             }, cmdOptions.cache);
 
             debug('transform succ %s', ret.code);
-            return Promise.resolve({ret, code: ret.code});
+            return Promise.resolve({ret, code: ret.code, sourceMap: ret.map});
         }
     }
 

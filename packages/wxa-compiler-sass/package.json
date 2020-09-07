@@ -1,6 +1,6 @@
 {
     "name": "@wxa/compiler-sass",
-    "version": "2.1.0",
+    "version": "2.2.0",
     "description": "wxa sass compiler",
     "main": "dist/index.js",
     "scripts": {
@@ -33,5 +33,6 @@
     },
     "publishConfig": {
         "access": "public"
-    }
+    },
+    "gitHead": "b925c4fe80f493edd89c0c39a70e6eda3b97d915"
 }

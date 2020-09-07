@@ -4,6 +4,7 @@ import debugPKG from 'debug';
 import DependencyResolver from '../helpers/dependencyResolver';
 import ProgressBar from '../helpers/progressTextBar';
 import logger from '../helpers/logger';
+import types from '../const/types';
 
 let debug = debugPKG('WXA:Generator');
 
@@ -44,6 +45,10 @@ export default class Generator {
             // https://github.com/wxajs/wxa/issues/5#issuecomment-498186337
             // if a module is unrecognized, then we just copy it to dist.
             if (mdl.code != null) {
+                if (mdl.sourceMap && mdl.kind === 'js') {
+                    writeFile(outputPath+'.map', JSON.stringify(mdl.sourceMap));
+                    mdl.code += `\n//@ sourceMappingURL=${path.basename(outputPath)}.map`;
+                }
                 writeFile(outputPath, mdl.code);
             } else {
                 copy(mdl.src, outputPath);
@@ -52,7 +57,7 @@ export default class Generator {
     }
 
     tryTransFormExtension(output, kind) {
-        if (this.wxaConfigs.target === 'wxa') {
+        if ( ~types.WECHAT.concat(types.TT).indexOf(this.wxaConfigs.target) ) {
             // 小程序相关
             let opath = path.parse(output);
 

@@ -22,7 +22,7 @@ const combine = (registryReducers, userReducers) => {
 };
 
 const checkAndFilterDataField = (data, maxSize = 1024 * 1000)=>{
-    const check = (key, value)=>{
+    const check = (key, value) => {
         let str = JSON.stringify(value);
         if (typeof str !== 'string') return true;
 
@@ -48,54 +48,41 @@ const checkAndFilterDataField = (data, maxSize = 1024 * 1000)=>{
     return ret;
 }
 
-let mountRedux = function (originHook) {
-    return function (...args) {
-        this.$$reduxDiff = diff.bind(this);
-        if(this.$store) {
-            let connectState = ()=>{
-                let newState = this.$store.getState();
-                let lastState = this.$$storeLastState;
-                let data = mapState(this.mapState, newState, lastState, this);
-                if (data !== null) {
-                    // 有效state
-                    this.$$storeLastState = data;
-                    let diffData = this.$$reduxDiff(data);
-                    let validData = checkAndFilterDataField(diffData)
-                    if(validData != null) this.setData(validData);
-                }
-            }
-            this.$unsubscribe = this.$store.subscribe((...args) => {
-                // Object updated && page is showing
-                if(this.$$isCurrentPage) {
-                    connectState();
-                }
-            });
-            connectState();
-        }
-        if (originHook) originHook.apply(this, args);
+const isEmpty = (val) => {
+    return val == null || !Object.keys(val).length;
+}   
+
+const simpleDeepClone = (val) => {
+    if (val == null) return val;
+    try {
+        let ret = JSON.parse(JSON.stringify(val));
+        return ret;
+    } catch(e) {
+        console.error('[@wxa/redux] 深拷贝失败 ', e);
+        return Object.assign({}, val);
     }
 }
 
-let unmountRedux = function (originUnmount) {
-    return function (...args) {
-        if (this.$unsubscribe) {
-            this.$unsubscribe();
-            this.$unsubscribe = null;
-        }
-        if (originUnmount) originUnmount.apply(this, args);
-    }
+let _store;
+
+export function getStore() {
+    if (_store == null) console.warn('%c[@wxa/redux] store is null, initial redux plugin first in app.wxa', 'font-size: 12px; color: red;');
+
+    return _store;
 }
 
 export const wxaRedux = (options = {}) => {
     // get options.
     let args = [];
     let userReducers;
+    let debug = false;
     if (Array.isArray(options)) {
         userReducers = options[0];
         // object reducer
         args = [combine(reducerRegistry.getReducers(), userReducers), ...options.slice(1)];
     } else {
         userReducers = options.reducers; 
+        debug = options.debug;
         let {
             middlewares,
             initialState
@@ -103,23 +90,82 @@ export const wxaRedux = (options = {}) => {
 
         args = [combine(reducerRegistry.getReducers(), userReducers), initialState];
         if (Array.isArray(middlewares)) args.push(applyMiddleware(...middlewares));
+        else if (typeof middlewares === 'function') args.push(middlewares);
     }
 
     // create Store directly;
     // cause the reducer may be attached at subpackages.
     let store = createStore.apply(null, args);
+    _store = store;
+
     reducerRegistry.setChangeListener((reducer)=>{
-        store.replaceReducer(combine(reducer, userReducers));
+        let reducers = combine(reducer, userReducers);
+        if(debug) {
+            console.group('%c[@wxa/redux] Replacing reducers', 'font-size: 12px; color: green;');
+            console.table({
+                'registered reducer': reducer,
+                'init reducer': userReducers
+            });
+            console.groupEnd();
+        }
+        store.replaceReducer(reducers);
     });
 
     let syncStore = function(){
         this.$$isCurrentPage = true;
         let data = mapState(this.mapState, this.$store.getState(), this.$$storeLastState, this);
-        if (data != null) {
+        if (!isEmpty(data)) {
+            // 有效state
+            data = simpleDeepClone(data);
+            this.$$storeLastState = data;
             let diffData = this.$$reduxDiff(data);
             let validData = checkAndFilterDataField(diffData);
+            if (debug) console.log('[@wxa/redux] data ready to set ', {...validData})
             this.setData(validData);
         };
+    }
+
+    let mountRedux = function (originHook) {
+        return function (...args) {
+            this.$$reduxDiff = diff.bind(this);
+            if(this.$store) {
+                let connectState = ()=>{
+                    let newState = this.$store.getState();
+                    let lastState = this.$$storeLastState;
+                    let data = mapState(this.mapState, newState, lastState, this);
+                    if (!isEmpty(data)) {
+                        // 防止引用类型错误修改
+                        data = simpleDeepClone(data);
+                        // 有效state
+                        this.$$storeLastState = data;
+                        let diffData = this.$$reduxDiff(data);
+                        let validData = checkAndFilterDataField(diffData)
+                        if (debug) console.log('[@wxa/redux] data ready to set ', {...validData})
+                        if(validData != null) this.setData(validData);
+                    }
+                }
+                this.$unsubscribe = this.$store.subscribe((...args) => {
+                    // Object updated && page is showing
+                    if (this.$$isCurrentPage) {
+                        connectState();
+                    }
+                });
+                // 直接挂载一次数据，这样子onLoad阶段可以直接使用现有数据
+                connectState();
+            }
+            if (originHook) originHook.apply(this, args);
+        }
+    }
+    
+    let unmountRedux = function (originUnmount) {
+        return function (...args) {
+            if (this.$unsubscribe) {
+                this.$unsubscribe();
+                this.$unsubscribe = null;
+                this.$$storeLastState = null;
+            }
+            if (originUnmount) originUnmount.apply(this, args);
+        }
     }
 
     return (vm, type) => {

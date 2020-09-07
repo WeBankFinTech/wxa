@@ -1,3 +1,19 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [2.2.0](https://github.com/wxajs/wxa/compare/v2.1.14...v2.2.0) (2020-07-06)
+
+
+### Features
+
+* **compiler-babel:** Sourcemap generate ([5074b5e](https://github.com/wxajs/wxa/commit/5074b5ee4481dc7dc336eda1cf863343eb0980c9))
+
+
+
+
+
 # 2.0.0-rc.1 (2019-02-01)
 
 
@@ -33,6 +49,3 @@
 * **logger, npmManager, progressBar:** add node-notifier to notify error, add npmManager to auto ins ([80f0279](https://github.com/wxajs/wxa/commit/80f0279))
 * **sass-loader:** sass-loader ([bacbe4c](https://github.com/wxajs/wxa/commit/bacbe4c))
 * **third party mode:** support build multi project once ([dd2bb83](https://github.com/wxajs/wxa/commit/dd2bb83))
-
-
-

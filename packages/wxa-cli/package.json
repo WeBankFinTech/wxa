@@ -1,16 +1,15 @@
 {
   "name": "@wxa/cli2",
-  "version": "2.1.5",
+  "version": "2.2.4",
   "description": "cli for wxa development",
   "main": "dist/wxa.js",
   "scripts": {
-    "build": "npm run build:src && npm run build:lib && npm run build:polyfill",
+    "build": "npm run build:src && npm run build:lib",
     "build:src": "babel src --out-dir dist",
-    "build:lib": "babel lib --out-dir lib-dist",
-    "build:polyfill": "sh scripts/buildLib.sh",
+    "build:lib": "sh ./scripts/buildLib.sh",
+    "dev": "npm run dev:src & npm run dev:lib",
     "dev:src": "babel --watch src --out-dir dist --source-maps",
-    "dev": "npm run build:polyfill & npm run dev:src & npm run dev:lib",
-    "dev:lib": "babel --watch lib --out-dir lib-dist",
+    "dev:lib": "MODE=dev sh ./scripts/buildLib.sh",
     "prepublishOnly": "sh scripts/prepublish.sh",
     "travis-dev": "babel src --out-dir dist"
   },
@@ -43,13 +42,13 @@
     "@babel/plugin-transform-runtime": "^7.2.0",
     "@babel/preset-env": "^7.2.3",
     "@babel/runtime": "^7.2.0",
-    "@babel/template": "^7.1.2",
-    "@babel/traverse": "^7.1.4",
-    "@babel/types": "^7.1.6",
+    "@babel/template": "~7.10.0",
+    "@babel/traverse": "~7.9.6",
+    "@babel/types": "~7.9.6",
     "@wxa/compiler-babel": "latest",
     "@wxa/compiler-sass": "latest",
     "chalk": "^2.3.0",
-    "chokidar": "^2.0.0",
+    "chokidar": "^3.3.1",
     "commander": "^2.14.1",
     "core-js": "^3.0.0-beta.6",
     "debug": "^3.1.0",
@@ -63,15 +62,19 @@
     "inquirer": "^6.2.0",
     "js-base64": "^2.4.0",
     "lodash": "^4.17.15",
+    "json5": "^2.1.1",
     "mkdirp": "^0.5.1",
+    "mockjs": "^1.1.0",
     "node-notifier": "^5.2.1",
+    "postcss": "^7.0.27",
+    "postcss-pxtorpx-pro": "^1.0.0",
     "promise.prototype.finally": "^3.1.0",
     "shelljs": "^0.8.3",
     "tapable": "^1.0.0",
-    "valid-url": "^1.0.9",
-    "xmldom": "^0.1.27"
+    "valid-url": "^1.0.9"
   },
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "gitHead": "b925c4fe80f493edd89c0c39a70e6eda3b97d915"
 }

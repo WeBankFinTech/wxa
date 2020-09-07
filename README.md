@@ -22,9 +22,27 @@
 
 :tada::tada::tada:AOP Framework for writing wechart mini-program.
 
-:100:More detail [documents](https://wxajs.github.io/wxa/)
+**框架优势**
 
-:100:更完善的[文档](https://wxajs.github.io/wxa/)
+🖖 **极速上手** 无额外的学习门槛，可以完全使用原生的小程序语法开发。
+
+:surfer: **零配置** 标准项目无需任何配置，即可运行。
+
+:penguin: **全方位** 解决小程序开发中的各种痛点，譬如状态管理、表单校验等。
+
+:rocket: **依赖分包算法** 自研的依赖分包算法，帮助开发者充分的利用[分包空间](https://developers.weixin.qq.com/miniprogram/dev/framework/subpackages/basic.html)。
+
+:curly_loop: **依赖分析** 自动分析项目依赖，无需手动 copy 三方依赖到项目中。
+
+🤖 **组件库** 任意第三方组件库，随时安装使用，完美适配 weui, vant-weapp, wux-weapp, iview-weapp 等组件库。
+
+:light_rail: **低成本** 超低迁移成本，原生小程序只需安装好依赖就可以马上在 `@wxa/cli2` 中跑起来。支持原生和wxa混杂开发。
+
+:alien: **多实例** 一次性编译出多个三方项目或其他平台的小程序，如头条小程序。
+
+More detail [documents](https://wxajs.github.io/wxa/)
+
+更完善的[文档](https://wxajs.github.io/wxa/)
 
 ## 简介
 
@@ -46,11 +64,6 @@ wxa是一个AOP框架，主要使用Decorator（运行时改写，拦截）和�
 
 预编译方面，实现了对小程序项目的依赖解析，利用依赖树对整个项目进行管理，以此为基础适配了`npm`、单文件开发、云开发、三方开发。开发语法方面支持最新的ES*语法（包括Async/Await）、Sass/Scss、Stylus，有需求的话可以适配更多语法。
 
-跟wepy相比有以下优势：
-- wxa完全采用原生小程序的组件化方案，2.0已经适配了有赞Vant-weapp和echarts了。
-- 超低迁移成本，原生小程序只需要安装好相关依赖就可以马上在@wxa/cli中跑起来。支持原生和wxa混杂开发。
-- 三方开发，支持一次性编译出多个三方项目
-
 ## Install
 
 使用 `yarn` 或 `npm` 全局安装
@@ -60,6 +73,14 @@ npm i -g @wxa/cli2
 ```
 
 ## Quick Started
+
+**极速新建项目**
+
+```bash
+wxa2 create --repo gitee
+```
+
+**开始开发**
 
 定义App类并导出：
 
@@ -97,9 +118,17 @@ export default class Index {
 
 更完善的[文档](https://wxajs.github.io/wxa/)
 
+**极速预览小程序**
+
+```bash
+wxa2 cli --action preview
+```
+
+
 ## Contribution
 
 欢迎各种 `PR` 和 `ISSUE`
+
 
 ## LICENSE
 

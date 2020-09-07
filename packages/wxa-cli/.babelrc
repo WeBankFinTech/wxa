@@ -10,7 +10,7 @@
         ]
     ],
     "plugins": [
-        ["@babel/plugin-transform-runtime", {"corejs": false, "version": "7.1.2"}],
+        ["@babel/plugin-transform-runtime", {"corejs": false, "version": "7.8.7"}],
         "@babel/plugin-proposal-class-properties"
     ]
 }

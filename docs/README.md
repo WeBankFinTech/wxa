@@ -1,17 +1,17 @@
 ---
 home: true
 heroImage: /wxa-logo.png
-actionText: Get Started ->
+actionText: 马上开始 ->
 actionLink: /learn/quickStarted/
 features: 
-- title: Decorator
-  details: 使用Decorator极速赋能小程序，提高开发效率，优化开发体验
+- title: 极速上手
+  details: 无额外的学习门槛，可以完全使用原生的小程序语法开发。
 - title: 工程化
   details: 完美解析npm依赖，打包、编译、压缩资源文件，用最高效的代码完成业务需求
 - title: 第三方组件
   details: 支持原生自定义组件的同时，允许开发者直接从node_modules中引用任何第三方自定义组件
-- title: 多开发模式
-  details: 同时支持类Vue单文件和小程序原生开发
+- title: 依赖分包算法
+  details: 自研的依赖分包算法，帮助开发者充分的利用分包空间
 - title: Async/Await
   details: 使用@babel7转义语法，开发者可以使用最新的ES特性语法
 - title: 三方开发

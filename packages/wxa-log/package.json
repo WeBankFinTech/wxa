@@ -1,0 +1,25 @@
+{
+  "name": "@wxa/log",
+  "version": "2.2.4",
+  "description": "集合小程序实时日志上报以及普通console",
+  "main": "src/index.js",
+  "scripts": {
+    "cover": "jest --coverage",
+    "test": "jest --no-cache"
+  },
+  "keywords": [
+    "wxa",
+    "log"
+  ],
+  "repository": "https://github.com/wxajs/wxa.git",
+  "homepage": "https://wxajs.github.io/wxa/",
+  "author": "lucaszhu <lucaszhu@webank.com>",
+  "license": "MIT",
+  "dependencies": {
+    "lodash": "^4.17.15"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "gitHead": "b925c4fe80f493edd89c0c39a70e6eda3b97d915"
+}

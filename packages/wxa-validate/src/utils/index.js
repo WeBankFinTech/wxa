@@ -1,3 +1,5 @@
+import regeneratorRuntime from "regenerator-runtime/runtime";
+
 export const parseRule = (rule) => {
     let params = [];
     const name = rule.split(':')[0];
@@ -87,3 +89,10 @@ export const toArray = (arrayLike) => {
 
     return array;
 };
+
+export const arraySomeSync = async function (arr, callback) {
+    for (let i = 0; i < arr.length; i ++) {
+        if (await callback(arr[i], i, arr)) return true;
+    }
+    return false;
+}

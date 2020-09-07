@@ -1,6 +1,6 @@
 {
   "name": "@wxa/plugin-dependencies-analysis",
-  "version": "2.0.7",
+  "version": "2.2.0",
   "description": "dependencies analysis plugin for wxa",
   "scripts": {
     "dev:client": "webpack-dev-server",
@@ -41,5 +41,6 @@
     "webpack": "^4.20.2",
     "webpack-cli": "^3.1.2",
     "webpack-dev-server": "^3.1.9"
-  }
+  },
+  "gitHead": "b925c4fe80f493edd89c0c39a70e6eda3b97d915"
 }

@@ -1,6 +1,6 @@
 {
   "name": "@wxa/compiler-babel",
-  "version": "2.0.7",
+  "version": "2.2.0",
   "description": "wxa babel compiler",
   "main": "dist/index.js",
   "scripts": {
@@ -37,5 +37,6 @@
   },
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "gitHead": "b925c4fe80f493edd89c0c39a70e6eda3b97d915"
 }

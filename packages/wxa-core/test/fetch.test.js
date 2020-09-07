@@ -6,10 +6,33 @@ import {
     setRequestExpiredTime,
 } from '../src/utils/fetch';
 
-let originConsole = console;
+const users = {
+    4: {name: 'Mark'},
+    5: {name: 'Paul'},
+    10: {name: 'Ives'},
+};
+
+beforeAll(()=>{
+    global.wx.request = function(options) {
+        const userID = parseInt(options.url.substr('/users/'.length), 10);
+        let res = () => userID < 0 ? options.success({statusCode: 404}) : users[userID]
+            ? options.success({statusCode: 200, data: users[userID]})
+            : options.fail({
+                statusCode: 200,
+                error: 'User with ' + userID + ' not found.',
+            });
+        let id = setTimeout(res, 50);
+
+        return {abort: ()=> {
+            clearTimeout(id);
+            options.fail({errMsg: 'request:fail abort'});
+        }};
+    };
+});
+
 describe('fetch api', ()=>{
     let wrapStatusCode = (data)=>({statusCode: 200, data});
-    test('normal', async ()=>{
+    test('just make a normal request', async () => {
         await expect(fetch('/users/4', {}, {}, 'post')).resolves.toEqual(wrapStatusCode({name: 'Mark'}));
 
         await expect(fetch('/users/5', {}, {}, 'post')).resolves.toEqual(wrapStatusCode({name: 'Paul'}));
@@ -19,11 +42,11 @@ describe('fetch api', ()=>{
         await expect(fetch('/users/6', {}, {}, 'post')).rejects.toMatchSnapshot();
     });
 
-    test('404', async ()=>{
+    test('404 page', async ()=>{
         await expect(fetch('/users/-1', {}, {}, 'post')).rejects.toMatchObject({statusCode: 404});
     });
 
-    test('multi request', async ()=>{
+    test('make multi request one time', async ()=>{
         let c1 = jest.fn();
         await fetch('/users/1', {}, {}, 'post').catch(c1);
         await fetch('/users/2', {}, {}, 'post').catch(c1);
@@ -37,20 +60,12 @@ describe('fetch api', ()=>{
         await expect(fetch('/users/10', {}, {}, 'post')).resolves.toEqual(wrapStatusCode({name: 'Ives'}));
     });
 
-    test('reject same request', async ()=>{
-        let warn = jest.fn();
-        global.console = {
-            warn,
-        };
+    test('reject same request in expired time (default 500ms)', async ()=>{
         let noo = ()=>{};
         await fetch('/users/1', {}, {}, 'post').catch(noo);
         await fetch('/users/1', {boo: 1}, {}, 'post').catch(noo);
-        await fetch('/users/2', {}, {}, 'post').catch(noo);
-        await fetch('/users/3', {}, {}, 'post').catch(noo);
 
-        expect(warn).toHaveBeenCalledTimes(3);
-
-        await expect(fetch('/users/1', {}, {}, 'post')).rejects.toEqual({data: {code: -101, msg: '重复的请求'}});
+        expect(fetch('/users/1', {}, {}, 'post')).rejects.toEqual({data: {code: -101, msg: '重复的请求'}});
     });
 
     test('set Multi request', async ()=>{
@@ -68,7 +83,7 @@ describe('fetch api', ()=>{
         expect(c1).toHaveBeenCalledTimes(3);
     });
 
-    test('setRequestExpiredTime', async ()=>{
+    test('setup request expired time', async ()=>{
         expect(setRequestExpiredTime(void(0))).toBe(null);
         expect(setRequestExpiredTime(null)).toBe(null);
 
@@ -82,5 +97,19 @@ describe('fetch api', ()=>{
         setRequestExpiredTime(500);
         fetch('/users/1', {}, {}, 'post').catch(c1);
         await expect(fetch('/users/1', {}, {}, 'post')).rejects.toEqual({data: {code: -101, msg: '重复的请求'}});
+    });
+});
+
+describe('enaled request abort task', ()=>{
+    test('make request with abort function', async ()=>{
+        let req = fetch('/users/4', {}, {$withCancel: true});
+
+        expect(req).toMatchSnapshot();
+        expect(req.request).not.toBeFalsy();
+        expect(req.defer).not.toBeFalsy();
+        expect(req.cancel).not.toBeFalsy();
+
+        req.cancel();
+        await expect(req.request).rejects.toMatchObject({errMsg: 'request:fail abort'});
     });
 });

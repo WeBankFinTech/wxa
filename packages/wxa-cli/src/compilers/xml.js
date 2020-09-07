@@ -1,4 +1,3 @@
-// import {DOMParser} from 'xmldom';
 import {
     Parser,
     DomHandler,
@@ -41,13 +40,13 @@ export default class XmlCompiler {
         debug('encoded template %s', code);
         let xml;
         if (code !== '') {
-            xml = this.parseXml(code, path.parse(filepath));
+            xml = parseXML(code, path.parse(filepath));
         } else {
             xml = {};
         }
 
-        code = Array.prototype.slice.call(xml.childNodes||[]).reduce((ret, node)=>{
-            ret += coder.decodeTemplate(node.toString());
+        code = Array.prototype.slice.call(xml||[]).reduce((ret, node)=>{
+            ret += coder.decodeTemplate(domSerializer(node, {xmlMode: true}));
             return ret;
         }, '');
 
@@ -57,19 +56,31 @@ export default class XmlCompiler {
             xml, code,
         };
     }
+}
 
-    parseXml(code, opath) {
-        let handler = new DomHandler({
-            // normalizeWhitespace: true,   //default:false
-            onerror(err) {
-                logger.error('XML错误:'+(opath.dir+path.sep+opath.base));
-                logger.error(err);
-            },
-        });
-        let htmlStr = code;
-        new Parser(handler, {xmlMode: true}).end(htmlStr);
-        let dom = handler.dom;
+export function parseXML(code, opath) {
+    let handler = new DomHandler((err, dom)=>{
+        if (err) {
+            logger.error('XML错误:'+(opath.dir+path.sep+opath.base));
+            logger.error(err);
+        }
+    }, {
+        // normalizeWhitespace: true,   //default:false
+    });
 
-        return dom;
-    }
+    let htmlStr = code;
+    new Parser(handler, {
+        xmlMode: false, // forgiving html parser
+        recognizeSelfClosing: true,
+        lowerCaseTags: false, // needn't make tag lower case
+        lowerCaseAttributeNames: false,
+        recognizeCDATA: true,
+    }).end(htmlStr);
+
+    let dom = handler.dom;
+    return dom;
+}
+
+export function serializeXML(xml) {
+    return domSerializer(xml, {xmlMode: true});
 }

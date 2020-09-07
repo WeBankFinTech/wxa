@@ -1,3 +1,16 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [2.2.0](https://github.com/wxajs/wxa/compare/v2.1.14...v2.2.0) (2020-07-06)
+
+**Note:** Version bump only for package @wxa/plugin-postcss
+
+
+
+
+
 # 2.0.0-rc.1 (2019-02-01)
 
 
@@ -23,6 +36,3 @@
 
 * **wxa-plugin-postcss:** optimizeAssets hook will pass opath obj instea of code, cause developer always use
 compilation.code and code is never used
-
-
-

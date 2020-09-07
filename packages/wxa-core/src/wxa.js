@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import './polyfill/bind';
 
 import debounce from 'lodash/debounce';
@@ -57,6 +58,12 @@ export class Wxa {
         // globalMixins
         // every Page, Component will receive these guys.
         this.$$globalMixins = [];
+
+        // enable automatic embed app instance
+        this.enableAppEmbed = true;
+
+        this.__WXA_PLATFORM__ = void(0);
+        this.platform = this.getWxaPlatform();
     }
 
     setDebugMode(val) {
@@ -130,6 +137,16 @@ export class Wxa {
             this.$$pageMap.set(_pagePath, vm);
         }
 
+        // fallback for wxa1.0 and old wxa2 project.
+        if (this.enableAppEmbed) {
+            let onLoad = vm.onLoad;
+            vm.onLoad = function(...args) {
+                this.$app = getApp();
+
+                onLoad && onLoad.apply(this, args);
+            };
+        }
+
         Page(vm);
     }
 
@@ -187,6 +204,20 @@ export class Wxa {
             fn: pluginFn,
             options,
         });
+    }
+
+    disabledAppEmbed() {
+        this.enableAppEmbed = false;
+    }
+
+    /**
+     * @return {String}
+     * return mini-program platform.
+     */
+    getWxaPlatform() {
+        if (typeof this.__WXA_PLATFORM__ !== 'undefined') return this.__WXA_PLATFORM__;
+        else if (typeof tt !== 'undefined') return 'tt';
+        else return 'wechat';
     }
 }
 

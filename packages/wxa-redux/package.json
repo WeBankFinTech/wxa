@@ -1,10 +1,11 @@
 {
     "name": "@wxa/redux",
-    "version": "2.1.0",
+    "version": "2.2.0",
     "description": "redux for wxa ",
     "main": "./dist/index.js",
     "scripts": {
-        "build": "babel src --out-dir ./dist/",
+        "build:lib": "babel ./libs/wx.storage.js --out-file ./libs/wx.storage.min.js",
+        "build": "babel src --out-dir ./dist/ && npm run build:lib",
         "prepublishOnly": "npm run build",
         "dev": "babel --watch src --out-dir ./dist/",
         "test": "jest",
@@ -47,5 +48,6 @@
     },
     "publishConfig": {
         "access": "public"
-    }
+    },
+    "gitHead": "b925c4fe80f493edd89c0c39a70e6eda3b97d915"
 }

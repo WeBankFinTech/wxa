@@ -13,11 +13,20 @@ export default class Router {
         ]);
 
         this.$apiMap.forEach((fn, name)=>{
-            this[name] = (url)=> {
-                let promise = fn.call(this, {url});
+            this[name] = (url, options = {})=> {
+                let promise = fn.call(this, {url, ...options});
                 this.preExec(url);
 
-                return promise;
+                return promise.catch((err)=>{
+                    if (
+                        err && err.errMsg &&
+                        /fail[a-zA-Z\s]*can[a-zA-Z\s]*tabbarpage/i.test(err.errMsg.replace(/[\s\:]*/g, ''))
+                    ) {
+                        return this.wxapi.switchTab.call(this, {url, ...options});
+                    } else {
+                        return Promise.reject(err);
+                    }
+                });
             };
         });
     }

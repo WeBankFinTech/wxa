@@ -80,7 +80,7 @@ class DependencyResolver {
         let source = '';
         let ext = '';
         // resolve alias;
-        if (this.resolve.alias && !mdl.isNpm) lib = resolveAlias(lib, this.resolve.alias, mdl.meta.source);
+        if (this.resolve.alias && !mdl.isNodeModule) lib = resolveAlias(lib, this.resolve.alias, mdl.meta.source);
 
         let pret = new PathParser().parse(lib);
 
@@ -109,11 +109,7 @@ class DependencyResolver {
 
     getOutputPath(source, pret, mdl) {
         if (pret.isRelative || pret.isAPPAbsolute || pret.isNodeModule || pret.isWXALib) {
-            let opath = pret.isWXALib ?
-                path.parse(path.join(this.meta.context, '_wxa', pret.name+pret.ext)) :
-                path.parse(source);
-
-            return this.getDistPath(opath, mdl);
+            return this.getDistPath(source, mdl);
         } else if (pret.isPlugin || pret.isURI) {
             // url module
             return null;
@@ -153,19 +149,27 @@ class DependencyResolver {
         return content;
     }
 
-    getDistPath(absPath, mdl) {
+    getDistPath(fullPath, mdl) {
         let relative;
-        absPath = typeof absPath === 'string' ? path.parse(absPath) : absPath;
+        fullPath = typeof fullPath === 'string' ? path.parse(fullPath) : fullPath;
 
-        if (path.relative(this.meta.current, absPath.dir).indexOf('node_modules') === 0) {
-            relative = path.relative(path.join(this.meta.current, 'node_modules'), absPath.dir);
-            // package is empty meanning the package is main one.
+        if (
+            fullPath.dir.indexOf(this.modulesPath) > -1
+        ) {
+            // node_modules
+            relative = path.relative(this.modulesPath, fullPath.dir);
             relative = path.join('npm', relative);
+        } else if (
+            fullPath.dir.indexOf(this.meta.libSrc) > -1
+        ) {
+            // cli内置文件
+            relative = path.relative(this.meta.libSrc, fullPath.dir);
+            relative = path.join('_wxa', relative);
         } else {
-            relative = path.relative(this.meta.context, absPath.dir);
+            relative = path.relative(this.meta.context, fullPath.dir);
         }
 
-        return path.join(this.meta.output.path, relative, absPath.base);
+        return path.join(this.meta.output.path, relative, fullPath.base);
     }
 }
 

@@ -61,4 +61,15 @@ export function compareVersion(v1, v2) {
     }
 
     return 0;
-  }
+}
+
+export function getPromise() {
+    let res;
+    let rej;
+    let promise = new Promise((resolve, reject)=>{
+        res = resolve;
+        rej = reject;
+    });
+
+    return {resolve: res, reject: rej, promise, defer: promise};
+}

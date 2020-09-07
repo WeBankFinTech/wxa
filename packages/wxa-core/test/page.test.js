@@ -1,5 +1,8 @@
 import {wxa as page} from '../src/wxa';
+import debounce from 'lodash/debounce';
+jest.mock('lodash/debounce', () => jest.fn(fn => fn));
 
+jest.useFakeTimers();
 
 describe('page mount', ()=>{
     let warn = jest.fn();
@@ -27,7 +30,7 @@ describe('page mount', ()=>{
         expect(Page.mock.calls[1][0]).not.toBeFalsy();
     });
 
-    test('empty obj with $go', ()=>{
+    test('empty obj with $go',  ()=>{
         jest.useFakeTimers();
         page.launchPage({});
 
@@ -35,7 +38,6 @@ describe('page mount', ()=>{
         let e = {currentTarget: {dataset: {path: '/pages/index/index'}}};
 
         instance.$go(e);
-        jest.runAllTimers();
         expect(warn.mock.calls.length).toBe(1);
 
         instance.$router = {
@@ -44,15 +46,14 @@ describe('page mount', ()=>{
         };
 
         instance.$go(e);
-        jest.runAllTimers();
         expect(instance.$router.push.mock.calls.length).toBe(1);
         expect(instance.$router.push.mock.calls[0][0]).toBe('/pages/index/index');
 
         let e2 = {currentTarget: {dataset: {path: '/pages/index/index', type: 'replace'}}};
 
         instance.$go(e2);
-        jest.runAllTimers();
         expect(instance.$router.replace.mock.calls.length).toBe(1);
+
     });
 
     test('empty obj should not with shareMessage', ()=>{

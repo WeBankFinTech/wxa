@@ -1,10 +1,34 @@
 import path from 'path';
-import {readFile, isFile, isEmpty} from '../utils';
+import {readFile, error, isFile, isEmpty} from '../utils';
 import {DOMParser} from 'xmldom';
 import Coder from '../helpers/coder';
 import logger from '../helpers/logger';
 import DependencyResolver from '../helpers/dependencyResolver';
 import defaultPret from '../const/defaultPret';
+import {parseXML, serializeXML} from './xml';
+
+const SCRIPT_TAG = 'script';
+const CONFIG_TAG = 'config';
+const STYLE_TAG = 'style';
+const TEMPLATE_TAG = 'template';
+
+const defaultTypeMap = new Map([
+    [SCRIPT_TAG, 'js'],
+    [CONFIG_TAG, 'json'],
+    [STYLE_TAG, 'css'],
+    [TEMPLATE_TAG, 'wxml'],
+]);
+
+let getWxaDefinition = ()=>{
+    return [SCRIPT_TAG, CONFIG_TAG, TEMPLATE_TAG, STYLE_TAG].reduce((prev, item)=>{
+        prev[item] = {
+            code: '',
+            src: '',
+            type: defaultTypeMap.get(item),
+        };
+        return prev;
+    }, {});
+};
 
 const encodeXml = (coder, {content, start, endId, isTemplate=false})=>{
     while (content[start++] !== '>') {};
@@ -49,44 +73,17 @@ export default class WxaCompiler {
             content = encodeXml(coder, {content, start: startTemplate, endId: '</template>', isTemplate: true});
         }
 
-        xml = this.parserXml(filepath).parseFromString(content);
+        xml = parseXML(content, path.parse(filepath));
 
-        let wxaDefinition = {
-            style: {
-                code: '',
-                src: '',
-                type: 'css',
-            },
-            template: {
-                code: '',
-                src: '',
-                type: 'wxml',
-            },
-            script: {
-                code: '',
-                src: '',
-                type: 'js',
-            },
-            config: {
-                code: '',
-                src: '',
-                type: 'json',
-            },
-        };
+        let wxaDefinition = getWxaDefinition();
 
-        Array.prototype.slice.call(xml.childNodes || []).forEach((child)=>{
-            const nodeName = child.nodeName;
-            if (
-                ~['style', 'template', 'script', 'config'].indexOf(nodeName)
-            ) {
+        xml.forEach((node) => {
+            const nodeName = node.name;
+            if (~[SCRIPT_TAG, CONFIG_TAG, STYLE_TAG, TEMPLATE_TAG].indexOf(nodeName)) {
                 let definition = wxaDefinition[nodeName];
-                definition.src = child.getAttribute('src');
-                definition.type = (
-                    child.getAttribute('lang') ||
-                    child.getAttribute('type') ||
-                    definition.type
-                );
-                // use url=xxx to import source code.
+                definition.src = node.attribs.src;
+                definition.type = node.attribs.lang || node.attribs.type || defaultTypeMap.get(nodeName);
+
                 if (definition.src) definition.src = path.resolve(path.dirname(filepath), definition.src);
 
                 if (definition.src && isFile(definition.src)) {
@@ -94,23 +91,24 @@ export default class WxaCompiler {
                     if (code == null) throw new Error('打开文件失败:', definition.src);
                     else definition.code += code;
                 } else {
-                    Array.prototype.slice.call(child.childNodes||[]).forEach((code)=>{
+                    Array.prototype.slice.call(node.children||[]).forEach((code)=>{
+                        let data = serializeXML(code);
                         if (nodeName !== 'template') {
-                            definition.code += coder.decode(code.toString());
+                            definition.code += coder.decode(data);
                         } else {
-                            definition.code += coder.decodeTemplate(code.toString());
+                            definition.code += coder.decodeTemplate(data);
                         }
                     });
                 }
 
-                definition.src = path.dirname(filepath) + path.sep + path.basename(filepath, path.extname(filepath)) + '.' + definition.type;
+                let opath = path.parse(filepath);
+                definition.src = opath.dir + path.sep + opath.name + '.' + definition.type;
 
                 definition.$from = filepath;
 
                 // calc meta object.
                 let dr = new DependencyResolver(this.resolve, this.meta);
-                // mock for wxa file.
-                let outputPath = dr.getOutputPath(definition.src, {...this.pret, ext: '.'+definition.type}, wxaDefinition);
+                let outputPath = dr.getOutputPath(definition.src, {...defaultPret, ext: '.'+definition.type}, wxaDefinition);
 
                 definition.meta = {
                     source: definition.src,
@@ -133,20 +131,5 @@ export default class WxaCompiler {
         }, {});
 
         return wxaDefinition;
-    }
-
-    parserXml(filepath) {
-        return new DOMParser({
-            errorHandler: {
-                warn(x) {
-                    logger.error('XML警告:' + filepath);
-                    logger.warn(x);
-                },
-                error(x) {
-                    logger.error('XML错误:' + filepath);
-                    logger.error(x);
-                },
-            },
-        });
     }
 }

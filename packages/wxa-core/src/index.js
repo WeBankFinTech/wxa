@@ -1,10 +1,12 @@
 import {wxa} from './wxa';
 import {default as wxapiFn} from './utils/wxapi';
 import {storage} from './utils/storage';
+import {sessionStorage, SessionStorage} from './utils/sessionStorage';
 import {router} from './utils/router';
 import promisify from './utils/promisify';
-import {eventbus} from './utils/eventbus';
+import {eventbus, Eventbus} from './utils/eventbus';
 import fetch from './utils/fetch';
+import * as utils from './utils/helpers';
 
 import debounce from 'lodash/debounce';
 import throttle from 'lodash/throttle';
@@ -20,10 +22,12 @@ export * from './decorators/index';
 export const wxapi = wxapiFn(wx);
 export {
     storage,
+    sessionStorage, SessionStorage,
     router,
     promisify,
-    eventbus,
+    eventbus, Eventbus,
     fetch,
+    utils,
 
     debounce,
     throttle,

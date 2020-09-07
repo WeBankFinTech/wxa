@@ -1,0 +1,32 @@
+{
+  "name": "@wxa/mobx",
+  "version": "2.2.0",
+  "description": "mobx plugin for wxa",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "babel src --out-dir ./dist/",
+    "prepublishOnly": "npm run build",
+    "dev": "babel --watch src --out-dir ./dist/",
+    "test": "jest --watch"
+  },
+  "keywords": [
+    "mobx",
+    "wxa"
+  ],
+  "author": "junbiaoli",
+  "license": "MIT",
+  "repository": "https://github.com/wxajs/wxa.git",
+  "homepage": "https://wxajs.github.io/wxa/",
+  "dependencies": {
+    "mobx": "4.x"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "jest": "^23.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

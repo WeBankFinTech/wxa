@@ -25,8 +25,9 @@
 		"lerna": "^3.10.7",
 		"lint-staged": "^7.3.0",
 		"regenerator-runtime": "^0.13.1",
-		"vuepress": "^1.0.0-alpha.27",
-		"vuepress-plugin-sitemap": "^2.1.0"
+		"vuepress": "^1.5.2",
+		"vuepress-plugin-sitemap": "^2.3.1",
+		"watchpack": "^1.6.1"
 	},
 	"husky": {
 		"hooks": {

@@ -1,6 +1,6 @@
 {
   "name": "@wxa/plugin-replace",
-  "version": "2.0.7",
+  "version": "2.2.0",
   "description": "replace string",
   "main": "index.js",
   "scripts": {},
@@ -18,5 +18,6 @@
   },
   "devDependencies": {
     "debug": "^4.0.1"
-  }
+  },
+  "gitHead": "b925c4fe80f493edd89c0c39a70e6eda3b97d915"
 }

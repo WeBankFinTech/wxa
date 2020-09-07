@@ -1,48 +1,55 @@
-import * as NODE from '../../const/node';
 // import path from 'path';
 import Coder from '../../helpers/coder';
 import DependencyResolver from '../../helpers/dependencyResolver';
-import CSSManager from '../css/index';
+import CSSManager from '../styleResolver';
 import debugPKG from 'debug';
 import {logger, error} from '../../helpers/logger';
-import domSerializer from 'dom-serializer';
+import directive from '../../directive/index';
+import {serializeXML} from '../../compilers/xml';
 
-let debug = debugPKG('WXA:XMLManager');
 let debugXMLStyle = debugPKG('WXA:XMLManager-style');
 // const SOURCE_ATTR = ['src', 'href'];
-// const STYLE_
+const WXA_DIRECTIVE_PREFIX = 'wxa';
+const WECHAT_DIRECTIVE_PREFIX = 'wx';
 
 class XMLManager {
-    constructor(resolve, meta) {
+    constructor(resolve, meta, scheduler) {
+        this.$scheduler = scheduler;
         this.resolve = resolve;
         this.meta = meta;
+
+        this.wxaConfigs = scheduler.wxaConfigs;
+        this.cmdOptions = scheduler.cmdOptions;
     }
 
     parse(mdl) {
         if (mdl.xml == null) return null;
 
         let libs = [];
-
-        mdl.xml.forEach((element) => {
-            libs = libs.concat(this.walkXML(element, mdl));
+        // Node <-- Element
+        // Node <-- Attr
+        // Node <-- CharacterData <-- Text
+        mdl.xml.forEach((node) => {
+            libs = libs.concat(this.walkXML(node, mdl));
         });
 
-        mdl.code = new Coder().decodeTemplate(domSerializer(mdl.xml, {xmlMode: true}));
+        mdl.code = new Coder().decodeTemplate( serializeXML(mdl.xml) );
 
         return libs;
     }
 
-    walkXML(xml, mdl) {
+    walkXML(node, mdl) {
         let libs = [];
         // ignore comment
-        if (xml.type === 'comment') return libs;
+        if (node.type === 'comment') return libs;
 
-        if (xml.type === 'tag') {
-            libs = libs.concat(this.walkAttr(xml.attribs, mdl));
+        if (node.type === 'tag') {
+            // 此处的node即element
+            libs = libs.concat(this.walkAttr(node.attribs, node, mdl));
         }
 
-        if (xml.children) {
-            libs = libs.concat(Array.prototype.slice.call(xml.children).reduce((ret, child)=>{
+        if (node.children) {
+            libs = libs.concat(Array.prototype.slice.call(node.children).reduce((ret, child)=>{
                 return ret.concat(this.walkXML(child, mdl));
             }, []));
         }
@@ -50,75 +57,120 @@ class XMLManager {
         return libs;
     }
 
-    walkAttr(attributes, mdl) {
+    walkAttr(attributes, element, mdl) {
         let libs = [];
-        debug('attributes walk %o', attributes);
-        for (let name in attributes) {
-            if (!attributes.hasOwnProperty(name)) continue;
+        for (let attrFullName in attributes) {
+            if (!attributes.hasOwnProperty(attrFullName)) continue;
 
-            // let attr = attributes[name];
-            // TODO optimize
+            let attrFullNameTmp = (~attrFullName.indexOf(':')) ? attrFullName : ':'+attrFullName;
+            let attrPrefixNameSplit = attrFullNameTmp.split(':');
+            let prefix = attrPrefixNameSplit[0] || null;
+            let name = attrPrefixNameSplit[1] || '';
+
             let attr = {
-                nodeName: name,
-                nodeValue: attributes[name],
+                raw: attrFullName,
+                prefix,
+                name,
+                value: attributes[attrFullName],
             };
 
-            // debug('attribute %O', attr);
-            switch (attr.nodeName) {
-                case 'src':
-                case 'href': {
-                    try {
-                        let dr = new DependencyResolver(this.resolve, this.meta);
+            if (attr.prefix) this.parseDirective(attr, element, mdl);
+            else libs = libs.concat(this.findDeps(attr, element, mdl));
+        }
 
-                        let {lib, source, pret} = dr.resolveDep(attr.nodeValue, mdl);
-                        let libOutputPath = dr.getOutputPath(source, pret, mdl);
-                        let resolved = dr.getResolved(lib, libOutputPath, mdl);
+        return libs;
+    }
 
-                        libs.push({
-                            src: source,
-                            pret: pret,
-                            meta: {source, outputPath: libOutputPath},
-                            reference: {
-                                $$AttrNode: attr,
-                                $$category: 'xml',
-                                resolved,
-                            },
-                        });
+    findDeps(attr, ele, mdl) {
+        let libs = [];
+        // 无前缀普通属性
+        switch (attr.name) {
+            case 'src':
+            case 'href':
+                let dep = this.findLinkDeps(attr, mdl);
+                if (dep) libs.push(dep);
+                break;
+            case 'style':
+                let deps = this.findStyleDeps(attr, mdl);
+                libs = libs.concat(deps);
+        }
 
-                        attr.nodeValue = resolved;
-                    } catch (e) {
-                        error('Resolve Error', {name: mdl.src, error: e, code: attr.nodeValue});
-                    }
+        return libs;
+    }
 
-                    break;
-                }
+    findLinkDeps(attr, mdl) {
+        try {
+            let dr = new DependencyResolver(this.resolve, this.meta);
 
-                case 'style': {
-                    debugXMLStyle(attr.nodeName, attr.nodeType, attr.nodeValue, typeof attr.nodeValue);
-                    if (!attr.nodeValue) break;
-                    try {
-                        let CM = new CSSManager(this.resolve, this.meta);
-                        let {libs: subLibs, code} = CM.resolveStyle(attr.nodeValue, mdl);
+            let {lib, source, pret} = dr.resolveDep(attr.value, mdl);
+            let libOutputPath = dr.getOutputPath(source, pret, mdl);
+            let resolved = dr.getResolved(lib, libOutputPath, mdl);
 
-                        // add parentNode to it.
-                        subLibs = subLibs.map((lib)=>(lib.$$AttrNode=attr, lib));
-                        // normalize dependencies.
-                        libs = libs.concat(subLibs);
+            attr.value = resolved;
+            return {
+                src: source,
+                pret: pret,
+                meta: {source, outputPath: libOutputPath},
+                reference: {
+                    $$AttrNode: attr,
+                    $$category: 'xml',
+                    resolved,
+                },
+            };
+        } catch (e) {
+            error('Resolve Error', {name: mdl.src, error: e, code: attr.value});
+        }
+    }
 
-                        attr.nodeValue = code;
-                    } catch (e) {
-                        error('Resolve Error', {name: mdl.src, error: e, code: attr.nodeValue});
-                    }
+    findStyleDeps(attr, mdl) {
+        debugXMLStyle(attr.name, attr.nodeType, attr.value, typeof attr.value);
+        if (!attr.value) return [];
+        let libs = [];
+        try {
+            let CM = new CSSManager(this.resolve, this.meta);
+            let {libs: subLibs, code} = CM.resolveStyle(attr.value, mdl);
 
-                    break;
-                }
+            // add parentNode to it.
+            subLibs = subLibs.map((lib)=>(lib.$$AttrNode=attr, lib));
+            // normalize dependencies.
+            libs = libs.concat(subLibs);
 
-                default: {
-                }
+            attr.value = code;
+        } catch (e) {
+            error('Resolve Error', {name: mdl.src, error: e, code: attr.value});
+        }
+
+        return libs;
+    }
+
+    parseDirective(attr, element, mdl) {
+        // 带前缀的属性处理
+        switch (attr.prefix) {
+            // wxa指令
+            case WXA_DIRECTIVE_PREFIX: {
+                let drc = {
+                    raw: attr.raw,
+                    name: attr.name,
+                    value: attr.value,
+                };
+                directive(drc, element, {
+                    mdl,
+                    cmdOptions: this.cmdOptions,
+                    wxaConfigs: this.wxaConfigs,
+                    addDirective: (name) => {
+                        debugger;
+                        this.$scheduler.directiveBroker.emit('add', name);
+                    },
+                    removeDirective: (name) => {
+                        this.$scheduler.directiveBroker.emit('remove', name);
+                    },
+                });
+            }
+            // 微信小程序指令
+            case WECHAT_DIRECTIVE_PREFIX: {
+
             }
         }
-        debug('attributes walk end libs %o', libs);
-        return libs;
     }
 }
 

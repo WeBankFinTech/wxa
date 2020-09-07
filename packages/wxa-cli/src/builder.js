@@ -16,6 +16,7 @@ import DependencyResolver from './helpers/dependencyResolver';
 import root from './const/root';
 import ProgressTextBar from './helpers/progressTextBar';
 import color from './const/color';
+import {DirectiveBroker} from './directive/directiveBroker';
 
 let debug = debugPKG('WXA:Builder');
 class Builder {
@@ -29,14 +30,14 @@ class Builder {
 
         // get project name,
         // priority: wxa.config -> package.json -> 'WXA';
-        if (!this.wxaConfigs.$name) {
+        if (!this.wxaConfigs.name) {
             try {
                 this.name = require(path.join(this.current, 'package.json')).name;
             } catch (e) {
                 this.name = 'WXA';
             }
         } else {
-            this.name = this.wxaConfigs.$name;
+            this.name = this.wxaConfigs.name;
         }
 
         // chokidar options.
@@ -91,9 +92,9 @@ class Builder {
         this.isWatching = true;
 
         // set mode
-        this.schedule.set('mode', 'watch');
+        this.scheduler.set('mode', 'watch');
 
-        let files = this.filterModule(this.schedule.$indexOfModule);
+        let files = this.filterModule(this.scheduler.$indexOfModule);
 
         if (cmd.verbose) {
             logger.info('File to Watch ', files.length);
@@ -111,33 +112,42 @@ class Builder {
 
                 logger.warn('change', filepath);
                 debug('WATCH file changed %s', filepath);
-                let mdl = this.schedule.$indexOfModule.get(filepath);
+                let mdl = this.scheduler.$indexOfModule.get(filepath);
 
                 if (mdl == null) {
                     // maybe outer dependencies.
                     let defer = [];
 
-                    this.schedule.$indexOfModule.forEach((mdl)=>{
-                        if (!mdl.outerDependencies || !mdl.outerDependencies.size || !mdl.outerDependencies.has(filepath)) return;
-
+                    let addTask = (mdl)=>{
                         defer.push(async ()=>{
                             try {
-                                this.schedule.$depPending.push(mdl);
+                                this.scheduler.$depPending.push(mdl);
                                 // 2019-08-20 childNodes will auto mark in scheduler
                                 // if (mdl.childNodes && mdl.childNodes.size) this.walkChildNodesTreeAndMark(mdl);
+                                mdl.color = color.CHANGED;
 
-                                await this.hooks.rebuildModule.promise(this.schedule, mdl);
+                                await this.hooks.rebuildModule.promise(this.scheduler, mdl);
 
-                                let changedDeps = await this.schedule.$doDPA();
+                                let changedDeps = await this.scheduler.$doDPA();
                                 let map = new Map(changedDeps.map((mdl)=>[mdl.src, mdl]));
-                                await this.optimizeAndGenerate(map, this.schedule.appConfigs, cmd);
+                                await this.optimizeAndGenerate(map, this.scheduler.appConfigs, cmd);
                             } catch (e) {
                                 error('编译失败', {error: e});
                             }
                         });
+                    };
+
+                    this.scheduler.$indexOfModule.forEach((mdl)=>{
+                        if (!mdl.outerDependencies || !mdl.outerDependencies.size || !mdl.outerDependencies.has(filepath)) return;
+
+                        addTask(mdl);
                     });
 
-                    await promiseSerial(defer);
+                    try {
+                        await promiseSerial(defer);
+                    } catch (e) {
+                        logger.error(e);
+                    }
                 } else {
                     // normol deps changed
                     let {isChange, newFiles} = await this.compileChangedFile({filepath, mdl, files, cmd}) || {};
@@ -190,20 +200,20 @@ class Builder {
 
             let changedDeps;
             try {
-                this.schedule.$depPending.push(mdl);
+                this.scheduler.$depPending.push(mdl);
                 // 2019-08-20 childNodes will auto mark in scheduler
                 // if (mdl.childNodes && mdl.childNodes.size) this.walkChildNodesTreeAndMark(mdl);
 
-                await this.hooks.rebuildModule.promise(this.schedule, mdl);
+                await this.hooks.rebuildModule.promise(this.scheduler, mdl);
 
-                changedDeps = await this.schedule.$doDPA();
+                changedDeps = await this.scheduler.$doDPA();
                 let map = new Map(changedDeps.map((mdl)=>[mdl.src, mdl]));
-                await this.optimizeAndGenerate(map, this.schedule.appConfigs, cmd);
+                await this.optimizeAndGenerate(map, this.scheduler.appConfigs, cmd);
             } catch (e) {
                 // error('编译失败', {error: e});
             }
 
-            let newFiles = this.filterModule(this.schedule.$indexOfModule);
+            let newFiles = this.filterModule(this.scheduler.$indexOfModule);
             let unlinkFiles = files.filter((oldFilePath)=>!~newFiles.indexOf(oldFilePath));
             let addFiles = newFiles.filter((filePath)=>!~files.indexOf(filePath));
 
@@ -217,7 +227,7 @@ class Builder {
             if (addFiles && addFiles.length) this.watcher.add(addFiles);
             if (unlinkFiles && unlinkFiles.length) this.watcher.unwatch(unlinkFiles);
 
-            await this.hooks.finishRebuildModule.promise(this.schedule, mdl);
+            await this.hooks.finishRebuildModule.promise(this.scheduler, mdl);
 
             return {isChange, newFiles};
         } else {
@@ -236,19 +246,20 @@ class Builder {
         }
         await this.hooks.beforeRun.promise(this);
 
-        this.schedule = new Schedule(this.loader);
-        applyPlugins(this.wxaConfigs.plugins || [], this.schedule);
-        this.schedule.progress.toggle(cmd.progress);
-        this.schedule.set('cmdOptions', cmd);
-        this.schedule.set('wxaConfigs', this.wxaConfigs || {});
+        this.scheduler = new Schedule(this.loader);
+        this.directiveBroker = new DirectiveBroker(this.scheduler);
 
-        debug('builder wxaConfigs is %O', this.wxaConfigs);
-        debug('schedule options is %O', this.schedule);
+        applyPlugins(this.wxaConfigs.plugins || [], this.scheduler);
+        this.scheduler.progress.toggle(cmd.progress);
+        this.scheduler.set('cmdOptions', cmd);
+        this.scheduler.set('wxaConfigs', this.wxaConfigs || {});
+        this.scheduler.set('directiveBroker', this.directiveBroker);
+
         try {
             await this.handleEntry(cmd);
-        } catch (error) {
-            error('编译入口参数有误', {error});
-            throw error;
+        } catch (err) {
+            error('编译入口参数有误', {err});
+            throw err;
         }
 
         await this.run(cmd);
@@ -262,18 +273,19 @@ class Builder {
         await this.hooks.run.promise(this);
 
         // do dependencies analysis.
-        await this.schedule.doDPA();
+        await this.scheduler.doDPA();
+        await this.directiveBroker.run();
 
-        this.schedule.perf.show();
+        this.scheduler.perf.show();
 
         try {
-            debug('schedule dependencies Tree is %O', this.schedule.$indexOfModule);
-            await this.optimizeAndGenerate(this.schedule.$indexOfModule, this.schedule.appConfigs, cmd);
+            debug('schedule dependencies Tree is %O', this.scheduler.$indexOfModule);
+            await this.optimizeAndGenerate(this.scheduler.$indexOfModule, this.scheduler.appConfigs, cmd);
 
             // done.
-            await this.hooks.done.promise(this.schedule);
+            await this.hooks.done.promise(this.scheduler);
 
-            debug('Project Pages', this.schedule.$pageArray);
+            debug('Project Pages', this.scheduler.$pageArray);
 
             logger.log('Done', 'AT: '+new Date().toLocaleString());
         } catch (e) {
@@ -298,12 +310,12 @@ class Builder {
                 cmdOptions: cmdOptions,
                 appConfigs: appConfigs,
             });
-            applyPlugins(this.schedule.wxaConfigs.plugins, optimizer);
+            applyPlugins(this.scheduler.wxaConfigs.plugins, optimizer);
 
             await optimizer.run(indexedMap);
 
             // write module to dest, dependencies copy.
-            let generator = new Generator(this.current, this.schedule.meta, this.wxaConfigs, cmdOptions);
+            let generator = new Generator(this.current, this.scheduler.meta, this.wxaConfigs, cmdOptions);
             let generateTasks = [];
             indexedMap.forEach((mdl)=>{
                 generateTasks.push(generator.do(mdl));
@@ -320,7 +332,7 @@ class Builder {
     }
 
     async handleEntry(cmd) {
-        let entry = this.schedule.wxaConfigs.entry || [];
+        let entry = this.scheduler.wxaConfigs.entry || [];
         if (!Array.isArray(entry)) throw new Error('Entry Point is not array!');
 
         let isAPP = (filepath)=>/app\./.test(filepath);
@@ -345,17 +357,17 @@ class Builder {
             let mdl = {};
             point = path.isAbsolute(point) ? point : path.join(this.current, point);
 
-            if (cmd.multi) {
-                let matchedPoint = Object.keys(this.wxaConfigs.thirdParty.point).find((key)=>new RegExp(key).test(point));
+            if (this.wxaConfigs.point) {
+                let matchedPoint = Object.keys(this.wxaConfigs.point).find((key)=>new RegExp(key).test(point));
                 // console.log(matchedPoint);
 
                 if (matchedPoint) {
-                    mdl.src = this.wxaConfigs.thirdParty.point[matchedPoint];
-                    mdl.content = readFile(this.wxaConfigs.thirdParty.point[matchedPoint]);
+                    mdl.src = this.wxaConfigs.point[matchedPoint];
+                    mdl.content = readFile(this.wxaConfigs.point[matchedPoint]);
                 }
             }
 
-            let dr = new DependencyResolver(this.schedule.wxaConfigs.resolve, this.schedule.meta);
+            let dr = new DependencyResolver(this.scheduler.wxaConfigs.resolve, this.scheduler.meta);
             let outputPath = dr.getOutputPath(point, defaultPret, root);
 
             mdl = {
@@ -370,7 +382,7 @@ class Builder {
             };
 
             if (isFile(mdl.src)) {
-                this.schedule.addEntryPoint(mdl);
+                this.scheduler.addEntryPoint(mdl);
             } else {
                 throw new Error(`入口文件不存在 ${mdl.src}`);
             }
@@ -378,5 +390,23 @@ class Builder {
     }
 }
 
+export function spawnBuilder(configs, cmdOptions) {
+    let projects = cmdOptions.project;
+
+    for (let name of projects) {
+        let projectConfigs = configs.find((item)=> item.name === name);
+
+        if (!projectConfigs) {
+            logger.error(`找不到${name}的项目配置文件，请检查wxa.config.js中的三方配置`);
+            break;
+        }
+
+        let builder = new Builder(projectConfigs);
+
+        applyPlugins(builder.wxaConfigs.plugins || [], builder);
+
+        builder.build(cmdOptions);
+    }
+}
 
 export default Builder;

@@ -1,6 +1,19 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`fetch api normal 1`] = `
+exports[`enaled request abort task make request with abort function 1`] = `
+Object {
+  "cancel": [Function],
+  "defer": Object {
+    "defer": Promise {},
+    "promise": Promise {},
+    "reject": [Function],
+    "resolve": [Function],
+  },
+  "request": Promise {},
+}
+`;
+
+exports[`fetch api just make a normal request 1`] = `
 Object {
   "error": "User with 6 not found.",
   "statusCode": 200,

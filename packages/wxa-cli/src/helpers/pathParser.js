@@ -4,7 +4,7 @@ import validUrl from 'valid-url';
 
 export default class PathParser {
     constructor() {
-        this.pkgReg = /^[@\w\_\-\d]+(\/[\w\-\_\d@\.]+)*$/;
+        this.pkgReg = /^[@\w\_\-\d\.]+(\/[\w\-\_\d@\.]+)*$/;
         this.base64Reg = /^data:[\w\/;,+]/;
         this.dynamicReg = /{{[^{}]*}}/;
     }
@@ -24,7 +24,11 @@ export default class PathParser {
         };
 
         // judge path's kind;
-        if (x[0] === '.') { // require('./') require('../')
+        // dynamic string is highest priority.
+        if (this.dynamicReg.test(x)) {
+            ret.isURI = true;
+            ret.isDynamic = true;
+        } else if (x[0] === '.') { // require('./') require('../')
             ret.isRelative = true;
         } else if (x[0] === '#') { // require('#') require plugin plugin require('plugin name')
             ret.isPlugin = true;
@@ -39,9 +43,6 @@ export default class PathParser {
         } else if (this.base64Reg.test(x)) {
             ret.isURI = true;
             ret.isBase64 = true;
-        } else if (this.dynamicReg.test(x)) {
-            ret.isURI = true;
-            ret.isDynamic = true;
         } else {
             throw new Error('Path Error', '无法解析的路径类型: '+x);
         }

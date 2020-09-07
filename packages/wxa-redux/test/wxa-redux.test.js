@@ -1,4 +1,4 @@
-import {wxaRedux, combineReducers, reducerRegistry} from '../src/index'
+import {wxaRedux, combineReducers, reducerRegistry, getStore} from '../src/index'
 import fs from 'fs';
 import path from 'path';
 
@@ -80,22 +80,23 @@ describe('App register redux', ()=>{
         expect(vm.$store).not.toBeFalsy();
     })
     
-    test('middlewares not array', ()=>{
-        let mw = jest.fn();
+    // middlewares not can be handled by user.
+    // test('middlewares not array', ()=>{
+    //     let mw = jest.fn();
     
-        let reduxFnMW = wxaRedux({
-            reducers: combineReducers({todo}),
-            middlewares: function(store){
-                return function(){
-                    mw();
-                }
-            }
-        });
+    //     let reduxFnMW = wxaRedux({
+    //         reducers: combineReducers({todo}),
+    //         middlewares: function(store){
+    //             return function(){
+    //                 mw();
+    //             }
+    //         }
+    //     });
     
-        reduxFnMW({}, 'App');
+    //     reduxFnMW({}, 'App');
     
-        expect(mw).not.toHaveBeenCalled();
-    })
+    //     expect(mw).not.toHaveBeenCalled();
+    // })
     
     test('throw error while type undefined', ()=>{
         let reduxFn = wxaRedux({}, 'Hello');
@@ -356,6 +357,10 @@ describe('while dispatch long long data', ()=>{
         page.$store.dispatch({type: 'add', payload: 'hey'});
         expect(page.data.todo.length).toBe(2);
     })
+})
+
+test('get store instance', () => {
+    expect(getStore()).not.toBeFalsy();
 })
 
 afterAll(()=>{

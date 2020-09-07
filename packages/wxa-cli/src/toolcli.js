@@ -1,6 +1,7 @@
 import path from 'path';
 import {exec} from 'child_process';
 import logger from './helpers/logger';
+import inquirer from 'inquirer';
 import debugPKG from 'debug';
 
 const debug = debugPKG('WXA:Toolcli');
@@ -26,12 +27,12 @@ class Toolcli {
         this.cli = path.normalize(`"${this.appPath}${this.cliPath}"`);
     }
 
-    async run(cmd) {
+    async run(cmd, data) {
         debug('start cli %O', cmd);
-        this.$run(this.wxaConfigs.output.path, cmd);
+        this.$run(this.wxaConfigs.output.path, cmd, data);
     }
 
-    $run(projectPath, cmd) {
+    $run(projectPath, cmd, data) {
         let {action} = cmd;
 
         switch (action) {
@@ -48,7 +49,7 @@ class Toolcli {
                 break;
             }
             case 'upload': {
-                this.upload(projectPath, cmd).catch((e)=>logger.error(e));
+                this.upload(projectPath, cmd, data).catch((e)=>logger.error(e));
                 break;
             }
             default: logger.warn('无效的命令');
@@ -88,9 +89,44 @@ class Toolcli {
         return this.execute(`${this.cli} -p ${projectPath}`);
     }
 
-    upload(projectPath, cmd) {
-        return this.execute(`${this.cli} -u ${cmd.options.version}@${projectPath} --upload-desc '${cmd.options.desc}'`);
+    upload(projectPath, cmd, data) {
+        return this.execute(`${this.cli} -u ${data.options.version}@${projectPath} --upload-desc '${data.options.desc}'`);
     }
 }
 
 export default Toolcli;
+
+let question = async ()=>await inquirer.prompt([
+    {
+        type: 'input',
+        name: 'version',
+        message: '小程序版本号',
+        default: require(path.join(process.cwd(), 'package.json')).version || '1.0.0',
+    },
+    {
+        type: 'input',
+        name: 'desc',
+        message: '版本描述',
+        default: '版本描述',
+    },
+]);
+
+export async function spawnDevToolCli(configs, cmdOptions) {
+    let answer;
+    if (cmdOptions.action === 'upload') answer = await question();
+
+    let projects = cmdOptions.project;
+
+    for (let name of projects) {
+        let projectConfigs = configs.find((item) => item.name === name);
+
+        if (!projectConfigs) {
+            logger.error(`找不到${name}的项目配置文件，请检查wxa.config.js中的三方配置`);
+            break;
+        }
+
+        let cli = new Toolcli(projectConfigs);
+
+        cli.run(cmdOptions, {options: answer});
+    }
+}

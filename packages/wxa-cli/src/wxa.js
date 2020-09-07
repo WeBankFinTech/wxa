@@ -5,49 +5,36 @@ import path from 'path';
 import DefaultWxaConfigs from './const/defaultWxaConfigs';
 import Builder from './builder';
 import Tester from './tester/index';
+import https from 'https';
+import {spawnBuilder} from './builder';
 import chalk from 'chalk';
-// import {info, error, warn} from './utils';
-import logger from './helpers/logger';
 import Creator from './creator';
-import Toolcli from './toolcli';
-import {applyPlugins, getConfig, isFile} from './utils';
+import {spawnDevToolCli} from './toolcli';
+import {getConfigs} from './getConfigs';
+import {WXA_PROJECT_NAME} from './const/wxaConfigs';
+import {isEmpty} from './utils';
 
 const version = require('../package.json').version;
 
-let getWxaConfigs = ()=>{
-    let custom = {};
-    let configPath = path.join(process.cwd(), 'wxa.config.js');
-
-    if (isFile(configPath)) {
-        try {
-            custom = getConfig();
-        } catch (e) {
-            // no custom wxa configs here.
-            logger.error('Error', e);
-            process.exit(0);
-        }
-    } else {
-        logger.log('Configuration', '没有配置文件，正在使用默认配置');
-    }
-
-    let defaultWxaConfigs = new DefaultWxaConfigs(process.cwd());
-    return deepmerge(defaultWxaConfigs.get(), custom, {arrayMerge: (destinationArray, sourceArray, options)=>sourceArray});
+let showSlogan = () => {
+    console.info(`🖖 Hi, @wxa version ${chalk.keyword('orange')(''+version)} present`);
 };
 
-let wrapWxaConfigs = (fn)=>{
-    return (wxaConfigs, instance, cmdOptions)=> {
-        // overide third party options.
-        let subWxaConfigs;
-        if (instance) {
-            instance.wxaConfigs = instance.wxaConfigs || {};
-            instance.wxaConfigs.thirdParty = instance;
-            subWxaConfigs = Object.assign({}, wxaConfigs, instance.wxaConfigs, {$name: instance.name});
-        } else {
-            subWxaConfigs = Object.assign({}, wxaConfigs);
-        }
+let processProjectsOptions = (configs, cmdOptions) => {
+    let projects = cmdOptions.project;
 
-        return fn(subWxaConfigs, cmdOptions);
-    };
+    if (isEmpty(projects)) {
+        projects = configs[0].name !== WXA_PROJECT_NAME ? configs[0].name : WXA_PROJECT_NAME;
+    }
+
+    if (projects === '*') projects = configs.reduce((p, i) => (p+','+i.name), '');
+
+    projects = projects.split(',');
+    projects = projects.filter((p)=>!isEmpty(p));
+
+    cmdOptions.project = projects;
+
+    return;
 };
 
 commander
@@ -57,50 +44,48 @@ commander
 commander
 .command('build')
 .description('编译项目')
+.option('--configs-path <configsPath>', 'wxa.configs.js文件路径，默认项目根目录')
 .option('-w, --watch', '监听文件改动')
 .option('-N, --no-cache', '不使用缓存')
-.option('-m, --multi', '三方开发模式，一次编译出多个项目')
-.option('-p, --project <project>', '三方开发模式，单独指定需要编译监听的项目')
+.option('--source-map', '生成sourceMap并输出')
+.option('-p, --project <project>', '指定需要编译的项目，默认是default， * 表示编译所有项目')
 .option('--no-progress', '不展示文件进度')
 .option('--verbose', '展示多余的信息')
-// .option('--max-watch-project <max>', '三方开发模式，最多同时监听几个项目, default: 3')
+.option('-t, --target', '编译目标平台，如微信小程序wechat, 头条小程序tt')
+.option('--mock', '是否编译wxa:mock指令')
 .action(async (cmd)=>{
-    // console.log(cmd);
-    logger.info('Hey', `This is ${chalk.keyword('orange')('wxa@'+version)}, Running in ${chalk.keyword('orange')(process.env.NODE_ENV || 'development')}`);
-    let wxaConfigs = getWxaConfigs();
-    // console.log(wxaConfigs);
-    let newBuilder = wrapWxaConfigs((subWxaConfigs, cmdOptions)=>{
-        let builder = new Builder(subWxaConfigs);
-        applyPlugins(builder.wxaConfigs.plugins || [], builder);
+    showSlogan();
+    console.info(`🤖 Building with ${chalk.keyword('orange')(process.env.NODE_ENV || 'development')} env` );
+    let configs = getConfigs(cmd.configsPath);
+    processProjectsOptions(configs, cmd);
 
-        return builder.build(cmdOptions);
-    });
+    spawnBuilder(configs, cmd);
+});
 
-    if (cmd.multi && wxaConfigs.thirdParty && wxaConfigs.thirdParty.length) {
-        // third party development
-        if (cmd.project) {
-            cmd.project.split(',').forEach((project)=>{
-                // console.log(project);
-                // specify project to compile
-                project = wxaConfigs.thirdParty.find((instance)=>instance.name===project);
+commander
+.command('create')
+.description('新建模板')
+.option('--repo <repo>', '仓库地址，可选github或gitee，允许传自定义的repo地址，网速考虑，默认gitee', 'gitee')
+.action(async (cmd)=>{
+    showSlogan();
+    console.info('🦊 Creating 新建项目中');
 
-                if (!project) {
-                    logger.error('找不到指定的项目，请检查wxa.config.js中的三方配置');
-                    process.exit(0);
-                } else {
-                    newBuilder(wxaConfigs, project, cmd);
-                }
-            });
-        } else {
-            // compile and watch all projects.
-            wxaConfigs.thirdParty.forEach((instance)=>{
-                newBuilder(wxaConfigs, instance, {...cmd, watch: false});
-            });
-        }
-    } else {
-        // normal build.
-        newBuilder(wxaConfigs, void(0), cmd);
-    }
+    new Creator(cmd).run();
+});
+
+commander
+.command('cli')
+.description('微信开发者工具命令行调用')
+.option('--configs-path <configsPath>', 'wxa.configs.js文件路径，默认项目根目录')
+.option('-a, --action <action>', '指定操作, open, login, preview, upload')
+.option('-p, --project <project>', '三方开发模式，单独指定操作的项目')
+.action(async (cmd)=>{
+    showSlogan();
+    console.info('🐌 目前仅支持调用微信开发者工具指令');
+    let configs = getConfigs(cmd.configsPath);
+    processProjectsOptions(configs, cmd);
+
+    spawnDevToolCli(configs, cmd);
 });
 
 commander

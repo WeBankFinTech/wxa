@@ -1,15 +1,17 @@
 import WxaCompiler from './wxa';
 import ScriptCompiler from './script';
+import WxsCompiler from './wxs';
 import XmlCompiler from './xml';
 import ConfigCompiler from './config';
 import ASTManager from '../resolvers/ast/index';
 import XMLManager from '../resolvers/xml/index';
-import CSSManager from '../resolvers/css/index';
+import CSSManager from '../resolvers/styleResolver';
 import defaultPret from '../const/defaultPret';
 import debugPKG from 'debug';
 import path from 'path';
 import ComponentManager from '../resolvers/component';
 import {readFile} from '../utils';
+import resolveWxsDependencies from '../resolvers/wxs';
 
 let debug = debugPKG('WXA:Compilers');
 
@@ -41,7 +43,10 @@ export default class Compiler {
         debug('module to parse %O', mdl);
 
         let children = [];
-        let content = mdl.code || mdl.content || readFile(mdl.src);
+        let content = mdl.code;
+        // generate empty string is allowed.
+        content = content == null ? mdl.content || readFile(mdl.src) : content;
+
         let type = path.extname(mdl.meta.source);
         type = type.replace(/^\.*/, '');
 
@@ -92,12 +97,19 @@ export default class Compiler {
                 children = children.concat(this.$$parseJSON(mdl));
                 break;
             }
+
+            case 'wxs': {
+                mdl.ast = rest.ast;
+
+                children = children.concat(this.$$parseWXS(mdl));
+                break;
+            }
         }
 
         return children;
     }
 
-    $parse(code, configs={}, filepath, type, mdl) {
+    async $parse(code, configs={}, filepath, type, mdl) {
         switch (type) {
             case 'wxa': {
                 mdl.isAbstract = true;
@@ -120,6 +132,10 @@ export default class Compiler {
             case 'json':
             case 'config': {
                 return new ConfigCompiler().parse(filepath, code);
+            }
+
+            case 'wxs': {
+                return new WxsCompiler().parse(filepath, code);
             }
 
             case 'png':
@@ -152,19 +168,21 @@ export default class Compiler {
             dep.pret = mdl.pret || defaultPret;
             dep.category = mdl.category || '';
             dep.pagePath = mdl.pagePath || void(0);
+            // in case output the original file, we should delete code here.
+            delete dep.code;
             return dep;
         });
     }
 
     $$parseAST(mdl) {
-        let deps = new ASTManager(this.resolve||{}, this.meta).parse(mdl);
+        let deps = new ASTManager(this.resolve||{}, this.meta, this.$scheduer.wxaConfigs).parse(mdl);
 
         // analysis deps;
         return deps;
     }
 
     $$parseXML(mdl) {
-        let deps = new XMLManager(this.resolve||{}, this.meta).parse(mdl);
+        let deps = new XMLManager(this.resolve || {}, this.meta, this.$scheduer).parse(mdl);
 
         debug('xml dependencies %o', deps);
         // analysis deps;
@@ -199,5 +217,13 @@ export default class Compiler {
 
         mdl.code = JSON.stringify(mdl.json, void(0), 4);
         return children;
+    }
+
+    $$parseWXS(mdl) {
+        let deps = resolveWxsDependencies(mdl, this.resolve||{}, this.meta);
+
+        debug('wxs dependencies %o', deps);
+        // analysis deps;
+        return deps;
     }
 }

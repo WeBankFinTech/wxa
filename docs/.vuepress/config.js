@@ -12,7 +12,7 @@ module.exports = {
             lang: 'zh-CN',
             selectText: '选择语言',
             label: '简体中文',
-            description: 'wxa | AOP小程序框架',
+            description: '一个小程序框架',
         },
         // '/lang/english/': {
         //     lang: 'en-US',
@@ -21,13 +21,17 @@ module.exports = {
         //     description: 'wxa | Wechat mini program framework'
         // }
     },
+    markdown: {
+        lineNumbers: true
+    },
     themeConfig: {
+        displayAllHeaders: true,
         repo: 'wxajs/wxa',
         docsRepo: 'wxajs/wxa',
         docsDir: 'docs',
         editLinks: true,
         editLinkText: '帮助我们改善此页面！',
-        sidebarDepth: 3,
+        sidebarDepth: 2,
         locales: {
             '/': {
                 lang: 'zh-CN',
@@ -43,27 +47,28 @@ module.exports = {
                     {text: 'CORE', link: '/core/'},
                     {text: 'CLI', link: '/cli/'},
                     {
-                        text: '插件',
+                        text: 'CORE 运行时插件',
                         items: [
-                            {
-                                text: 'CORE',
-                                items: [
-                                    {text: 'Form', link: '/plugin/core/form'},
-                                    {text: 'Watch', link: '/plugin/core/watch'},
-                                    {text: 'Redux', link: '/plugin/core/redux'},
-                                ]
-                            },
-                            {
-                                text: 'CLI',
-                                items: [
-                                    {text: 'Copy', link: '/plugin/cli/copy'},
-                                    {text: 'Dependencies Analysis', link: '/plugin/cli/da'},
-                                    {text: 'Postcss', link: '/plugin/cli/postcss'},
-                                    {text: 'Replace', link: '/plugin/cli/replace'},
-                                    {text: 'UglifyJS', link: '/plugin/cli/uglifyjs'},
-                                ]
-                            }
+                            {text: 'Validate 表单校验', link: '/plugin/core/validate'},
+                            {text: 'Watch 数据监听', link: '/plugin/core/watch'},
+                            {text: 'Redux 全局状态管理', link: '/plugin/core/redux'},
+                            {text: 'Log 日志上报', link: '/plugin/core/log'},
                         ]
+                    },
+                    {
+                        text: 'CLI 预编译插件',
+                        items: [
+                            {text: 'UglifyJS 代码压缩', link: '/plugin/cli/uglifyjs'},
+                            {text: 'Replace 字符替换', link: '/plugin/cli/replace'},
+                            {text: 'Copy 静态资源引入', link: '/plugin/cli/copy'},
+                            {text: 'hijack 事件劫持', link: '/plugin/cli/hijack'},
+                            {text: 'Minify-wxml wxml压缩', link: '/plugin/cli/minify-wxml'},
+                            {text: 'Postcss CSS预处理', link: '/plugin/cli/postcss'},
+                            {text: 'DA 依赖分析', link: '/plugin/cli/da'},
+                        ]
+                    },
+                    {
+                        text: '1.x', link: 'https://genuifx.com/wxa/v0/'
                     }
                 ],
             },
@@ -73,7 +78,8 @@ module.exports = {
                 '/learn/quickStarted/',
                 {
                     title: '指南',
-                    collapsable: false,
+                    collapsable: true,
+                    sidebarDepth: 1,
                     children: [
                         '/learn/guide/',
                         '/learn/guide/construction',
@@ -86,16 +92,18 @@ module.exports = {
                 },
                 {
                     title: '进阶',
-                    collapsable: false,
+                    collapsable: true,
+                    sidebarDepth: 0,
                     children: [
                         '/learn/advance/preload',
-                        '/learn/advance/third-party-wxa'
+                        '/learn/advance/third-party-wxa',
+                        '/learn/advance/wxa-directive'
                     ]
                 },
                 {
                     title: '其他',
-                    collapsable: false,
-                    sidebarDepth: 2,
+                    collapsable: true,
+                    sidebarDepth: 1,
                     children: [
                         '/learn/other/migrade1.x',
                         '/learn/other/migradeNative'
@@ -103,25 +111,12 @@ module.exports = {
                 }
             ],
             '/core/': [
-                '',
-                'global',
-                {
-                    title: '装饰器',
-                    collapsable: false,
-                    children: [
-                        '/core/decorators/class',
-                        '/core/decorators/methods',
-                    ]
-                },
-                'hook',
-                'feature',
-                'other'
+                '', 
+                'API'
             ],
             '/cli/': [
                 '',
-                'build',
-                'create',
-                'tool',
+                'command',
                 'configuration'
             ]
         },
@@ -135,6 +130,14 @@ module.exports = {
                 buttonText: "刷新"
             }
         }],
+        [
+            '@vuepress/last-updated',
+            {
+              transformer: (timestamp, lang) => {
+                return new Date(timestamp).toLocaleDateString();
+              }
+            }
+        ],
         '@vuepress/back-to-top',
         '@vuepress/notification',
         '@vuepress/plugin-medium-zoom',
@@ -142,5 +145,5 @@ module.exports = {
         ['@vuepress/google-analytics', {ga: 'UA-116900237-1'}],
         ['sitemap', { hostname: 'https://wxajs.github.io/wxa/'}]
     ],
-    clientRootMixin: path.resolve(__dirname, 'mixin.js')
+    // clientRootMixin: path.resolve(__dirname, 'mixin.js')
 }

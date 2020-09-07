@@ -32,6 +32,7 @@ class Schedule {
         this.meta = {
             current: this.current,
             wxaExt: 'wxa',
+            nodeModule: path.join(this.current, 'node_modules'),
             libSrc: path.join(__dirname, '../lib-dist'),
             libs: ['wxa_wrap.js'],
             context: path.join(this.current, 'src'),
@@ -68,7 +69,8 @@ class Schedule {
         this.$depPending = []; // pending dependencies
         // this.$indexOfModule = [ROOT];
         this.$indexOfModule = new Map([['__root__', ROOT]]); // all module
-        this.$isMountingCompiler = false; // if is mounting compiler, all task will be blocked.
+        // if is mounting compiler, all task will be blocked.
+        this.$isMountingCompiler = false;
         this.progress = new ProgressTextBar(this.current, wxaConfigs);
 
         // save all app configurations for compile time.
@@ -153,6 +155,7 @@ class Schedule {
             this.progress.draw(text, 'COMPILING', !this.cmdOptions.verbose);
             this.perf.markStart(relativeSrc);
             this.hooks.buildModule.call(dep);
+
             // loader: use custom compiler to load resource.
             await this.loader.compile(dep, this);
 
@@ -168,6 +171,9 @@ class Schedule {
             let childNodes = await compiler.parse(dep);
 
             compiler.destroy();
+
+            // empty loader handle this module.
+            if (dep.code == null && !dep.isFile) dep.code = dep.content;
 
             debug('childNodes', childNodes.map((node)=>simplify(node)));
             let children = childNodes.reduce((children, node)=>{
@@ -290,7 +296,8 @@ class Schedule {
         let child = {
             ...dep,
             color: COLOR.INIT,
-            isNpm: dep.pret.isNodeModule,
+            isNodeModule: dep.src.indexOf(this.meta.nodeModule) > -1,
+            isWXARuntime: dep.src.indexOf(this.meta.libSrc) > -1,
             isPlugin: dep.pret.isPlugin,
             reference: new Map([[mdl.src, mdl]]),
             output: new Set([dep.meta.outputPath]),
@@ -303,6 +310,12 @@ class Schedule {
 
         let indexedModule = this.$indexOfModule.get(dep.src);
         if (indexedModule && indexedModule.color === COLOR.INIT) {
+            // merge reference, cause the module is parsed
+            if (indexedModule.reference instanceof Map) {
+                indexedModule.reference.set(mdl.src, mdl);
+            } else {
+                indexedModule.reference = new Map([[mdl.src, mdl]]);
+            }
             return indexedModule;
         } else if (indexedModule) {
             // check hash
@@ -380,7 +393,7 @@ class Schedule {
                     },
                     wrap(mdl) {
                         mdl.code = `
-                        require('wxa://core-js/es.promise.finally.js');
+                        require('wxa://es/promise.finally.js');
 
                         ${mdl.code}
                         `;
@@ -426,6 +439,24 @@ class Schedule {
             pages = pages.concat(subPages);
         }
 
+        // tarbar configs
+        let tabBarList = (this.appConfigs.tabBar && this.appConfigs.tabBar.list) || [];
+        tabBarList.forEach((val) => {
+            if (val.iconPath) {
+                pages = pages.concat([['', val.iconPath.substr(2)]]);
+            }
+            if (val.selectedIconPath) {
+                pages = pages.concat([['', val.selectedIconPath.substr(2)]]);
+            }
+        });
+
+        // usingComponents
+        if (this.appConfigs.usingComponents) {
+            Object.values(this.appConfigs.usingComponents).forEach((val) => {
+                pages = pages.concat([['', val]]);
+            });
+        }
+
         // pages spread
         let newPages = pages.reduce((ret, [pkg, page])=>{
             // wxa file
@@ -433,8 +464,27 @@ class Schedule {
 
             debug('page %s %s', wxaPage, page);
             let dr = new DependencyResolver(this.wxaConfigs.resolve, this.meta);
-
-            if (isFile(wxaPage)) {
+            
+            if (/.+(png|jpg|jpeg|webp|eot|woff|woff2|ttf|file')$/.test(page)) {
+                let src = path.join(this.meta.context, page);
+                try {
+                    return ret.concat([this.addEntryPoint({
+                        content: '',
+                        src,
+                        category: '',
+                        pagePath: src,
+                        pret: defaultPret,
+                        package: pkg,
+                        isFile: true,
+                        meta: {
+                            source: src,
+                            outputPath: dr.getOutputPath(src, defaultPret, ROOT),
+                        },
+                    })]);
+                } catch (e) {
+                    logger.error(e);
+                }
+            } else if (isFile(wxaPage)) {
                 try {
                     let pagePoint = this.addEntryPoint({
                         content: readFile(wxaPage),
@@ -481,7 +531,6 @@ class Schedule {
         }, []);
 
         newPages.forEach((page)=>this.$pageArray.set(page.src, page));
-
         return newPages;
     }
 

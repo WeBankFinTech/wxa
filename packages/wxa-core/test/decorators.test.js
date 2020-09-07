@@ -94,7 +94,7 @@ describe('wxa decorator', ()=>{
         expect(i.$eventbus).not.toBeFalsy();
         expect(i.$wxapi).not.toBeFalsy();
         expect(i.$router).not.toBeFalsy();
-        expect(i.$app).not.toBeFalsy();
+        // expect(i.$app).not.toBeFalsy();
         expect(i.$fetch).not.toBeFalsy();
     });
 

@@ -25,18 +25,14 @@
 在 `wxa.config.js` 中指定 `thirdParty` 配置项：
 
 ```js
-module.exports = {
-    thirdParty: [
-        {
-            name: 'partner-A',
-            wxaConfigs: {
-                output: {
-                    path: path.resolve(__dirname, 'partners/A'),
-                },
-            }
-        }
-    ]
-}
+module.exports = [
+    {
+        name: 'partner-A',
+        output: {
+            path: path.resolve(__dirname, 'partners/A'),
+        },
+    }
+]
 ```
 
 可以看到，我们在 `thirdParty/wxaConfigs` 中指定了不同的项目名和输出路径，这样一来，我们就可以为每个不同的合作方输出单独的小程序代码了。
@@ -44,23 +40,19 @@ module.exports = {
 但是这样子不够，不同合作方的项目参数都不一样，而且生产和测试的参数也不一致，譬如远程服务器地址，是否允许打印特定的错误信息等等。我们需要在运行时能区分当前是哪个合作方的小程序处于哪个环境。此时可以使用 `@wxa/plugin-replace` 实现效果：
 
 ```js
-module.exports = {
-    thirdParty: [
-        {
-            name: 'partner-A',
-            wxaConfigs: {
-                output: {
-                    path: path.resolve(__dirname, 'partners/A'),
-                },
-                plugins: [
-                    new ReplacePlugin({
-                        list: require('./projects/A/app.config.js').env,
-                    }),
-                ]
-            }
-        }
-    ]
-}
+module.exports = [
+    {
+        name: 'partner-A',
+        output: {
+            path: path.resolve(__dirname, 'partners/A'),
+        },
+        plugins: [
+            new ReplacePlugin({
+                list: require('./projects/A/app.config.js').env,
+            }),
+        ]
+    }
+]
 ```
 
 插件文档请查看：[`@wxa/plugin-replace`](https://wxajs.github.io/wxa/plugin/cli/replace.html)。通过为不同合作方使用不同的插件，我们可以给不同的合作方替换不同的参数，指定是否需要压缩代码，是否需要使用PostCss等。
@@ -76,46 +68,40 @@ module.exports = {
 改动 `wxa.config.js` 配置如下：
 
 ```js
-module.exports = {
-    thirdParty: [
-        {
-            name: 'partner-A',
-            point: {
-                'app.json': path.resolve('projects/A/app.json'),
-                'ext.json': path.resolve('projects/A/ext.json'),
-                'app.scss': path.resolve('projects/A/app.scss'),
-            },
-            wxaConfigs: {
-                output: {
-                    path: path.resolve(__dirname, 'partners/A'),
-                },
-                plugins: [
-                    new ReplacePlugin({
-                        list: require('./projects/A/app.config.js').env,
-                    }),
-                ]
-            }
+module.exports = [
+    {
+        name: 'partner-A',
+        point: {
+            'app.json': path.resolve('projects/A/app.json'),
+            'ext.json': path.resolve('projects/A/ext.json'),
+            'app.scss': path.resolve('projects/A/app.scss'),
         },
-        {
-            name: 'partner-B',
-            point: {
-                'app.json': path.resolve('projects/B/app.json'),
-                'ext.json': path.resolve('projects/B/ext.json'),
-                'app.scss': path.resolve('projects/B/app.scss'),
-            },
-            wxaConfigs: {
-                output: {
-                    path: path.resolve(__dirname, 'partners/B'),
-                },
-                plugins: [
-                    new ReplacePlugin({
-                        list: require('./projects/B/app.config.js').env,
-                    }),
-                ]
-            }
-        }
-    ]
-}
+        output: {
+            path: path.resolve(__dirname, 'partners/A'),
+        },
+        plugins: [
+            new ReplacePlugin({
+                list: require('./projects/A/app.config.js').env,
+            }),
+        ]
+    },
+    {
+        name: 'partner-B',
+        point: {
+            'app.json': path.resolve('projects/B/app.json'),
+            'ext.json': path.resolve('projects/B/ext.json'),
+            'app.scss': path.resolve('projects/B/app.scss'),
+        },
+        output: {
+            path: path.resolve(__dirname, 'partners/B'),
+        },
+        plugins: [
+            new ReplacePlugin({
+                list: require('./projects/B/app.config.js').env,
+            }),
+        ]
+    }
+]
 ```
 
 至此，我们为不同合作方指定替换了入口文件 `app.scss` 、 `ext.json` 和 `app.json`。为不同合作方维护不同的 UI 皮肤，指定打包编译的 pages，输出特性的定制页面。
@@ -123,17 +109,17 @@ module.exports = {
 我们通过下面的命令开始一次性的输出所有合作方配置：
 
 ```bash
-wxa2 build --multi
+wxa2 build --project *
 # 或者使用缩写
-wxa2 build -m
+wxa2 build -p *
 ```
 
 开发阶段可以指定启动监听模式单独编译某个合作方
 
 ```bash
-wxa2 build --watch --multi --project projectName
+wxa2 build --watch --project projectName
 # 使用缩写
-wxa2 build -w -m -p projectName
+wxa2 build -p projectName
 ```
 
 ## 部署
@@ -151,10 +137,8 @@ module.exports = {
 然后再运行下面的命令即可完成批量上传。
 
 ```bash
-# 一次性上传多个项目
-wxa2 cli --action upload --multi 
 # 指定上传特定项目
-wxa2 cli --action upload --multi --project projectName
+wxa2 cli --action upload --project projectName
 ```
 
 需要注意的是，**由于微信开发者工具依赖 `project.config.json` 进行小程序项目管理**，而现阶段该配置文件只能由微信开发者工具生成，故在进行 CLI 调用之前，需要提前用开发者工具生成该配置文件。

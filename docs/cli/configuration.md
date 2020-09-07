@@ -1,29 +1,33 @@
 # 配置项
+
 默认情况下，`cli`不需要任何配置即可运行在一个标准小程序项目中。然而在实际生产项目中，针对不同项目个性化配置是必不可少的，此时可以在项目根目录下新建一个`wxa.config.js`，根据需要增加、删除对应配置，cli将根据配置文件进行编译工作。
 
 ## 默认配置
 `wxa`的默认配置如下：
 
 ``` js
+
 let context = path.resolve(this.cwd, 'src');
 module.exports = {
     target: 'wxa',
+    dependencyManager: 'npm',
     context,
     resolve: {
         wxaExt: '.wxa',
         extensions: ['.js', '.json'],
+        appScriptPath: path.join(context, 'app.js'),
         appConfigPath: path.join(context, 'app.json'),
         alias: {
             '@': path.join(this.cwd, 'src'),
         },
     },
-    entry: [path.resolve(this.cwd, 'src/app*'), path.resolve(this.cwd, 'src/project.config.json')],
+    entry: [path.resolve(this.cwd, 'src/app*'), path.resolve(this.cwd, 'src/project.config.json'), path.resolve(this.cwd, 'src/ext.json')],
     output: {
         path: path.resolve(this.cwd, 'dist'),
     },
     use: [
         {
-            test: /\.js$|\.wxs$/,
+            test: /\.js$/,
             name: 'babel',
         },
         {
@@ -31,6 +35,16 @@ module.exports = {
             name: 'sass',
         },
     ],
+    optimization: {
+        // 自动分配第三方依赖到分包和主包
+        splitDeps: {
+            maxDeps: -1,
+        },
+        // 是否允许空属性，请勿轻易改动，除非你很清楚自己在做什么
+        allowEmptyAttributes: true,
+        // 是否自动将 px 转为 rpx 单位
+        transformPxToRpx: false,
+    },
 };
 ```
 
@@ -47,6 +61,7 @@ module.exports = {
 上下文。所有项目中的绝对路径都基于 `context` 计算。
 
 ## resolve
+
 - **类型**: `Object`
 - **用法**:
 
@@ -115,7 +130,18 @@ module.exports = {
 
 传递给对应compiler的配置。
 
+## optimization
+### optimization.splitDeps.maxDeps
+是否应用依赖分包算法，自动分配依赖到主包分包。默认为 -1，即关闭，maxDeps的含义为当且仅当 N 个分包同时依赖一个第三方的包，该包会被分配到主包，N >= maxDeps。
+
+### optimization.allowEmptyAttributes
+是否允许空属性，默认 `true`，自动补全清单内的属性。
+
+### optimization.transformPxToRpx
+是否自动将 px 转为 rpx 单位，默认 `false`。打开该开关将自动使用 `postcss`  [插件](https://github.com/Genuifx/postcss-pxtorpx-pro)将项目中的 `px` 单位按照比例转为`rpx` 单位
+
 ## plugins
+
 目前支持的插件有：
 - [`@wxa/plugin-replace`](https://github.com/Genuifx/wxa/tree/master/packages/wxa-plugin-replace)
 - [`@wxa/plugin-uglifyjs`](https://github.com/Genuifx/wxa/tree/master/packages/wxa-plugin-uglifyjs)
