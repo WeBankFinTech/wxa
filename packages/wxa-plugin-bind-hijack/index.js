@@ -82,10 +82,13 @@ module.exports = class BindCapture {
                             })
                         }
                         if(hasEvent){ // 为事件参数增加一些标记
-                            if(v.data) v.attribs['data-wxa-data'] = v.data;
-                            if(v.type) v.attribs['data-wxa-type'] = v.type;
-                            if(v.attribs.class) v.attribs['data-wxa-class'] = v.attribs.class;
-                            if(v.attribs.id) v.attribs['data-wxa-id'] = v.attribs.id;
+                            console.log(v);
+                            let elementId = v.type;
+                            if(v.name) elementId = elementId + `.${v.name}`;
+                            if(v.attribs.id) elementId = elementId + `#${v.attribs.id}`;
+                            if(v.attribs.class) elementId = elementId + `.${v.attribs.class}`;
+                            if(v.data) elementId = elementId + `-${v.data}`;
+                            v.attribs[`data-wxa-id`] = elementId;
                         }
                     }
                     if (v.children) {
