@@ -130,6 +130,14 @@ module.exports = {
                 buttonText: "刷新"
             }
         }],
+        [
+            '@vuepress/last-updated',
+            {
+              transformer: (timestamp, lang) => {
+                return new Date(timestamp).toLocaleDateString();
+              }
+            }
+        ],
         '@vuepress/back-to-top',
         '@vuepress/notification',
         '@vuepress/plugin-medium-zoom',
