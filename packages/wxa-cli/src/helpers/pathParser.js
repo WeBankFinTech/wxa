@@ -47,8 +47,6 @@ export default class PathParser {
             ret.isDynamic = true;
         } else if (x[0] === '.') { // require('./') require('../')
             ret.isRelative = true;
-        } else if (x[0] === '#') { // require('#') require plugin plugin require('plugin name')
-            ret.isPlugin = true;
         } else if (this.pkgReg.test(x)) { // require('@scope/pkg') require('pkg')
             ret.isNodeModule = true;
         } else if (x[0] === '/') { // require('/abcd')

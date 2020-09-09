@@ -19,10 +19,10 @@ describe('PathParser: wxa path recognizer', ()=>{
             isPlugin: true
         });
 
-        expect(parser.parse('#mp-plugin')).toMatchObject({
-            isWXALib: false,
-            isPlugin: true
-        });
+        // expect(parser.parse('#mp-plugin')).toMatchObject({
+        //     isWXALib: false,
+        //     isPlugin: true
+        // });
 
         expect(parser.parse('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAqgAAAAjCAMAAABvjghcAAAASFBMVEVPl')).toMatchObject({
             isPlugin: false,
