@@ -17,6 +17,7 @@ import DependencyResolver from './helpers/dependencyResolver';
 import ProgressTextBar from './helpers/progressTextBar';
 import Preformance from './helpers/performance';
 import simplify from './helpers/simplifyObj';
+import {isIgnoreFile} from './helpers/pathParser';
 
 let debug = debugPKG('WXA:Schedule');
 
@@ -279,10 +280,7 @@ class Schedule {
         // if a dependency is from remote, or dynamic path, or base64 format, then we ignore it.
         // cause we needn't process this kind of resource.
         if (
-            dep.pret.isURI ||
-            dep.pret.isDynamic ||
-            dep.pret.isBase64 ||
-            dep.pret.isPlugin
+            isIgnoreFile(dep.pret)
         ) return null;
 
         debug('Find Dependencies started %O', simplify(dep));

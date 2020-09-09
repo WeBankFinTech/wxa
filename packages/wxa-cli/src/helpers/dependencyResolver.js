@@ -1,5 +1,5 @@
 import path from 'path';
-import PathParser from '../helpers/pathParser';
+import PathParser, { isIgnoreFile } from '../helpers/pathParser';
 import {getDistPath, isFile, readFile, isDir} from '../utils';
 import findRoot from 'find-root';
 import resolveAlias from '../helpers/alias';
@@ -82,7 +82,7 @@ class DependencyResolver {
         // resolve alias;
         if (this.resolve.alias && !mdl.isNodeModule) lib = resolveAlias(lib, this.resolve.alias, mdl.meta.source);
 
-        let pret = new PathParser().parse(lib);
+        let pret = new PathParser(this.resolve).parse(lib);
 
         debug('%s path pret %o', lib, pret);
 
@@ -109,7 +109,7 @@ class DependencyResolver {
     getOutputPath(source, pret, mdl) {
         if (pret.isRelative || pret.isAPPAbsolute || pret.isNodeModule || pret.isWXALib) {
             return this.getDistPath(source, mdl);
-        } else if (pret.isPlugin || pret.isURI) {
+        } else if (isIgnoreFile(pret)) {
             // url module
             return null;
         } else {
