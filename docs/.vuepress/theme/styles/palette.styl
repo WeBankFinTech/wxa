@@ -10,6 +10,9 @@ $navBartextColor=#fff;
 // $navbarBg=#1864af;
 // $textColor=#e7dacb;
 
+html, body
+    width 100%
+
 .home
     padding: 0
 
@@ -25,8 +28,18 @@ $navBartextColor=#fff;
 .navbar a, .navbar a:hover, .navbar a.router-link-active
     color #fff
 
-.dropdown-wrapper .dropdown-title, .dropdown-wrapper .mobile-dropdown-title
+.dropdown-wrapper .dropdown-title
     color $navBartextColor
-    
-.dropdown-item .nav-link
-    color $accentColor
+
+.sidebar-button .icon 
+    color white
+
+@media (max-width: $MQMobile) 
+    .home 
+        overflow-x hidden
+    .dropdown-wrapper .mobile-dropdown-title
+        color #333
+    .dropdown-item .nav-link
+        color #333
+    .nav-links a
+        color #333

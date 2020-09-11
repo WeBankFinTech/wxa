@@ -91,6 +91,12 @@ module.exports = {
 
 别名
 
+### resolve.exclude
+- **类型**: `String|Array`
+- **用法**:
+
+排除编译匹配的依赖
+
 ## entry
 - **类型**: `Array`
 - **用法**:

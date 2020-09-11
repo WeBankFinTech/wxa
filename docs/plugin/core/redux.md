@@ -1,5 +1,5 @@
 ---
-title: '小程序状态管理方案'
+title: '状态管理方案'
 type: 'api'
 sidebar: auto
 ---

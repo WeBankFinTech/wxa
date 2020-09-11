@@ -1,11 +1,11 @@
 <p align="center">
     <a href="https://genuifx.github.io/wxa-doc/">
-        <img src="./wxa-logo.png" width="300" height="300" />
+        <img src="./docs/.vuepress/public/wxajs-color.svg" width="300" height="300" />
     </a>
 </p>
 
 <p align="center">
-    Decorate your wechat mini-program
+    渐进式小程序开发框架
 </p>
 
 <p align="center">
@@ -18,9 +18,10 @@
   <img alt="Licence" src="https://img.shields.io/npm/l/@wxa/core.svg" />
 </p>
 
-# @wxa
+# wxa.js
 
-:tada::tada::tada:AOP Framework for writing wechart mini-program.
+wxa 专注于小程序原生开发，在保留小程序简单入门、快速开发的特点下，提供一系列能力，解决工程化、代码复用的痛点，提高开发效率并改善开发体验。
+
 
 **框架优势**
 

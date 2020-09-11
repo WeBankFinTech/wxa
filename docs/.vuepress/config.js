@@ -1,18 +1,18 @@
 var path = require('path')
 
 module.exports = {
-    title: '@wxa',
+    title: 'wxa.js',
     base: '/wxa/',
     contentLoading: true,
     head: [
-        ['link', { rel: 'icon', href: `/logo-mini.png` }],
+        ['link', { rel: 'icon', href: `/wxajs.png` }],
     ],
     locales: {
         '/': {
             lang: 'zh-CN',
             selectText: '选择语言',
             label: '简体中文',
-            description: '一个小程序框架',
+            description: '渐进式小程序开发框架',
         },
         // '/lang/english/': {
         //     lang: 'en-US',
@@ -24,9 +24,11 @@ module.exports = {
     markdown: {
         lineNumbers: true
     },
+    theme: './theme',
     themeConfig: {
+        // logo: 'wxajs-color.svg',
         displayAllHeaders: true,
-        repo: 'wxajs/wxa',
+        // repo: 'wxajs/wxa',
         docsRepo: 'wxajs/wxa',
         docsDir: 'docs',
         editLinks: true,
@@ -66,9 +68,6 @@ module.exports = {
                             {text: 'Postcss CSS预处理', link: '/plugin/cli/postcss'},
                             {text: 'DA 依赖分析', link: '/plugin/cli/da'},
                         ]
-                    },
-                    {
-                        text: '1.x', link: 'https://genuifx.com/wxa/v0/'
                     }
                 ],
             },
@@ -97,7 +96,8 @@ module.exports = {
                     children: [
                         '/learn/advance/preload',
                         '/learn/advance/third-party-wxa',
-                        '/learn/advance/wxa-directive'
+                        '/learn/advance/wxa-directive',
+                        '/plugin/core/redux'
                     ]
                 },
                 {
