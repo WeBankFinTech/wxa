@@ -28,8 +28,8 @@ module.exports = {
     themeConfig: {
         // logo: 'wxajs-color.svg',
         displayAllHeaders: true,
-        // repo: 'wxajs/wxa',
-        docsRepo: 'wxajs/wxa',
+        // repo: 'WeBankFinTech/wxa',
+        docsRepo: 'WeBankFinTech/wxa',
         docsDir: 'docs',
         editLinks: true,
         editLinkText: '帮助我们改善此页面！',

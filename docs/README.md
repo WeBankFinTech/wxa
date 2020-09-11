@@ -4,7 +4,7 @@ heroImage: /wxajs.svg
 actionText: 开始使用
 actionLink: /learn/quickStarted/
 actionRepo: GitHub
-actionRepoLink: https://github.com/wxajs/wxa
+actionRepoLink: https://github.com/WeBankFinTech/wxa
 search: false
 features: 
 - title: 🚀 极速上手
