@@ -47,5 +47,9 @@
 	},
 	"publishConfig": {
 		"access": "public"
+	},
+	"dependencies": {
+		"@vuepress/theme-default": "^1.5.4",
+		"vue-server-renderer": "^2.6.12"
 	}
 }

@@ -66,7 +66,7 @@
 </template>
 
 <script>
-import NavLink from '@theme/components/NavLink.vue'
+import NavLink from '@parent-theme/components/NavLink.vue'
 
 export default {
   name: 'Home',

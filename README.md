@@ -41,9 +41,9 @@ wxa 专注于小程序原生开发，在保留小程序简单入门、快速开�
 
 :alien: **多实例** 一次性编译出多个三方项目或其他平台的小程序，如头条小程序。
 
-More detail [documents](https://wxajs.github.io/wxa/)
+More detail [documents](https://wxajs.gitee.io/wxa/)
 
-更完善的[文档](https://wxajs.github.io/wxa/)
+更完善的[文档](https://wxajs.gitee.io/wxa/)
 
 ## 简介
 
@@ -61,7 +61,7 @@ wxa是一个AOP框架，主要使用Decorator（运行时改写，拦截）和�
 
 :white_check_mark: `Mixin` 混合代码，代码复用。
 
-查看详细的 [Class Decorators](https://wxajs.github.io/wxa/core/decorators/class.html) [Method Decorators](https://wxajs.github.io/wxa/core/decorators/methods.html)
+查看详细的 [Class Decorators](https://wxajs.gitee.io/wxa/core/decorators/class.html) [Method Decorators](https://wxajs.gitee.io/wxa/core/decorators/methods.html)
 
 预编译方面，实现了对小程序项目的依赖解析，利用依赖树对整个项目进行管理，以此为基础适配了`npm`、单文件开发、云开发、三方开发。开发语法方面支持最新的ES*语法（包括Async/Await）、Sass/Scss、Stylus，有需求的话可以适配更多语法。
 
@@ -117,7 +117,7 @@ export default class Index {
 
 默认导出的方法将会自动调用小程序相应的 `Page`、 `Component`、 `App` 方法进行注册。
 
-更完善的[文档](https://wxajs.github.io/wxa/)
+更完善的[文档](https://wxajs.gitee.io/wxa/)
 
 **极速预览小程序**
 
