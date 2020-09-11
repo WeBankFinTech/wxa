@@ -3,9 +3,9 @@
         <img src="./docs/.vuepress/public/wxajs-color.svg" width="300" height="300" />
     </a>
 </p>
-<h2 align="center">
+<h3 align="center">
     渐进式小程序开发框架
-</h2>
+</h3>
 <p align="center">
     <a href="https://www.npmjs.com/package/@wxa/cli2"><img alt="Travis Status" src="https://img.shields.io/npm/v/@wxa/cli2.svg?label=NPM&color=brightGreen&style=flat-square&logo=npm"></a>
     <img alt="node (scoped with tag, custom registry)" src="https://img.shields.io/badge/Node-%3E%3D%208.15.0-brightgreen.svg?maxAge=2592000&style=flat-square&logo=node" />
