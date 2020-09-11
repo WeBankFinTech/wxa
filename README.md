@@ -1,27 +1,27 @@
 <p align="center">
-    <a href="https://genuifx.github.io/wxa-doc/">
+    <a href="https://webankfintech.github.io/wxa/">
         <img src="./docs/.vuepress/public/wxajs-color.svg" width="300" height="300" />
     </a>
 </p>
-
-<p align="center">
+<h2 align="center">
     渐进式小程序开发框架
-</p>
-
+</h2>
 <p align="center">
-  <a href="https://travis-ci.org/wxajs/wxa"><img alt="Travis Status" src="https://travis-ci.org/wxajs/wxa.svg?branch=master"></a>
-  <a href="https://dev.azure.com/genuifx/wxa/_build?definitionId=1"><img alt="Travis Status" src="https://dev.azure.com/genuifx/wxa/_apis/build/status/wxajs.wxa?branchName=master"></a>
-  <a href="https://codecov.io/gh/wxajs/wxa">
-    <img src="https://codecov.io/gh/wxajs/wxa/branch/master/graph/badge.svg" />
-  </a>
-  <img alt="node (scoped with tag, custom registry)" src="https://img.shields.io/badge/node-%3E%3D%208.15.0-brightgreen.svg?maxAge=2592000" />
-  <img alt="Licence" src="https://img.shields.io/npm/l/@wxa/core.svg" />
+    <a href="https://www.npmjs.com/package/@wxa/cli2"><img alt="Travis Status" src="https://img.shields.io/npm/v/@wxa/cli2.svg?label=NPM&color=brightGreen&style=flat-square&logo=npm"></a>
+    <img alt="node (scoped with tag, custom registry)" src="https://img.shields.io/badge/Node-%3E%3D%208.15.0-brightgreen.svg?maxAge=2592000&style=flat-square&logo=node" />
+    <img alt="License" src="https://img.shields.io/npm/l/@wxa/core.svg?color=brightGreen&style=flat-square&label=License" />
+</p>
+<p align="center">
+    <a href="https://travis-ci.org/wxajs/wxa"><img alt="Travis Status" src="https://github.com/WeBankFinTech/wxa/workflows/Jest%20&%20Codecov/badge.svg?branch=master&style=flat-square"></a>
+    <a href="https://dev.azure.com/genuifx/wxa/_build?definitionId=1"><img alt="Travis Status" src="https://dev.azure.com/genuifx/wxa/_apis/build/status/wxajs.wxa?branchName=master"></a>
+    <a href="https://codecov.io/gh/WeBankFinTech/wxa">
+        <img src="https://codecov.io/gh/WeBankFinTech/wxa/branch/master/graph/badge.svg" />
+    </a>
 </p>
 
 # wxa.js
 
 wxa 专注于小程序原生开发，在保留小程序简单入门、快速开发的特点下，提供一系列能力，解决工程化、代码复用的痛点，提高开发效率并改善开发体验。
-
 
 **框架优势**
 
@@ -37,7 +37,7 @@ wxa 专注于小程序原生开发，在保留小程序简单入门、快速开�
 
 🤖 **组件库** 任意第三方组件库，随时安装使用，完美适配 weui, vant-weapp, wux-weapp, iview-weapp 等组件库。
 
-:light_rail: **低成本** 超低迁移成本，原生小程序只需安装好依赖就可以马上在 `@wxa/cli2` 中跑起来。支持原生和wxa混杂开发。
+:light_rail: **低成本** 超低迁移成本，原生小程序只需安装好依赖就可以马上在 `@wxa/cli2` 中跑起来。支持原生和 wxa 混杂开发。
 
 :alien: **多实例** 一次性编译出多个三方项目或其他平台的小程序，如头条小程序。
 
@@ -47,13 +47,13 @@ More detail [documents](https://wxajs.gitee.io/wxa/)
 
 ## 简介
 
-wxa是一个AOP框架，主要使用Decorator（运行时改写，拦截）和预编译实现框架功能。
+wxa 是一个 AOP 框架，主要使用 Decorator（运行时改写，拦截）和预编译实现框架功能。
 
 使用 Decorator 实现了：
 
 :white_check_mark: `Fetch` 队列管理网络请求，单个请求自动防重。
 
-:white_check_mark: `Router` 简洁的API、预加载特性。
+:white_check_mark: `Router` 简洁的 API、预加载特性。
 
 :white_check_mark: `Lock` 防止重复执行函数，前端防重利器。
 
@@ -63,7 +63,7 @@ wxa是一个AOP框架，主要使用Decorator（运行时改写，拦截）和�
 
 查看详细的 [Class Decorators](https://wxajs.gitee.io/wxa/core/decorators/class.html) [Method Decorators](https://wxajs.gitee.io/wxa/core/decorators/methods.html)
 
-预编译方面，实现了对小程序项目的依赖解析，利用依赖树对整个项目进行管理，以此为基础适配了`npm`、单文件开发、云开发、三方开发。开发语法方面支持最新的ES*语法（包括Async/Await）、Sass/Scss、Stylus，有需求的话可以适配更多语法。
+预编译方面，实现了对小程序项目的依赖解析，利用依赖树对整个项目进行管理，以此为基础适配了`npm`、单文件开发、云开发、三方开发。开发语法方面支持最新的 ES\*语法（包括 Async/Await）、Sass/Scss、Stylus，有需求的话可以适配更多语法。
 
 ## Install
 
@@ -83,16 +83,16 @@ wxa2 create --repo gitee
 
 **开始开发**
 
-定义App类并导出：
+定义 App 类并导出：
 
 ```javascript
-import {App} from '@wxa/core';
+import { App } from "@wxa/core";
 
 @App
 export default class Main {
-    globalData = {
-        userInfo: 'Genuifx',
-    }
+  globalData = {
+    userInfo: "Genuifx",
+  };
 }
 ```
 
@@ -100,18 +100,18 @@ export default class Main {
 
 ```javascript
 // 引入core包提供的Decorator
-import {Page, Debounce} from '@wxa/core';
+import { Page, Debounce } from "@wxa/core";
 
 // 挂载常用的方法到页面类
 // 导出一个默认的页面类
 @Page
-export default class Index { 
-    // 页面方法用于响应用户操作，函数自动防抖动
-    @Debounce(300)
-    tap() {
-        // 通过$storage缓存数据
-        this.$storage.set('TAP', true);
-    }
+export default class Index {
+  // 页面方法用于响应用户操作，函数自动防抖动
+  @Debounce(300)
+  tap() {
+    // 通过$storage缓存数据
+    this.$storage.set("TAP", true);
+  }
 }
 ```
 
@@ -125,11 +125,9 @@ export default class Index {
 wxa2 cli --action preview
 ```
 
-
 ## Contribution
 
 欢迎各种 `PR` 和 `ISSUE`
-
 
 ## LICENSE
 
