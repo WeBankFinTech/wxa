@@ -17,7 +17,27 @@
  */
 
 import WatchJS from 'melanke-watchjs';
+import {diff} from '@wxa/core';
 
+function computeValue() {
+    let cachedComputedResult = {};
+    Object.keys(this.computed).forEach((computedGetterName) => {
+        if (!this.$$wxaComputedInited && this.data[computedGetterName]) {
+            return console.warn(`[wxa/watch] ${computedGetterName} is defined. Do not dulplicate define in computed object`)
+        }
+
+        let computtedSetter = this.computed[computedGetterName].bind(this);
+        cachedComputedResult[computedGetterName] = computtedSetter();
+    });
+
+    let diffData = diff.bind(this)(cachedComputedResult);
+    // console.log('diffData', diffData);
+    if (Object.keys(diffData)) this.setData(diffData);
+    this.$$wxaComputedValue = {...diffData};
+    this.$$wxaComputedInited = true;
+}
+
+// TODOS 增加组件 watch 和 computed 支持
 export default ()=>{
     return (vm, type)=>{
         if (type === 'Page') {
@@ -47,11 +67,18 @@ export default ()=>{
                             }]);
                         }
                     });
-
-                    this.$$WXAWatcher.forEach((subscriber)=>{
-                        WatchJS.watch(subscriber[0], [subscriber[1]], subscriber[2]);
-                    });
                 }
+
+                this.$$wxaComputedValue = {};
+                if (this.computed && this.data) {
+                    computeValue.call(this);
+
+                    this.$$WXAWatcher.push([this, ['data'], computeValue.bind(this)]);
+                }
+
+                this.$$WXAWatcher.forEach((subscriber)=>{
+                    WatchJS.watch(subscriber[0], [subscriber[1]], subscriber[2]);
+                });
 
                 onload.apply(this, args);
             };
