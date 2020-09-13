@@ -12,7 +12,7 @@
     <img alt="License" src="https://img.shields.io/npm/l/@wxa/core.svg?color=brightGreen&style=flat-square&label=License" />
 </p>
 <p align="center">
-    <a href="https://travis-ci.org/wxajs/wxa"><img alt="Travis Status" src="https://github.com/WeBankFinTech/wxa/workflows/Jest%20&%20Codecov/badge.svg?branch=master&style=flat-square"></a>
+    <a href="https://github.com/WeBankFinTech/wxa/actions"><img alt="Github Actions" src="https://github.com/WeBankFinTech/wxa/workflows/Jest%20&%20Codecov/badge.svg?branch=master&style=flat-square"></a>
     <a href="https://dev.azure.com/genuifx/wxa/_build?definitionId=1"><img alt="Travis Status" src="https://dev.azure.com/genuifx/wxa/_apis/build/status/wxajs.wxa?branchName=master"></a>
     <a href="https://codecov.io/gh/WeBankFinTech/wxa">
         <img src="https://codecov.io/gh/WeBankFinTech/wxa/branch/master/graph/badge.svg" />
