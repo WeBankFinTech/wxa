@@ -2,10 +2,9 @@ var debug = require('debug')('WXA:PLUGIN-REPLACE')
 var htmlparser2 = require('htmlparser2');
 
 let { Parser, DomHandler, DomUtils } = htmlparser2;
-const defaultOptions = ['tap'];
 
 module.exports = class BindCapture {
-    constructor(options = defaultOptions) {
+    constructor(options = []) {
         this.configs = Object.assign({}, {
             test: /\.wxml$/,
             plugins: []
@@ -49,6 +48,7 @@ module.exports = class BindCapture {
             }).end(htmlStr);
 
             let dom = handler.dom;
+            let hijackFnName = `wxaHijack`;
             let rewrite = function (dom) {
                 dom.forEach(v => {
                     if(v.attribs){
@@ -66,7 +66,7 @@ module.exports = class BindCapture {
                                 if (v.attribs[`data-${event}`]) {
                                     logger.error(`data-${event} 属性已存在: ${mdl.meta.source}`);
                                 }
-                                let hijackFnName = `wxaHijack${event[0].toUpperCase()}${event.substr(1)}`;
+                                // let hijackFnName = `wxaHijack${event[0].toUpperCase()}${event.substr(1)}`;
                                 let bindAttr = v.attribs[`bind${event}`] || v.attribs[`bind:${event}`];
                                 if (bindAttr) {
                                     v.attribs[`bind${event}`] = hijackFnName;
@@ -82,13 +82,12 @@ module.exports = class BindCapture {
                             })
                         }
                         if(hasEvent){ // 为事件参数增加一些标记
-                            console.log(v);
                             let elementId = v.type;
                             if(v.name) elementId = elementId + `.${v.name}`;
                             if(v.attribs.id) elementId = elementId + `#${v.attribs.id}`;
                             if(v.attribs.class) elementId = elementId + `.${v.attribs.class}`;
                             if(v.data) elementId = elementId + `-${v.data}`;
-                            v.attribs[`data-wxa-id`] = elementId;
+                            v.attribs[`mark:id`] = elementId;
                         }
                     }
                     if (v.children) {
