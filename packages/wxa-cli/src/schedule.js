@@ -443,10 +443,10 @@ class Schedule {
         let tabBarList = (this.appConfigs.tabBar && this.appConfigs.tabBar.list) || [];
         tabBarList.forEach((val) => {
             if (val.iconPath) {
-                pages = pages.concat([['', val.iconPath.substr(2)]]);
+                pages = pages.concat([['', val.iconPath]]);
             }
             if (val.selectedIconPath) {
-                pages = pages.concat([['', val.selectedIconPath.substr(2)]]);
+                pages = pages.concat([['', val.selectedIconPath]]);
             }
         });
 
