@@ -36,27 +36,39 @@ class Coder {
         return buffer.join('');
     }
 
-    encodeTemplate(content, start, end) {
+    encodeTemplate(content, start, end, {stuffEmptyAttr = false} = {}) {
         let before = content.slice(0, start);
         let template = content.slice(start, end);
         let after = content.slice(end, content.length);
         let that = this;
         // 表达式需要单独encode
-        template = template.replace(/{{([^{}]*)}}/g, function(match, express) {
+        template = template
+        .replace(/{{([^{}]*)}}/g, function(match, express) {
             return `{{${that.encode(express)}}}`;
+        })
+
+        if (stuffEmptyAttr)
+        template = template.replace(/\s*(=["']["'])/g, ()=>{
+            return `="$wxaEmptyAttributeStaff"`
         });
 
         return before+this.encode(template, void(0), void(0), ['&'], ['&amp;'])+after;
     }
 
-    decodeTemplate(content) {
+    decodeTemplate(content, {stuffEmptyAttr = false} = {}) {
         let template = this.decode(content, ['&'], ['&amp;']);
 
         // 表达式单独转义
         let that = this;
-        template = template.replace(/{{([^{}]*)}}/g, function(match, express) {
+        template = template
+        .replace(/{{([^{}]*)}}/g, function(match, express) {
             return `{{${that.decode(express)}}}`;
-        });
+        })
+        if(stuffEmptyAttr) {
+            template = template.replace(/\s*(=["']\$wxaEmptyAttributeStaff["'])/g, ()=>{
+                return `=""`
+            });
+        }
 
         return template;
     }

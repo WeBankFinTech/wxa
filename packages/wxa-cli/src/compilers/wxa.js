@@ -60,7 +60,7 @@ export default class WxaCompiler {
             while (content[start++] !== '>') {};
 
             return isTemplate ?
-                coder.encodeTemplate(content, start, content.indexOf(endId)-1)
+                coder.encodeTemplate(content, start, content.indexOf(endId)-1, {stuffEmptyAttr: true})
                 :
                 coder.encode(content, start, content.indexOf(endId)-1);
         };

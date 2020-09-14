@@ -35,7 +35,7 @@ export default class XmlCompiler {
         debug('encode filepath %s', filepath);
         let coder = new Coder();
 
-        code = coder.encodeTemplate(code, 0, code.length);
+        code = coder.encodeTemplate(code, 0, code.length, {stuffEmptyAttr: true});
 
         debug('encoded template %s', code);
         let xml;

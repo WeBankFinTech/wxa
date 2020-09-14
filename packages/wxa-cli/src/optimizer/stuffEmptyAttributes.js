@@ -96,26 +96,26 @@ export function stuffEmptyAttributs(mdl) {
         path.parse(mdl.src)
     );
 
+    walkDOM(dom, mdl.content);
 
-    walkDOM(dom);
-
-    mdl.code = coder.decodeTemplate(serializeXML(dom));
+    mdl.code = coder.decodeTemplate(serializeXML(dom), {stuffEmptyAttr: true});
 }
 
-function walkDOM(dom) {
+function walkDOM(dom, content) {
     dom.forEach((ele)=>{
         if (ele.attribs) {
             Object.keys(ele.attribs).forEach((attrName)=>{
                 // suff empty attribs
                 if (
-                    ele.attribs[attrName] === '' &&
-                    ~whiteList.indexOf(attrName)
-                ) ele.attribs[attrName] = attrName;
+                    ele.attribs[attrName] === '' 
+                ) {
+                    ele.attribs[attrName] = attrName;
+                }
             });
         }
 
         if (Array.isArray(ele.children) && ele.children.length) {
-            walkDOM(ele.children);
+            walkDOM(ele.children, content);
         }
     });
 }
