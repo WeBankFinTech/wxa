@@ -27,5 +27,6 @@ jobs:
     - run: npm ci
     - run: npm install -g codecov
     - run: npx lerna bootstrap
+    - run: npx lerna run build
     - run: npx jest
     - run: codecov
