@@ -6,24 +6,34 @@ const cwd = process.cwd();
 const babelRuntime = path.join(cwd, 'node_modules', '@babel/runtime/package.json');
 let hasRuntime = existsSync(babelRuntime);
 
-const defaultConfigs = {
-    'cwd': path.join(__dirname, '../../'),
-    'sourceMap': false,
-    'presets': ['@babel/preset-env'],
+const commonConfigs = {
     'plugins': [
         ['@babel/plugin-proposal-decorators', {'decoratorsBeforeExport': true}],
         ['@babel/plugin-proposal-class-properties'],
     ],
-    'ignore': [
-        'node_modules',
-        'wxa-cli',
-    ],
-};
+    'presets': ['@babel/preset-env'],
 
+}
 if (hasRuntime) {
     const pkg = require(babelRuntime);
 
-    defaultConfigs.plugins.unshift(['@babel/plugin-transform-runtime', {'version': pkg.version || '7.2.0'}]);
+    commonConfigs.plugins.unshift(['@babel/plugin-transform-runtime', {'version': pkg.version || '7.2.0'}]);
 }
+
+const defaultConfigs = {
+    'cwd': path.join(__dirname, '../../'),
+    'sourceMap': false,
+    overrides: [{
+        exclude: [/node_modules/,  /wxa-cli/],
+        ...commonConfigs
+    }
+    ,{
+        test: /wxa-e2eTest/,
+        ...commonConfigs
+    }
+
+]
+};
+
 
 export default defaultConfigs;
