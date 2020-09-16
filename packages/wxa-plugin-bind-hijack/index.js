@@ -2,10 +2,9 @@ var debug = require('debug')('WXA:PLUGIN-REPLACE')
 var htmlparser2 = require('htmlparser2');
 
 let { Parser, DomHandler, DomUtils } = htmlparser2;
-const defaultOptions = ['tap'];
 
 module.exports = class BindCapture {
-    constructor(options = defaultOptions) {
+    constructor(options = []) {
         this.configs = Object.assign({}, {
             test: /\.wxml$/,
             plugins: []
@@ -21,7 +20,7 @@ module.exports = class BindCapture {
                 mdl.meta &&
                 this.configs.test.test(mdl.meta.source)
             ) {
-                debug('Plugin replace started %O', mdl.src);
+                debug('Plugin bind hijack started %O', mdl.src);
                 this.run(mdl);
             }
         })
@@ -49,25 +48,47 @@ module.exports = class BindCapture {
             }).end(htmlStr);
 
             let dom = handler.dom;
+            let hijackFnName = `wxaHijack`;
             let rewrite = function (dom) {
                 dom.forEach(v => {
                     if(v.attribs){
-                        configsOptions.forEach(event => {
-                            if (v.attribs[`data-${event}`]) {
-                                logger.error(`data-${event} 属性已存在: ${mdl.meta.source}`);
-                            }
-                            let hijackFnName = `wxaHijack${event[0].toUpperCase()}${event.substr(1)}`;
-                            let bindAttr = v.attribs[`bind${event}`] || v.attribs[`bind:${event}`];
-                            if (bindAttr) {
-                                v.attribs[`bind${event}`] = hijackFnName;
-                                v.attribs[`data-${event}`] = bindAttr;
-                            }
-                            let catchAttr = v.attribs[`catch${event}`] || v.attribs[`catch:${event}`];
-                            if (catchAttr) {
-                                v.attribs[`catch${event}`] = hijackFnName;
-                                v.attribs[`data-${event}`] = catchAttr;
-                            }
-                        })
+                        let hasEvent = false;
+                        if(!configsOptions || configsOptions.length === 0){ //拦截所有事件
+                            Object.keys(v.attribs).forEach(attr => {
+                                if(attr.indexOf('bind') === 0 || attr.indexOf('catch') === 0){
+                                    v.attribs[`data-${attr.replace(/^bind:|catch:|bind|catch/, '')}`] = v.attribs[attr];
+                                    v.attribs[attr] = 'wxaHijack';
+                                    hasEvent = true;
+                                }
+                            });
+                        } else {
+                            configsOptions.forEach(event => {
+                                if (v.attribs[`data-${event}`]) {
+                                    logger.error(`data-${event} 属性已存在: ${mdl.meta.source}`);
+                                }
+                                // let hijackFnName = `wxaHijack${event[0].toUpperCase()}${event.substr(1)}`;
+                                let bindAttr = v.attribs[`bind${event}`] || v.attribs[`bind:${event}`];
+                                if (bindAttr) {
+                                    v.attribs[`bind${event}`] = hijackFnName;
+                                    v.attribs[`data-${event}`] = bindAttr;
+                                    hasEvent = true;
+                                }
+                                let catchAttr = v.attribs[`catch${event}`] || v.attribs[`catch:${event}`];
+                                if (catchAttr) {
+                                    v.attribs[`catch${event}`] = hijackFnName;
+                                    v.attribs[`data-${event}`] = catchAttr;
+                                    hasEvent = true;
+                                }
+                            })
+                        }
+                        if(hasEvent){ // 为事件参数增加一些标记
+                            let elementId = v.type;
+                            if(v.name) elementId = elementId + `.${v.name}`;
+                            if(v.attribs.id) elementId = elementId + `#${v.attribs.id}`;
+                            if(v.attribs.class) elementId = elementId + `.${v.attribs.class}`;
+                            if(v.data) elementId = elementId + `-${v.data}`;
+                            v.attribs[`mark:id`] = elementId;
+                        }
                     }
                     if (v.children) {
                         rewrite(v.children);
