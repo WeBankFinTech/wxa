@@ -49,7 +49,7 @@ class Coder {
 
         if (stuffEmptyAttr)
         template = template.replace(/\s*(=["']["'])/g, ()=>{
-            return `="$wxaEmptyAttributeStaff"`
+            return `="__$wxaEmptyAttributeStaff__"`
         });
 
         return before+this.encode(template, void(0), void(0), ['&'], ['&amp;'])+after;
@@ -65,7 +65,7 @@ class Coder {
             return `{{${that.decode(express)}}}`;
         })
         if(stuffEmptyAttr) {
-            template = template.replace(/\s*(=["']\$wxaEmptyAttributeStaff["'])/g, ()=>{
+            template = template.replace(/\s*(=["']__\$wxaEmptyAttributeStaff__["'])/g, ()=>{
                 return `=""`
             });
         }

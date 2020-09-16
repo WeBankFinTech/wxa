@@ -107,7 +107,7 @@ function walkDOM(dom, content) {
             Object.keys(ele.attribs).forEach((attrName)=>{
                 // suff empty attribs
                 if (
-                    ele.attribs[attrName] === '' 
+                    ~['', '__$$WXASpecialEmptyAttr__'].indexOf(ele.attribs[attrName])
                 ) {
                     ele.attribs[attrName] = attrName;
                 }

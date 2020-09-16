@@ -28,6 +28,24 @@ let getWxaDefinition = ()=>{
         return prev;
     }, {});
 };
+let markSpecialEmptyAttr = (dom) => {
+    dom.forEach((ele)=>{
+        if (ele.attribs) {
+            Object.keys(ele.attribs).forEach((attrName)=>{
+                // suff empty attribs
+                if (
+                    ele.attribs[attrName] === '' 
+                ) {
+                    ele.attribs[attrName] = '__$$WXASpecialEmptyAttr__';
+                }
+            });
+        }
+
+        if (Array.isArray(ele.children) && ele.children.length) {
+            markSpecialEmptyAttr(ele.children);
+        }
+    });
+}
 export default class WxaCompiler {
     constructor(resolve, meta) {
         this.resolve = resolve;
@@ -94,6 +112,9 @@ export default class WxaCompiler {
                     if (code == null) throw new Error('打开文件失败:', definition.src);
                     else definition.code += code;
                 } else {
+                    // trasfer empty attribs to special value;
+                    if (nodeName === 'template' && Array.isArray(node.children)) markSpecialEmptyAttr(node.children);
+
                     Array.prototype.slice.call(node.children||[]).forEach((code)=>{
                         let data = serializeXML(code);
                         if (nodeName !== 'template') {
