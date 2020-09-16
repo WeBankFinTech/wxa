@@ -22,8 +22,7 @@ let debug = debugPKG('WXA:Builder');
 class Builder {
     constructor(wxaConfigs) {
         this.current = process.cwd();
-        this.wxaConfigs = wxaConfigs;
-
+        this.wxaConfigs = wxaConfigs[0];
         // default wxa configurations.
         this.wxaConfigs.resolve.appConfigPath = path.join(this.wxaConfigs.context, 'app.json');
         if (this.wxaConfigs.resolve.wxaExt[0] !== '.') this.wxaConfigs.resolve.wxaExt = '.'+this.wxaConfigs.resolve.wxaExt;

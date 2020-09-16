@@ -8,7 +8,7 @@ import logger from '../helpers/logger';
 import simplify from '../helpers/simplifyObj';
 import {applyPlugins, readFile, writeFile} from '../utils.js';
 import COLOR from '../const/color';
-
+import {DirectiveBroker} from '../directive/directiveBroker';
 import crypto from 'crypto';
 import debugPKG from 'debug';
 import path from 'path';
@@ -45,7 +45,6 @@ class TesterScheduler extends Schedule {
             if (dep.meta && dep.meta.source === this.APP_SCRIPT_PATH) {
                 this.tryWrapWXATestSuite(dep);
             }
-
             if (dep.meta && dep.meta.source === this.APP_CONFIG_PATH) {
                 this.tryAddGlobalTestComponent(dep);
             }
@@ -123,7 +122,7 @@ class TesterScheduler extends Schedule {
 
     tryAddGlobalTestComponent(mdl) {
         try {
-            let appConfigs = JSON.parse(mdl.code);
+            let appConfigs = JSON.parse(mdl.content);
 
             appConfigs['wxa.globalComponents'] = {
                 ...appConfigs['wxa.globalComponents'],
@@ -153,14 +152,17 @@ class TesterBuilder extends Builder {
         }
         await this.hooks.beforeRun.promise(this);
 
-        this.schedule = new TesterScheduler(this.loader);
-        applyPlugins(this.wxaConfigs.plugins || [], this.schedule);
-        this.schedule.progress.toggle(cmd.progress);
-        this.schedule.set('cmdOptions', cmd);
-        this.schedule.set('wxaConfigs', this.wxaConfigs || {});
+        this.scheduler = new TesterScheduler(this.loader);
+        this.directiveBroker = new DirectiveBroker(this.scheduler);
+
+        applyPlugins(this.wxaConfigs.plugins || [], this.scheduler);
+        this.scheduler.progress.toggle(cmd.progress);
+        this.scheduler.set('cmdOptions', cmd);
+        this.scheduler.set('wxaConfigs', this.wxaConfigs || {});
+        this.scheduler.set('directiveBroker', this.directiveBroker);
 
         debug('builder wxaConfigs is %O', this.wxaConfigs);
-        debug('schedule options is %O', this.schedule);
+        debug('schedule options is %O', this.scheduler);
         try {
             await this.handleEntry(cmd);
         } catch (error) {

@@ -1,8 +1,6 @@
 import commander from 'commander';
 import inquirer from 'inquirer';
-import deepmerge from 'deepmerge';
 import path from 'path';
-import DefaultWxaConfigs from './const/defaultWxaConfigs';
 import Builder from './builder';
 import Tester from './tester/index';
 import https from 'https';
@@ -13,6 +11,7 @@ import {spawnDevToolCli} from './toolcli';
 import {getConfigs} from './getConfigs';
 import {WXA_PROJECT_NAME} from './const/wxaConfigs';
 import {isEmpty} from './utils';
+import logger from './helpers/logger';
 
 const version = require('../package.json').version;
 
@@ -97,8 +96,7 @@ commander
 .option('--cli-path [cliPath]', '微信开发者工具路径')
 .action((cmd)=>{
     logger.info('Hey', `This is ${chalk.keyword('orange')('wxa@'+version)}, Running in ${chalk.keyword('orange')(process.env.NODE_ENV || 'development')}, Tester Mode`);
-    let wxaConfigs = getWxaConfigs();
-
+    let wxaConfigs = getConfigs();
     new Tester(cmd, wxaConfigs).build();
 });
 
@@ -160,7 +158,7 @@ commander
 .option('-m, --multi', '三方开发模式，一次操作多个项目')
 .option('-p, --project <project>', '三方开发模式，单独指定操作的项目')
 .action(async (cmd)=>{
-    let wxaConfigs = getWxaConfigs();
+    let wxaConfigs = getConfigs();
 
     let newCli = wrapWxaConfigs((subWxaConfigs, cmd)=>{
         let cli = new Toolcli(subWxaConfigs);

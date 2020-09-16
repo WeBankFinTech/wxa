@@ -1,6 +1,5 @@
 import path from 'path';
 import {readFile, error, isFile, isEmpty} from '../utils';
-import {DOMParser} from 'xmldom';
 import Coder from '../helpers/coder';
 import logger from '../helpers/logger';
 import DependencyResolver from '../helpers/dependencyResolver';
