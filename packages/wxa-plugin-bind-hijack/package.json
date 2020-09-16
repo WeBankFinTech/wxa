@@ -1,6 +1,6 @@
 {
   "name": "@wxa/plugin-bind-hijack",
-  "version": "2.2.4",
+  "version": "2.2.5",
   "description": "log everything",
   "main": "index.js",
   "scripts": {},
