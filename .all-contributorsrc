@@ -88,6 +88,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "zcfan",
+      "name": "Alan Zhang",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/1666185?v=4",
+      "profile": "https://segmentfault.com/u/alan",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7
