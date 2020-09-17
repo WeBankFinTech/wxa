@@ -186,7 +186,7 @@ class TesterBuilder extends Builder {
             if (!data.record) return logger.error('用例数据不能为空');
             // generate the record and save to project
             let clipath = {
-                darwin: '/Contents/Resources/app.nw/bin/cli',
+                darwin: '/Contents/MacOS/cli',
                 win32: '/cli.bat',
             };
 

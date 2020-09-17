@@ -7,3 +7,73 @@
 
 
 2019年8月22日
+
+# 开发文档
+* wxa下增加.vscode/launch.json文件
+```
+{
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "启动程序",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "args": ["test", "--e2e"],
+            "program": "${workspaceFolder}/packages/wxa-cli/bin/wxa.js",
+            "cwd": "填入你任意小程序dist目录-绝对路径"
+        }
+    ]
+}
+```
+* wxa目录下执行 `npx learn bootstrap`
+* pacakages/wxa-core，执行`npm run dev`,`yarn link`
+* 小程序目录执行`yarn link @wxa/core`
+* pacakages/wxa-cli，执行`npm run dev`
+* vscode启动程序，开始调试开发
+
+# 使用手册
+
+### 测试脚本录制
+* 项目目录下执行`wxa test --e2e`，开始脚本录制，录制完成后脚本会保存在`__wxa_e2e_test__`目录下
+
+### 测试脚本回放
+* `npm i -g jest`
+* 项目下执行 `npm i miniprogram-automator·
+* 项目根目录下添加`babel.config.js`文件
+* 开发者工具修改调试基础库 2.7.3以上（src/project.config.json需同步修改libVersion）
+* 项目根目录下添加文件babel.config.js
+
+```
+const path = require('path');
+const existsSync = require('fs').existsSync;
+const cwd = process.cwd();
+const babelRuntime = path.join(cwd, 'node_modules', '@babel/runtime/package.json');
+let hasRuntime = existsSync(babelRuntime);
+
+const commonConfigs = {
+    'plugins': [
+        ['@babel/plugin-proposal-decorators', {'decoratorsBeforeExport': true}],
+        ['@babel/plugin-proposal-class-properties'],
+    ],
+    'presets': ['@babel/preset-env'],
+
+}
+if (hasRuntime) {
+    const pkg = require(babelRuntime);
+
+    commonConfigs.plugins.unshift(['@babel/plugin-transform-runtime', {'version': pkg.version || '7.2.0'}]);
+}
+
+module.exports = {
+    overrides: [{
+        exclude: [/node_modules/,  /wxa-cli/],
+        ...commonConfigs
+    }
+    ,{
+        test: /wxa-e2eTest/,
+        ...commonConfigs
+    }]
+}
+```
