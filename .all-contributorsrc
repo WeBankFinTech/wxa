@@ -1,0 +1,25 @@
+{
+  "projectName": "wxa",
+  "projectOwner": "wxajs",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": true,
+  "commitConvention": "angular",
+  "contributors": [
+    {
+      "login": "Genuifx",
+      "name": "WZT",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/10156994?v=4",
+      "profile": "https://genuifx.github.io/",
+      "contributions": [
+        "code",
+        "maintenance"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7
+}

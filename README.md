@@ -1,8 +1,3 @@
-<p align="center">
-    <a href="https://webankfintech.github.io/wxa/">
-        <img src="./docs/.vuepress/public/wxajs-color.svg" width="300" height="300" />
-    </a>
-</p>
 <h3 align="center">
     渐进式小程序开发框架
 </h3>
@@ -132,3 +127,23 @@ wxa2 cli --action preview
 ## LICENSE
 
 [MIT](./LICENSE)
+
+## Contributors ✨
+
+Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tr>
+    <td align="center"><a href="https://genuifx.github.io/"><img src="https://avatars2.githubusercontent.com/u/10156994?v=4?s=100" width="100px;" alt=""/><br /><sub><b>WZT</b></sub></a><br /><a href="https://github.com/wxajs/wxa/commits?author=Genuifx" title="Code">💻</a> <a href="#maintenance-Genuifx" title="Maintenance">🚧</a></td>
+  </tr>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
