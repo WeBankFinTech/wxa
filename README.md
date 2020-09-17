@@ -16,7 +16,7 @@
 
 # wxa.js
 
-轻量级小程序开发框架，专注于小程序原生开发，提供更好的工程化、代码复用能力，提高开发效率并改善开发体验。
+轻量级的渐进式小程序开发框架，专注于小程序原生开发，提供更好的工程化、代码复用能力，提高开发效率并改善开发体验。
 
 极速上手，零配置，可无痛迁移。
 
@@ -162,8 +162,6 @@ export default class Index {
 wxa2 cli --action preview
 ```
 
-<<<<<<< HEAD
-=======
 
 ## 技术特点
 
@@ -190,20 +188,13 @@ wxa 是一个 AOP 框架，主要使用 Decorator（运行时改写，拦截）�
 
 |包名|描述|版本
 |-----|----|----|
-|@wxa2/core|wxa运行时核心|[![npm version](https://badge.fury.io/js/%40mpxjs%2Fcore.svg)](https://badge.fury.io/js/%40mpxjs%2Fcore)
-|@wxa2/cli|wxa编译时与命令行工具|
-|@wxa2/mobx|wxa引入mobx|
-|@wxa2/redux|wxa引入redux|
-|@wxa2/wxa-plugin-bind-hijack|劫持小程序bind事件插件|
+|@wxa/core|wxa运行时核心|<img alt="Travis Status" src="https://img.shields.io/npm/v/@wxa/cli2.svg?label=NPM&color=brightGreen&style=flat-square&logo=npm">
+|@wxa/cli|wxa编译时与命令行工具|
+|@wxa/mobx|wxa引入mobx|
+|@wxa/redux|wxa引入redux|
+|@wxa/wxa-plugin-bind-hijack|劫持小程序bind事件插件|
 
 
-
-
-## Contribution
-
-欢迎各种 `PR` 和 `ISSUE`
-
->>>>>>> 0d2d4dc... docs(readme): more friendly readme doc
 ## LICENSE
 
 [MIT](./LICENSE)
