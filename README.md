@@ -145,6 +145,9 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="https://github.com/liuhang8023"><img src="https://avatars2.githubusercontent.com/u/24379224?v=4?s=100" width="100px;" alt=""/><br /><sub><b>hughliu</b></sub></a><br /><a href="https://github.com/wxajs/wxa/commits?author=liuhang8023" title="Code">💻</a> <a href="#maintenance-liuhang8023" title="Maintenance">🚧</a></td>
     <td align="center"><a href="https://github.com/FlyDaisy"><img src="https://avatars0.githubusercontent.com/u/33273144?v=4?s=100" width="100px;" alt=""/><br /><sub><b>会飞的猫</b></sub></a><br /><a href="https://github.com/wxajs/wxa/commits?author=FlyDaisy" title="Code">💻</a> <a href="#maintenance-FlyDaisy" title="Maintenance">🚧</a></td>
   </tr>
+  <tr>
+    <td align="center"><a href="https://zacharykwan.com/"><img src="https://avatars0.githubusercontent.com/u/11681043?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Zachary Kwan</b></sub></a><br /><a href="https://github.com/wxajs/wxa/commits?author=zehuiguan" title="Code">💻</a></td>
+  </tr>
 </table>
 
 <!-- markdownlint-restore -->
