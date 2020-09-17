@@ -1,6 +1,6 @@
 <template>
     <view >
-        <button class="e2e-startRecord" style="top: {{top}}px; left: {{left}}px;" catchtap="tap" bindtouchstart="touchstart" catchtouchmove="touchmove">{{btnText}}</button>
+        <button class="e2e-startRecord" style="top: {{top}}px; left: {{left}}px;" data-e2ebtn="true" catchtap="tap" bindtouchstart="touchstart" catchtouchmove="touchmove">{{btnText}}</button>
         <view class="e2e-mask" wx:if="{{showInput}}">
             <view class="e2e-input">
                 <input bindinput="bindInput" value="{{fileName}}" placeholder="未命名测试用例" />

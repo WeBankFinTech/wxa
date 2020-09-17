@@ -3,27 +3,28 @@
 import automator from 'miniprogram-automator';
 import path from 'path';
 
-const sleep = t => new Promise(resolve => setTimeout(resolve, t));
-describe('==== <%= name %> ====', () => {
-    let miniProgram;
-    let page;
+let miniProgram;
+let page;
 
-    beforeAll(async () => {
-        jest.setTimeout(300000);
-        miniProgram = await automator.launch({
-            cliPath: '<%= cliPath %>',
-            projectPath: path.resolve(process.cwd(), './dist/')
-        });
-
-        page = await miniProgram.currentPage();
-    }, 300000);
-
-    afterAll(async () => {
-        // await miniProgram.close();
+beforeAll(async () => {
+    jest.setTimeout(300000);
+    miniProgram = await automator.launch({
+        cliPath: '<%= cliPath %>',
+        projectPath: path.resolve(process.cwd(), './dist/')
     });
 
+    page = await miniProgram.currentPage();
+}, 300000);
+
+afterAll(async () => {
+    if (miniProgram) await miniProgram.close();
+});
+
+const sleep = t => new Promise(resolve => setTimeout(resolve, t));
+describe('==== <%= name %> ====', () => {
+
     test('<%= name %>', async () => {
-        let page = await miniProgram.reLaunch("/<%= record[0].page%>");
+        page = await miniProgram.reLaunch("/<%= record[0].page%>");
         let element;
         await page.waitFor(300);
 

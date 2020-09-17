@@ -35,6 +35,9 @@ const shouldRecord = function(type, ...args) {
     if (!this.$$isCurrentPage) {
         return false;
     }
+    if (e.target.dataset.e2ebtn === 'true') {
+        return false;
+    }
     let target = e.target.dataset[IDKEY] ? e.target : e.currentTarget;
     let id = target.dataset[IDKEY];
     // 已经记录过相同timestamp的事件，说明是冒泡的，不再记录
