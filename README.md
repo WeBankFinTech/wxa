@@ -120,10 +120,6 @@ export default class Index {
 wxa2 cli --action preview
 ```
 
-## Contribution
-
-欢迎各种 `PR` 和 `ISSUE`
-
 ## LICENSE
 
 [MIT](./LICENSE)
