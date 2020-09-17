@@ -89,14 +89,16 @@ describe('fetch api', ()=>{
 
         let c1 = jest.fn();
 
+        setRequestExpiredTime(500);
+        fetch('/users/1', {}, {}, 'post').catch(c1);
+        await expect(fetch('/users/1', {}, {}, 'post')).rejects.toEqual({data: {code: -101, msg: '重复的请求'}});
+
+        
         setRequestExpiredTime(0);
         await fetch('/users/4', {}, {}, 'post').catch(c1);
 
         await expect(fetch('/users/4', {}, {}, 'post')).resolves.toEqual(wrapStatusCode({name: 'Mark'}));
 
-        setRequestExpiredTime(500);
-        fetch('/users/1', {}, {}, 'post').catch(c1);
-        await expect(fetch('/users/1', {}, {}, 'post')).rejects.toEqual({data: {code: -101, msg: '重复的请求'}});
     });
 });
 
