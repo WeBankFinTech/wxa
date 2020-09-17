@@ -39,6 +39,16 @@
         "code",
         "maintenance"
       ]
+    },
+    {
+      "login": "hm-fannie",
+      "name": "Min Huang",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/6054788?v=4",
+      "profile": "https://github.com/hm-fannie",
+      "contributions": [
+        "code",
+        "maintenance"
+      ]
     }
   ],
   "contributorsPerLine": 7
