@@ -1,5 +1,5 @@
 * 支持事件
-	* bindtap、bindlongpress、bindchange
+	* bindtap、bindlongpress、bindchange、input、touchstart、touchmove、touchend
 * 目前无法支持：
     * catchtap、catchlongpress等阻止冒泡事件（自动化element.tap、element.longpress等方法无法阻止冒泡）
     * input事件（自动化不支持模拟input）
