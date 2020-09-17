@@ -139,6 +139,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
   <tr>
     <td align="center"><a href="https://genuifx.github.io/"><img src="https://avatars2.githubusercontent.com/u/10156994?v=4?s=100" width="100px;" alt=""/><br /><sub><b>WZT</b></sub></a><br /><a href="https://github.com/wxajs/wxa/commits?author=Genuifx" title="Code">💻</a> <a href="#maintenance-Genuifx" title="Maintenance">🚧</a></td>
     <td align="center"><a href="https://github.com/biaodoit"><img src="https://avatars1.githubusercontent.com/u/2704629?v=4?s=100" width="100px;" alt=""/><br /><sub><b>biaodoit</b></sub></a><br /><a href="https://github.com/wxajs/wxa/commits?author=biaodoit" title="Code">💻</a> <a href="#maintenance-biaodoit" title="Maintenance">🚧</a></td>
+    <td align="center"><a href="http://www.szy321.com/"><img src="https://avatars2.githubusercontent.com/u/12182232?v=4?s=100" width="100px;" alt=""/><br /><sub><b>shangzy</b></sub></a><br /><a href="https://github.com/wxajs/wxa/commits?author=szYuan" title="Code">💻</a> <a href="#maintenance-szYuan" title="Maintenance">🚧</a></td>
   </tr>
 </table>
 
