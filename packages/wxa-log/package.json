@@ -16,7 +16,7 @@
   "author": "lucaszhu <lucaszhu@webank.com>",
   "license": "MIT",
   "dependencies": {
-    "lodash": "^4.17.15"
+    "lodash": "^4.17.20"
   },
   "publishConfig": {
     "access": "public"
