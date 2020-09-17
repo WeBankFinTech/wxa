@@ -1,0 +1,32 @@
+{
+  "name": "wxa-plugin-validate",
+  "version": "0.1.0",
+  "description": "Lightweight Form Validation Framework for Wxa",
+  "keywords": [
+    "validate"
+  ],
+  "author": "yuanshang <yuanshang@webank.com> (商志远)",
+  "homepage": "https://github.com/szYuan/wxa#readme",
+  "license": "MIT",
+  "main": "lib/wxa-plugin-validate.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "publishConfig": {
+    "registry": "http://r.cnpmjs.org/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/szYuan/wxa.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/szYuan/wxa/issues"
+  }
+}
