@@ -28,21 +28,21 @@
 
 **框架优势**
 
-🖖 **极速上手** 无额外的学习门槛，可以完全使用原生的小程序语法开发。
+- 🖖 **极速上手** 无额外的学习门槛，可以完全使用原生的小程序语法开发。
 
-:surfer: **零配置** 标准项目无需任何配置，即可运行。
+- :surfer: **零配置** 标准项目无需任何配置，即可运行。
 
-:light_rail: **低成本** 超低迁移成本，原生小程序可以马上在 `@wxa/cli2` 中跑起来。支持原生和 wxa 混杂开发，助力老项目逐步迁移。
+- :light_rail: **低成本** 超低迁移成本，原生小程序可以马上在 `@wxa/cli2` 中跑起来。支持原生和 wxa 混杂开发，助力老项目逐步迁移。
 
-:rocket: **依赖分包算法** 自研的依赖分包算法，帮助开发者充分的利用[分包空间](https://developers.weixin.qq.com/miniprogram/dev/framework/subpackages/basic.html)。
+- :rocket: **依赖分包算法** 自研的依赖分包算法，帮助开发者充分的利用[分包空间](https://developers.weixin.qq.com/miniprogram/dev/framework/subpackages/basic.html)。
 
-:curly_loop: **依赖分析** 自动分析项目依赖，无需手动 copy 三方依赖到项目中。
+- :curly_loop: **依赖分析** 自动分析项目依赖，无需手动 copy 三方依赖到项目中。
 
-:penguin: **全方位** 提供小程序开发增强能力，譬如状态管理、表单校验等。
+- :penguin: **全方位** 提供小程序开发增强能力，譬如状态管理、表单校验等。
 
-🤖 **按需引入** 任意第三方工具、组件库，随时安装使用，完美适配 weui, vant-weapp等组件库。
+- 🤖 **按需引入** 任意第三方工具、组件库，随时安装使用，完美适配 weui, vant-weapp等组件库。
 
-:alien: **多实例** 一次性编译出多个三方项目或其他平台的小程序，如头条小程序。
+- :alien: **多实例** 一次性编译出多个三方项目或其他平台的小程序，如头条小程序。
 
 More detail [documents](https://wxajs.gitee.io/wxa/)
 
@@ -60,13 +60,13 @@ npm i -g @wxa/cli2
 **极速新建项目**
 
 ```bash
-wxa2 create --repo gitee
+wxa2 create startup
 ```
 
 **启动开发环境**
 
 ```bash
-wxa2 run dev
+npm run dev
 ```
 
 ## 开发示例
@@ -189,7 +189,15 @@ wxa 是一个 AOP 框架，主要使用 Decorator（运行时改写，拦截）�
 预编译方面，实现了对小程序项目的依赖解析，利用依赖树对整个项目进行管理，以此为基础适配了`npm`、单文件开发、云开发、三方开发。开发语法方面支持最新的 ES\*语法（包括 Async/Await）、Sass/Scss、Stylus，有需求的话可以适配更多语法。
 
 
-## 周边生态
+## wxa生态
+
+|包名|描述|版本
+|-----|----|----|
+|@wxa2/core|wxa运行时核心|[![npm version](https://badge.fury.io/js/%40mpxjs%2Fcore.svg)](https://badge.fury.io/js/%40mpxjs%2Fcore)
+|@wxa2/cli|wxa编译时与命令行工具|
+|@wxa2/mobx|wxa引入mobx|
+|@wxa2/redux|wxa引入redux|
+|@wxa2/wxa-plugin-bind-hijack|劫持小程序bind事件插件|
 
 
 
