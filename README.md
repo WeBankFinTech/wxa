@@ -148,6 +148,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
   <tr>
     <td align="center"><a href="https://zacharykwan.com/"><img src="https://avatars0.githubusercontent.com/u/11681043?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Zachary Kwan</b></sub></a><br /><a href="https://github.com/wxajs/wxa/commits?author=zehuiguan" title="Code">💻</a></td>
     <td align="center"><a href="https://segmentfault.com/u/alan"><img src="https://avatars0.githubusercontent.com/u/1666185?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Alan Zhang</b></sub></a><br /><a href="https://github.com/wxajs/wxa/commits?author=zcfan" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/hanzooo"><img src="https://avatars0.githubusercontent.com/u/16368939?v=4?s=100" width="100px;" alt=""/><br /><sub><b>hanzooo</b></sub></a><br /><a href="https://github.com/wxajs/wxa/commits?author=hanzooo" title="Code">💻</a></td>
   </tr>
 </table>
 
