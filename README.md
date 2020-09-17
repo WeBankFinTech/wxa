@@ -141,6 +141,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="https://github.com/biaodoit"><img src="https://avatars1.githubusercontent.com/u/2704629?v=4?s=100" width="100px;" alt=""/><br /><sub><b>biaodoit</b></sub></a><br /><a href="https://github.com/wxajs/wxa/commits?author=biaodoit" title="Code">💻</a> <a href="#maintenance-biaodoit" title="Maintenance">🚧</a></td>
     <td align="center"><a href="http://www.szy321.com/"><img src="https://avatars2.githubusercontent.com/u/12182232?v=4?s=100" width="100px;" alt=""/><br /><sub><b>shangzy</b></sub></a><br /><a href="https://github.com/wxajs/wxa/commits?author=szYuan" title="Code">💻</a> <a href="#maintenance-szYuan" title="Maintenance">🚧</a></td>
     <td align="center"><a href="https://github.com/hm-fannie"><img src="https://avatars3.githubusercontent.com/u/6054788?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Min Huang</b></sub></a><br /><a href="https://github.com/wxajs/wxa/commits?author=hm-fannie" title="Code">💻</a> <a href="#maintenance-hm-fannie" title="Maintenance">🚧</a></td>
+    <td align="center"><a href="https://github.com/lucaszhu2zgf"><img src="https://avatars3.githubusercontent.com/u/2087827?v=4?s=100" width="100px;" alt=""/><br /><sub><b>lucaszhu</b></sub></a><br /><a href="https://github.com/wxajs/wxa/commits?author=lucaszhu2zgf" title="Code">💻</a> <a href="#maintenance-lucaszhu2zgf" title="Maintenance">🚧</a></td>
   </tr>
 </table>
 
