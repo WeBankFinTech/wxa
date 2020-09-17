@@ -56,13 +56,12 @@ const addRecord = function(type, ...args) {
     if (shouldRecord.bind(this)(type, ...args)) {
         let pages = getCurrentPages();
         state.record.push({
+            ...e,
             page: pages[pages.length - 1].route,
             event: type,
             id,
             timeStamp: +new Date(),
-            detail: {
-                ...e.detail,
-            },
+
         });
         console.log('e2eRecord:', e)
     }
@@ -93,6 +92,18 @@ const wrapEvent = {
     $$e2e_input(...args) {
         // input事件 自动化测试不支持，回放要用callMethod
         addRecord.bind(this)('input', ...args);
+    },
+    $$e2e_touchstart(...args) {
+        // input事件 自动化测试不支持，回放要用callMethod
+        addRecord.bind(this)('touchstart', ...args);
+    },
+    $$e2e_touchmove(...args) {
+        // input事件 自动化测试不支持，回放要用callMethod
+        addRecord.bind(this)('touchmove', ...args);
+    },
+    $$e2e_touchend(...args) {
+        // input事件 自动化测试不支持，回放要用callMethod
+        addRecord.bind(this)('touchend', ...args);
     },
 };
 

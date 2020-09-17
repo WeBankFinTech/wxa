@@ -37,10 +37,16 @@ describe('==== <%= name %> ====', () => {
             }
 
             await page.waitFor('.<%= item.id %>');
-            console.log(JSON.stringify(page.path));
             element = await page.$('.<%= item.id %>')
             <% if (!!~['tap', 'longpress'].indexOf(item.event)) { %>
             await element.<%= item.event%>();
+            <% } else if (!!~['input'].indexOf(item.event)) { %>
+                await element.<%= item.event%>("<%= item.detail.value %>");
+            <% } else if (!!~['touchstart', 'touchmove', 'touchend'].indexOf(item.event)) { %>
+                await element.<%= item.event%>({
+                    touches: <%-JSON.stringify(item.touches)%>,
+                    changedTouches: <%-JSON.stringify(item.changedTouches)%>
+                });
             <% } else { %>
             await element.trigger('<%=item.event%>', <%-JSON.stringify(item.detail)%>);
             <% } %>

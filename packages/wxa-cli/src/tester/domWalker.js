@@ -13,7 +13,7 @@ class XMLManager {
     constructor(mdl, scheduler) {
         this.mdl = mdl;
         this.scheduler = scheduler;
-        this.supportEvents = ['tap', 'longpress', 'change'];
+        this.supportEvents = ['tap', 'longpress', 'change', 'input', 'touchstart', 'touchmove', 'touchend'];
     }
 
     parse(xml) {
