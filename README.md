@@ -1,3 +1,8 @@
+<p align="center">
+    <a href="https://webankfintech.github.io/wxa/">
+        <img src="./docs/.vuepress/public/wxajs-color.svg" width="300" height="300" />
+    </a>
+</p>
 <h3 align="center">
     渐进式小程序开发框架
 </h3>
@@ -55,13 +60,13 @@ npm i -g @wxa/cli2
 **极速新建项目**
 
 ```bash
-wxa2 create startup
+wxa2 create
 ```
 
 **启动开发环境**
 
 ```bash
-npm run dev
+wxa2 build --watch
 ```
 
 ## 开发示例
@@ -169,15 +174,16 @@ wxa 是一个 AOP 框架，主要使用 Decorator（运行时改写，拦截）�
 
 使用 Decorator 实现了：
 
-:white_check_mark: `Fetch` 队列管理网络请求，单个请求自动防重。
+- :white_check_mark:  **`Fetch`** 自动防重，自动队列管理的网络请求方法。
+- :white_check_mark:  **`Router`** 简洁的 API、预加载特性。
+- :white_check_mark:  **`Eventbus`** 跨页面，跨组件交互的简单方案。
+- :white_check_mark:  **`Mixins`** 混合，跨页面、跨组件复用逻辑。
+- :white_check_mark:  **`Diff`** 增量设置数据。
+- :white_check_mark:  **`Storage`** 小程序持久化缓存数据。
+- :white_check_mark:  **`SessionStorage`** 应用周期内缓存数据。
+- :white_check_mark:  **`Lock`** 防止重复执行函数，前端防重利器。
+- :white_check_mark:  **`Debounnce`** 防抖动。
 
-:white_check_mark: `Router` 简洁的 API、预加载特性。
-
-:white_check_mark: `Lock` 防止重复执行函数，前端防重利器。
-
-:white_check_mark: `Debounnce` 防抖动。
-
-:white_check_mark: `Mixin` 混合代码，代码复用。
 
 查看详细的 [Class Decorators](https://wxajs.gitee.io/wxa/core/API.html#decorators-%E7%B1%BB%E8%A3%85%E9%A5%B0%E5%99%A8)
 
@@ -188,16 +194,20 @@ wxa 是一个 AOP 框架，主要使用 Decorator（运行时改写，拦截）�
 
 |包名|描述|版本
 |-----|----|----|
-|@wxa/core|wxa运行时核心|<img alt="Travis Status" src="https://img.shields.io/npm/v/@wxa/cli2.svg?label=NPM&color=brightGreen&style=flat-square&logo=npm">
-|@wxa/cli|wxa编译时与命令行工具|
-|@wxa/mobx|wxa引入mobx|
-|@wxa/redux|wxa引入redux|
-|@wxa/wxa-plugin-bind-hijack|劫持小程序bind事件插件|
-
-
-## LICENSE
-
-[MIT](./LICENSE)
+|@wxa/core|wxa运行时核心|![](https://img.shields.io/npm/v/@wxa/core.svg?label=NPM&color=brightGreen&style=flat-square&logo=npm)
+|@wxa/cli2|wxa编译时与命令行工具|![](https://img.shields.io/npm/v/@wxa/cli2.svg?label=NPM&color=brightGreen&style=flat-square&logo=npm)
+|@wxa/validate|表单验证、支持自定义校验规则和提示|![](https://img.shields.io/npm/v/@wxa/validate.svg?label=NPM&color=brightGreen&style=flat-square&logo=npm)
+|@wxa/watch| watch & computed |![](https://img.shields.io/npm/v/@wxa/watch.svg?label=NPM&color=brightGreen&style=flat-square&logo=npm)
+|@wxa/log| 小程序实时日志上报 |![](https://img.shields.io/npm/v/@wxa/log.svg?label=NPM&color=brightGreen&style=flat-square&logo=npm)
+|@wxa/mobx|wxa引入mobx|![](https://img.shields.io/npm/v/@wxa/mobx.svg?label=NPM&color=brightGreen&style=flat-square&logo=npm)
+|@wxa/redux|wxa引入redux|![](https://img.shields.io/npm/v/@wxa/redux.svg?label=NPM&color=brightGreen&style=flat-square&logo=npm)
+|@wxa/plugin-uglifyjs| 压缩美化 Javascript 代码 |![](https://img.shields.io/npm/v/@wxa/plugin-uglifyjs.svg?label=NPM&color=brightGreen&style=flat-square&logo=npm)
+|@wxa/plugin-replace| 任意字符替换，用于生产测试参数替换 |![](https://img.shields.io/npm/v/@wxa/plugin-replace.svg?label=NPM&color=brightGreen&style=flat-square&logo=npm)
+|@wxa/plugin-copy| 复制指定静态资源 |![](https://img.shields.io/npm/v/@wxa/plugin-copy.svg?label=NPM&color=brightGreen&style=flat-square&logo=npm)
+|@wxa/plugin-bind-hijack| 劫持小程序bind事件插件 |![](https://img.shields.io/npm/v/@wxa/plugin-bind-hijack.svg?label=NPM&color=brightGreen&style=flat-square&logo=npm)
+|@wxa/plugin-minify-wxml| wxml 压缩 |![](https://img.shields.io/npm/v/@wxa/plugin-minify-wxml.svg?label=NPM&color=brightGreen&style=flat-square&logo=npm)
+|@wxa/plugin-postcss| 自定义需要引入的postcss插件 |![](https://img.shields.io/npm/v/@wxa/plugin-postcss.svg?label=NPM&color=brightGreen&style=flat-square&logo=npm)
+|@wxa/plugin-dependencies-analysis| 项目构建后的模块依赖关系、体积大小等信息可视化, 方便分析项目的优化空间。|![](https://img.shields.io/badge/Status-Outdated.-orange?style=flat-square)
 
 ## Contributors ✨
 
@@ -214,7 +224,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="https://github.com/hm-fannie"><img src="https://avatars3.githubusercontent.com/u/6054788?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Min Huang</b></sub></a><br /><a href="https://github.com/wxajs/wxa/commits?author=hm-fannie" title="Code">💻</a> <a href="#maintenance-hm-fannie" title="Maintenance">🚧</a></td>
     <td align="center"><a href="https://github.com/lucaszhu2zgf"><img src="https://avatars3.githubusercontent.com/u/2087827?v=4?s=100" width="100px;" alt=""/><br /><sub><b>lucaszhu</b></sub></a><br /><a href="https://github.com/wxajs/wxa/commits?author=lucaszhu2zgf" title="Code">💻</a> <a href="#maintenance-lucaszhu2zgf" title="Maintenance">🚧</a></td>
     <td align="center"><a href="https://github.com/liuhang8023"><img src="https://avatars2.githubusercontent.com/u/24379224?v=4?s=100" width="100px;" alt=""/><br /><sub><b>hughliu</b></sub></a><br /><a href="https://github.com/wxajs/wxa/commits?author=liuhang8023" title="Code">💻</a> <a href="#maintenance-liuhang8023" title="Maintenance">🚧</a></td>
-    <td align="center"><a href="https://github.com/FlyDaisy"><img src="https://avatars0.githubusercontent.com/u/33273144?v=4?s=100" width="100px;" alt=""/><br /><sub><b>会飞的猫</b></sub></a><br /><a href="https://github.com/wxajs/wxa/commits?author=FlyDaisy" title="Code">💻</a> <a href="#maintenance-FlyDaisy" title="Maintenance">🚧</a></td>
+    <td align="center"><a href="https://github.com/FlyDaisy"><img src="https://avatars0.githubusercontent.com/u/33273144?v=4?s=100" width="100px;" alt=""/><br /><sub><b>FlyDaisy</b></sub></a><br /><a href="https://github.com/wxajs/wxa/commits?author=FlyDaisy" title="Code">💻</a> <a href="#maintenance-FlyDaisy" title="Maintenance">🚧</a></td>
   </tr>
   <tr>
     <td align="center"><a href="https://zacharykwan.com/"><img src="https://avatars0.githubusercontent.com/u/11681043?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Zachary Kwan</b></sub></a><br /><a href="https://github.com/wxajs/wxa/commits?author=zehuiguan" title="Code">💻</a></td>
@@ -229,3 +239,8 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
+
+
+## LICENSE
+
+[MIT](./LICENSE)
