@@ -16,31 +16,154 @@
 
 # wxa.js
 
-wxa 专注于小程序原生开发，在保留小程序简单入门、快速开发的特点下，提供一系列能力，解决工程化、代码复用的痛点，提高开发效率并改善开发体验。
+轻量级的渐进式小程序开发框架，专注于小程序原生开发，提供更好的工程化、代码复用能力，提高开发效率并改善开发体验。
+
+极速上手，零配置，可无痛迁移。
+
 
 **框架优势**
 
-🖖 **极速上手** 无额外的学习门槛，可以完全使用原生的小程序语法开发。
+- 🖖 **极速上手** 无额外的学习门槛，可以完全使用原生的小程序语法开发。
 
-:surfer: **零配置** 标准项目无需任何配置，即可运行。
+- :surfer: **零配置** 标准项目无需任何配置，即可运行。
 
-:penguin: **全方位** 解决小程序开发中的各种痛点，譬如状态管理、表单校验等。
+- :light_rail: **低成本** 超低迁移成本，原生小程序可以马上在 `@wxa/cli2` 中跑起来。支持原生和 wxa 混杂开发，助力老项目逐步迁移。
 
-:rocket: **依赖分包算法** 自研的依赖分包算法，帮助开发者充分的利用[分包空间](https://developers.weixin.qq.com/miniprogram/dev/framework/subpackages/basic.html)。
+- :rocket: **依赖分包算法** 自研的依赖分包算法，帮助开发者充分的利用[分包空间](https://developers.weixin.qq.com/miniprogram/dev/framework/subpackages/basic.html)。
 
-:curly_loop: **依赖分析** 自动分析项目依赖，无需手动 copy 三方依赖到项目中。
+- :curly_loop: **依赖分析** 自动分析项目依赖，无需手动 copy 三方依赖到项目中。
 
-🤖 **组件库** 任意第三方组件库，随时安装使用，完美适配 weui, vant-weapp, wux-weapp, iview-weapp 等组件库。
+- :penguin: **全方位** 提供小程序开发增强能力，譬如状态管理、表单校验等。
 
-:light_rail: **低成本** 超低迁移成本，原生小程序只需安装好依赖就可以马上在 `@wxa/cli2` 中跑起来。支持原生和 wxa 混杂开发。
+- 🤖 **按需引入** 任意第三方工具、组件库，随时安装使用，完美适配 weui, vant-weapp等组件库。
 
-:alien: **多实例** 一次性编译出多个三方项目或其他平台的小程序，如头条小程序。
+- :alien: **多实例** 一次性编译出多个三方项目或其他平台的小程序，如头条小程序。
 
 More detail [documents](https://wxajs.gitee.io/wxa/)
 
 更完善的[文档](https://wxajs.gitee.io/wxa/)
 
-## 简介
+
+## 安装使用
+
+使用 `yarn` 或 `npm` 全局安装
+
+```bash
+npm i -g @wxa/cli2
+```
+
+**极速新建项目**
+
+```bash
+wxa2 create startup
+```
+
+**启动开发环境**
+
+```bash
+npm run dev
+```
+
+## 开发示例
+
+#### app.wxa
+
+```html
+<script>
+import {App} from '@wxa/core';
+
+@App
+export default class Main {
+    globalData = {
+        userInfo: 'Genuifx',
+    }
+}
+</script>
+
+<config>
+{
+    "pages": [
+        "pages/index"
+    ]
+}
+</config>
+
+<style lang="scss">
+page {
+    width: 100%;
+    height: 100%;
+}
+</style>
+
+```
+
+#### pages/index.wxa
+
+```javascript
+<script>
+import {Page, Mixins, Debounce} from '@wxa/core';
+import fooMixin from '../mixins/foo.js';
+
+//定义页面，添加Mixins
+@Page
+@Mixins(fooMixin)
+export default class Index {
+    data = {
+        formA: {
+            org: 'fintech',
+            name: 'wxa'
+        }
+    }
+
+    async onLoad() {
+        console.log('Hello World')    
+    }
+
+    // 函数防抖
+    @Debounce(300)
+    sumbitA(e) {
+        console.log('submit success!');
+    }
+}
+</script>
+
+<config>
+{
+    "navigationBarTitleText": "Hello Wxa"
+}
+</config>
+
+<template>
+    <view class="page">
+        Hi, <input type="text" value="{{formA.name}}" />
+        <button bindtap="sumbitA">提交</button>
+    </view>
+</template>
+
+<style lang="scss">
+.page {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+</style>
+```
+
+默认导出的方法将会自动调用小程序相应的 `Page`、 `Component`、 `App` 方法进行注册。
+
+更完善的[文档](https://wxajs.gitee.io/wxa/)
+
+**极速预览小程序**
+
+```bash
+wxa2 cli --action preview
+```
+
+
+## 技术特点
 
 wxa 是一个 AOP 框架，主要使用 Decorator（运行时改写，拦截）和预编译实现框架功能。
 
@@ -56,69 +179,21 @@ wxa 是一个 AOP 框架，主要使用 Decorator（运行时改写，拦截）�
 
 :white_check_mark: `Mixin` 混合代码，代码复用。
 
-查看详细的 [Class Decorators](https://wxajs.gitee.io/wxa/core/decorators/class.html) [Method Decorators](https://wxajs.gitee.io/wxa/core/decorators/methods.html)
+查看详细的 [Class Decorators](https://wxajs.gitee.io/wxa/core/API.html#decorators-%E7%B1%BB%E8%A3%85%E9%A5%B0%E5%99%A8)
 
 预编译方面，实现了对小程序项目的依赖解析，利用依赖树对整个项目进行管理，以此为基础适配了`npm`、单文件开发、云开发、三方开发。开发语法方面支持最新的 ES\*语法（包括 Async/Await）、Sass/Scss、Stylus，有需求的话可以适配更多语法。
 
-## Install
 
-使用 `yarn` 或 `npm` 全局安装
+## wxa生态
 
-```bash
-npm i -g @wxa/cli2
-```
+|包名|描述|版本
+|-----|----|----|
+|@wxa/core|wxa运行时核心|<img alt="Travis Status" src="https://img.shields.io/npm/v/@wxa/cli2.svg?label=NPM&color=brightGreen&style=flat-square&logo=npm">
+|@wxa/cli|wxa编译时与命令行工具|
+|@wxa/mobx|wxa引入mobx|
+|@wxa/redux|wxa引入redux|
+|@wxa/wxa-plugin-bind-hijack|劫持小程序bind事件插件|
 
-## Quick Started
-
-**极速新建项目**
-
-```bash
-wxa2 create --repo gitee
-```
-
-**开始开发**
-
-定义 App 类并导出：
-
-```javascript
-import { App } from "@wxa/core";
-
-@App
-export default class Main {
-  globalData = {
-    userInfo: "Genuifx",
-  };
-}
-```
-
-定义页面类并导出：
-
-```javascript
-// 引入core包提供的Decorator
-import { Page, Debounce } from "@wxa/core";
-
-// 挂载常用的方法到页面类
-// 导出一个默认的页面类
-@Page
-export default class Index {
-  // 页面方法用于响应用户操作，函数自动防抖动
-  @Debounce(300)
-  tap() {
-    // 通过$storage缓存数据
-    this.$storage.set("TAP", true);
-  }
-}
-```
-
-默认导出的方法将会自动调用小程序相应的 `Page`、 `Component`、 `App` 方法进行注册。
-
-更完善的[文档](https://wxajs.gitee.io/wxa/)
-
-**极速预览小程序**
-
-```bash
-wxa2 cli --action preview
-```
 
 ## LICENSE
 
