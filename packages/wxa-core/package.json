@@ -1,6 +1,6 @@
 {
     "name": "@wxa/core",
-    "version": "2.2.5",
+    "version": "2.2.7",
     "description": "wxa core feature",
     "main": "./dist/main.js",
     "scripts": {
