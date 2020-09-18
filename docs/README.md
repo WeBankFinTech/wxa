@@ -22,21 +22,36 @@ features:
 footer: MIT Licensed | Copyright © 2018-present @webank
 ---
 
-### 简洁明了的API
+## 简洁明了的API
 
-```javascript
-// 引入core包提供的Decorator
-import {Page, Debounce} from '@wxa/core';
+```vue
+<!-- app.wxa -->
+<script>
+import {App} from '@wxa/core';
 
-// 挂载常用的方法到页面类
-// 导出一个默认的页面类
-@Page
-export default class Index { 
-    // 页面方法用于响应用户操作，函数自动防抖动
-    @Debounce(300)
-    tap() {
-        // 通过$storage缓存数据
-        this.$storage.set('TAP', true);
+@App
+export default class Main {
+    globalData = {
+        userInfo: 'Genuifx',
     }
 }
+</script>
+
+<config>
+{
+    "pages": [
+        "pages/index"
+    ]
+}
+</config>
+
+<style lang="scss">
+page {
+    width: 100%;
+    height: 100%;
+}
+</style>
+
 ```
+
+> 默认导出的方法将会自动调用小程序相应的 `Page`、 `Component`、 `App` 方法进行注册。
