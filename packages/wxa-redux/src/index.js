@@ -208,6 +208,7 @@ export const wxaRedux = (options = {}) => {
 
                 vm.created = function (...args) {
                     this.$store = store;
+                    this.$$reduxDiff = diff.bind(this);
                     if (created) created.apply(this, args);
                 }
                 vm.attached = mountRedux(attached);
