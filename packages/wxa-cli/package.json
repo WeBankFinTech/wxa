@@ -1,6 +1,6 @@
 {
   "name": "@wxa/cli2",
-  "version": "2.2.7",
+  "version": "2.2.8",
   "description": "cli for wxa development",
   "main": "dist/wxa.js",
   "scripts": {
