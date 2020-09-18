@@ -1,5 +1,5 @@
 class Coder {
-    constructor(pmap=['<', '&', '"', '>'], amap=['&lt;', '&amp;', '&quot;', '&gt;']) {
+    constructor(pmap=['<', '&', '"', '>', "'"], amap=['&lt;', '&amp;', '&quot;', '&gt;', '&#39;']) {
         this.amap = amap;
         this.pmap = pmap;
     }
@@ -48,7 +48,7 @@ class Coder {
         })
 
         if (stuffEmptyAttr)
-        template = template.replace(/\s*(=["']["'])/g, ()=>{
+        template = template.replace(/\s*(=\s*["']["'])/gm, ()=>{
             return `="__$wxaEmptyAttributeStaff__"`
         });
 
@@ -65,7 +65,7 @@ class Coder {
             return `{{${that.decode(express)}}}`;
         })
         if(stuffEmptyAttr) {
-            template = template.replace(/\s*(=["']__\$wxaEmptyAttributeStaff__["'])/g, ()=>{
+            template = template.replace(/\s*(=["]__\$wxaEmptyAttributeStaff__["])/g, ()=>{
                 return `=""`
             });
         }
