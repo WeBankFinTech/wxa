@@ -95,9 +95,10 @@ module.exports = {
                     sidebarDepth: 0,
                     children: [
                         '/learn/advance/preload',
+                        '/plugin/core/redux',
+                        '/learn/advance/watch-computed',
                         '/learn/advance/third-party-wxa',
                         '/learn/advance/wxa-directive',
-                        '/plugin/core/redux'
                     ]
                 },
                 {
