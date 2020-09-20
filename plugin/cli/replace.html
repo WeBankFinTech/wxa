@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>@wxa/plugin-replace | wxa.js</title>
+    <meta name="generator" content="VuePress 1.5.4">
+    <link rel="icon" href="/wxa/wxajs.png">
+    <meta name="description" content="渐进式小程序开发框架">
+    <link rel="preload" href="/wxa/assets/css/0.styles.f83c3963.css" as="style"><link rel="preload" href="/wxa/assets/js/app.58e7e8f2.js" as="script"><link rel="preload" href="/wxa/assets/js/5.38cbe0cd.js" as="script"><link rel="preload" href="/wxa/assets/js/4.27b682a4.js" as="script"><link rel="preload" href="/wxa/assets/js/38.035f93a0.js" as="script"><link rel="preload" href="/wxa/assets/js/7.28cc5d92.js" as="script"><link rel="prefetch" href="/wxa/assets/js/10.f6aaeb80.js"><link rel="prefetch" href="/wxa/assets/js/11.54255dea.js"><link rel="prefetch" href="/wxa/assets/js/12.9923669f.js"><link rel="prefetch" href="/wxa/assets/js/13.1c3c51ba.js"><link rel="prefetch" href="/wxa/assets/js/14.a0833e0c.js"><link rel="prefetch" href="/wxa/assets/js/15.14ca9f93.js"><link rel="prefetch" href="/wxa/assets/js/16.96744209.js"><link rel="prefetch" href="/wxa/assets/js/17.db3f7f4a.js"><link rel="prefetch" href="/wxa/assets/js/18.3722b688.js"><link rel="prefetch" href="/wxa/assets/js/19.9fab0459.js"><link rel="prefetch" href="/wxa/assets/js/20.627e5bd5.js"><link rel="prefetch" href="/wxa/assets/js/21.a5183ffb.js"><link rel="prefetch" href="/wxa/assets/js/22.522e44df.js"><link rel="prefetch" href="/wxa/assets/js/23.e7e50950.js"><link rel="prefetch" href="/wxa/assets/js/24.2b9289cb.js"><link rel="prefetch" href="/wxa/assets/js/25.4f12003c.js"><link rel="prefetch" href="/wxa/assets/js/26.e8429a09.js"><link rel="prefetch" href="/wxa/assets/js/27.ba469541.js"><link rel="prefetch" href="/wxa/assets/js/28.4a04d925.js"><link rel="prefetch" href="/wxa/assets/js/29.f0aa0874.js"><link rel="prefetch" href="/wxa/assets/js/30.ef445ed3.js"><link rel="prefetch" href="/wxa/assets/js/31.cc738cb9.js"><link rel="prefetch" href="/wxa/assets/js/32.045f84a7.js"><link rel="prefetch" href="/wxa/assets/js/33.263c09fe.js"><link rel="prefetch" href="/wxa/assets/js/34.e74abdf3.js"><link rel="prefetch" href="/wxa/assets/js/35.55479d1a.js"><link rel="prefetch" href="/wxa/assets/js/36.3617d1b9.js"><link rel="prefetch" href="/wxa/assets/js/37.be5b6f82.js"><link rel="prefetch" href="/wxa/assets/js/39.9f70789c.js"><link rel="prefetch" href="/wxa/assets/js/40.77dce1e4.js"><link rel="prefetch" href="/wxa/assets/js/41.20b0cce6.js"><link rel="prefetch" href="/wxa/assets/js/42.f50982ec.js"><link rel="prefetch" href="/wxa/assets/js/43.f0b1c738.js"><link rel="prefetch" href="/wxa/assets/js/6.3f6d376f.js"><link rel="prefetch" href="/wxa/assets/js/8.92f109f1.js"><link rel="prefetch" href="/wxa/assets/js/9.615a09d6.js"><link rel="prefetch" href="/wxa/assets/js/vendors~docsearch.0af8f36c.js"><link rel="prefetch" href="/wxa/assets/js/vendors~notification.ccb96427.js">
+    <link rel="stylesheet" href="/wxa/assets/css/0.styles.f83c3963.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container no-sidebar"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/wxa/" class="home-link router-link-active"><!----> <span class="site-name">wxa.js</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"><div class="nav-item"><a href="/wxa/learn/guide/" class="nav-link">
+  教程
+</a></div><div class="nav-item"><a href="/wxa/core/" class="nav-link">
+  CORE
+</a></div><div class="nav-item"><a href="/wxa/cli/" class="nav-link">
+  CLI
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="CORE 运行时插件" class="dropdown-title"><span class="title">CORE 运行时插件</span> <span class="arrow down"></span></button> <button type="button" aria-label="CORE 运行时插件" class="mobile-dropdown-title"><span class="title">CORE 运行时插件</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/wxa/plugin/core/validate.html" class="nav-link">
+  Validate 表单校验
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/core/watch.html" class="nav-link">
+  Watch 数据监听
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/core/redux.html" class="nav-link">
+  Redux 全局状态管理
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/core/log.html" class="nav-link">
+  Log 日志上报
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="CLI 预编译插件" class="dropdown-title"><span class="title">CLI 预编译插件</span> <span class="arrow down"></span></button> <button type="button" aria-label="CLI 预编译插件" class="mobile-dropdown-title"><span class="title">CLI 预编译插件</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/uglifyjs.html" class="nav-link">
+  UglifyJS 代码压缩
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/replace.html" aria-current="page" class="nav-link router-link-exact-active router-link-active">
+  Replace 字符替换
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/copy.html" class="nav-link">
+  Copy 静态资源引入
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/hijack.html" class="nav-link">
+  hijack 事件劫持
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/minify-wxml.html" class="nav-link">
+  Minify-wxml wxml压缩
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/postcss.html" class="nav-link">
+  Postcss CSS预处理
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/da.html" class="nav-link">
+  DA 依赖分析
+</a></li></ul></div></div> <!----></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/wxa/learn/guide/" class="nav-link">
+  教程
+</a></div><div class="nav-item"><a href="/wxa/core/" class="nav-link">
+  CORE
+</a></div><div class="nav-item"><a href="/wxa/cli/" class="nav-link">
+  CLI
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="CORE 运行时插件" class="dropdown-title"><span class="title">CORE 运行时插件</span> <span class="arrow down"></span></button> <button type="button" aria-label="CORE 运行时插件" class="mobile-dropdown-title"><span class="title">CORE 运行时插件</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/wxa/plugin/core/validate.html" class="nav-link">
+  Validate 表单校验
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/core/watch.html" class="nav-link">
+  Watch 数据监听
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/core/redux.html" class="nav-link">
+  Redux 全局状态管理
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/core/log.html" class="nav-link">
+  Log 日志上报
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="CLI 预编译插件" class="dropdown-title"><span class="title">CLI 预编译插件</span> <span class="arrow down"></span></button> <button type="button" aria-label="CLI 预编译插件" class="mobile-dropdown-title"><span class="title">CLI 预编译插件</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/uglifyjs.html" class="nav-link">
+  UglifyJS 代码压缩
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/replace.html" aria-current="page" class="nav-link router-link-exact-active router-link-active">
+  Replace 字符替换
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/copy.html" class="nav-link">
+  Copy 静态资源引入
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/hijack.html" class="nav-link">
+  hijack 事件劫持
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/minify-wxml.html" class="nav-link">
+  Minify-wxml wxml压缩
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/postcss.html" class="nav-link">
+  Postcss CSS预处理
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/da.html" class="nav-link">
+  DA 依赖分析
+</a></li></ul></div></div> <!----></nav>  <!----> </aside> <main class="page"> <div class="theme-default-content content__default"><h1 id="wxa-plugin-replace"><a href="#wxa-plugin-replace" class="header-anchor">#</a> @wxa/plugin-replace</h1> <p><a href="https://www.npmjs.com/package/@wxa/plugin-replace" target="_blank" rel="noopener noreferrer"><img src="https://img.shields.io/npm/v/@wxa/plugin-replace/latest.svg" alt="NPM version"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></p> <p>实际开发项目中，我们往往需要区分测试和生产环境参数，针对不同环境做不同处理，譬如测试环境下允许debug，生产环境又严格禁止。</p> <p>使用<code>plugin-replace</code>可以很方便的替换js, json, template, css中匹配的字符串🎉。</p> <h2 id="安装"><a href="#安装" class="header-anchor">#</a> 安装</h2> <div class="language-bash line-numbers-mode"><pre class="language-bash"><code><span class="token comment"># 使用npm安装</span>
+<span class="token function">npm</span> i -S @wxa/plugin-replace
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br></div></div><h2 id="用例"><a href="#用例" class="header-anchor">#</a> 用例</h2> <div class="language-javascript line-numbers-mode"><pre class="language-javascript"><code><span class="token comment">// wxa.config.js</span>
+module<span class="token punctuation">.</span>exports <span class="token operator">=</span> <span class="token punctuation">{</span>
+    plugins<span class="token operator">:</span> <span class="token punctuation">[</span>
+        <span class="token comment">// 传递一个规则数组</span>
+        <span class="token keyword">new</span> <span class="token class-name">ReplacePlugin</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+          list<span class="token operator">:</span> <span class="token punctuation">[</span><span class="token punctuation">{</span>
+            regular<span class="token operator">:</span> <span class="token keyword">new</span> <span class="token class-name">RegExp</span><span class="token punctuation">(</span><span class="token string">'APP_ENV'</span><span class="token punctuation">,</span> <span class="token string">'gm'</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+            value<span class="token operator">:</span> <span class="token string">'bcds'</span>
+          <span class="token punctuation">}</span><span class="token punctuation">]</span>
+        <span class="token punctuation">}</span><span class="token punctuation">)</span>
+        <span class="token comment">// 或者一个规则对象，key为目标字符串，value为替换内容</span>
+        <span class="token keyword">new</span> <span class="token class-name">ReplacePlugin</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+          list<span class="token operator">:</span> <span class="token punctuation">{</span>
+            <span class="token string">'APP_ENV'</span><span class="token operator">:</span> <span class="token string">'bcds'</span>
+          <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span><span class="token punctuation">)</span>
+    <span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br></div></div><h2 id="配置项"><a href="#配置项" class="header-anchor">#</a> 配置项</h2> <h3 id="list"><a href="#list" class="header-anchor">#</a> <strong>list</strong></h3> <ul><li><strong>类型</strong>: <code>{Object, Array} list</code> Default: <code>[]</code></li> <li><strong>用法</strong>:</li></ul> <p>替换规则的数组或对象。</p> <h3 id="flag"><a href="#flag" class="header-anchor">#</a> <strong>flag</strong></h3> <ul><li><strong>类型</strong>: <code>{String} flag</code> Default: <code>gm</code></li> <li><strong>用法</strong>:</li></ul> <p>正则标志位。</p></div> <footer class="page-edit"><div class="edit-link"><a href="https://github.com/WeBankFinTech/wxa/edit/master/docs/plugin/cli/replace.md" target="_blank" rel="noopener noreferrer">在 GitHub 上编辑此页</a> <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></div> <div class="last-updated"><span class="prefix">上次编辑时间:</span> <span class="time">2020-6-29</span></div></footer> <!----> </main></div><div class="global-ui"><!----><!----></div></div>
+    <script src="/wxa/assets/js/app.58e7e8f2.js" defer></script><script src="/wxa/assets/js/5.38cbe0cd.js" defer></script><script src="/wxa/assets/js/4.27b682a4.js" defer></script><script src="/wxa/assets/js/38.035f93a0.js" defer></script><script src="/wxa/assets/js/7.28cc5d92.js" defer></script>
+  </body>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>计算属性和数据监听 | wxa.js</title>
+    <meta name="generator" content="VuePress 1.5.4">
+    <link rel="icon" href="/wxa/wxajs.png">
+    <meta name="description" content="渐进式小程序开发框架">
+    <link rel="preload" href="/wxa/assets/css/0.styles.f83c3963.css" as="style"><link rel="preload" href="/wxa/assets/js/app.58e7e8f2.js" as="script"><link rel="preload" href="/wxa/assets/js/5.38cbe0cd.js" as="script"><link rel="preload" href="/wxa/assets/js/4.27b682a4.js" as="script"><link rel="preload" href="/wxa/assets/js/21.a5183ffb.js" as="script"><link rel="preload" href="/wxa/assets/js/7.28cc5d92.js" as="script"><link rel="prefetch" href="/wxa/assets/js/10.f6aaeb80.js"><link rel="prefetch" href="/wxa/assets/js/11.54255dea.js"><link rel="prefetch" href="/wxa/assets/js/12.9923669f.js"><link rel="prefetch" href="/wxa/assets/js/13.1c3c51ba.js"><link rel="prefetch" href="/wxa/assets/js/14.a0833e0c.js"><link rel="prefetch" href="/wxa/assets/js/15.14ca9f93.js"><link rel="prefetch" href="/wxa/assets/js/16.96744209.js"><link rel="prefetch" href="/wxa/assets/js/17.db3f7f4a.js"><link rel="prefetch" href="/wxa/assets/js/18.3722b688.js"><link rel="prefetch" href="/wxa/assets/js/19.9fab0459.js"><link rel="prefetch" href="/wxa/assets/js/20.627e5bd5.js"><link rel="prefetch" href="/wxa/assets/js/22.522e44df.js"><link rel="prefetch" href="/wxa/assets/js/23.e7e50950.js"><link rel="prefetch" href="/wxa/assets/js/24.2b9289cb.js"><link rel="prefetch" href="/wxa/assets/js/25.4f12003c.js"><link rel="prefetch" href="/wxa/assets/js/26.e8429a09.js"><link rel="prefetch" href="/wxa/assets/js/27.ba469541.js"><link rel="prefetch" href="/wxa/assets/js/28.4a04d925.js"><link rel="prefetch" href="/wxa/assets/js/29.f0aa0874.js"><link rel="prefetch" href="/wxa/assets/js/30.ef445ed3.js"><link rel="prefetch" href="/wxa/assets/js/31.cc738cb9.js"><link rel="prefetch" href="/wxa/assets/js/32.045f84a7.js"><link rel="prefetch" href="/wxa/assets/js/33.263c09fe.js"><link rel="prefetch" href="/wxa/assets/js/34.e74abdf3.js"><link rel="prefetch" href="/wxa/assets/js/35.55479d1a.js"><link rel="prefetch" href="/wxa/assets/js/36.3617d1b9.js"><link rel="prefetch" href="/wxa/assets/js/37.be5b6f82.js"><link rel="prefetch" href="/wxa/assets/js/38.035f93a0.js"><link rel="prefetch" href="/wxa/assets/js/39.9f70789c.js"><link rel="prefetch" href="/wxa/assets/js/40.77dce1e4.js"><link rel="prefetch" href="/wxa/assets/js/41.20b0cce6.js"><link rel="prefetch" href="/wxa/assets/js/42.f50982ec.js"><link rel="prefetch" href="/wxa/assets/js/43.f0b1c738.js"><link rel="prefetch" href="/wxa/assets/js/6.3f6d376f.js"><link rel="prefetch" href="/wxa/assets/js/8.92f109f1.js"><link rel="prefetch" href="/wxa/assets/js/9.615a09d6.js"><link rel="prefetch" href="/wxa/assets/js/vendors~docsearch.0af8f36c.js"><link rel="prefetch" href="/wxa/assets/js/vendors~notification.ccb96427.js">
+    <link rel="stylesheet" href="/wxa/assets/css/0.styles.f83c3963.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/wxa/" class="home-link router-link-active"><!----> <span class="site-name">wxa.js</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"><div class="nav-item"><a href="/wxa/learn/guide/" class="nav-link">
+  教程
+</a></div><div class="nav-item"><a href="/wxa/core/" class="nav-link">
+  CORE
+</a></div><div class="nav-item"><a href="/wxa/cli/" class="nav-link">
+  CLI
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="CORE 运行时插件" class="dropdown-title"><span class="title">CORE 运行时插件</span> <span class="arrow down"></span></button> <button type="button" aria-label="CORE 运行时插件" class="mobile-dropdown-title"><span class="title">CORE 运行时插件</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/wxa/plugin/core/validate.html" class="nav-link">
+  Validate 表单校验
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/core/watch.html" class="nav-link">
+  Watch 数据监听
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/core/redux.html" class="nav-link">
+  Redux 全局状态管理
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/core/log.html" class="nav-link">
+  Log 日志上报
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="CLI 预编译插件" class="dropdown-title"><span class="title">CLI 预编译插件</span> <span class="arrow down"></span></button> <button type="button" aria-label="CLI 预编译插件" class="mobile-dropdown-title"><span class="title">CLI 预编译插件</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/uglifyjs.html" class="nav-link">
+  UglifyJS 代码压缩
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/replace.html" class="nav-link">
+  Replace 字符替换
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/copy.html" class="nav-link">
+  Copy 静态资源引入
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/hijack.html" class="nav-link">
+  hijack 事件劫持
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/minify-wxml.html" class="nav-link">
+  Minify-wxml wxml压缩
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/postcss.html" class="nav-link">
+  Postcss CSS预处理
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/da.html" class="nav-link">
+  DA 依赖分析
+</a></li></ul></div></div> <!----></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/wxa/learn/guide/" class="nav-link">
+  教程
+</a></div><div class="nav-item"><a href="/wxa/core/" class="nav-link">
+  CORE
+</a></div><div class="nav-item"><a href="/wxa/cli/" class="nav-link">
+  CLI
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="CORE 运行时插件" class="dropdown-title"><span class="title">CORE 运行时插件</span> <span class="arrow down"></span></button> <button type="button" aria-label="CORE 运行时插件" class="mobile-dropdown-title"><span class="title">CORE 运行时插件</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/wxa/plugin/core/validate.html" class="nav-link">
+  Validate 表单校验
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/core/watch.html" class="nav-link">
+  Watch 数据监听
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/core/redux.html" class="nav-link">
+  Redux 全局状态管理
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/core/log.html" class="nav-link">
+  Log 日志上报
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="CLI 预编译插件" class="dropdown-title"><span class="title">CLI 预编译插件</span> <span class="arrow down"></span></button> <button type="button" aria-label="CLI 预编译插件" class="mobile-dropdown-title"><span class="title">CLI 预编译插件</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/uglifyjs.html" class="nav-link">
+  UglifyJS 代码压缩
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/replace.html" class="nav-link">
+  Replace 字符替换
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/copy.html" class="nav-link">
+  Copy 静态资源引入
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/hijack.html" class="nav-link">
+  hijack 事件劫持
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/minify-wxml.html" class="nav-link">
+  Minify-wxml wxml压缩
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/postcss.html" class="nav-link">
+  Postcss CSS预处理
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/da.html" class="nav-link">
+  DA 依赖分析
+</a></li></ul></div></div> <!----></nav>  <ul class="sidebar-links"><li><a href="/wxa/learn/quickStarted/" class="sidebar-link">快速开始</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/wxa/learn/quickStarted/#申请账号" class="sidebar-link">申请账号</a></li><li class="sidebar-sub-header"><a href="/wxa/learn/quickStarted/#新建项目" class="sidebar-link">新建项目</a></li></ul></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>指南</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading open"><span>进阶</span> <span class="arrow down"></span></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/wxa/learn/advance/preload.html" class="sidebar-link">预加载</a></li><li><a href="/wxa/plugin/core/redux.html" class="sidebar-link">状态管理方案</a></li><li><a href="/wxa/learn/advance/watch-computed.html" aria-current="page" class="active sidebar-link">计算属性和数据监听</a></li><li><a href="/wxa/learn/advance/third-party-wxa.html" class="sidebar-link">三方开发和多构建</a></li><li><a href="/wxa/learn/advance/wxa-directive.html" class="sidebar-link">Mock 指令</a></li></ul></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>其他</span> <span class="arrow right"></span></p> <!----></section></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><h1 id="计算属性和数据监听"><a href="#计算属性和数据监听" class="header-anchor">#</a> 计算属性和数据监听</h1> <p>小程序模板语言中不允许使用函数表达式，这也就意味着我们无法使用函数动态计算模板。例如：</p> <div class="language-html line-numbers-mode"><pre class="language-html"><code><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>view</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">&quot;</span>example<span class="token punctuation">&quot;</span></span><span class="token punctuation">&gt;</span></span>
+  {{ message.join('、') }}
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>view</span><span class="token punctuation">&gt;</span></span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br></div></div><p>虽然无法直接使用函数表达式，但是我们可以通过小程序独有的 <a href="https://developers.weixin.qq.com/miniprogram/dev/framework/view/wxs/" target="_blank" rel="noopener noreferrer"><code>WXS</code><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a> 语法来实现类似的效果。例如：</p> <div class="language-html line-numbers-mode"><pre class="language-html"><code><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>wxs</span> <span class="token attr-name">module</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">&quot;</span>m1<span class="token punctuation">&quot;</span></span><span class="token punctuation">&gt;</span></span>
+var join = function(array) {
+  return array.join('、');
+}
+
+module.exports.join = join;
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>wxs</span><span class="token punctuation">&gt;</span></span>
+
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>view</span><span class="token punctuation">&gt;</span></span> {{m1.join(message)}} <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>view</span><span class="token punctuation">&gt;</span></span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br></div></div><p>虽然 <code>wxs</code> 可以满足需求，但是编写起来比较麻烦，比如仅支持 ES5 的语法，特定的 API。此时我们可以就使用计算属性来优化我们的代码。</p> <h2 id="开始使用"><a href="#开始使用" class="header-anchor">#</a> 开始使用</h2> <p>由于小程序的单向数据流已经能满足绝大部分场景，所以在 <code>@wxa/core</code> 中并没有内置关于数据监听的逻辑，所以再开始使用之前需要安装 <code>@wxa/watch</code>.</p> <div class="language-shell line-numbers-mode"><pre class="language-shell"><code><span class="token function">npm</span> i -S @wxa/watch
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br></div></div><p>接着只需要在 <code>app.wxa</code> 中注册组件即可：</p> <div class="language-js line-numbers-mode"><pre class="language-js"><code><span class="token keyword">import</span> <span class="token punctuation">{</span>wxa<span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'@wxa/core'</span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> wxaWatch <span class="token keyword">from</span> <span class="token string">'@wxa/watch'</span><span class="token punctuation">;</span>
+
+wxa<span class="token punctuation">.</span><span class="token function">use</span><span class="token punctuation">(</span>wxaWatch<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br></div></div><p>此时使用 wxa 注册的所有页面和组件将自动获得数据监听和计算属性两个新的能力。</p> <h2 id="计算属性"><a href="#计算属性" class="header-anchor">#</a> 计算属性</h2> <p>我们只需要在实例或者类声明中加上 <code>computed</code> 对象，插件将在页面和组件实例化的过程中自动的设置对应的 <code>computed</code> 数据。需要注意的是，由于小程序环境对 <code>Proxy</code> 的支持还不够好，所以现阶段使用的还是 <code>Object.defineProperty</code> 使用的数据监听，故需要响应式更新的数据应提前在 data 中声明。</p> <div class="language-vue line-numbers-mode"><pre class="language-vue"><code><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>template</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>view</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">&quot;</span>example<span class="token punctuation">&quot;</span></span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>view</span><span class="token punctuation">&gt;</span></span>Original message: &quot;{{ message }}&quot;<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>view</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>view</span><span class="token punctuation">&gt;</span></span>Computed message: &quot;{{ computedMessage }}&quot;<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>view</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>view</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>template</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span><span class="token punctuation">&gt;</span></span><span class="token script"><span class="token language-javascript">
+<span class="token keyword">export</span> <span class="token keyword">default</span> <span class="token keyword">class</span> <span class="token punctuation">{</span>
+    data <span class="token operator">=</span>  <span class="token punctuation">{</span>
+        message<span class="token operator">:</span> <span class="token string">'Hello'</span>
+    <span class="token punctuation">}</span>
+
+    computed <span class="token operator">=</span> <span class="token punctuation">{</span>
+        <span class="token function">computedMessage</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">return</span> <span class="token keyword">this</span><span class="token punctuation">.</span>data<span class="token punctuation">.</span>message <span class="token operator">+</span> <span class="token string">' World'</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">&gt;</span></span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br></div></div><p>使用起来非常方便。</p> <h2 id="数据监听"><a href="#数据监听" class="header-anchor">#</a> 数据监听</h2> <p>在开发表单的过程中，我们经常需要联动判断表单状态，例如下面的简单示例：</p> <div class="language-vue line-numbers-mode"><pre class="language-vue"><code><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>template</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>input</span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">&quot;</span>{{formData.name}}<span class="token punctuation">&quot;</span></span> <span class="token punctuation">/&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>input</span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">&quot;</span>{{formData.email}}<span class="token punctuation">&quot;</span></span> <span class="token punctuation">/&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">disabled</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">&quot;</span>{{!isValid}}<span class="token punctuation">&quot;</span></span><span class="token punctuation">&gt;</span></span>确认提交<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span> 
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>template</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span><span class="token punctuation">&gt;</span></span><span class="token script"><span class="token language-javascript">
+<span class="token keyword">import</span> <span class="token punctuation">{</span>Page<span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'@wxa/core'</span><span class="token punctuation">;</span>
+
+@Page
+<span class="token keyword">export</span> <span class="token keyword">default</span> <span class="token keyword">class</span> <span class="token class-name">Index</span> <span class="token punctuation">{</span>
+    data <span class="token operator">=</span> <span class="token punctuation">{</span>
+        formData<span class="token operator">:</span> <span class="token punctuation">{</span>
+            name<span class="token operator">:</span> <span class="token string">''</span><span class="token punctuation">,</span>
+            email<span class="token operator">:</span> <span class="token string">''</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+    watch <span class="token operator">=</span> <span class="token punctuation">{</span>
+        <span class="token function">formData</span><span class="token punctuation">(</span><span class="token parameter">newValue</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token comment">// 判断表单数据是否为空</span>
+            <span class="token keyword">let</span> isValid <span class="token operator">=</span> <span class="token operator">!</span><span class="token operator">!</span>Object<span class="token punctuation">.</span><span class="token function">keys</span><span class="token punctuation">(</span>newValue<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter">key</span><span class="token punctuation">)</span><span class="token operator">=&gt;</span><span class="token operator">!</span>newValue<span class="token punctuation">[</span>key<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">setData</span><span class="token punctuation">(</span><span class="token punctuation">{</span>isValid<span class="token punctuation">}</span><span class="token punctuation">)</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">&gt;</span></span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br><span class="line-number">24</span><br><span class="line-number">25</span><br></div></div><p>当表单填写完毕之后，提交按钮高亮提交，很简单不是吗~</p></div> <footer class="page-edit"><div class="edit-link"><a href="https://github.com/WeBankFinTech/wxa/edit/master/docs/learn/advance/watch-computed.md" target="_blank" rel="noopener noreferrer">在 GitHub 上编辑此页</a> <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></div> <div class="last-updated"><span class="prefix">上次编辑时间:</span> <span class="time">2020-9-20</span></div></footer> <div class="page-nav"><p class="inner"><span class="prev">
+      ←
+      <a href="/wxa/plugin/core/redux.html" class="prev">
+        状态管理方案
+      </a></span> <span class="next"><a href="/wxa/learn/advance/third-party-wxa.html">
+        三方开发和多构建
+      </a>
+      →
+    </span></p></div> </main></div><div class="global-ui"><!----><!----></div></div>
+    <script src="/wxa/assets/js/app.58e7e8f2.js" defer></script><script src="/wxa/assets/js/5.38cbe0cd.js" defer></script><script src="/wxa/assets/js/4.27b682a4.js" defer></script><script src="/wxa/assets/js/21.a5183ffb.js" defer></script><script src="/wxa/assets/js/7.28cc5d92.js" defer></script>
+  </body>
+</html>

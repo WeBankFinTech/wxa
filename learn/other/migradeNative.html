@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>原生小程序迁移到 wxa | wxa.js</title>
+    <meta name="generator" content="VuePress 1.5.4">
+    <link rel="icon" href="/wxa/wxajs.png">
+    <meta name="description" content="渐进式小程序开发框架">
+    <link rel="preload" href="/wxa/assets/css/0.styles.f83c3963.css" as="style"><link rel="preload" href="/wxa/assets/js/app.58e7e8f2.js" as="script"><link rel="preload" href="/wxa/assets/js/5.38cbe0cd.js" as="script"><link rel="preload" href="/wxa/assets/js/4.27b682a4.js" as="script"><link rel="preload" href="/wxa/assets/js/32.045f84a7.js" as="script"><link rel="preload" href="/wxa/assets/js/7.28cc5d92.js" as="script"><link rel="prefetch" href="/wxa/assets/js/10.f6aaeb80.js"><link rel="prefetch" href="/wxa/assets/js/11.54255dea.js"><link rel="prefetch" href="/wxa/assets/js/12.9923669f.js"><link rel="prefetch" href="/wxa/assets/js/13.1c3c51ba.js"><link rel="prefetch" href="/wxa/assets/js/14.a0833e0c.js"><link rel="prefetch" href="/wxa/assets/js/15.14ca9f93.js"><link rel="prefetch" href="/wxa/assets/js/16.96744209.js"><link rel="prefetch" href="/wxa/assets/js/17.db3f7f4a.js"><link rel="prefetch" href="/wxa/assets/js/18.3722b688.js"><link rel="prefetch" href="/wxa/assets/js/19.9fab0459.js"><link rel="prefetch" href="/wxa/assets/js/20.627e5bd5.js"><link rel="prefetch" href="/wxa/assets/js/21.a5183ffb.js"><link rel="prefetch" href="/wxa/assets/js/22.522e44df.js"><link rel="prefetch" href="/wxa/assets/js/23.e7e50950.js"><link rel="prefetch" href="/wxa/assets/js/24.2b9289cb.js"><link rel="prefetch" href="/wxa/assets/js/25.4f12003c.js"><link rel="prefetch" href="/wxa/assets/js/26.e8429a09.js"><link rel="prefetch" href="/wxa/assets/js/27.ba469541.js"><link rel="prefetch" href="/wxa/assets/js/28.4a04d925.js"><link rel="prefetch" href="/wxa/assets/js/29.f0aa0874.js"><link rel="prefetch" href="/wxa/assets/js/30.ef445ed3.js"><link rel="prefetch" href="/wxa/assets/js/31.cc738cb9.js"><link rel="prefetch" href="/wxa/assets/js/33.263c09fe.js"><link rel="prefetch" href="/wxa/assets/js/34.e74abdf3.js"><link rel="prefetch" href="/wxa/assets/js/35.55479d1a.js"><link rel="prefetch" href="/wxa/assets/js/36.3617d1b9.js"><link rel="prefetch" href="/wxa/assets/js/37.be5b6f82.js"><link rel="prefetch" href="/wxa/assets/js/38.035f93a0.js"><link rel="prefetch" href="/wxa/assets/js/39.9f70789c.js"><link rel="prefetch" href="/wxa/assets/js/40.77dce1e4.js"><link rel="prefetch" href="/wxa/assets/js/41.20b0cce6.js"><link rel="prefetch" href="/wxa/assets/js/42.f50982ec.js"><link rel="prefetch" href="/wxa/assets/js/43.f0b1c738.js"><link rel="prefetch" href="/wxa/assets/js/6.3f6d376f.js"><link rel="prefetch" href="/wxa/assets/js/8.92f109f1.js"><link rel="prefetch" href="/wxa/assets/js/9.615a09d6.js"><link rel="prefetch" href="/wxa/assets/js/vendors~docsearch.0af8f36c.js"><link rel="prefetch" href="/wxa/assets/js/vendors~notification.ccb96427.js">
+    <link rel="stylesheet" href="/wxa/assets/css/0.styles.f83c3963.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/wxa/" class="home-link router-link-active"><!----> <span class="site-name">wxa.js</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"><div class="nav-item"><a href="/wxa/learn/guide/" class="nav-link">
+  教程
+</a></div><div class="nav-item"><a href="/wxa/core/" class="nav-link">
+  CORE
+</a></div><div class="nav-item"><a href="/wxa/cli/" class="nav-link">
+  CLI
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="CORE 运行时插件" class="dropdown-title"><span class="title">CORE 运行时插件</span> <span class="arrow down"></span></button> <button type="button" aria-label="CORE 运行时插件" class="mobile-dropdown-title"><span class="title">CORE 运行时插件</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/wxa/plugin/core/validate.html" class="nav-link">
+  Validate 表单校验
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/core/watch.html" class="nav-link">
+  Watch 数据监听
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/core/redux.html" class="nav-link">
+  Redux 全局状态管理
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/core/log.html" class="nav-link">
+  Log 日志上报
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="CLI 预编译插件" class="dropdown-title"><span class="title">CLI 预编译插件</span> <span class="arrow down"></span></button> <button type="button" aria-label="CLI 预编译插件" class="mobile-dropdown-title"><span class="title">CLI 预编译插件</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/uglifyjs.html" class="nav-link">
+  UglifyJS 代码压缩
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/replace.html" class="nav-link">
+  Replace 字符替换
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/copy.html" class="nav-link">
+  Copy 静态资源引入
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/hijack.html" class="nav-link">
+  hijack 事件劫持
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/minify-wxml.html" class="nav-link">
+  Minify-wxml wxml压缩
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/postcss.html" class="nav-link">
+  Postcss CSS预处理
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/da.html" class="nav-link">
+  DA 依赖分析
+</a></li></ul></div></div> <!----></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/wxa/learn/guide/" class="nav-link">
+  教程
+</a></div><div class="nav-item"><a href="/wxa/core/" class="nav-link">
+  CORE
+</a></div><div class="nav-item"><a href="/wxa/cli/" class="nav-link">
+  CLI
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="CORE 运行时插件" class="dropdown-title"><span class="title">CORE 运行时插件</span> <span class="arrow down"></span></button> <button type="button" aria-label="CORE 运行时插件" class="mobile-dropdown-title"><span class="title">CORE 运行时插件</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/wxa/plugin/core/validate.html" class="nav-link">
+  Validate 表单校验
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/core/watch.html" class="nav-link">
+  Watch 数据监听
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/core/redux.html" class="nav-link">
+  Redux 全局状态管理
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/core/log.html" class="nav-link">
+  Log 日志上报
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="CLI 预编译插件" class="dropdown-title"><span class="title">CLI 预编译插件</span> <span class="arrow down"></span></button> <button type="button" aria-label="CLI 预编译插件" class="mobile-dropdown-title"><span class="title">CLI 预编译插件</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/uglifyjs.html" class="nav-link">
+  UglifyJS 代码压缩
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/replace.html" class="nav-link">
+  Replace 字符替换
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/copy.html" class="nav-link">
+  Copy 静态资源引入
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/hijack.html" class="nav-link">
+  hijack 事件劫持
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/minify-wxml.html" class="nav-link">
+  Minify-wxml wxml压缩
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/postcss.html" class="nav-link">
+  Postcss CSS预处理
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/da.html" class="nav-link">
+  DA 依赖分析
+</a></li></ul></div></div> <!----></nav>  <ul class="sidebar-links"><li><a href="/wxa/learn/quickStarted/" class="sidebar-link">快速开始</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/wxa/learn/quickStarted/#申请账号" class="sidebar-link">申请账号</a></li><li class="sidebar-sub-header"><a href="/wxa/learn/quickStarted/#新建项目" class="sidebar-link">新建项目</a></li></ul></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>指南</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>进阶</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading open"><span>其他</span> <span class="arrow down"></span></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/wxa/learn/other/migrade1.x.html" class="sidebar-link">从 wxa1.x 迁移</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/wxa/learn/other/migrade1.x.html#升级依赖" class="sidebar-link">升级依赖</a></li><li class="sidebar-sub-header"><a href="/wxa/learn/other/migrade1.x.html#修改配置" class="sidebar-link">修改配置</a></li><li class="sidebar-sub-header"><a href="/wxa/learn/other/migrade1.x.html#升级-api" class="sidebar-link">升级 API</a></li></ul></li><li><a href="/wxa/learn/other/migradeNative.html" aria-current="page" class="active sidebar-link">原生小程序迁移到 wxa</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/wxa/learn/other/migradeNative.html#现有项目" class="sidebar-link">现有项目</a></li><li class="sidebar-sub-header"><a href="/wxa/learn/other/migradeNative.html#_1-安装cli" class="sidebar-link">1. 安装Cli</a></li><li class="sidebar-sub-header"><a href="/wxa/learn/other/migradeNative.html#_2-安装项目依赖" class="sidebar-link">2. 安装项目依赖</a></li><li class="sidebar-sub-header"><a href="/wxa/learn/other/migradeNative.html#_3-添加配置" class="sidebar-link">3. 添加配置</a></li><li class="sidebar-sub-header"><a href="/wxa/learn/other/migradeNative.html#_4-编译项目" class="sidebar-link">4. 编译项目</a></li><li class="sidebar-sub-header"><a href="/wxa/learn/other/migradeNative.html#_4-从微信开发者工具打开" class="sidebar-link">4. 从微信开发者工具打开</a></li></ul></li></ul></section></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><h1 id="原生小程序迁移到-wxa"><a href="#原生小程序迁移到-wxa" class="header-anchor">#</a> 原生小程序迁移到 wxa</h1> <p>wxa提供了一个方便好用的<code>cli</code>工具，使用cli可以从源站(目前是github)拉取手脚架，快速开始小程序开发。</p> <div class="custom-block warning"><p class="custom-block-title">注意</p> <p>请注意node.js版本 &gt;= 8.15.0</p></div> <h2 id="现有项目"><a href="#现有项目" class="header-anchor">#</a> 现有项目</h2> <p>原有的小程序项目可以不改动代码的情况下快速迁移到wxa下！只需要稍微加配置，旧的小程序项目一样可以享受<code>@wxa</code>提供的便利~</p> <div class="custom-block warning"><p class="custom-block-title">注意</p> <p>迁移项目到wxa前注意备份代码, 方便迁移失败回退。例如<code>git checkout -b backup</code></p></div> <div class="custom-block warning"><p class="custom-block-title">注意</p> <p>请注意node.js版本 &gt;= 8</p></div> <h2 id="_1-安装cli"><a href="#_1-安装cli" class="header-anchor">#</a> 1. 安装Cli</h2> <div class="language-bash line-numbers-mode"><pre class="language-bash"><code><span class="token comment"># 全局安装@wxa/cli</span>
+<span class="token function">npm</span> i -g @wxa/cli2
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br></div></div><h2 id="_2-安装项目依赖"><a href="#_2-安装项目依赖" class="header-anchor">#</a> 2. 安装项目依赖</h2> <div class="custom-block warning"><p class="custom-block-title">注意</p> <p>如果之前没有接入<code>npm</code>，则先运行<code>npm init</code>初始化。</p></div> <div class="language-bash line-numbers-mode"><pre class="language-bash"><code><span class="token comment"># 打开项目目录</span>
+<span class="token comment"># cd path/to/your/project/</span>
+
+<span class="token comment"># 安装依赖</span>
+<span class="token function">npm</span> i @wxa/core @wxa/plugin-replace @wxa/plugin-uglifyjs @wxa/compiler-babel @wxa/compiler-sass babel-eslint @babel/preset-env @babel/plugin-transform-runtime @babel/runtime @babel/plugin-proposal-class-properties @babel/plugin-proposal-decorators cross-env 
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br></div></div><h2 id="_3-添加配置"><a href="#_3-添加配置" class="header-anchor">#</a> 3. 添加配置</h2> <p>添加<code>wxa.config.js</code>到项目目录</p> <div class="language-javascript line-numbers-mode"><pre class="language-javascript"><code>    <span class="token keyword">const</span> path <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'path'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">const</span> UglifyjsPlugin <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'@wxa/plugin-uglifyjs'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">const</span> ReplacePlugin <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'@wxa/plugin-replace'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">let</span> prod <span class="token operator">=</span> process<span class="token punctuation">.</span>env<span class="token punctuation">.</span><span class="token constant">NODE_ENV</span> <span class="token operator">===</span> <span class="token string">'production'</span><span class="token punctuation">;</span>
+    <span class="token keyword">const</span> env <span class="token operator">=</span> process<span class="token punctuation">.</span>env<span class="token punctuation">.</span><span class="token constant">NODE_ENV</span> <span class="token operator">||</span> <span class="token string">'development'</span><span class="token punctuation">;</span>
+
+    <span class="token comment">// 生产和测试环境参数配置</span>
+    <span class="token keyword">const</span> envlist <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'./app.config'</span><span class="token punctuation">)</span><span class="token punctuation">[</span>env<span class="token punctuation">]</span><span class="token punctuation">;</span>
+    module<span class="token punctuation">.</span>exports <span class="token operator">=</span> <span class="token punctuation">{</span>
+        <span class="token comment">// 指定微信开发者工具的目录，用于从cli调用其接口</span>
+        wechatwebdevtools<span class="token operator">:</span> <span class="token string">'/Applications/wechatwebdevtools.app'</span><span class="token punctuation">,</span>
+        <span class="token comment">// 解析配置</span>
+        resolve<span class="token operator">:</span> <span class="token punctuation">{</span>
+            alias<span class="token operator">:</span> <span class="token punctuation">{</span>
+                <span class="token string">'@'</span><span class="token operator">:</span> path<span class="token punctuation">.</span><span class="token function">join</span><span class="token punctuation">(</span>__dirname<span class="token punctuation">,</span> <span class="token string">'src'</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+            <span class="token punctuation">}</span><span class="token punctuation">,</span>
+        <span class="token punctuation">}</span><span class="token punctuation">,</span>
+        <span class="token comment">// 使用到的compiler</span>
+        use<span class="token operator">:</span> <span class="token punctuation">[</span>
+            <span class="token punctuation">{</span>
+                test<span class="token operator">:</span> <span class="token regex">/\.js$|\.wxs$/</span><span class="token punctuation">,</span>
+                name<span class="token operator">:</span> <span class="token string">'babel'</span><span class="token punctuation">,</span>
+                options<span class="token operator">:</span> <span class="token punctuation">{</span>
+                    <span class="token string">&quot;sourceMap&quot;</span><span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+                    <span class="token string">&quot;presets&quot;</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">&quot;@babel/preset-env&quot;</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+                    <span class="token string">&quot;plugins&quot;</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+                        <span class="token punctuation">[</span><span class="token string">&quot;@babel/plugin-transform-runtime&quot;</span><span class="token punctuation">,</span> <span class="token punctuation">{</span><span class="token string">&quot;corejs&quot;</span><span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span> <span class="token string">&quot;version&quot;</span><span class="token operator">:</span> <span class="token string">&quot;7.1.2&quot;</span><span class="token punctuation">}</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+                        <span class="token punctuation">[</span><span class="token string">&quot;@babel/plugin-proposal-decorators&quot;</span><span class="token punctuation">,</span> <span class="token punctuation">{</span><span class="token string">&quot;decoratorsBeforeExport&quot;</span><span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">}</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+                        <span class="token punctuation">[</span><span class="token string">&quot;@babel/plugin-proposal-class-properties&quot;</span><span class="token punctuation">]</span>
+                    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+                    <span class="token string">&quot;ignore&quot;</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+                        <span class="token string">&quot;node_modules&quot;</span>
+                    <span class="token punctuation">]</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+                test<span class="token operator">:</span> <span class="token regex">/\.sass$|\.scss$/</span><span class="token punctuation">,</span>
+                name<span class="token operator">:</span> <span class="token string">'sass'</span><span class="token punctuation">,</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token comment">// 使用到的plugins</span>
+        plugins<span class="token operator">:</span> <span class="token punctuation">[</span>
+            <span class="token keyword">new</span> <span class="token class-name">ReplacePlugin</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+                list<span class="token operator">:</span> envlist<span class="token punctuation">,</span>
+            <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+        <span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>prod<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        module<span class="token punctuation">.</span>exports<span class="token punctuation">.</span>plugins<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">UglifyjsPlugin</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br><span class="line-number">24</span><br><span class="line-number">25</span><br><span class="line-number">26</span><br><span class="line-number">27</span><br><span class="line-number">28</span><br><span class="line-number">29</span><br><span class="line-number">30</span><br><span class="line-number">31</span><br><span class="line-number">32</span><br><span class="line-number">33</span><br><span class="line-number">34</span><br><span class="line-number">35</span><br><span class="line-number">36</span><br><span class="line-number">37</span><br><span class="line-number">38</span><br><span class="line-number">39</span><br><span class="line-number">40</span><br><span class="line-number">41</span><br><span class="line-number">42</span><br><span class="line-number">43</span><br><span class="line-number">44</span><br><span class="line-number">45</span><br><span class="line-number">46</span><br><span class="line-number">47</span><br><span class="line-number">48</span><br><span class="line-number">49</span><br></div></div><h2 id="_4-编译项目"><a href="#_4-编译项目" class="header-anchor">#</a> 4. 编译项目</h2> <div class="language-bash line-numbers-mode"><pre class="language-bash"><code><span class="token comment"># watch模式编译项目</span>
+wxa2 build --watch
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br></div></div><h2 id="_4-从微信开发者工具打开"><a href="#_4-从微信开发者工具打开" class="header-anchor">#</a> 4. 从微信开发者工具打开</h2> <p>在微信开发者工具中填入小程序appid，把目录指向<code>path/to/your/project/dist</code>。然后就可以开始wxa项目开发了！</p></div> <footer class="page-edit"><div class="edit-link"><a href="https://github.com/WeBankFinTech/wxa/edit/master/docs/learn/other/migradeNative.md" target="_blank" rel="noopener noreferrer">在 GitHub 上编辑此页</a> <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></div> <div class="last-updated"><span class="prefix">上次编辑时间:</span> <span class="time">2019-1-28</span></div></footer> <div class="page-nav"><p class="inner"><span class="prev">
+      ←
+      <a href="/wxa/learn/other/migrade1.x.html" class="prev">
+        从 wxa1.x 迁移
+      </a></span> <!----></p></div> </main></div><div class="global-ui"><!----><!----></div></div>
+    <script src="/wxa/assets/js/app.58e7e8f2.js" defer></script><script src="/wxa/assets/js/5.38cbe0cd.js" defer></script><script src="/wxa/assets/js/4.27b682a4.js" defer></script><script src="/wxa/assets/js/32.045f84a7.js" defer></script><script src="/wxa/assets/js/7.28cc5d92.js" defer></script>
+  </body>
+</html>

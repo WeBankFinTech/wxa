@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>自定义组件 | wxa.js</title>
+    <meta name="generator" content="VuePress 1.5.4">
+    <link rel="icon" href="/wxa/wxajs.png">
+    <meta name="description" content="渐进式小程序开发框架">
+    <link rel="preload" href="/wxa/assets/css/0.styles.f83c3963.css" as="style"><link rel="preload" href="/wxa/assets/js/app.58e7e8f2.js" as="script"><link rel="preload" href="/wxa/assets/js/5.38cbe0cd.js" as="script"><link rel="preload" href="/wxa/assets/js/4.27b682a4.js" as="script"><link rel="preload" href="/wxa/assets/js/24.2b9289cb.js" as="script"><link rel="preload" href="/wxa/assets/js/7.28cc5d92.js" as="script"><link rel="prefetch" href="/wxa/assets/js/10.f6aaeb80.js"><link rel="prefetch" href="/wxa/assets/js/11.54255dea.js"><link rel="prefetch" href="/wxa/assets/js/12.9923669f.js"><link rel="prefetch" href="/wxa/assets/js/13.1c3c51ba.js"><link rel="prefetch" href="/wxa/assets/js/14.a0833e0c.js"><link rel="prefetch" href="/wxa/assets/js/15.14ca9f93.js"><link rel="prefetch" href="/wxa/assets/js/16.96744209.js"><link rel="prefetch" href="/wxa/assets/js/17.db3f7f4a.js"><link rel="prefetch" href="/wxa/assets/js/18.3722b688.js"><link rel="prefetch" href="/wxa/assets/js/19.9fab0459.js"><link rel="prefetch" href="/wxa/assets/js/20.627e5bd5.js"><link rel="prefetch" href="/wxa/assets/js/21.a5183ffb.js"><link rel="prefetch" href="/wxa/assets/js/22.522e44df.js"><link rel="prefetch" href="/wxa/assets/js/23.e7e50950.js"><link rel="prefetch" href="/wxa/assets/js/25.4f12003c.js"><link rel="prefetch" href="/wxa/assets/js/26.e8429a09.js"><link rel="prefetch" href="/wxa/assets/js/27.ba469541.js"><link rel="prefetch" href="/wxa/assets/js/28.4a04d925.js"><link rel="prefetch" href="/wxa/assets/js/29.f0aa0874.js"><link rel="prefetch" href="/wxa/assets/js/30.ef445ed3.js"><link rel="prefetch" href="/wxa/assets/js/31.cc738cb9.js"><link rel="prefetch" href="/wxa/assets/js/32.045f84a7.js"><link rel="prefetch" href="/wxa/assets/js/33.263c09fe.js"><link rel="prefetch" href="/wxa/assets/js/34.e74abdf3.js"><link rel="prefetch" href="/wxa/assets/js/35.55479d1a.js"><link rel="prefetch" href="/wxa/assets/js/36.3617d1b9.js"><link rel="prefetch" href="/wxa/assets/js/37.be5b6f82.js"><link rel="prefetch" href="/wxa/assets/js/38.035f93a0.js"><link rel="prefetch" href="/wxa/assets/js/39.9f70789c.js"><link rel="prefetch" href="/wxa/assets/js/40.77dce1e4.js"><link rel="prefetch" href="/wxa/assets/js/41.20b0cce6.js"><link rel="prefetch" href="/wxa/assets/js/42.f50982ec.js"><link rel="prefetch" href="/wxa/assets/js/43.f0b1c738.js"><link rel="prefetch" href="/wxa/assets/js/6.3f6d376f.js"><link rel="prefetch" href="/wxa/assets/js/8.92f109f1.js"><link rel="prefetch" href="/wxa/assets/js/9.615a09d6.js"><link rel="prefetch" href="/wxa/assets/js/vendors~docsearch.0af8f36c.js"><link rel="prefetch" href="/wxa/assets/js/vendors~notification.ccb96427.js">
+    <link rel="stylesheet" href="/wxa/assets/css/0.styles.f83c3963.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/wxa/" class="home-link router-link-active"><!----> <span class="site-name">wxa.js</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"><div class="nav-item"><a href="/wxa/learn/guide/" class="nav-link router-link-active">
+  教程
+</a></div><div class="nav-item"><a href="/wxa/core/" class="nav-link">
+  CORE
+</a></div><div class="nav-item"><a href="/wxa/cli/" class="nav-link">
+  CLI
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="CORE 运行时插件" class="dropdown-title"><span class="title">CORE 运行时插件</span> <span class="arrow down"></span></button> <button type="button" aria-label="CORE 运行时插件" class="mobile-dropdown-title"><span class="title">CORE 运行时插件</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/wxa/plugin/core/validate.html" class="nav-link">
+  Validate 表单校验
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/core/watch.html" class="nav-link">
+  Watch 数据监听
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/core/redux.html" class="nav-link">
+  Redux 全局状态管理
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/core/log.html" class="nav-link">
+  Log 日志上报
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="CLI 预编译插件" class="dropdown-title"><span class="title">CLI 预编译插件</span> <span class="arrow down"></span></button> <button type="button" aria-label="CLI 预编译插件" class="mobile-dropdown-title"><span class="title">CLI 预编译插件</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/uglifyjs.html" class="nav-link">
+  UglifyJS 代码压缩
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/replace.html" class="nav-link">
+  Replace 字符替换
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/copy.html" class="nav-link">
+  Copy 静态资源引入
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/hijack.html" class="nav-link">
+  hijack 事件劫持
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/minify-wxml.html" class="nav-link">
+  Minify-wxml wxml压缩
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/postcss.html" class="nav-link">
+  Postcss CSS预处理
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/da.html" class="nav-link">
+  DA 依赖分析
+</a></li></ul></div></div> <!----></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/wxa/learn/guide/" class="nav-link router-link-active">
+  教程
+</a></div><div class="nav-item"><a href="/wxa/core/" class="nav-link">
+  CORE
+</a></div><div class="nav-item"><a href="/wxa/cli/" class="nav-link">
+  CLI
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="CORE 运行时插件" class="dropdown-title"><span class="title">CORE 运行时插件</span> <span class="arrow down"></span></button> <button type="button" aria-label="CORE 运行时插件" class="mobile-dropdown-title"><span class="title">CORE 运行时插件</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/wxa/plugin/core/validate.html" class="nav-link">
+  Validate 表单校验
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/core/watch.html" class="nav-link">
+  Watch 数据监听
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/core/redux.html" class="nav-link">
+  Redux 全局状态管理
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/core/log.html" class="nav-link">
+  Log 日志上报
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="CLI 预编译插件" class="dropdown-title"><span class="title">CLI 预编译插件</span> <span class="arrow down"></span></button> <button type="button" aria-label="CLI 预编译插件" class="mobile-dropdown-title"><span class="title">CLI 预编译插件</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/uglifyjs.html" class="nav-link">
+  UglifyJS 代码压缩
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/replace.html" class="nav-link">
+  Replace 字符替换
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/copy.html" class="nav-link">
+  Copy 静态资源引入
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/hijack.html" class="nav-link">
+  hijack 事件劫持
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/minify-wxml.html" class="nav-link">
+  Minify-wxml wxml压缩
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/postcss.html" class="nav-link">
+  Postcss CSS预处理
+</a></li><li class="dropdown-item"><!----> <a href="/wxa/plugin/cli/da.html" class="nav-link">
+  DA 依赖分析
+</a></li></ul></div></div> <!----></nav>  <ul class="sidebar-links"><li><a href="/wxa/learn/quickStarted/" class="sidebar-link">快速开始</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/wxa/learn/quickStarted/#申请账号" class="sidebar-link">申请账号</a></li><li class="sidebar-sub-header"><a href="/wxa/learn/quickStarted/#新建项目" class="sidebar-link">新建项目</a></li></ul></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading open"><span>指南</span> <span class="arrow down"></span></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/wxa/learn/guide/" aria-current="page" class="sidebar-link">介绍</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/wxa/learn/guide/#它是如何工作的" class="sidebar-link">它是如何工作的？</a></li><li class="sidebar-sub-header"><a href="/wxa/learn/guide/#为什么选用它" class="sidebar-link">为什么选用它？</a></li><li class="sidebar-sub-header"><a href="/wxa/learn/guide/#技术特性" class="sidebar-link">技术特性</a></li></ul></li><li><a href="/wxa/learn/guide/construction.html" class="sidebar-link">目录结构</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/wxa/learn/guide/construction.html#主体部分" class="sidebar-link">主体部分</a></li><li class="sidebar-sub-header"><a href="/wxa/learn/guide/construction.html#页面部分" class="sidebar-link">页面部分</a></li></ul></li><li><a href="/wxa/learn/guide/develop.html" class="sidebar-link">基础开发</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/wxa/learn/guide/develop.html#注册小程序" class="sidebar-link">注册小程序</a></li><li class="sidebar-sub-header"><a href="/wxa/learn/guide/develop.html#注册页面" class="sidebar-link">注册页面</a></li></ul></li><li><a href="/wxa/learn/guide/mixin.html" class="sidebar-link">Mixin</a></li><li><a href="/wxa/learn/guide/component.html" aria-current="page" class="active sidebar-link">自定义组件</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/wxa/learn/guide/component.html#原生组件" class="sidebar-link">原生组件</a></li><li class="sidebar-sub-header"><a href="/wxa/learn/guide/component.html#使用wxa编写组件" class="sidebar-link">使用wxa编写组件</a></li><li class="sidebar-sub-header"><a href="/wxa/learn/guide/component.html#使用第三方组件" class="sidebar-link">使用第三方组件</a></li></ul></li><li><a href="/wxa/learn/guide/plugin.html" class="sidebar-link">运行时插件</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/wxa/learn/guide/plugin.html#编写" class="sidebar-link">编写</a></li><li class="sidebar-sub-header"><a href="/wxa/learn/guide/plugin.html#应用" class="sidebar-link">应用</a></li></ul></li><li><a href="/wxa/learn/guide/editor.html" class="sidebar-link">语法高亮和检查</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/wxa/learn/guide/editor.html#编辑器配置" class="sidebar-link">编辑器配置</a></li><li class="sidebar-sub-header"><a href="/wxa/learn/guide/editor.html#eslint代码校验" class="sidebar-link">Eslint代码校验</a></li></ul></li></ul></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>进阶</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>其他</span> <span class="arrow right"></span></p> <!----></section></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><h1 id="自定义组件"><a href="#自定义组件" class="header-anchor">#</a> 自定义组件</h1> <p>与 <code>wepy</code> 自定义组件思路不同的是，<code>@wxa</code> 推荐使用原生小程序提供的组件化方案。</p> <p>我们认为采用原生的自定义组件至少有以下几点好处：</p> <ul><li>官方支持</li> <li>运行时独立上下文</li> <li>UI框架支持</li> <li>可以实现复杂的组件，例如抽象组件等</li></ul> <p>默认条件下，一个原生的自定义组件可以直接在<code>wxa</code>项目中运行，而无需任何额外的配置，编译。</p> <p>但是，如果项目中的组件想要使用wxa的插件功能，比方说<code>redux</code>的数据同步，那么这个组件需要按照<code>wxa</code>要求：导出默认的组件实例对象或者类。</p> <h2 id="原生组件"><a href="#原生组件" class="header-anchor">#</a> 原生组件</h2> <p>引入一个原生组件和小程序原生开发一模一样，只需要在页面或者组件的配置json中指定<code>usingComponents</code>即可。参考<a href="https://developers.weixin.qq.com/miniprogram/dev/framework/custom-component/" target="_blank" rel="noopener noreferrer">微信自定义组件<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></p> <p>在<code>.wxa</code>格式的文件中配置也是一样的：</p> <div class="language-vue line-numbers-mode"><pre class="language-vue"><code><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>template</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>email</span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>email</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>template</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span><span class="token punctuation">&gt;</span></span><span class="token script"><span class="token language-javascript">
+<span class="token keyword">export</span> <span class="token keyword">default</span> <span class="token keyword">class</span> <span class="token class-name">Index</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>config</span><span class="token punctuation">&gt;</span></span>
+{
+    &quot;usingComponents&quot;: {
+        &quot;email&quot;: &quot;path/to/your/component&quot;
+    }
+}
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>config</span><span class="token punctuation">&gt;</span></span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br></div></div><h2 id="使用wxa编写组件"><a href="#使用wxa编写组件" class="header-anchor">#</a> 使用wxa编写组件</h2> <p>要使用wxa编写自定义组件跟开发普通的页面没有太大的区别，只需要新建一个<code>.wxa</code>的文件，然后在<code>config</code>中配置<code>component: true</code>即可。</p> <div class="language-vue line-numbers-mode"><pre class="language-vue"><code><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>config</span><span class="token punctuation">&gt;</span></span>
+{
+    &quot;component&quot;: true
+}
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>config</span><span class="token punctuation">&gt;</span></span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br></div></div><p>在逻辑层，我们需要<strong>导出</strong>一个组件实例对象或者类。</p> <div class="language-vue line-numbers-mode"><pre class="language-vue"><code><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span><span class="token punctuation">&gt;</span></span><span class="token script"><span class="token language-javascript">
+<span class="token keyword">export</span> <span class="token keyword">default</span> <span class="token keyword">class</span> <span class="token class-name">Center</span> <span class="token punctuation">{</span>
+    properties <span class="token operator">=</span> <span class="token punctuation">{</span>
+        direction<span class="token operator">:</span> <span class="token punctuation">{</span>
+            value<span class="token operator">:</span> <span class="token string">'row'</span><span class="token punctuation">,</span>
+            type<span class="token operator">:</span> String<span class="token punctuation">,</span>
+        <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span>
+    <span class="token function">ready</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">setData</span><span class="token punctuation">(</span><span class="token punctuation">{</span>mainPanel<span class="token operator">:</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">flex-direction:</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span><span class="token keyword">this</span><span class="token punctuation">.</span>data<span class="token punctuation">.</span>direction<span class="token interpolation-punctuation punctuation">}</span></span><span class="token template-punctuation string">`</span></span><span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">&gt;</span></span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br></div></div><p>这样，我们就完成了一个简单的自定义组件的编写，后续可以发布到npm上跟更多开发者分享你的代码。在<a href="https://github.com/Genuifx/wxa-ui/blob/master/src/components/center.wxa" target="_blank" rel="noopener noreferrer">这儿<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a>可以看到详细的例子。</p> <div class="custom-block tip"><p class="custom-block-title">提示</p> <p>可以使用<code>Router</code>，<code>Wxapi</code>等提供的装饰器来增强组件的实例。</p> <p>虽然wxa提供了mixin功能，但是自定义组件官方支持<code>behaviors</code>（类似mixins的代码复用）逻辑，可以考虑优先使用<code>behaviors</code>实现~</p></div> <h2 id="使用第三方组件"><a href="#使用第三方组件" class="header-anchor">#</a> 使用第三方组件</h2> <p>利用<a href="/wxa/cli/"><code>@wxa/cli</code></a>我们可以超级方便的引用任何第三方的组件！🎊</p> <p>譬如我们想在项目中使用有赞UI，我们可以先运行<code>npm i vant-weapp</code>安装有赞ui组件。然后在项目json配置文件中直接引用即可：</p> <div class="language-json line-numbers-mode"><pre class="language-json"><code><span class="token punctuation">{</span>
+    <span class="token property">&quot;usingComponents&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+        <span class="token property">&quot;counting&quot;</span><span class="token operator">:</span> <span class="token string">&quot;vant-weapp/dist/checkbox/index&quot;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br></div></div><p>编译后的结果为：</p> <div class="language-json line-numbers-mode"><pre class="language-json"><code><span class="token punctuation">{</span>
+    <span class="token property">&quot;usingComponents&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+        <span class="token property">&quot;counting&quot;</span><span class="token operator">:</span> <span class="token string">&quot;./../npm/vant-weapp/dist/checkbox/index&quot;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br></div></div><p>wxa将会自动的编译对应的组件及其依赖。</p> <div class="custom-block tip"><p class="custom-block-title">wxa-templates</p> <p>创建项目的时候可以直接使用<a href="https://github.com/Genuifx/wxa-templates/tree/master/vant" target="_blank" rel="noopener noreferrer">vant<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a>的模板~，高效简洁</p></div></div> <footer class="page-edit"><div class="edit-link"><a href="https://github.com/WeBankFinTech/wxa/edit/master/docs/learn/guide/component.md" target="_blank" rel="noopener noreferrer">在 GitHub 上编辑此页</a> <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></div> <div class="last-updated"><span class="prefix">上次编辑时间:</span> <span class="time">2020-9-11</span></div></footer> <div class="page-nav"><p class="inner"><span class="prev">
+      ←
+      <a href="/wxa/learn/guide/mixin.html" class="prev">
+        Mixin
+      </a></span> <span class="next"><a href="/wxa/learn/guide/plugin.html">
+        运行时插件
+      </a>
+      →
+    </span></p></div> </main></div><div class="global-ui"><!----><!----></div></div>
+    <script src="/wxa/assets/js/app.58e7e8f2.js" defer></script><script src="/wxa/assets/js/5.38cbe0cd.js" defer></script><script src="/wxa/assets/js/4.27b682a4.js" defer></script><script src="/wxa/assets/js/24.2b9289cb.js" defer></script><script src="/wxa/assets/js/7.28cc5d92.js" defer></script>
+  </body>
+</html>
