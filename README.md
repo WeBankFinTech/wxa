@@ -211,7 +211,7 @@ wxa 是一个 AOP 框架，主要使用 Decorator（运行时改写，拦截）�
 
 ## 社区微信群
 
-![](./640.jpg)
+<img src="./640.jpg" width="380px" height="460px" />
 
 社群二维码过期可联络
 
