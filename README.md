@@ -209,6 +209,16 @@ wxa 是一个 AOP 框架，主要使用 Decorator（运行时改写，拦截）�
 |@wxa/plugin-postcss| 自定义需要引入的postcss插件 |![](https://img.shields.io/npm/v/@wxa/plugin-postcss.svg?label=NPM&color=brightGreen&style=flat-square&logo=npm)
 |@wxa/plugin-dependencies-analysis| 项目构建后的模块依赖关系、体积大小等信息可视化, 方便分析项目的优化空间。|![](https://img.shields.io/badge/Status-Outdated.-orange?style=flat-square)
 
+## 社区微信群
+
+![](./640.jpg)
+
+社群二维码过期可联络
+
+邮箱 junbiaoli@webank.com、iveswen@webank.com
+
+项目负责人微信 szyshangzhiyuan （加好友请备注：wxa） 
+
 ## Contributors ✨
 
 Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
