@@ -208,6 +208,8 @@ wxa 是一个 AOP 框架，主要使用 Decorator（运行时改写，拦截）�
 |@wxa/plugin-minify-wxml| wxml 压缩 |![](https://img.shields.io/npm/v/@wxa/plugin-minify-wxml.svg?label=NPM&color=brightGreen&style=flat-square&logo=npm)
 |@wxa/plugin-postcss| 自定义需要引入的postcss插件 |![](https://img.shields.io/npm/v/@wxa/plugin-postcss.svg?label=NPM&color=brightGreen&style=flat-square&logo=npm)
 |@wxa/plugin-dependencies-analysis| 项目构建后的模块依赖关系、体积大小等信息可视化, 方便分析项目的优化空间。|![](https://img.shields.io/badge/Status-Outdated.-orange?style=flat-square)
+| [wxa-vscode](https://github.com/WeBankFinTech/wxa-vscode) | vscode 插件。开箱即用，安装完毕你将获得：代码自动填充、格式化; 语法高亮、检查（包括wxml、wxs文件）; 代码片段提示; 单文件组件支持 |![](https://img.shields.io/badge/-extension.-brightGreen?style=flat-square)
+
 
 ## 社区微信群
 
