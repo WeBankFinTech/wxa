@@ -1,6 +1,6 @@
 {
   "name": "@wxa/watch",
-  "version": "2.2.7",
+  "version": "2.2.10",
   "description": "watch plugin for wxa",
   "main": "dist/index.js",
   "scripts": {
