@@ -9,6 +9,17 @@
 import WatchJS from 'melanke-watchjs';
 import {diff} from '@wxa/core';
 
+const simpleDeepClone = (val) => {
+    if (val == null) return val;
+    try {
+        let ret = JSON.parse(JSON.stringify(val));
+        return ret;
+    } catch(e) {
+        console.error('[@wxa/watch] 深拷贝失败 ', e);
+        return Object.assign({}, val);
+    }
+}
+
 function computeValue() {
     let cachedComputedResult = {};
     Object.keys(this.computed).forEach((computedGetterName) => {
@@ -17,13 +28,13 @@ function computeValue() {
         }
 
         let computtedSetter = this.computed[computedGetterName].bind(this);
-        cachedComputedResult[computedGetterName] = computtedSetter();
+        cachedComputedResult[computedGetterName] = simpleDeepClone(computtedSetter());
     });
 
     let diffData = diff.bind(this)(cachedComputedResult);
     // console.log('diffData', diffData);
     if (Object.keys(diffData)) this.setData(diffData);
-    this.$$wxaComputedValue = {...diffData};
+    this.$$wxaComputedValue = {...cachedComputedResult};
     this.$$wxaComputedInited = true;
 }
 
