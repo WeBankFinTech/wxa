@@ -10,6 +10,7 @@ const users = {
     4: {name: 'Mark'},
     5: {name: 'Paul'},
     10: {name: 'Ives'},
+    11: {name: 'Genuifx'},
 };
 
 beforeAll(()=>{
@@ -21,18 +22,21 @@ beforeAll(()=>{
                 statusCode: 200,
                 error: 'User with ' + userID + ' not found.',
             });
-        let id = setTimeout(res, 50);
+        let id = setTimeout(res, 500);
 
-        return {abort: ()=> {
-            clearTimeout(id);
-            options.fail({errMsg: 'request:fail abort'});
-        }};
+        return {
+            abort: () => {
+                clearTimeout(id);
+                options.fail({errMsg: 'request:fail abort'});
+            }
+        };
     };
 });
 
 describe('fetch api', ()=>{
     let wrapStatusCode = (data)=>({statusCode: 200, data});
     test('just make a normal request', async () => {
+        
         await expect(fetch('/users/4', {}, {}, 'post')).resolves.toEqual(wrapStatusCode({name: 'Mark'}));
 
         await expect(fetch('/users/5', {}, {}, 'post')).resolves.toEqual(wrapStatusCode({name: 'Paul'}));
@@ -61,11 +65,12 @@ describe('fetch api', ()=>{
     });
 
     test('reject same request in expired time (default 500ms)', async ()=>{
-        let noo = ()=>{};
-        await fetch('/users/1', {}, {}, 'post').catch(noo);
-        await fetch('/users/1', {boo: 1}, {}, 'post').catch(noo);
 
-        expect(fetch('/users/1', {}, {}, 'post')).rejects.toEqual({data: {code: -101, msg: '重复的请求'}});
+        let noo = ()=>{};
+        fetch('/users/1', {}, {}, 'post').catch(noo);
+        fetch('/users/1', {boo: 1}, {}, 'post').catch(noo);
+
+        await expect(fetch('/users/1', {}, {}, 'post')).rejects.toEqual({data: {code: -101, msg: '重复的请求'}});
     });
 
     test('set Multi request', async ()=>{
@@ -86,31 +91,30 @@ describe('fetch api', ()=>{
     test('setup request expired time', async ()=>{
         expect(setRequestExpiredTime(void(0))).toBe(null);
         expect(setRequestExpiredTime(null)).toBe(null);
-
+        
         let c1 = jest.fn();
-
-        setRequestExpiredTime(500);
-        fetch('/users/1', {}, {}, 'post').catch(c1);
-        await expect(fetch('/users/1', {}, {}, 'post')).rejects.toEqual({data: {code: -101, msg: '重复的请求'}});
-
         
         setRequestExpiredTime(0);
-        await fetch('/users/4', {}, {}, 'post').catch(c1);
-
-        await expect(fetch('/users/4', {}, {}, 'post')).resolves.toEqual(wrapStatusCode({name: 'Mark'}));
-
+        fetch('/users/4', {}, {}, 'post').catch(c1);
+        
+        expect(fetch('/users/4', {}, {}, 'post')).resolves.toEqual(wrapStatusCode({name: 'Mark'}));
+        
+        setMaxRequest(10);
+        setRequestExpiredTime(1000);
+        fetch('/users/1000', {}, {}, 'post').catch(c1);
+        await expect(fetch('/users/1000', {}, {}, 'post')).rejects.toEqual({data: {code: -101, msg: '重复的请求'}});
     });
 });
 
 describe('enaled request abort task', ()=>{
     test('make request with abort function', async ()=>{
-        let req = fetch('/users/4', {}, {$withCancel: true});
+        let req = fetch('/users/11', {}, {$withCancel: true});
 
         expect(req).toMatchSnapshot();
         expect(req.request).not.toBeFalsy();
         expect(req.defer).not.toBeFalsy();
         expect(req.cancel).not.toBeFalsy();
-
+        
         req.cancel();
         await expect(req.request).rejects.toMatchObject({errMsg: 'request:fail abort'});
     });

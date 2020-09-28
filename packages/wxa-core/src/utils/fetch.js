@@ -222,6 +222,7 @@ export default function fetch(url, data = {}, axiosConfigs = {}, method = 'get')
                 // 待发送，出队
                 let idx = requestQueue.findIndex((req)=>req.uuid===uuid);
                 if (idx >-1) requestQueue.splice(idx, 1);
+                defer.reject({errMsg: 'request:fail abort', $wxaRequestAbort: true});
             }
         };
 
