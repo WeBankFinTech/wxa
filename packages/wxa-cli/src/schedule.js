@@ -1,11 +1,13 @@
 import crypto from 'crypto';
-import {unlinkSync, statSync} from 'fs';
+import {unlinkSync, statSync, mkdir} from 'fs';
 import path from 'path';
+import fs from 'fs';
+import mkdirp from 'mkdirp';
 import globby from 'globby';
 import debugPKG from 'debug';
 import {SyncHook} from 'tapable';
 
-import {readFile, isFile, getHash, getHashWithString} from './utils';
+import {readFile, isFile, getHash, getHashWithString, copy} from './utils';
 import bar from './helpers/progressBar';
 import {logger, error} from './helpers/logger';
 import COLOR from './const/color';
@@ -100,8 +102,10 @@ class Schedule {
 
     addEntryPoint(mdl) {
         let child = this.findOrAddDependency(mdl, ROOT);
+        // console.info('入口文件', child, ROOT);
 
         if (!ROOT.childNodes.has(mdl.src)) ROOT.childNodes.set(child.src, child);
+        // console.info('entry', child, ROOT);
 
         return child;
     }
@@ -455,6 +459,18 @@ class Schedule {
             Object.values(this.appConfigs.usingComponents).forEach((val) => {
                 pages = pages.concat([['', val]]);
             });
+        }
+
+        let themeLocation = this.appConfigs.themeLocation || this.appConfigs.themelocation;
+        if (themeLocation) {
+            let rootPath = path.join(this.meta.current, themeLocation);
+            let srcPath = path.join(this.meta.context, themeLocation);
+            let outputPath = this.meta.output.path;
+            if (isFile(rootPath)) {
+                copy(rootPath, path.join(outputPath, themeLocation));
+            } else if (isFile(srcPath)) {
+                copy(srcPath, path.join(outputPath, themeLocation));
+            }
         }
 
         // pages spread
