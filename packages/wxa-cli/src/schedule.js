@@ -1,8 +1,6 @@
 import crypto from 'crypto';
-import {unlinkSync, statSync, mkdir} from 'fs';
+import {unlinkSync, statSync} from 'fs';
 import path from 'path';
-import fs from 'fs';
-import mkdirp from 'mkdirp';
 import globby from 'globby';
 import debugPKG from 'debug';
 import {SyncHook} from 'tapable';
@@ -102,10 +100,8 @@ class Schedule {
 
     addEntryPoint(mdl) {
         let child = this.findOrAddDependency(mdl, ROOT);
-        // console.info('入口文件', child, ROOT);
 
         if (!ROOT.childNodes.has(mdl.src)) ROOT.childNodes.set(child.src, child);
-        // console.info('entry', child, ROOT);
 
         return child;
     }
@@ -461,16 +457,19 @@ class Schedule {
             });
         }
 
-        let themeLocation = this.appConfigs.themeLocation || this.appConfigs.themelocation;
+        let themeLocation = this.appConfigs.themeLocation;
         if (themeLocation) {
-            let rootPath = path.join(this.meta.current, themeLocation);
             let srcPath = path.join(this.meta.context, themeLocation);
-            let outputPath = this.meta.output.path;
-            if (isFile(rootPath)) {
-                copy(rootPath, path.join(outputPath, themeLocation));
-            } else if (isFile(srcPath)) {
-                copy(srcPath, path.join(outputPath, themeLocation));
-            }
+            let dr = new DependencyResolver(this.wxaConfigs.resolve, this.meta);
+            this.addEntryPoint({
+                src: srcPath,
+                pret: defaultPret,
+                category: 'Entry',
+                meta: {
+                    source: srcPath,
+                    outputPath: dr.getOutputPath(srcPath, defaultPret, ROOT),
+                },
+            });
         }
 
         // pages spread
