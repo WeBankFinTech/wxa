@@ -128,6 +128,9 @@ wxa.launchComponent(e2eBtn);
     width: 200rpx;
     left: 0;
     z-index: 99999999999;
+    background-color: #fff;
+    color: #333;
+    border: 1px solid #bbb;
 }
 .e2e-input{
     background-color: #fff;
