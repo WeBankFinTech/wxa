@@ -22,12 +22,16 @@
             ],
             "args": ["test", "--e2e"],
             "program": "${workspaceFolder}/packages/wxa-cli/bin/wxa.js",
-            "cwd": "填入你任意小程序dist目录-绝对路径"
+            "cwd": "填入你任意小程序dist目录-绝对路径",
+            "env": {
+                "NODE_ENV": "可选，一般为dev或build，根据你的项目写"
+            },
+            "runtimeExecutable": "可选，node位置，我的是/usr/local/opt/nvm/versions/node/v12.13.1/bin/node"
         }
     ]
 }
 ```
-* wxa目录下执行 `npx learn bootstrap`
+* wxa目录下执行 `npx lerna bootstrap`
 * pacakages/wxa-core，执行`npm run dev`,`yarn link`
 * 小程序目录执行`yarn link @wxa/core`
 * pacakages/wxa-cli，执行`npm run dev`
