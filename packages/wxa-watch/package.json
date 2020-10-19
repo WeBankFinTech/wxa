@@ -1,6 +1,6 @@
 {
   "name": "@wxa/watch",
-  "version": "2.2.0",
+  "version": "2.2.10",
   "description": "watch plugin for wxa",
   "main": "dist/index.js",
   "scripts": {
@@ -17,13 +17,13 @@
   "repository": "https://github.com/wxajs/wxa.git",
   "homepage": "https://wxajs.github.io/wxa/",
   "dependencies": {
+    "@wxa/core": "^2.2.7",
     "melanke-watchjs": "^1.4.3"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "babel-preset-env": "^1.7.0",
-    "jest": "^23.1.0"
+    "babel-preset-env": "^1.7.0"
   },
   "publishConfig": {
     "access": "public"

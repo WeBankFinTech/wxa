@@ -1,18 +1,18 @@
 var path = require('path')
 
 module.exports = {
-    title: '@wxa',
+    title: 'wxa.js',
     base: '/wxa/',
     contentLoading: true,
     head: [
-        ['link', { rel: 'icon', href: `/logo-mini.png` }],
+        ['link', { rel: 'icon', href: `/wxajs.png` }],
     ],
     locales: {
         '/': {
             lang: 'zh-CN',
             selectText: '选择语言',
             label: '简体中文',
-            description: '一个小程序框架',
+            description: '渐进式小程序开发框架',
         },
         // '/lang/english/': {
         //     lang: 'en-US',
@@ -24,10 +24,12 @@ module.exports = {
     markdown: {
         lineNumbers: true
     },
+    theme: './theme',
     themeConfig: {
+        // logo: 'wxajs-color.svg',
         displayAllHeaders: true,
-        repo: 'wxajs/wxa',
-        docsRepo: 'wxajs/wxa',
+        // repo: 'WeBankFinTech/wxa',
+        docsRepo: 'WeBankFinTech/wxa',
         docsDir: 'docs',
         editLinks: true,
         editLinkText: '帮助我们改善此页面！',
@@ -66,9 +68,6 @@ module.exports = {
                             {text: 'Postcss CSS预处理', link: '/plugin/cli/postcss'},
                             {text: 'DA 依赖分析', link: '/plugin/cli/da'},
                         ]
-                    },
-                    {
-                        text: '1.x', link: 'https://genuifx.com/wxa/v0/'
                     }
                 ],
             },
@@ -96,8 +95,10 @@ module.exports = {
                     sidebarDepth: 0,
                     children: [
                         '/learn/advance/preload',
+                        '/plugin/core/redux',
+                        '/learn/advance/watch-computed',
                         '/learn/advance/third-party-wxa',
-                        '/learn/advance/wxa-directive'
+                        '/learn/advance/wxa-directive',
                     ]
                 },
                 {
@@ -143,7 +144,7 @@ module.exports = {
         '@vuepress/plugin-medium-zoom',
         'flowchart',
         ['@vuepress/google-analytics', {ga: 'UA-116900237-1'}],
-        ['sitemap', { hostname: 'https://wxajs.github.io/wxa/'}]
+        ['sitemap', { hostname: 'https://webankfintech.github.io/wxa/'}]
     ],
     // clientRootMixin: path.resolve(__dirname, 'mixin.js')
 }

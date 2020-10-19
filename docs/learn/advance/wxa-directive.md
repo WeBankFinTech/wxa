@@ -1,4 +1,4 @@
-# 指令
+# Mock 指令
 
 ## wxa:mock
 

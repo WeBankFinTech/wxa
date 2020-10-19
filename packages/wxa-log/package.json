@@ -1,6 +1,6 @@
 {
   "name": "@wxa/log",
-  "version": "2.2.4",
+  "version": "2.2.7",
   "description": "集合小程序实时日志上报以及普通console",
   "main": "src/index.js",
   "scripts": {
@@ -16,7 +16,7 @@
   "author": "lucaszhu <lucaszhu@webank.com>",
   "license": "MIT",
   "dependencies": {
-    "lodash": "^4.17.15"
+    "lodash": "^4.17.20"
   },
   "publishConfig": {
     "access": "public"

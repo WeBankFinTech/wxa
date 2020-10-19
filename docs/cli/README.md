@@ -1,8 +1,8 @@
 # CLI
 
-![NpmLicense](https://img.shields.io/npm/l/@wxa/cli2.svg)
-![node (scoped with tag, custom registry)](https://img.shields.io/badge/node-%3E%3D%208.15.0-brightgreen.svg?maxAge=2592000)
-[![NPM version](https://img.shields.io/npm/v/@wxa/cli2/latest.svg)](https://www.npmjs.com/package/@wxa/cli2)
+![NpmLicense](https://img.shields.io/npm/l/@wxa/cli2.svg?color=brightGreen&style=flat-square&label=License)
+![node (scoped with tag, custom registry)](https://img.shields.io/badge/node-%3E%3D%208.15.0-brightgreen.svg?maxAge=2592000&style=flat-square)
+[![NPM version](https://img.shields.io/npm/v/@wxa/core.svg?label=NPM&color=brightGreen&style=flat-square&logo=npm)](https://www.npmjs.com/package/@wxa/cli2)
 
 为小程序开发定制的命令行工具。以模块化方式处理项目依赖，通过依赖分析得到整个项目的结构，在优化代码后最终生成目标小程序代码。
 
@@ -19,9 +19,9 @@
 - 🤖 **组件库** 任意第三方组件库，随时安装使用，完美适配 weui, vant-weapp, wux-weapp, iview-weapp 等组件库。
 - 🖖 **Vue单文件** SFC 单文件组件开发，组件和页面可以把`js`,`wxss`,`wxml`,`json`写在同一个`.wxa`文件。
 - :electric_plug: **插件机制** 利用插件机制，可以定制自己的文件处理流。
-- :computer: **编译器** 支持`ES*`, `Sass`, `Stylus`。
+- :computer: **编译器** 支持`ES*`, `Sass`, `Stylus` 语法。
 - :loop: **CLI调用** 无需打开开发者工具，即可预览、上传代码。:airplane:
-- :dart: **批量编译** 一次性编译出多个三方开发小程序。
+- :dart: **批量编译** 一次性编译出多个小程序或其他平台小程序，高度适用于三方开发或多平台分发场景。
 
 ## TODO
 - :ballot_box_with_check: **编译到其他小程序平台** 

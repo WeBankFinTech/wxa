@@ -1,0 +1,32 @@
+$homePageWidth=100%
+$featureWidth=1024px;
+// $accentColor=#062f56;
+$accentColor=darken(#1864af, 5%);
+// $navbarBg=#34495e;
+$navbarBg=darken(#1864af, 40%);
+// $navbarBg=black;
+// $navBartextColor=#e7dacb;
+$navBartextColor=#fff;
+// $navbarBg=#1864af;
+// $textColor=#e7dacb;
+
+.home
+    padding: 0
+
+    .features
+        padding 1.2rem 2rem
+        max-width $featureWidth
+        margin 0 auto
+
+.theme-default-content.custom
+    max-width $featureWidth
+    margin 0 auto
+
+.navbar a, .navbar a:hover, .navbar a.router-link-active
+    color #fff
+
+.dropdown-wrapper .dropdown-title, .dropdown-wrapper .mobile-dropdown-title
+    color $navBartextColor
+    
+.dropdown-item .nav-link
+    color $accentColor

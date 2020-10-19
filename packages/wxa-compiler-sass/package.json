@@ -1,6 +1,6 @@
 {
     "name": "@wxa/compiler-sass",
-    "version": "2.2.0",
+    "version": "2.2.7",
     "description": "wxa sass compiler",
     "main": "dist/index.js",
     "scripts": {
@@ -29,7 +29,7 @@
         "debug": "^4.0.1"
     },
     "dependencies": {
-        "node-sass": "^4.12.0"
+        "node-sass": "^4.14.1"
     },
     "publishConfig": {
         "access": "public"

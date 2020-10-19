@@ -91,6 +91,12 @@ module.exports = {
 
 别名
 
+### resolve.exclude
+- **类型**: `String|Array`
+- **用法**:
+
+排除编译匹配的依赖
+
 ## entry
 - **类型**: `Array`
 - **用法**:
@@ -134,21 +140,26 @@ module.exports = {
 ### optimization.splitDeps.maxDeps
 是否应用依赖分包算法，自动分配依赖到主包分包。默认为 -1，即关闭，maxDeps的含义为当且仅当 N 个分包同时依赖一个第三方的包，该包会被分配到主包，N >= maxDeps。
 
-### optimization.allowEmptyAttributes
-是否允许空属性，默认 `true`，自动补全清单内的属性。
-
 ### optimization.transformPxToRpx
 是否自动将 px 转为 rpx 单位，默认 `false`。打开该开关将自动使用 `postcss`  [插件](https://github.com/Genuifx/postcss-pxtorpx-pro)将项目中的 `px` 单位按照比例转为`rpx` 单位
+
+### optimization.allowEmptyAttributes
+是否允许空属性，默认 `true`，不要改动该配置，除非你清楚自己要做什么:warning:。
 
 ## plugins
 
 目前支持的插件有：
-- [`@wxa/plugin-replace`](https://github.com/Genuifx/wxa/tree/master/packages/wxa-plugin-replace)
-- [`@wxa/plugin-uglifyjs`](https://github.com/Genuifx/wxa/tree/master/packages/wxa-plugin-uglifyjs)
-- [`@wxa/plugin-postcss`](https://github.com/Genuifx/wxa/tree/master/packages/wxa-plugin-postcss)
-- [`@wxa/plugin-copy`](https://github.com/Genuifx/wxa/tree/master/packages/wxa-plugin-copy)
+|包名|描述|版本
+|-----|----|----|
+|@wxa/plugin-uglifyjs| 压缩美化 Javascript 代码 |![](https://img.shields.io/npm/v/@wxa/plugin-uglifyjs.svg?label=NPM&color=brightGreen&style=flat-square&logo=npm)
+|@wxa/plugin-replace| 任意字符替换，用于生产测试参数替换 |![](https://img.shields.io/npm/v/@wxa/plugin-replace.svg?label=NPM&color=brightGreen&style=flat-square&logo=npm)
+|@wxa/plugin-copy| 复制指定静态资源 |![](https://img.shields.io/npm/v/@wxa/plugin-copy.svg?label=NPM&color=brightGreen&style=flat-square&logo=npm)
+|@wxa/plugin-bind-hijack| 劫持小程序bind事件插件 |![](https://img.shields.io/npm/v/@wxa/plugin-bind-hijack.svg?label=NPM&color=brightGreen&style=flat-square&logo=npm)
+|@wxa/plugin-minify-wxml| wxml 压缩 |![](https://img.shields.io/npm/v/@wxa/plugin-minify-wxml.svg?label=NPM&color=brightGreen&style=flat-square&logo=npm)
+|@wxa/plugin-postcss| 自定义需要引入的postcss插件 |![](https://img.shields.io/npm/v/@wxa/plugin-postcss.svg?label=NPM&color=brightGreen&style=flat-square&logo=npm)
+|@wxa/plugin-dependencies-analysis| 项目构建后的模块依赖关系、体积大小等信息可视化, 方便分析项目的优化空间。|![](https://img.shields.io/badge/Status-Outdated.-orange?style=flat-square)
 
-用法如下：
+示例用法如下：
 
 ``` js
 const UglifyjsPlugin = require('@wxa/plugin-uglifyjs');

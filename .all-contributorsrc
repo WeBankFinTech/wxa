@@ -1,0 +1,112 @@
+{
+  "projectName": "wxa",
+  "projectOwner": "wxajs",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": true,
+  "commitConvention": "angular",
+  "contributors": [
+    {
+      "login": "Genuifx",
+      "name": "WZT",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/10156994?v=4",
+      "profile": "https://genuifx.github.io/",
+      "contributions": [
+        "code",
+        "maintenance"
+      ]
+    },
+    {
+      "login": "biaodoit",
+      "name": "biaodoit",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/2704629?v=4",
+      "profile": "https://github.com/biaodoit",
+      "contributions": [
+        "code",
+        "maintenance"
+      ]
+    },
+    {
+      "login": "szYuan",
+      "name": "shangzy",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/12182232?v=4",
+      "profile": "http://www.szy321.com/",
+      "contributions": [
+        "code",
+        "maintenance"
+      ]
+    },
+    {
+      "login": "hm-fannie",
+      "name": "Min Huang",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/6054788?v=4",
+      "profile": "https://github.com/hm-fannie",
+      "contributions": [
+        "code",
+        "maintenance"
+      ]
+    },
+    {
+      "login": "lucaszhu2zgf",
+      "name": "lucaszhu",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/2087827?v=4",
+      "profile": "https://github.com/lucaszhu2zgf",
+      "contributions": [
+        "code",
+        "maintenance"
+      ]
+    },
+    {
+      "login": "liuhang8023",
+      "name": "hughliu",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/24379224?v=4",
+      "profile": "https://github.com/liuhang8023",
+      "contributions": [
+        "code",
+        "maintenance"
+      ]
+    },
+    {
+      "login": "FlyDaisy",
+      "name": "FlyDaisy",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/33273144?v=4",
+      "profile": "https://github.com/FlyDaisy",
+      "contributions": [
+        "code",
+        "maintenance"
+      ]
+    },
+    {
+      "login": "zehuiguan",
+      "name": "Zachary Kwan",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/11681043?v=4",
+      "profile": "https://zacharykwan.com/",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "zcfan",
+      "name": "Alan Zhang",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/1666185?v=4",
+      "profile": "https://segmentfault.com/u/alan",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "hanzooo",
+      "name": "hanzooo",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/16368939?v=4",
+      "profile": "https://github.com/hanzooo",
+      "contributions": [
+        "code"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7
+}

@@ -1,5 +1,9 @@
 {
-	"name": "wxa",
+	"private": true,
+	"description": "轻量级的渐进式小程序开发框架，专注于小程序原生开发，提供更好的工程化、代码复用能力，提高开发效率并改善开发体验。",
+	"workspaces": [
+		"packages/*"
+	],
 	"version": "1.0.0",
 	"devDependencies": {
 		"@babel/core": "^7.2.0",
@@ -47,5 +51,9 @@
 	},
 	"publishConfig": {
 		"access": "public"
+	},
+	"dependencies": {
+		"@vuepress/theme-default": "^1.5.4",
+		"vue-server-renderer": "^2.6.12"
 	}
 }

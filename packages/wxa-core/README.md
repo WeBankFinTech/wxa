@@ -1,12 +1,10 @@
 # @wxa/core
-[![NPM version](https://img.shields.io/npm/v/@wxa/core/next.svg)](https://www.npmjs.com/package/@wxa/core)
-![npm bundle size (minified + gzip)](https://img.shields.io/bundlephobia/minzip/@wxa/core/next.svg)
-![node (scoped with tag, custom registry)](https://img.shields.io/node/v/@stdlib/stdlib/latest.svg?registry_uri=https%3A%2F%2Fregistry.npmjs.com)
-![NpmLicense](https://img.shields.io/npm/l/@wxa/core.svg)
 
-[详细的文档](https://genuifx.github.io/wxa/core/)
+![NpmLicense](https://img.shields.io/npm/l/@wxa/core.svg?color=brightGreen&style=flat-square&label=License)
+[![NPM version](https://img.shields.io/npm/v/@wxa/core.svg?label=NPM&color=brightGreen&style=flat-square&logo=npm)](https://www.npmjs.com/package/@wxa/core)
+![npm bundle size (minified + gzip)](https://img.shields.io/bundlephobia/minzip/@wxa/core/latest.svg?style=flat-square)
+![Github Actions](https://github.com/WeBankFinTech/wxa/workflows/Jest%20&%20Codecov/badge.svg?branch=master&style=flat-square)
 
-[More Detail Documentation](https://genuifx.github.io/wxa/core/)
 
 `@wxa/core`是一个非常小巧的包，提供了网络请求、缓存操作、事件总线、Mixins等能力。
 
@@ -17,12 +15,13 @@
 `core`可以单独使用，但是一般推荐配合[`@wxa/cli2`](../cli/)一起使用，体验更佳:kissing:
 
 ## 特性
-- :white_check_mark: **Fetch** 自动防重，自动队列管理的网络请求方法。
-- :white_check_mark: **Router** 简洁的跳转API，实现预加载的关键。
-- :white_check_mark: **Eventbus** 跨页面，跨组件交互的简单方案。
-- :white_check_mark: **Mixins** 混合，跨页面、跨组件复用逻辑。
-- :white_check_mark: **Diff** 增量设置数据。
-- :white_check_mark: **Lock** 防止异步函数重复调用。
+- :white_check_mark:  **Fetch** 自动防重，自动队列管理的网络请求方法。
+- :white_check_mark:  **Router** 简洁的跳转API，实现预加载的关键。
+- :white_check_mark:  **Eventbus** 跨页面，跨组件交互的简单方案。
+- :white_check_mark:  **Mixins** 混合，跨页面、跨组件复用逻辑。
+- :white_check_mark:  **Diff** 增量设置数据。
+- :white_check_mark:  **Storage** 小程序持久化缓存数据。
+- :white_check_mark:  **SessionStorage** 应用周期内缓存数据。
 
 ## 安装
 ```bash
