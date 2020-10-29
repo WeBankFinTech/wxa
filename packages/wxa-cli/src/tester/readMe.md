@@ -44,11 +44,9 @@
 
 ### 测试脚本回放
 * `npm i -g jest`
-* 项目下执行 `npm i miniprogram-automator·
-* 项目根目录下添加`babel.config.js`文件
+* 项目下执行 `npm i miniprogram-automator`
 * 开发者工具修改调试基础库 2.7.3以上（src/project.config.json需同步修改libVersion）
-* 项目根目录下添加文件babel.config.js
-
+* 项目根目录下添加文件`babel.config.js`
 ```
 const path = require('path');
 const existsSync = require('fs').existsSync;
@@ -81,3 +79,4 @@ module.exports = {
     }]
 }
 ```
+* 项目根目录下执行`jest __wxa_e2e_test__`

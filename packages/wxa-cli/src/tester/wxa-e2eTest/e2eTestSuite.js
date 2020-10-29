@@ -32,7 +32,8 @@ const shouldRecord = function(type, ...args) {
         return false;
     }
     // 当前页面的操作才记录
-    if (getCurrentPages()[0].__wxWebviewId__ !== this.__wxWebviewId__){
+    let currentPages = getCurrentPages();
+    if (currentPages[currentPages.length - 1].__wxWebviewId__ !== this.__wxWebviewId__){
         return false;
     }
     if (e.target.dataset.e2ebtn === 'true') {
