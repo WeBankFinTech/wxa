@@ -12,16 +12,8 @@ let remoteMap = new Map([
     ['gitee', 'https://gitee.com/wxajs'],
 ]);
 
-function getQA(templateConfigs) {
+function getQATemplate(templateConfigs) {
     return [
-    {
-        type: 'input',
-        name: 'projectName',
-        message: '输入项目名',
-        validate: (input)=>{
-            return !(input == null || input === '');
-        },
-    },
     {
         type: 'list',
         name: 'template',
@@ -34,8 +26,28 @@ function getQA(templateConfigs) {
         name: 'appid',
         message: '小程序APPID',
         default: '',
-    },
+    }
     ];
+}
+
+function getQAProjectName() {
+    return [
+    {
+        type: 'input',
+        name: 'projectName',
+        message: '输入项目名',
+        validate: (input)=>{
+            return !(input == null || input === '');
+        },
+    }
+    ];
+}
+
+function getQA(templateConfigs) {
+    return [
+        ...getQAProjectName(),
+        ...getQATemplate(templateConfigs)
+    ]
 }
 class Creator {
     constructor(cmd) {
@@ -44,26 +56,39 @@ class Creator {
     }
 
     async run() {
-        let configs = await this.getRemoteConfigs();
-        let options = await inquirer.prompt(getQA(JSON.parse(configs)));
-
+        let options;
+        try {
+            // 先尝试从github、gitee远程拉取模版配置json，并询问项目名+模板类型
+            let configs = await this.getRemoteConfigs();
+            options = await inquirer.prompt(getQA(JSON.parse(configs)));
+        } catch (err) {
+            // getRemoteConfigs失败后，先询问项目名，clone git模版仓库，拿到模版再配置询问模版类型
+            options = await inquirer.prompt(getQAProjectName());
+        }
         this.create(options);
     }
 
-    create({projectName, template, ...rest}) {
-        this.clone(template, projectName, rest);
+    async create({projectName, template, ...rest}) {
+        await this.clone(template, projectName, rest);
     }
 
-    clone(template, name, rest) {
+    async clone(template, name, rest) {
         let full = `${this.prefix}/wxa-templates.git`;
 
         logger.info('Downloading', `正在从 ${full} 下载模板`);
-        let childProcess = exec(`git clone ${full} ${name}`, function(err, stdout, stderr) {
+        let childProcess = exec(`git clone ${full} ${name}`, async (err, stdout, stderr) => {
             if (err) {
                 logger.error(err);
             } else {
                 logger.info('Clone', `成功下载模板 ${full}`);
                 try {
+                    // 如果暂未选择对应模版（远程拉取到模版配置失败），在此时选择模版类型
+                    if (!template) {
+                        let configs = await this.getLocalConfigs(name);
+                        let options = await inquirer.prompt(getQATemplate(JSON.parse(configs)));
+                        template = options.template;
+                        rest = options;
+                    }
                     let cwd = process.cwd();
                     let tmpDir = Date.now()+`_${template}`;
 
@@ -105,23 +130,30 @@ class Creator {
         });
     }
 
+
+    getLocalConfigs(projectName) {
+        const data = fs.readFileSync(path.resolve('./', projectName, 'configs.json'));
+        return data;
+    }
+
     getRemoteConfigs() {
         let data = '';
+        // configs.json获取失败的话，就先clone项目再询问模版类型
         return new Promise((resolve, reject) => {
             let req = https.get(`${this.prefix}/wxa-templates/raw/master/configs.json`, (res)=>{
                 res.on('data', (d)=>{
                     data += d.toString();
                 });
-                res.on('error', (e)=>{
-                    reject(e);
-                });
+
                 res.on('close', ()=>{
                     resolve(data);
                 });
+            }).on('error', (e)=>{
+                reject(e);
             });
-
             req.end();
         });
+
     }
 }
 
