@@ -3,6 +3,7 @@ import https from 'https';
 import {spawnBuilder} from './builder';
 import chalk from 'chalk';
 import Creator from './creator';
+import convert from './convert';
 import {spawnDevToolCli} from './toolcli';
 import {getConfigs} from './getConfigs';
 import {WXA_PROJECT_NAME} from './const/wxaConfigs';
@@ -80,6 +81,18 @@ commander
         processProjectsOptions(configs, cmd);
 
         spawnDevToolCli(configs, cmd);
+    });
+
+commander
+    .command('convert')
+    .description('原生小程序代码转 wxa')
+    .option('-i, --input <input>', '原生小程序代码路径')
+    .option('-o, --output <output>', '输出路径')
+    .action(async (cmd)=>{
+        showSlogan();
+        console.info('🦊 Converting 转换中');
+
+        convert(cmd);
     });
 
 commander.parse(process.argv);

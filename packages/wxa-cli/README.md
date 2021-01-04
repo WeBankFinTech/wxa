@@ -55,3 +55,6 @@ npm i -g @wxa/cli2@next
     - `wxa2 cli -a preview`: 预览项目
     - `wxa2 cli -a upload`: 上传项目
     - `wxa2 cli -a login`: 登录微信，`preview`和`upload`都需要登录微信后操作
+
+6. 原生代码转换为 `.wxa` 代码  
+`wxa convert -i <src directory> -o <output directory>`
