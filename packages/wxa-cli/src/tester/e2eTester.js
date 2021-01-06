@@ -194,10 +194,13 @@ class TesterBuilder extends Builder {
 
             try {
                 let recordString = await e2eRecord2js(data.record, {cliPath: cli, name: data.name});
-
-                let outputPath = path.join(this.current, cmdOptions.outDir, data.name+'.test.js');
+                let outputPathBase = path.join(this.current, cmdOptions.outDir, data.name);
+                let e2eRecordOutputPath = `${outputPathBase}.test.js`;
+                let apiRecordOutputPath = `${outputPathBase}.api.json`;
                 // save file;
-                writeFile(outputPath, recordString);
+
+                writeFile(e2eRecordOutputPath, recordString);
+                writeFile(apiRecordOutputPath, JSON.stringify(data.apiRecord))
             } catch (e) {
                 logger.error('生成测试案例失败', e);
             }

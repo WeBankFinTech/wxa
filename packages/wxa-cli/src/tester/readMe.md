@@ -4,6 +4,8 @@
     * catchtap、catchlongpress等阻止冒泡事件（自动化element.tap、element.longpress等方法无法阻止冒泡）
 	* 主动操作返回（因无法监听返回事件，所以录制过程中 *点击物理返回键*、*小程序titlebar返回键*、*ios手势返回*等返回操作，暂无法支持）
     * 小程序原生的showModal、showActionSheet上的点击操作，无法录制&回放。虽然可以往wxa/core植入点代码，知道用户点击了哪个，执行了哪个函数。但回放的时候，原生的元素取不到，如果直接执行对应函数的话，modal弹框会一直在界面上，除非用户操作不然都不会消失
+* 已知bug：
+    * tap事件绑定在父元素上，且依赖子元素上data数据的话，会有问题。应该要每个元素都给id编号，然后tap事件找到detail.target真实触发的元素，回放的时候tap detail.target那个元素
 
 
 2019年8月22日

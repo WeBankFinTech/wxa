@@ -2,6 +2,8 @@
 /* eslint-disable no-undef */
 import automator from 'miniprogram-automator';
 import path from 'path';
+let fileName = path.basename(__filename).replace('.test.js', '')
+const apiMockMap = require(`./${fileName}.api.json`);
 
 let miniProgram;
 let page;
@@ -24,6 +26,24 @@ const sleep = t => new Promise(resolve => setTimeout(resolve, t));
 describe('==== <%= name %> ====', () => {
 
     test('<%= name %>', async () => {
+        await miniProgram.mockWxMethod(
+            'request',
+            function(reqObj, apiMockMap) {
+                let mapKey = `${reqObj.url}__e2e__${reqObj.method}__e2e__${Object.keys(reqObj.data).join(',')}`;
+                if (apiMockMap[mapKey] && apiMockMap[mapKey].length > 0) {
+                    console.log(reqObj.url, 'mock success')
+                    return apiMockMap[mapKey].shift();
+                }
+                return new Promise(resolve => {
+                    reqObj.success = res => resolve(res)
+                    reqObj.fail = res => resolve(res)
+                    // origin 指向原始方法
+                    console.log(reqObj.url, 'no mock')
+                    this.origin(reqObj)
+                })
+            },
+            apiMockMap
+        )
         page = await miniProgram.reLaunch("/<%= record[0].page%>");
         let element;
         await page.waitFor(300);

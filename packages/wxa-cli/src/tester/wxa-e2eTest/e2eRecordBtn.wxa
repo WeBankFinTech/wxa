@@ -50,18 +50,20 @@ class e2eBtn {
     async createScript() {
         console.log('e2etest upload record:', this.$$e2e_state.record);
         console.log('e2etest upload fileName:', this.data.fileName);
-
+        let apiRecord = this.$$e2e_state.apiRecord;
+        const apiRecordObj = [...apiRecord.entries()].reduce((obj, [key, value]) => (obj[key] = value, obj), {})
+        console.log(apiRecord, apiRecordObj)
         try {
             let result = fetch('http://127.0.0.1:9421/record', {
                 name: this.data.fileName,
-                record: this.$$e2e_state.record
+                record: this.$$e2e_state.record,
+                apiRecord: apiRecordObj
             }, {}, 'post');
             this.closeInput();
         } catch (err) {
             console.log(err);
             toast('脚本创建失败，请重试');
         }
-
     }
     bindInput(e) {
         this.setData({
@@ -75,6 +77,7 @@ class e2eBtn {
         if (this.$$e2e_state.recording) {
             btnText = END_BTN_TEXT;
             this.$$e2e_state.record.splice(0,this.$$e2e_state.record.length);
+            this.$$e2e_state.apiRecord.clear();
         } else {
             // 结束录制 至少有一步录制操作，才显示弹框允许上传脚本
             if (this.$$e2e_state.record.length > 0) {
@@ -131,6 +134,7 @@ wxa.launchComponent(e2eBtn);
     background-color: #fff;
     color: #333;
     border: 1px solid #bbb;
+    padding: 0px;
 }
 .e2e-input{
     background-color: #fff;

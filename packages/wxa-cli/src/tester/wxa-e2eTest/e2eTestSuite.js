@@ -8,6 +8,7 @@ let lastEventTime = {};
 let state = {
     record: [],
     recording: false,
+    apiRecord: new Map()
 };
 
 // 获取eventMap中对应事件方法
@@ -122,6 +123,38 @@ const mountStateAndWrapEvent = (vm) => {
 let $$testSuitePlugin = (options) => {
     // vm是当前实例，type为实例类型
     return (vm, type)=>{
+        // 劫持wx.request，做apimock
+        if (type === 'App') {
+            const originRequest = wx.request;
+            Object.defineProperty(wx, 'request', {
+                configurable: true,
+                enumerable: true,
+                writable: true,
+                value: function() {
+                    const config = arguments[0] || {};
+                    let {url, data, method} = config;
+                    let { recording, apiRecord } = state;
+                    if (recording) {
+                        let key =  `${url}__e2e__${method}__e2e__${Object.keys(data).join(',')}`
+                        if (!apiRecord.has(key)) {
+                            apiRecord.set(key, [])
+                        }
+                        let originSuccess = config.success;
+                        config.success = function() {
+                            const res = arguments[0] || {};
+                            apiRecord.get(key).push({
+                                ...res
+                            })
+
+                            originSuccess.apply(this, arguments);
+                        }
+                        return originRequest.apply(this, arguments);
+
+                    }
+                    return originRequest.apply(this, arguments);
+                }
+            });
+        }
         if (['App', 'Page'].indexOf(type) > -1) {
             mountStateAndWrapEvent(vm);
         } else if (type === 'Component') {
