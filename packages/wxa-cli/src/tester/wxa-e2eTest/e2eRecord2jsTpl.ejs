@@ -2,11 +2,25 @@
 /* eslint-disable no-undef */
 import automator from 'miniprogram-automator';
 import path from 'path';
-let fileName = path.basename(__filename).replace('.test.js', '')
-const apiMockMap = require(`./${fileName}.api.json`);
+import fs from 'fs';
+
+const apiMockMap = require(`./api.json`);
 
 let miniProgram;
 let page;
+const sleep = t => new Promise(resolve => setTimeout(resolve, t));
+
+// 截图目录
+let timeStamp = new Date();
+function num2Str(num) {
+    if (num >= 10) {
+        return `${num}`;
+    }
+    return `0${num}`
+}
+timeStamp = `${timeStamp.getFullYear()}-${num2Str(timeStamp.getMonth()+1)}-${num2Str(timeStamp.getDate()+1)} ${num2Str(timeStamp.getHours())}:${num2Str(timeStamp.getMinutes())}:${num2Str(timeStamp.getSeconds())}`;
+let count = 0;
+fs.mkdirSync(path.join(__dirname, timeStamp))
 
 beforeAll(async () => {
     jest.setTimeout(300000);
@@ -22,7 +36,6 @@ afterAll(async () => {
     if (miniProgram) await miniProgram.close();
 });
 
-const sleep = t => new Promise(resolve => setTimeout(resolve, t));
 describe('==== <%= name %> ====', () => {
 
     test('<%= name %>', async () => {
@@ -59,6 +72,8 @@ describe('==== <%= name %> ====', () => {
 
             await page.waitFor('.<%= item.id %>');
             element = await page.$('.<%= item.id %>')
+            miniProgram.screenshot({path: path.join(__dirname, timeStamp, `${++count}.png`)})
+
             <% if (!!~['tap', 'longpress'].indexOf(item.event)) { %>
             await element.<%= item.event%>();
             <% } else if (!!~['input'].indexOf(item.event)) { %>
@@ -73,5 +88,6 @@ describe('==== <%= name %> ====', () => {
             <% } %>
             await page.waitFor(300)
         <% }); %>
+        miniProgram.screenshot({path: path.join(__dirname, timeStamp, `${++count}.png`)})
     });
 });

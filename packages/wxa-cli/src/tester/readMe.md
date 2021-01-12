@@ -22,7 +22,7 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "args": ["test", "--e2e"],
+            "args": ["test", "--e2e", "-r"],
             "program": "${workspaceFolder}/packages/wxa-cli/bin/wxa.js",
             "cwd": "填入你任意小程序dist目录-绝对路径",
             "env": {
@@ -43,7 +43,7 @@
 
 ### 测试脚本录制
 * 微信开发者工具，打开对应项目，勾选`不校验合法域名`
-* 项目目录下执行`wxa test --e2e`
+* 项目目录下执行`wxa2 test --e2e -r`,开启录制模式
 * 开始脚本录制，录制完成后脚本会保存在`__wxa_e2e_test__`目录下
 
 ### 测试脚本回放
@@ -83,4 +83,5 @@ module.exports = {
     }]
 }
 ```
-* 项目根目录下执行`jest __wxa_e2e_test__`
+* `wxa2 test --e2e` 进入测试用例回放模式
+* 项目根目录下执行`jest __wxa_e2e_test__`，将按顺序执行所有用例

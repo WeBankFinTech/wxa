@@ -114,7 +114,7 @@ class TesterScheduler extends Schedule {
         ) {
             mdl.code = `
                 let $$testSuitePlugin = require('wxa://wxa-e2eTest/e2eTestSuite.js');
-                require('@wxa/core').wxa.use($$testSuitePlugin);
+                require('@wxa/core').wxa.use($$testSuitePlugin, {record: ${!!this.cmdOptions.record}});
                 ${mdl.code}
             `;
         }
@@ -195,8 +195,8 @@ class TesterBuilder extends Builder {
             try {
                 let recordString = await e2eRecord2js(data.record, {cliPath: cli, name: data.name});
                 let outputPathBase = path.join(this.current, cmdOptions.outDir, data.name);
-                let e2eRecordOutputPath = `${outputPathBase}.test.js`;
-                let apiRecordOutputPath = `${outputPathBase}.api.json`;
+                let e2eRecordOutputPath = `${outputPathBase}/index.test.js`;
+                let apiRecordOutputPath = `${outputPathBase}/api.json`;
                 // save file;
 
                 writeFile(e2eRecordOutputPath, recordString);

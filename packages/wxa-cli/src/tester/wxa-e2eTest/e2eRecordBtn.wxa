@@ -1,5 +1,5 @@
 <template>
-    <view >
+    <view wx:if="{{recordMode}}">
         <button class="e2e-startRecord" style="top: {{top}}px; left: {{left}}px;" data-e2ebtn="true" catchtap="tap" bindtouchstart="touchstart" catchtouchmove="touchmove">{{btnText}}</button>
         <view class="e2e-mask" wx:if="{{showInput}}">
             <view class="e2e-input">
@@ -28,7 +28,8 @@ class e2eBtn {
         diffY: 0,
         btnText: '',
         fileName: '',
-        showInput: false
+        showInput: false,
+        recordMode: false
     }
     // 关闭测试用例命名弹框
     closeInput() {
@@ -38,7 +39,8 @@ class e2eBtn {
     }
     attached() {
         this.setData({
-            btnText: this.$$e2e_state.recording ? END_BTN_TEXT : START_BTN_TEXT
+            btnText: this.$$e2e_state.recording ? END_BTN_TEXT : START_BTN_TEXT,
+            recordMode: this.$$e2e_state.recordMode
         });
         wx.onAppRouteDone(() => {
             this.setData({

@@ -8,7 +8,8 @@ let lastEventTime = {};
 let state = {
     record: [],
     recording: false,
-    apiRecord: new Map()
+    apiRecord: new Map(),
+    recordMode: false
 };
 
 // 获取eventMap中对应事件方法
@@ -125,6 +126,11 @@ let $$testSuitePlugin = (options) => {
     return (vm, type)=>{
         // 劫持wx.request，做apimock
         if (type === 'App') {
+            if (options.record) {
+                // 自动开始录制
+                state.recording = true;
+                state.recordMode = true;
+            }
             const originRequest = wx.request;
             Object.defineProperty(wx, 'request', {
                 configurable: true,
