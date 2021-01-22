@@ -54,7 +54,6 @@ class e2eBtn {
         console.log('e2etest upload fileName:', this.data.fileName);
         let apiRecord = this.$$e2e_state.apiRecord;
         const apiRecordObj = [...apiRecord.entries()].reduce((obj, [key, value]) => (obj[key] = value, obj), {})
-        console.log(apiRecord, apiRecordObj)
         try {
             let result = fetch('http://127.0.0.1:9421/record', {
                 name: this.data.fileName,

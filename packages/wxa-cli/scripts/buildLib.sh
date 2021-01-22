@@ -1,13 +1,12 @@
 # npx webpack  "./lib/shim/promise.finally.js" --mode production --env.platform=node  -o ./lib-dist/es/promise.finally.js
 
-rm -f ./dist/tester/wxa-e2eTest/e2eRecord2jsTpl.ejs
+rm -f ./dist/tester/wxa-e2eTest/e2eTestCaseTpl.ejs
 rm -rf ./lib-dist/wxa-e2eTest
 mkdir -p ./lib-dist/wxa-e2eTest
 mkdir -p ./dist/tester/wxa-e2eTest
 ln ./src/tester/wxa-e2eTest/e2eTestSuite.js ./lib-dist/wxa-e2eTest/e2eTestSuite.js
 ln ./src/tester/wxa-e2eTest/e2eRecordBtn.wxa ./lib-dist/wxa-e2eTest/e2eRecordBtn.wxa
-ln ./src/tester/wxa-e2eTest/e2eRecord2jsTpl.ejs ./dist/tester/wxa-e2eTest/e2eRecord2jsTpl.ejs
-
+ln ./src/tester/wxa-e2eTest/e2eTestCaseTpl.ejs ./dist/tester/wxa-e2eTest/e2eTestCaseTpl.ejs
 echo $MODE;
 if test "$MODE" = 'dev'
 then

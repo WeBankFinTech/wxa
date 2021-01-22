@@ -62,12 +62,13 @@ const addRecord = function(type, ...args) {
     if (shouldRecord.bind(this)(type, ...args)) {
         let pages = getCurrentPages();
         state.record.push({
-            ...e,
-            page: pages[pages.length - 1].route,
-            event: type,
-            id,
-            timeStamp: +new Date(),
-
+            action: {
+                ...e,
+                page: pages[pages.length - 1].route,
+                event: type,
+                id,
+                timeStamp: +new Date()
+            }
         });
         console.log('e2eRecord:', e)
     }

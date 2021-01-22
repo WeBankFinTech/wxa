@@ -1,0 +1,176 @@
+/* eslint-disable no-console */
+/* eslint-disable no-undef */
+import automator from 'miniprogram-automator';
+import path from 'path';
+import fs, { chmod } from 'fs';
+import looksSame from 'looks-same';
+
+let miniProgram;
+let page;
+let testCaseNameArr = JSON.parse('<%- testCaseNameArr %>')
+let testDir = '<%- testDir %>';
+let screenshotDirname = '<%- screenshotPath %>'
+let screenshot = <%- screenshot %>;
+let base = <%- base %>;
+const sleep = t => new Promise(resolve => setTimeout(resolve, t));
+
+
+expect.extend({
+    toBeEmpty(diffDir, testName) {
+        let files = fs.readdirSync(diffDir);
+        let relativePath = path.relative(process.cwd(), diffDir);
+        if (files.length === 0) {
+            return {
+                message: () => `<${testName}>截图比对通过`,
+                pass: true
+            };
+        }
+        return {
+            message: () => `<${testName}>截图比对失败,${relativePath}`,
+            pass: false
+        };
+    }
+});
+
+beforeAll(async () => {
+    jest.setTimeout(300000);
+    miniProgram = await automator.launch({
+        cliPath: '<%= cliPath %>',
+        projectPath: path.resolve(process.cwd(), './dist/')
+    });
+
+    page = await miniProgram.currentPage();
+}, 300000);
+
+afterAll(async () => {
+    if (miniProgram) await miniProgram.close();
+});
+
+for (let j = 0; j < testCaseNameArr.length; j++) {
+    let testName = testCaseNameArr[j];
+    test(testName, async () => {
+        let screenshotDir = path.join(testDir, testName, screenshotDirname);
+        let diffDir = path.join(screenshotDir, 'diff');
+        try {
+            fs.mkdirSync(screenshotDir)
+            if (screenshot) {
+                fs.mkdirSync(diffDir);
+            }
+        } catch(err) {
+            console.log(err);
+        }
+
+        let apiMockMap = require(path.join(testDir, testName, `./api.json`));
+        let record = require(path.join(testDir, testName, `./record.js`));
+        let screenCount = 0;
+        // mock接口
+        await miniProgram.mockWxMethod(
+            'request',
+            function(reqObj, apiMockMap) {
+                let mapKey = `${reqObj.url}__e2e__${reqObj.method}__e2e__${Object.keys(reqObj.data).join(',')}`;
+                if (apiMockMap[mapKey] && apiMockMap[mapKey].length > 0) {
+                    console.log(mapKey, 'mock success')
+                    return apiMockMap[mapKey].shift();
+                }
+                return new Promise(resolve => {
+                    reqObj.success = res => resolve(res)
+                    reqObj.fail = res => resolve(res)
+                    // origin 指向原始方法
+                    console.log(mapKey, 'no mock')
+                    this.origin(reqObj)
+                })
+            },
+            apiMockMap
+        )
+        // 开始回放+截屏
+        page = await miniProgram.reLaunch(`/${record[0].action.page}`);
+        let element;
+        await page.waitFor(300);
+        for (let i = 0; i < record.length; i++) {
+            let recordItem = record[i];
+            let recordAction = recordItem.action;
+            while (true) {
+                page = await miniProgram.currentPage()
+                if (page.path === recordAction.page) {
+                    break;
+                }
+                await sleep(1000);
+            }
+            await page.waitFor(`.${recordAction.id}`);
+            element = await page.$(`.${recordAction.id}`)
+            let same = await screenShot({
+                screenshotDir,
+                screenCount: ++screenCount,
+                diff: screenshot
+            })
+
+            if (!!~['tap', 'longpress'].indexOf(recordAction.event)) {
+                await element[recordAction.event]();
+            }else if (!!~['input'].indexOf(recordAction.event)) {
+                await element[recordAction.event](recordAction.detail.value);
+            } else if (!!~['touchstart', 'touchmove', 'touchend'].indexOf(recordAction.event)) {
+                await element[recordAction.event]({
+                    touches: recordAction.touches,
+                    changedTouches: recordAction.changedTouches
+                });
+            } else {
+                await element.trigger(recordAction.event, recordAction.detail);
+            }
+            await page.waitFor(300)
+        }
+        // await miniprogram.restoreWxMethod('request');
+        let same = await screenShot({
+            screenshotDir,
+            screenCount: ++screenCount,
+            diff: screenshot
+        })
+        // 无diff图片，则比对通过
+        if (screenshot) {
+            expect(diffDir).toBeEmpty(testName);
+        }
+    })
+}
+
+async function screenShot({screenshotDir, screenCount, diff}) {
+    let actualImagePath = path.join(screenshotDir, `${screenCount}.png`);
+    let expectPath = path.resolve(screenshotDir, `../base_screenshot`, `${screenCount}.png` );
+    await miniProgram.screenshot({path: actualImagePath});
+    if (diff) {
+        let same = await imageDiff(actualImagePath, expectPath, path.join(screenshotDir, `diff/${screenCount}.png`));
+        return same;
+    }
+    return true;
+}
+
+function imageDiff(actualImage, expectImage, diffPath) {
+    return new Promise((resolve, reject) => {
+        looksSame(actualImage, expectImage, function(err, res) {
+            if(err) {
+                return resolve(err);
+            }
+            if (res.equal) {
+                return resolve(res);
+            }
+            let relativePath = path.relative(process.cwd(), actualImage);
+            if (!diffPath) {
+                return resolve({errMsg: `截图比对不通过：${relativePath}`});
+            }
+            looksSame.createDiff({
+                reference: expectImage,
+                current: actualImage,
+                diff: diffPath,
+                highlightColor: '#ff00ff', // color to highlight the differences
+                strict: false, // strict comparsion
+                tolerance: 2.5,
+                antialiasingTolerance: 0,
+                ignoreAntialiasing: true, // ignore antialising by default
+                ignoreCaret: true // ignore caret by default
+            }, function(error, res) {
+                if (error) {
+                    return resolve(error);
+                }
+                return resolve({errMsg : `截图比对不通过：${relativePath}，请查看${diffPath}`});
+            });
+        })
+    })
+}

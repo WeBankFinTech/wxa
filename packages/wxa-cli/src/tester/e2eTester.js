@@ -13,6 +13,7 @@ import crypto from 'crypto';
 import debugPKG from 'debug';
 import path from 'path';
 import mkdirp from 'mkdirp';
+import runTestCase from './wxa-e2eTest/runTestcase.js'
 
 const debug = debugPKG('WXA:E2ETester');
 const E2E_TEST_COMPONENT = 'wxa-e2e-record-btn';
@@ -174,8 +175,14 @@ class TesterBuilder extends Builder {
 
         console.log('E2ETester work done');
 
-        // if (cmd.watch) this.watch(cmd);
+        if (!cmd.record) {
+            setTimeout(() => {
+                runTestCase(cmd, this.wxaConfigs);
+            }, 3000)
+
+        }
     }
+
 
     listen(cmdOptions) {
         let {port=9421, cliPath} = cmdOptions;
@@ -193,14 +200,14 @@ class TesterBuilder extends Builder {
             let cli = cliPath || path.join(this.wxaConfigs.wechatwebdevtools, clipath[process.platform]);
 
             try {
-                let recordString = await e2eRecord2js(data.record, {cliPath: cli, name: data.name});
+                // let recordString = await e2eRecord2js(data.record, {cliPath: cli, name: data.name});
                 let outputPathBase = path.join(this.current, cmdOptions.outDir, data.name);
-                let e2eRecordOutputPath = `${outputPathBase}/index.test.js`;
+                let e2eRecordOutputPath = `${outputPathBase}/record.js`;
                 let apiRecordOutputPath = `${outputPathBase}/api.json`;
                 // save file;
 
-                writeFile(e2eRecordOutputPath, recordString);
-                writeFile(apiRecordOutputPath, JSON.stringify(data.apiRecord))
+                writeFile(e2eRecordOutputPath, `module.exports = ${JSON.stringify(data.record, null, 4)}`);
+                writeFile(apiRecordOutputPath, JSON.stringify(data.apiRecord, null, 4))
             } catch (e) {
                 logger.error('生成测试案例失败', e);
             }

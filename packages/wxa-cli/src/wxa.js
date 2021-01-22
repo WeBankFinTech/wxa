@@ -94,7 +94,11 @@ commander
 .option('-p, --port', '监听端口')
 .option('-o, --out-dir [outDir]', '测试用例输出文件夹', '__wxa_e2e_test__')
 .option('--cli-path [cliPath]', '微信开发者工具路径')
-.option('-r, --record', 'e2e测试录制模式')
+.option('-r, --record', 'e2e测试录制模式，启动小程序自动开始录制')
+.option('-t, --test [testName]', 'e2e执行测试用例，缺省则执行所有用例，多个用例名用逗号区分')
+.option('--base', '仅截屏，作为后续回放用例比较基准')
+.option('--screenshot', '是否进行截屏比对')
+.option('--custom-diff', '是否进行自定义条件比对')
 .action((cmd)=>{
     logger.info('Hey', `This is ${chalk.keyword('orange')('wxa@'+version)}, Running in ${chalk.keyword('orange')(process.env.NODE_ENV || 'development')}, Tester Mode`);
     let wxaConfigs = getConfigs();

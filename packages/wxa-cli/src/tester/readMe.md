@@ -6,7 +6,8 @@
     * 小程序原生的showModal、showActionSheet上的点击操作，无法录制&回放。虽然可以往wxa/core植入点代码，知道用户点击了哪个，执行了哪个函数。但回放的时候，原生的元素取不到，如果直接执行对应函数的话，modal弹框会一直在界面上，除非用户操作不然都不会消失
 * 已知bug：
     * tap事件绑定在父元素上，且依赖子元素上data数据的话，会有问题。应该要每个元素都给id编号，然后tap事件找到detail.target真实触发的元素，回放的时候tap detail.target那个元素
-
+* 待优化：
+    * 不带-r参数时，即回放模式，仅添加元素id（回放测试用例时能找到对应元素），不侵入过多代码（现在会劫持各种tap等事件，植入全局按钮组件）
 
 2019年8月22日
 
@@ -41,14 +42,17 @@
 
 # 使用手册
 
+
 ### 测试脚本录制
 * 微信开发者工具，打开对应项目，勾选`不校验合法域名`
+* windows系统，wxa.config.js里配置wechatwebdevtools: 微信开发者工具目录
 * 项目目录下执行`wxa2 test --e2e -r`,开启录制模式
 * 开始脚本录制，录制完成后脚本会保存在`__wxa_e2e_test__`目录下
+* 脚本都录制完毕后需执行，`wxa2 test --e2e --base ` 回放用例并检查录制内容是否正确，且此次回放的截屏会作为后续回放用例的比较基准,用于判断测试是否通过,`--test=testName`可指定要回放的用例，多个用例逗号分隔
 
 ### 测试脚本回放
 * `npm i -g jest`
-* 项目下执行 `npm i miniprogram-automator`
+* 项目下执行 `npm i miniprogram-automator looks-same`
 * 开发者工具修改调试基础库 2.7.3以上（src/project.config.json需同步修改libVersion）
 * 项目根目录下添加文件`babel.config.js`
 ```
@@ -83,5 +87,4 @@ module.exports = {
     }]
 }
 ```
-* `wxa2 test --e2e` 进入测试用例回放模式
-* 项目根目录下执行`jest __wxa_e2e_test__`，将按顺序执行所有用例
+* `wxa2 test --e2e` 进入测试用例回放模式，`--test=testName`指定执行用例，多个用例逗号分隔，操作截屏以时间命名保存在测试用例目录中，带参数`--screenshot`则会与`expect_screenshot`的截屏进行diff
