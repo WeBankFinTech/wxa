@@ -5,7 +5,7 @@
 	* 主动操作返回（因无法监听返回事件，所以录制过程中 *点击物理返回键*、*小程序titlebar返回键*、*ios手势返回*等返回操作，暂无法支持）
     * 小程序原生的showModal、showActionSheet上的点击操作，无法录制&回放。虽然可以往wxa/core植入点代码，知道用户点击了哪个，执行了哪个函数。但回放的时候，原生的元素取不到，如果直接执行对应函数的话，modal弹框会一直在界面上，除非用户操作不然都不会消失
 * 已知bug：
-    * tap事件绑定在父元素上，且依赖子元素上data数据的话，会有问题。应该要每个元素都给id编号，然后tap事件找到detail.target真实触发的元素，回放的时候tap detail.target那个元素
+    * 暂无
 * 待优化：
     * 不带-r参数时，即回放模式，仅添加元素id（回放测试用例时能找到对应元素），不侵入过多代码（现在会劫持各种tap等事件，植入全局按钮组件）
 
@@ -88,3 +88,15 @@ module.exports = {
 }
 ```
 * `wxa2 test --e2e` 进入测试用例回放模式，`--test=testName`指定执行用例，多个用例逗号分隔，操作截屏以时间命名保存在测试用例目录中，带参数`--screenshot`则会与`expect_screenshot`的截屏进行diff
+
+
+### 二次开发录制好的测试用例
+通过修改`测试用例/record.js`，可以进行用例二次开发
+record.js是一个数组，每一项Object对应用户一次操作（点击、输入or删除一个字符）
+
+|key|类型|默认值|备注|
+| :-----| :---- | :---- | :---- |
+| action | Object| 本次操作信息,小程序包装好的事件信息，可<a href="https://developers.weixin.qq.com/miniprogram/dev/framework/view/wxml/event.html">查看文档</a> | 【type：操作类型，tap touchstart点击，input输入】<br> 【currentTarget.dataset._wxatestuniqueid：触发事件的页面元素id】<br/>|
+| screenshotDiff | Boolean| false | 每一步操作截屏，是否要和expect_screenshot进行diff比对。启动命令带--screenshot参数时，忽略该配置，都会截屏diff比对。 |
+| coustomExpect | Function| - | 编写自定义期望条件 |
+

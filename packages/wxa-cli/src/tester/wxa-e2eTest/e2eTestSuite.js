@@ -74,7 +74,7 @@ const addRecord = function(type, ...args) {
     }
 
     // 调用eventMap中原方法
-    let eventFunc = getEventFunc(type, target.dataset[EVENTMAPKEY]);
+    let eventFunc = getEventFunc(type, e.currentTarget.dataset[EVENTMAPKEY]);
     if (!eventFunc) {
         console.warn(`wxa e2eTest, event "${type}" is lost`);
         return;

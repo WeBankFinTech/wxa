@@ -49,16 +49,24 @@ export default async function(cmd, wxaConfigs) {
         let timeStamp = formatDate(+new Date());
         screenshotPath = timeStamp;
     }
+    try {
+        let recordString = await testCase2js({
+            cliPath: cli,
+            testCaseNameArr: JSON.stringify(testCaseNameArr),
+            testDir,
+            screenshotPath,
+            base: !!cmd.base,
+            screenshotDiff: !!cmd.screenshotDiff,
+            noMockApi: !!cmd.noMock,
+            customExpect: !!cmd.customExpect
+        });
+        writeFile(path.join(testDir, '.cache', 'index.test.js'), recordString)
+    } catch (err) {
+        console.log(err);
+        process.exit(-1);
+    }
 
-    let recordString = await testCase2js({
-        cliPath: cli,
-        testCaseNameArr: JSON.stringify(testCaseNameArr),
-        testDir,
-        screenshotPath,
-        base: !!cmd.base,
-        screenshot: !!cmd.screenshot
-    });
-    writeFile(path.join(testDir, '.cache', 'index.test.js'), recordString)
+
     try {
         execSync(`jest ${path.join(testDir, '.cache', 'index.test.js')}`, {
             stdio: 'inherit'

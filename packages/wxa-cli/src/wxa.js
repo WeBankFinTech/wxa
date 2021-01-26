@@ -97,8 +97,9 @@ commander
 .option('-r, --record', 'e2e测试录制模式，启动小程序自动开始录制')
 .option('-t, --test [testName]', 'e2e执行测试用例，缺省则执行所有用例，多个用例名用逗号区分')
 .option('--base', '仅截屏，作为后续回放用例比较基准')
-.option('--screenshot', '是否进行截屏比对')
-.option('--custom-diff', '是否进行自定义条件比对')
+.option('--screenshot-diff', '是否进行截屏比对')
+.option('--custom-expect', '进行自定义期望匹配，record.js里每一步的customExpect函数编写期望代码')
+.option('--no-mock', '不mock接口')
 .action((cmd)=>{
     logger.info('Hey', `This is ${chalk.keyword('orange')('wxa@'+version)}, Running in ${chalk.keyword('orange')(process.env.NODE_ENV || 'development')}, Tester Mode`);
     let wxaConfigs = getConfigs();

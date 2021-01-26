@@ -58,8 +58,8 @@ class XMLManager {
 
             eventMap = eventMap.replace(/^\|/, '');
             element.attribs['data-_wxaTestEventMap'] = eventMap;
-
-            // generate unique id for tag.
+        }
+        // generate unique id for tag.
             // pagePath + hash(parentNode + prevNode) + optional(class/id)
             let pagePath = path.relative(this.scheduler.wxaConfigs.context, path.dirname(this.mdl.src) + path.sep + path.basename(this.mdl.src, path.extname(this.mdl.src)));
 
@@ -75,7 +75,6 @@ class XMLManager {
             let id = this.assembleUniqueId(keyElement);
             element.attribs['data-_wxaTestUniqueId'] = id;
             element.attribs['class'] = this.dropSpace((element.attribs['class'] || '') + ' '+ id);
-        }
     }
 
     findSelfOrAncestorIterationDirective(element) {

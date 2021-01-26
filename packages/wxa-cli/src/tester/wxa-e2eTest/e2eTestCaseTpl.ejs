@@ -10,8 +10,10 @@ let page;
 let testCaseNameArr = JSON.parse('<%- testCaseNameArr %>')
 let testDir = '<%- testDir %>';
 let screenshotDirname = '<%- screenshotPath %>'
-let screenshot = <%- screenshot %>;
+let screenshotDiff = <%- screenshotDiff %>;
 let base = <%- base %>;
+let noMockApi = <%- noMockApi%>
+let customExpect = <%- customExpect%>
 const sleep = t => new Promise(resolve => setTimeout(resolve, t));
 
 
@@ -51,37 +53,43 @@ for (let j = 0; j < testCaseNameArr.length; j++) {
     test(testName, async () => {
         let screenshotDir = path.join(testDir, testName, screenshotDirname);
         let diffDir = path.join(screenshotDir, 'diff');
+        if (base) {
+            try {
+                fs.rmdirSync(screenshotDir);
+            } catch (err) {}
+        }
         try {
             fs.mkdirSync(screenshotDir)
-            if (screenshot) {
+            if (!base) {
                 fs.mkdirSync(diffDir);
             }
-        } catch(err) {
-            console.log(err);
-        }
+        } catch(err) {}
 
-        let apiMockMap = require(path.join(testDir, testName, `./api.json`));
         let record = require(path.join(testDir, testName, `./record.js`));
         let screenCount = 0;
         // mock接口
-        await miniProgram.mockWxMethod(
-            'request',
-            function(reqObj, apiMockMap) {
-                let mapKey = `${reqObj.url}__e2e__${reqObj.method}__e2e__${Object.keys(reqObj.data).join(',')}`;
-                if (apiMockMap[mapKey] && apiMockMap[mapKey].length > 0) {
-                    console.log(mapKey, 'mock success')
-                    return apiMockMap[mapKey].shift();
-                }
-                return new Promise(resolve => {
-                    reqObj.success = res => resolve(res)
-                    reqObj.fail = res => resolve(res)
-                    // origin 指向原始方法
-                    console.log(mapKey, 'no mock')
-                    this.origin(reqObj)
-                })
-            },
-            apiMockMap
-        )
+        if (!noMockApi) {
+            let apiMockMap = require(path.join(testDir, testName, `./api.json`));
+            await miniProgram.mockWxMethod(
+                'request',
+                function(reqObj, apiMockMap) {
+                    let mapKey = `${reqObj.url}__e2e__${reqObj.method}__e2e__${Object.keys(reqObj.data).join(',')}`;
+                    if (apiMockMap[mapKey] && apiMockMap[mapKey].length > 0) {
+                        console.log(mapKey, 'mock success')
+                        return apiMockMap[mapKey].shift();
+                    }
+                    return new Promise(resolve => {
+                        reqObj.success = res => resolve(res)
+                        reqObj.fail = res => resolve(res)
+                        // origin 指向原始方法
+                        console.log(mapKey, 'no mock')
+                        this.origin(reqObj)
+                    })
+                },
+                apiMockMap
+            )
+        }
+
         // 开始回放+截屏
         page = await miniProgram.reLaunch(`/${record[0].action.page}`);
         let element;
@@ -96,13 +104,17 @@ for (let j = 0; j < testCaseNameArr.length; j++) {
                 }
                 await sleep(1000);
             }
+
             await page.waitFor(`.${recordAction.id}`);
             element = await page.$(`.${recordAction.id}`)
             let same = await screenShot({
                 screenshotDir,
-                screenCount: ++screenCount,
-                diff: screenshot
+                screenCount: screenCount++,
+                diff: screenshotDiff || (record[i-1] && record[i-1].screenshotDiff)
             })
+            if (customExpect && i !== 0 && record[i - 1].customExpect && typeof record[i - 1].customExpect === 'function') {
+                record[i - 1].customExpect();
+            }
 
             if (!!~['tap', 'longpress'].indexOf(recordAction.event)) {
                 await element[recordAction.event]();
@@ -122,10 +134,10 @@ for (let j = 0; j < testCaseNameArr.length; j++) {
         let same = await screenShot({
             screenshotDir,
             screenCount: ++screenCount,
-            diff: screenshot
+            diff: screenshotDiff || record[record.length - 1].sceeenshotDiff
         })
         // 无diff图片，则比对通过
-        if (screenshot) {
+        if (!base) {
             expect(diffDir).toBeEmpty(testName);
         }
     })
