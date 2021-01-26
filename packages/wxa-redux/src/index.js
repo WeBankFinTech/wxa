@@ -192,18 +192,22 @@ export const wxaRedux = (options = {}) => {
                     created,
                     attached,
                     detached,
-                    pageLifetimes
+                    pageLifetimes,
+                    lifetimes
                 } = vm;
+
                 vm.pageLifetimes = pageLifetimes || {};
+                vm.lifetimes = lifetimes || {};
                 let {show, hide} = vm.pageLifetimes;
+                let {attached: lifetimesAttached, detached: lifetimesDetached} = vm.lifetimes;
                 // auto sync store data to component.
-                vm.pageLifetimes.show = function(args) {
-                    syncStore.bind(this)();
-                    if (show) show.apply(this, args);
+                vm.pageLifetimes.show = function(...args) {
+                    if (this.$$reduxDiff) syncStore.bind(this)();
+                    if (show) show.apply(this, ...args);
                 }
-                vm.pageLifetimes.hide = function(args) {
+                vm.pageLifetimes.hide = function(...args) {
                     this.$$isCurrentPage = false;
-                    if (hide) hide.apply(this, args);
+                    if (hide) hide.apply(this, ...args);
                 }
 
                 vm.created = function (...args) {
@@ -211,8 +215,11 @@ export const wxaRedux = (options = {}) => {
                     this.$$reduxDiff = diff.bind(this);
                     if (created) created.apply(this, args);
                 }
-                vm.attached = mountRedux(attached);
-                vm.detached = unmountRedux(detached);
+
+                vm.lifetimes.attached = mountRedux(lifetimesAttached || attached);
+                vm.lifetimes.detached = unmountRedux(lifetimesDetached || detached);
+                vm.attached = mountRedux(lifetimesAttached || attached);
+                vm.detached = unmountRedux(lifetimesDetached || detached);
                 break;
             default: 
                 throw new Error('不合法的wxa组件类型');

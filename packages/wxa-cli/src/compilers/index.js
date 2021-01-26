@@ -146,7 +146,9 @@ export default class Compiler {
             case 'woff':
             case 'woff2':
             case 'ttf':
-            case 'file': {
+            case 'file':
+            case 'gif':
+            case 'webm': {
                 // just copy.
                 mdl.isFile = true;
                 return Promise.resolve({kind: 'file'});

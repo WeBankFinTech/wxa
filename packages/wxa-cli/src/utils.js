@@ -90,18 +90,11 @@ export function copy(from, to) {
     return new Promise((resolve, reject)=>{
         mkdirp.sync(path.parse(to).dir);
 
-        let readable = fs.createReadStream(from);
-        let writeable = fs.createWriteStream(to);
-        readable.pipe(writeable);
-        readable.on('error', (e)=>{
-            reject(e);
-        });
-        writeable.on('error', (err)=>{
-            reject(err);
-        });
-        writeable.on('finish', ()=>{
+        fs.copyFile(from, to, (err) => {
+            if (err) return reject(err);
+
             resolve();
-        });
+        })
     });
 }
 

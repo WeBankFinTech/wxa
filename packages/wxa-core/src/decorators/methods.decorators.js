@@ -234,7 +234,7 @@ export default function Loading(tips='Loading', type='loading') {
             let ret = fn.call(this, ...args);
 
             if (ret && ret.then) {
-                ret.then((succ)=>{
+                return ret.then((succ)=>{
                     loader.hide();
                     return succ;
                 }, (fail)=>{
@@ -243,6 +243,7 @@ export default function Loading(tips='Loading', type='loading') {
                 });
             } else {
                 loader.hide();
+                return ret;
             }
         };
 
