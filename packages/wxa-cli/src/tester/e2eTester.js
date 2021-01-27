@@ -114,8 +114,8 @@ class TesterScheduler extends Schedule {
             (/exports\.default/gm.test(mdl.code) || /exports\[["']default["']/gm.test(mdl.code))
         ) {
             mdl.code = `
-                let $$testSuitePlugin = require('wxa://wxa-e2eTest/e2eTestSuite.js');
-                require('@wxa/core').wxa.use($$testSuitePlugin, {record: ${!!this.cmdOptions.record}});
+                var __testSuitePlugin = require('wxa://wxa-e2eTest/e2eTestSuite.js');
+                require('@wxa/core').wxa.use(__testSuitePlugin, {record: ${!!this.cmdOptions.record}});
                 ${mdl.code}
             `;
         }

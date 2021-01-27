@@ -52,7 +52,7 @@
 
 ### 测试脚本回放
 * `npm i -g jest`
-* 项目下执行 `npm i miniprogram-automator looks-same`
+* 项目下执行 `npm i -DE miniprogram-automator looks-same`
 * 开发者工具修改调试基础库 2.7.3以上（src/project.config.json需同步修改libVersion）
 * 项目根目录下添加文件`babel.config.js`
 ```

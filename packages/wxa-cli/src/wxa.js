@@ -107,57 +107,6 @@ commander
 });
 
 commander
-.command('create')
-.description('新建模板')
-.action(async (cmd)=>{
-    logger.info('Hey', `This is ${chalk.keyword('orange')('wxa@'+version)}, Running in ${chalk.keyword('orange')(process.env.NODE_ENV || 'development')}`);
-    logger.info('Creating', '新建项目中😋');
-
-    let opts = await inquirer.prompt([
-        {
-            type: 'input',
-            name: 'projectName',
-            message: '输入项目名',
-            validate: (input)=>{
-                return !(input == null || input === '');
-            },
-        },
-        {
-            type: 'list',
-            name: 'template',
-            message: '选择模板',
-            default: 'base',
-            choices: [
-                {
-                    name: '基础模板，默认配置文件',
-                    value: 'base',
-                },
-                {
-                    name: 'Redux模板，使用redux管理全局状态',
-                    value: 'redux',
-                },
-                {
-                    name: 'Vant模板, 使用有赞ui加速小程序开发',
-                    value: 'vant',
-                },
-                {
-                    name: 'Echart模板, 使用echart开发小程序图表',
-                    value: 'echart',
-                },
-            ],
-        },
-        {
-            type: 'input',
-            name: 'appid',
-            message: '小程序APPID',
-            default: '',
-        },
-    ]);
-
-    new Creator(cmd).run(opts);
-});
-
-commander
 .command('cli')
 .description('微信开发者工具命令行调用')
 .option('-a, --action <action>', '指定操作, open, login, preview, upload')
