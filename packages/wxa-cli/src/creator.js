@@ -4,7 +4,6 @@ import fs from 'fs';
 import path from 'path';
 import shell from 'shelljs';
 import https from 'https';
-import {isUri} from 'valid-url';
 import inquirer from 'inquirer';
 
 let remoteMap = new Map([
@@ -29,12 +28,28 @@ function getQATemplate(templateConfigs) {
     }
     ];
 }
-
-
-
-
-
-
+function getQAProjectName(projectName) {
+    // 如果已经带name参数，不需要再次询问项目名
+    if (projectName) {
+        return [];
+    }
+    return [
+    {
+        type: 'input',
+        name: 'projectName',
+        message: '输入项目名',
+        validate: (input)=>{
+            return !(input == null || input === '');
+        },
+    }
+    ];
+}
+function getQA(templateConfigs, projectName) {
+    return [
+        ...getQAProjectName(projectName),
+        ...getQATemplate(templateConfigs)
+    ]
+}
 class Creator {
     constructor(cmd) {
         this.cmdOptions = cmd;
@@ -42,14 +57,14 @@ class Creator {
     }
 
     async run() {
-        let options = {};
+        let options;
         try {
             // 先尝试从github、gitee远程拉取模版配置json，并询问项目名+模板类型
             let configs = await this.getRemoteConfigs();
-            options = await inquirer.prompt(this.getQA(JSON.parse(configs)));
+            options = await inquirer.prompt(getQA(JSON.parse(configs), this.cmdOptions.projectName));
         } catch (err) {
             // getRemoteConfigs失败后，先询问项目名，clone git模版仓库，拿到模版再配置询问模版类型
-                options = await inquirer.prompt(this.getQAProjectName());
+                options = await inquirer.prompt(getQAProjectName(this.cmdOptions.projectName));
         }
         options.projectName = options.projectName || this.cmdOptions.projectName;
         this.create(options);
@@ -116,28 +131,7 @@ class Creator {
             logger.info('Child Process', err);
         });
     }
-    getQAProjectName() {
-        // 如果已经带name参数，不需要再次询问项目名
-        if (this.cmdOptions.projectName) {
-            return [];
-        }
-        return [
-        {
-            type: 'input',
-            name: 'projectName',
-            message: '输入项目名',
-            validate: (input)=>{
-                return !(input == null || input === '');
-            },
-        }
-        ];
-    }
-    getQA(templateConfigs) {
-        return [
-            ...this.getQAProjectName(),
-            ...getQATemplate(templateConfigs)
-        ]
-    }
+
     getLocalConfigs(projectName) {
         const data = fs.readFileSync(path.resolve('./', projectName, 'configs.json'));
         return data;
