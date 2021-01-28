@@ -30,41 +30,28 @@ function getQATemplate(templateConfigs) {
     ];
 }
 
-function getQAProjectName() {
-    return [
-    {
-        type: 'input',
-        name: 'projectName',
-        message: '输入项目名',
-        validate: (input)=>{
-            return !(input == null || input === '');
-        },
-    }
-    ];
-}
 
-function getQA(templateConfigs) {
-    return [
-        ...getQAProjectName(),
-        ...getQATemplate(templateConfigs)
-    ]
-}
+
+
+
+
 class Creator {
     constructor(cmd) {
         this.cmdOptions = cmd;
-        this.prefix = isUri(cmd.repo) ? cmd.repo : remoteMap.get(cmd.repo);
+        this.prefix = remoteMap.get(cmd.repo) || cmd.repo;
     }
 
     async run() {
-        let options;
+        let options = {};
         try {
             // 先尝试从github、gitee远程拉取模版配置json，并询问项目名+模板类型
             let configs = await this.getRemoteConfigs();
-            options = await inquirer.prompt(getQA(JSON.parse(configs)));
+            options = await inquirer.prompt(this.getQA(JSON.parse(configs)));
         } catch (err) {
             // getRemoteConfigs失败后，先询问项目名，clone git模版仓库，拿到模版再配置询问模版类型
-            options = await inquirer.prompt(getQAProjectName());
+                options = await inquirer.prompt(this.getQAProjectName());
         }
+        options.projectName = options.projectName || this.cmdOptions.projectName;
         this.create(options);
     }
 
@@ -129,8 +116,28 @@ class Creator {
             logger.info('Child Process', err);
         });
     }
-
-
+    getQAProjectName() {
+        // 如果已经带name参数，不需要再次询问项目名
+        if (this.cmdOptions.projectName) {
+            return [];
+        }
+        return [
+        {
+            type: 'input',
+            name: 'projectName',
+            message: '输入项目名',
+            validate: (input)=>{
+                return !(input == null || input === '');
+            },
+        }
+        ];
+    }
+    getQA(templateConfigs) {
+        return [
+            ...this.getQAProjectName(),
+            ...getQATemplate(templateConfigs)
+        ]
+    }
     getLocalConfigs(projectName) {
         const data = fs.readFileSync(path.resolve('./', projectName, 'configs.json'));
         return data;
