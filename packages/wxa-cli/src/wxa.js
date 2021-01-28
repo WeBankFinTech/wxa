@@ -60,6 +60,7 @@ commander
     .command('create')
     .description('新建模板')
     .option('--repo <repo>', '仓库地址，可选github或gitee，允许传自定义的repo地址，网速考虑，默认gitee', 'gitee')
+    .option('--project-name <projectName>', '项目名')
     .action(async (cmd)=>{
         showSlogan();
         console.info('🦊 Creating 新建项目中');
