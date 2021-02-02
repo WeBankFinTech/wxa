@@ -16,8 +16,6 @@
         "sourceType": "module"
     },
     "rules": {
-        "prefer-rest-params": "warn",
-        "no-extend-native": "warn",
         "no-const-assign": "warn",
         "no-this-before-super": "warn",
         "no-undef": "warn",
@@ -34,7 +32,8 @@
         "new-cap": "warn",
         "guard-for-in": "warn",
         "no-extend-native": "warn",
-        "prefer-rest-params": "warn"
+        "prefer-rest-params": "warn",
+        "linebreak-style": [0, "error", "windows"]
     },
     "plugins": ["jest"]
 }

@@ -197,13 +197,13 @@ export const wxaRedux = (options = {}) => {
                 vm.pageLifetimes = pageLifetimes || {};
                 let {show, hide} = vm.pageLifetimes;
                 // auto sync store data to component.
-                vm.pageLifetimes.show = function(args) {
-                    syncStore.bind(this)();
-                    if (show) show.apply(this, args);
+                vm.pageLifetimes.show = function(...args) {
+                    if (this.$$reduxDiff) syncStore.bind(this)();
+                    if (show) show.apply(this, ...args);
                 }
-                vm.pageLifetimes.hide = function(args) {
+                vm.pageLifetimes.hide = function(...args) {
                     this.$$isCurrentPage = false;
-                    if (hide) hide.apply(this, args);
+                    if (hide) hide.apply(this, ...args);
                 }
 
                 vm.created = function (...args) {
