@@ -13,7 +13,9 @@
         "precommit": "lint-staged",
         "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0",
         "prepublishOnly": "npm run prebuild && npm run build",
-        "commit": "git cz"
+        "commit": "git cz",
+        "build:ts": "webpack ts/index.ts --output-path ./dist/ --optimize-minimize",
+        "eslint": "eslint ./ts --quiet --fix"
     },
     "author": "iveswen",
     "license": "MIT",
@@ -24,25 +26,33 @@
         "@babel/plugin-proposal-class-properties": "^7.1.0",
         "@babel/plugin-proposal-decorators": "^7.1.0",
         "@babel/preset-env": "^7.1.0",
+        "@babel/preset-typescript": "^7.12.7",
+        "@types/jest": "^26.0.20",
+        "@types/node": "^14.14.22",
+        "@typescript-eslint/eslint-plugin": "^4.14.1",
+        "@typescript-eslint/parser": "^4.14.1",
         "babel-core": "^7.0.0-bridge.0",
         "babel-eslint": "^10.0.0",
         "babel-loader": "^8.0.0",
         "conventional-changelog": "^1.1.24",
         "conventional-changelog-cli": "^1.3.22",
         "cz-conventional-changelog": "^2.1.0",
-        "eslint": "^4.19.1",
+        "eslint": "^7.19.0",
         "eslint-config-google": "^0.9.1",
         "eslint-plugin-jest": "^21.27.1",
         "husky": "^0.14.3",
-        "jest": "^23.6.0",
+        "jest": "^26.6.3",
         "lint-staged": "^6.1.1",
+        "ts-loader": "^8.0.14",
+        "typescript": "^4.1.3",
         "uglifyjs-webpack-plugin": "^1.3.0",
         "webpack": "^4.42.0",
         "webpack-cli": "^3.3.12"
     },
     "dependencies": {
         "deep-object-diff": "^1.1.0",
-        "lodash": "^4.17.20"
+        "lodash": "^4.17.20",
+        "miniprogram-api-typings": "^3.2.2"
     },
     "lint-staged": {
         "*.js": [

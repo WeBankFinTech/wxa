@@ -29,7 +29,7 @@ import {
     Loading,
 
     Mixins,
-} from '../src/decorators/index';
+} from '../ts/decorators/index';
 
 describe('wxa decorator', ()=>{
     test('mount eventbus to class', ()=>{
@@ -287,7 +287,7 @@ describe('lodash decorators', ()=>{
 
         class T {
             @Lock
-             foo() {
+            foo() {
                 let f = ()=>Promise.resolve();
                 c1();
                 return f();
@@ -301,7 +301,7 @@ describe('lodash decorators', ()=>{
             }
 
             @Lock
-             boo() {
+            boo() {
                 let f = ()=>{
                     return new Promise((resolve, reject)=>{
                         setTimeout(()=>{
@@ -322,22 +322,22 @@ describe('lodash decorators', ()=>{
 
         let instance = new T();
 
-        instance.foo();
+        let execFoo = instance.foo();
         instance.foo();
         instance.foo();
         instance.foo();
         expect(c1).toHaveBeenCalledTimes(1);
 
-        jest.advanceTimersByTime(100);
+        // jest.advanceTimersByTime(1000);
 
-
-        process.nextTick(()=>{
+        execFoo.then(()=>{
+            debugger;
             instance.foo();
             expect(c1).toHaveBeenCalledTimes(2);
         });
 
 
-        instance.boo();
+        let execBoo = instance.boo();
         instance.boo();
         instance.boo();
 
@@ -345,7 +345,7 @@ describe('lodash decorators', ()=>{
 
         jest.advanceTimersByTime(1000);
 
-        process.nextTick(()=>{
+        execBoo.then(()=>{
             instance.boo();
             expect(c2).toHaveBeenCalledTimes(2);
         });

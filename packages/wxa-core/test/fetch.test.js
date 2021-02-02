@@ -1,10 +1,10 @@
-jest.mock('../src/utils/wxapi');
+jest.mock('../ts/utils/wxapi');
 
 import {
     default as fetch,
     setMaxRequest,
     setRequestExpiredTime,
-} from '../src/utils/fetch';
+} from '../ts/utils/fetch';
 
 const users = {
     4: {name: 'Mark'},

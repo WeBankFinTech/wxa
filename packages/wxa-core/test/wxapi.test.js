@@ -1,7 +1,7 @@
 import {
     default as wxapi,
     addNoPromiseApi,
-} from '../src/utils/wxapi';
+} from '../ts/utils/wxapi';
 
 let originWx = wx;
 beforeAll(()=>{

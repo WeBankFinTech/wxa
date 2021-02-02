@@ -1,9 +1,9 @@
 import {
     default as Storage,
-} from '../src/utils/storage';
+} from '../ts/utils/storage';
 import {
     addNoPromiseApi,
-} from '../src/utils/wxapi';
+} from '../ts/utils/wxapi';
 
 import 'jest-plugin-console-matchers/setup';
 
