@@ -1,5 +1,5 @@
 import DependencyResolver from '../../helpers/dependencyResolver';
-import PathParser from '../../helpers/pathParser';
+import PathParser, { isIgnoreFile } from '../../helpers/pathParser';
 import logger from '../../helpers/logger';
 import {isFile} from '../../utils';
 import debugPKG from 'debug';
@@ -55,7 +55,7 @@ export default class ComponentManager {
                 let outputPath = dr.getOutputPath(source, pret, mdl);
                 let resolved = dr.getResolved(lib, outputPath, mdl);
 
-                if (pret.isPlugin || pret.isURI) return ret;
+                if (isIgnoreFile(pret)) return ret;
 
                 // check if wxa file.
                 if (isFile(source+this.meta.wxaExt)) {
