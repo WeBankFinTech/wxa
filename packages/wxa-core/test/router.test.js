@@ -1,11 +1,11 @@
 import {
     default as Router,
-} from '../src/utils/router';
+} from '../ts/utils/router';
 import {
     addNoPromiseApi,
-} from '../src/utils/wxapi';
+} from '../ts/utils/wxapi';
 
-import {wxa} from '../src/wxa';
+import {wxa} from '../ts/wxa';
 
 describe('router', ()=>{
     test('fn call', ()=>{

@@ -1,4 +1,4 @@
-import promisify from '../src/utils/promisify';
+import promisify from '../ts/utils/promisify';
 
 test('wrap function with promise', ()=>{
     let f = (opt)=>setTimeout(()=>opt&&opt.success());

@@ -1,4 +1,4 @@
-import {wxa as app} from '../src/wxa';
+import {wxa as app} from '../ts/wxa.ts';
 
 
 describe('app mount', ()=>{

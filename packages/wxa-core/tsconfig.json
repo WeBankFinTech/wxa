@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+        "outDir": "./dist/",
+        "allowJs": true,
+        "declaration": true,
+        "noImplicitAny": false,
+        "module": "commonjs",
+        "target": "es5",
+        "lib": ["dom", "es7"],
+        "esModuleInterop": true,
+        "experimentalDecorators": true,
+        "typeRoots": [
+            "node_modules/@types",
+            "typings"
+        ],
+        "types": ["miniprogram-api-typings", "@types/jest"],
+        "skipLibCheck": true
+    },
+    "include": [
+        "./ts/**/*", "./test/**/*"
+    ],
+    "exclude": ["./src", "./ts/polyfill/**/*"]
+}

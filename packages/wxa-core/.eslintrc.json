@@ -1,19 +1,19 @@
 {
-    "extends": "./node_modules/eslint-config-google/index.js",
+    "extends": [
+        "google",
+        "plugin:@typescript-eslint/eslint-recommended",
+        "plugin:@typescript-eslint/recommended"
+    ],
     "root": true,
-    "env": {
-        "browser": true,
-        "commonjs": true,
-        "es6": true,
-        "node": true,
-        "jest/globals": true
-    },
-    "parser": "babel-eslint",
+    "parser": "@typescript-eslint/parser",
     "parserOptions": {
-        "ecmaFeatures": {
-            "jsx": true
-        },
+        "project": ["tsconfig.json"],
         "sourceType": "module"
+    },
+    "env": {
+        "jest": true,
+        "miniprogram-api-typings": true,
+        "node": true
     },
     "rules": {
         "no-const-assign": "warn",
@@ -33,7 +33,18 @@
         "guard-for-in": "warn",
         "no-extend-native": "warn",
         "prefer-rest-params": "warn",
-        "linebreak-style": [0, "error", "windows"]
+        "linebreak-style": [0, "error", "windows"],
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/explicit-module-boundary-types": "off",
+        "@typescript-eslint/no-this-alias": "off",
+        "@typescript-eslint/no-empty-function": "off"
     },
-    "plugins": ["jest"]
+    "plugins": [
+        "jest",
+        "@typescript-eslint"
+    ],
+    "globals": {
+        "expect": true
+    }
 }
+
