@@ -16,8 +16,6 @@
         "node": true
     },
     "rules": {
-        "prefer-rest-params": "warn",
-        "no-extend-native": "warn",
         "no-const-assign": "warn",
         "no-this-before-super": "warn",
         "no-undef": "warn",
@@ -36,7 +34,10 @@
         "@typescript-eslint/no-explicit-any": "off",
         "@typescript-eslint/explicit-module-boundary-types": "off",
         "@typescript-eslint/no-this-alias": "off",
-        "@typescript-eslint/no-empty-function": "off"
+        "@typescript-eslint/no-empty-function": "off",
+        "no-extend-native": "warn",
+        "prefer-rest-params": "warn",
+        "linebreak-style": [0, "error", "windows"]
     },
     "plugins": [
         "jest",

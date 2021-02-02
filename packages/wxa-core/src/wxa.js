@@ -9,6 +9,7 @@ import {
     setMaxRequest,
     setRequestExpiredTime,
 } from './utils/fetch';
+import batchUpdate from './batchUpdate';
 
 // default component field
 const notCopy = ['properties', 'data', 'methods', 'behaviors', 'created', 'attached', 'ready', 'moved', 'detached', 'relations', 'options', 'lifetimes', 'pageLifetimes', 'definitionFilter'];
@@ -147,6 +148,7 @@ export class Wxa {
             };
         }
 
+        batchUpdate(vm, 'Page');
         Page(vm);
     }
 
@@ -187,6 +189,7 @@ export class Wxa {
             if (created) created.apply(this, args);
         };
 
+        batchUpdate(vm, 'Component');
         Component(vm);
     }
 
