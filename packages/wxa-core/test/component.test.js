@@ -1,4 +1,4 @@
-import {wxa as com} from '../src/wxa';
+import {wxa as com} from '../ts/wxa';
 
 
 describe('component', ()=>{

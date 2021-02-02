@@ -1,6 +1,6 @@
 import {
     SessionStorage,
-} from '../src/utils/sessionStorage';
+} from '../ts/utils/sessionStorage';
 
 import 'jest-plugin-console-matchers/setup';
 

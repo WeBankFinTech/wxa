@@ -10,6 +10,7 @@
 		"@babel/plugin-proposal-class-properties": "^7.2.0",
 		"@babel/plugin-proposal-decorators": "^7.2.0",
 		"@babel/preset-env": "^7.2.0",
+		"@babel/preset-typescript": "^7.12.7",
 		"@vuepress/plugin-back-to-top": "^1.0.0-alpha.27",
 		"@vuepress/plugin-google-analytics": "^1.0.0-alpha.27",
 		"@vuepress/plugin-medium-zoom": "^1.0.0-alpha.0",
@@ -41,7 +42,8 @@
 	"scripts": {
 		"publish-next": "lerna publish --dist-tag=next --canary --preid rc",
 		"commit": "git-cz",
-		"test": "jest"
+		"test:core": "cd ./packages/wxa-core && jest --silent",
+		"test": "jest --silent && npm run test:core"
 	},
 	"sideEffects": false,
 	"config": {
@@ -54,6 +56,9 @@
 	},
 	"dependencies": {
 		"@vuepress/theme-default": "^1.5.4",
+		"eslint": "^7.19.0",
+		"eslint-config-google": "^0.14.0",
+		"miniprogram-api-typings": "^3.2.2",
 		"vue-server-renderer": "^2.6.12"
 	}
 }
