@@ -104,9 +104,12 @@ for (let j = 0; j < testCaseNameArr.length; j++) {
                 }
                 await sleep(1000);
             }
-
-            await page.waitFor(`.${recordAction.id}`);
-            element = await page.$(`.${recordAction.id}`)
+            let idPath = recordAction.id.split('-');
+            await page.waitFor(`.${idPath[0]}`);
+            element = await page.$(`.${idPath[0]}`)
+            for (let j = 1; j < idPath.length; j++) {
+                element = await element.$(`.${idPath[j]}`)
+            }
             let same = await screenShot({
                 screenshotDir,
                 screenCount: screenCount++,

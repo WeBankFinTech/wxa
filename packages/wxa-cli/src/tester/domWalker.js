@@ -45,9 +45,8 @@ class XMLManager {
     walkAttr(attributes, element) {
         debug('attributes walk %o', attributes);
         let events = Object.keys(attributes).filter((attr)=>/bind/.test(attr));
-
+        let eventMap = '';
         if (events.length) {
-            let eventMap = '';
             events.forEach((attr)=>{
                 let [, $1] = /bind(?::)?([\w]*)/g.exec(attr);
                 if (!!~this.supportEvents.indexOf($1)) {
@@ -56,6 +55,13 @@ class XMLManager {
                 }
             });
 
+
+        }
+        // navigator标签劫持
+        if(element.name === 'navigator') {
+            element.attribs['bindtap'] = `$$e2e_tap`;
+        }
+        if (eventMap) {
             eventMap = eventMap.replace(/^\|/, '');
             element.attribs['data-_wxaTestEventMap'] = eventMap;
         }

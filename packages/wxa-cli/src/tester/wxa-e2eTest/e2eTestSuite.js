@@ -15,6 +15,7 @@ let state = {
 // 获取eventMap中对应事件方法
 function getEventFunc(eventType, eventMap) {
     // eventMap格式 tap:$go|longpress:$press
+    if (!eventMap) return null;
     let reg = new RegExp(`${eventType}:([^|]+)`);
     let result = eventMap.match(reg);
     if (result && result[1]) {
@@ -52,6 +53,19 @@ const shouldRecord = function(type, ...args) {
     lastEventTime[type].id = id;
     return true;
 }
+// 递归向上查找自定义组件
+function findParent(obj, id) {
+    let new_id = id;
+    if (obj.is && obj.is.slice(0, 11) === 'components/') {
+        // 是个组件
+        new_id = `${obj.dataset[IDKEY]}-${id}`;
+        let parent = obj.selectOwnerComponent();
+        if (parent.is.slice(0, 11) === 'components/') {
+            return findParent(parent, new_id)
+        }
+    }
+    return new_id;
+}
 
 // 增加一条操作记录
 const addRecord = function(type, ...args) {
@@ -61,6 +75,7 @@ const addRecord = function(type, ...args) {
     // 先判断是否需要记录
     if (shouldRecord.bind(this)(type, ...args)) {
         let pages = getCurrentPages();
+        id = findParent(this, id);
         state.record.push({
             action: {
                 ...e,
@@ -70,7 +85,7 @@ const addRecord = function(type, ...args) {
                 timeStamp: +new Date()
             }
         });
-        console.log('e2eRecord:', e)
+        console.log('e2eRecord:', e, id)
     }
 
     // 调用eventMap中原方法
@@ -87,6 +102,9 @@ const addRecord = function(type, ...args) {
 };
 
 const wrapEvent = {
+    $$e2e_navigator(...args) {
+        addRecord.bind(this)('navigator', ...args);
+    },
     $$e2e_tap(...args) {
         addRecord.bind(this)('tap', ...args);
     },
