@@ -15,7 +15,7 @@
 # 使用手册
 
 ### 安装
-1. `npm i -g @wxa/cli2-apple`
+1. `npm i -g wxa-cli2-apple`
 2. `npm i -g jest`
 3. 项目下安装 `npm i -DE miniprogram-automator looks-same`
 
