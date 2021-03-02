@@ -1,5 +1,5 @@
 {
-  "name": "@wxa/cli2",
+  "name": "@wxa/cli2-apple",
   "version": "2.2.16",
   "description": "cli for wxa development",
   "main": "dist/wxa.js",
@@ -16,7 +16,7 @@
   "author": "iveswen",
   "license": "MIT",
   "bin": {
-    "wxa2": "bin/wxa.js"
+    "wxa2-apple": "bin/wxa.js"
   },
   "repository": "https://github.com/wxajs/wxa.git",
   "homepage": "https://wxajs.github.io/wxa/",
