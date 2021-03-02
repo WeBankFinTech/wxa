@@ -1,6 +1,6 @@
 /* eslint-disable no-invalid-this */
 /* eslint-disable no-undef */
-
+import mockWxMethodConfig from './mockWxMethodConfig';
 
 const IDKEY = '_wxatestuniqueid';
 const EVENTMAPKEY = '_wxatesteventmap';
@@ -150,35 +150,36 @@ let $$testSuitePlugin = (options) => {
                 state.recording = true;
                 state.recordMode = true;
             }
-            const originRequest = wx.request;
-            Object.defineProperty(wx, 'request', {
-                configurable: true,
-                enumerable: true,
-                writable: true,
-                value: function() {
-                    const config = arguments[0] || {};
-                    let {url, data, method} = config;
-                    let { recording, apiRecord } = state;
-                    if (recording) {
-                        let key =  `${url}__e2e__${method}__e2e__${Object.keys(data).join(',')}`
-                        if (!apiRecord.has(key)) {
-                            apiRecord.set(key, [])
-                        }
-                        let originSuccess = config.success;
-                        config.success = function() {
-                            const res = arguments[0] || {};
-                            apiRecord.get(key).push({
-                                ...res
-                            })
+            mockWxMethodConfig.forEach(item => {
+                let originMethod = wx[item.name];
+                Object.defineProperty(wx, item.name, {
+                    configurable: true,
+                    enumerable: true,
+                    writable: true,
+                    value: function() {
+                        const config = arguments[0] || {};
+                        let { recording, apiRecord } = state;
+                        if (recording) {
+                            let key = item.recordStringify(config)
+                            if (!apiRecord.has(key)) {
+                                apiRecord.set(key, [])
+                            }
+                            let originSuccess = config.success;
+                            config.success = function() {
+                                const res = arguments[0] || {};
+                                apiRecord.get(key).push({
+                                    ...res
+                                })
 
-                            originSuccess.apply(this, arguments);
-                        }
-                        return originRequest.apply(this, arguments);
+                                originSuccess.apply(this, arguments);
+                            }
+                            return originMethod.apply(this, arguments);
 
+                        }
+                        return originMethod.apply(this, arguments);
                     }
-                    return originRequest.apply(this, arguments);
-                }
-            });
+                })
+            })
         }
         if (['App', 'Page'].indexOf(type) > -1) {
             mountStateAndWrapEvent(vm);

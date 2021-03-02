@@ -3,6 +3,8 @@ import path from 'path';
 import fs from 'fs';
 import testCase2js from './e2eTestCase2js.js';
 import {exec, execSync} from 'child_process';
+import mockWxMethodConfig from './mockWxMethodConfig';
+
 // -t 跑测试用例
 // -s --screenshot 进行截屏比对
 // --base 截屏作为expected基准，不对截屏进行比对
@@ -58,7 +60,8 @@ export default async function(cmd, wxaConfigs) {
             base: !!cmd.base,
             screenshotDiff: !!cmd.screenshotDiff,
             noMockApi: !!cmd.noMock,
-            customExpect: !!cmd.customExpect
+            customExpect: !!cmd.customExpect,
+            mockWxMethodConfig
         });
         writeFile(path.join(testDir, '.cache', 'index.test.js'), recordString)
     } catch (err) {

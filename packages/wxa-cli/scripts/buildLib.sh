@@ -5,6 +5,7 @@ rm -rf ./lib-dist/wxa-e2eTest
 mkdir -p ./lib-dist/wxa-e2eTest
 mkdir -p ./dist/tester/wxa-e2eTest
 ln ./src/tester/wxa-e2eTest/e2eTestSuite.js ./lib-dist/wxa-e2eTest/e2eTestSuite.js
+ln ./src/tester/wxa-e2eTest/mockWxMethodConfig.js ./lib-dist/wxa-e2eTest/mockWxMethodConfig.js
 ln ./src/tester/wxa-e2eTest/e2eRecordBtn.wxa ./lib-dist/wxa-e2eTest/e2eRecordBtn.wxa
 ln ./src/tester/wxa-e2eTest/e2eTestCaseTpl.ejs ./dist/tester/wxa-e2eTest/e2eTestCaseTpl.ejs
 echo $MODE;

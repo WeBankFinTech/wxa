@@ -68,27 +68,70 @@ for (let j = 0; j < testCaseNameArr.length; j++) {
         let record = require(path.join(testDir, testName, `./record.js`));
         let screenCount = 0;
         // mock接口
-        if (!noMockApi) {
-            let apiMockMap = require(path.join(testDir, testName, `./api.json`));
-            await miniProgram.mockWxMethod(
-                'request',
-                function(reqObj, apiMockMap) {
-                    let mapKey = `${reqObj.url}__e2e__${reqObj.method}__e2e__${Object.keys(reqObj.data).join(',')}`;
-                    if (apiMockMap[mapKey] && apiMockMap[mapKey].length > 0) {
-                        console.log(mapKey, 'mock success')
-                        return apiMockMap[mapKey].shift();
-                    }
-                    return new Promise(resolve => {
-                        reqObj.success = res => resolve(res)
-                        reqObj.fail = res => resolve(res)
-                        // origin 指向原始方法
-                        console.log(mapKey, 'no mock')
-                        this.origin(reqObj)
-                    })
-                },
-                apiMockMap
-            )
-        }
+        let apiMockMap = require(path.join(testDir, testName, `./api.json`));
+        // for (let i = 0; i < mockWxMethodConfig.length; i++) {
+        <% mockWxMethodConfig.forEach(function(mockItem){ %>
+            <% if(mockItem.name !== 'request' || !noMockApi) %>
+        await miniProgram.mockWxMethod(
+            '<%- mockItem.name %>',
+            function(config, apiMockMap) {
+                let mapKey = `<%- mockItem.tpl %>`
+                if (apiMockMap[mapKey] && apiMockMap[mapKey].length > 0) {
+                    console.log(mapKey, 'mock success')
+                    return apiMockMap[mapKey].shift();
+                }
+                return new Promise(resolve => {
+                    config.success = res => resolve(res)
+                    config.fail = res => resolve(res)
+                    // origin 指向原始方法
+                    console.log(mapKey, 'no mock')
+                    this.origin(config)
+                })
+            },
+             apiMockMap
+        )
+        <% }); %>
+        // }
+        // if (!noMockApi) {
+        //     await miniProgram.mockWxMethod(
+        //         'request',
+        //         function(reqObj, apiMockMap) {
+        //             let mapKey = `${reqObj.url}__e2e__${reqObj.method}__e2e__${Object.keys(reqObj.data).join(',')}`;
+        //             if (apiMockMap[mapKey] && apiMockMap[mapKey].length > 0) {
+        //                 console.log(mapKey, 'mock success')
+        //                 return apiMockMap[mapKey].shift();
+        //             }
+        //             return new Promise(resolve => {
+        //                 reqObj.success = res => resolve(res)
+        //                 reqObj.fail = res => resolve(res)
+        //                 // origin 指向原始方法
+        //                 console.log(mapKey, 'no mock')
+        //                 this.origin(reqObj)
+        //             })
+        //         },
+        //         apiMockMap
+        //     )
+        // }
+        // // mock modal框
+        // await miniProgram.mockWxMethod(
+        //     'showModal',
+        //     function(config, apiMockMap) {
+        //         let mapKey = `showModal__e2e__title__${config.titie}__e2e__content__${config.content}__e2e__editable__${config.editable}__e2e__showCancel__${config.showCancel}__e2e__confirText__${config.confirmText}`;
+        //         console.log(mapKey)
+        //         if (apiMockMap[mapKey] && apiMockMap[mapKey].length > 0) {
+        //             console.log(mapKey, 'mock success')
+        //             return apiMockMap[mapKey].shift();
+        //         }
+        //         return new Promise(resolve => {
+        //             reqObj.success = res => resolve(res)
+        //             reqObj.fail = res => resolve(res)
+        //             // origin 指向原始方法
+        //             console.log(mapKey, 'no mock')
+        //             this.origin(reqObj)
+        //         })
+        //     },
+        //     apiMockMap
+        // )
 
         // 开始回放+截屏
         page = await miniProgram.reLaunch(`/${record[0].action.page}`);
