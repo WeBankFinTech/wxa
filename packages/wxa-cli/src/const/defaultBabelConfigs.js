@@ -7,33 +7,31 @@ const babelRuntime = path.join(cwd, 'node_modules', '@babel/runtime/package.json
 let hasRuntime = existsSync(babelRuntime);
 
 const commonConfigs = {
+
     'plugins': [
         ['@babel/plugin-proposal-decorators', {'decoratorsBeforeExport': true}],
         ['@babel/plugin-proposal-class-properties'],
     ],
     'presets': ['@babel/preset-env'],
 
-}
+};
 if (hasRuntime) {
     const pkg = require(babelRuntime);
 
     commonConfigs.plugins.unshift(['@babel/plugin-transform-runtime', {'version': pkg.version || '7.2.0'}]);
 }
 
-const defaultConfigs = {
+export default {
     'cwd': path.join(__dirname, '../../'),
     'sourceMap': false,
+    'ignore': [],
     overrides: [{
-        exclude: [/node_modules/,  /wxa-cli/],
+        exclude: [/node_modules/, /wxa-cli/],
         ...commonConfigs
-    }
-    ,{
+    },
+    {
         test: /wxa-e2eTest/,
         ...commonConfigs
     }
-
 ]
 };
-
-
-export default defaultConfigs;

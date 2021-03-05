@@ -3,7 +3,6 @@ import Schedule from '../schedule.js';
 import Compiler from '../compilers/index';
 import domWalker from './domWalker.js';
 import Server from './server.js';
-import e2eRecord2js from './wxa-e2eTest/e2eRecord2js';
 import logger from '../helpers/logger';
 import simplify from '../helpers/simplifyObj';
 import {applyPlugins, readFile, writeFile} from '../utils.js';
@@ -12,7 +11,6 @@ import {DirectiveBroker} from '../directive/directiveBroker';
 import crypto from 'crypto';
 import debugPKG from 'debug';
 import path from 'path';
-import mkdirp from 'mkdirp';
 import runTestCase from './wxa-e2eTest/runTestcase.js'
 
 const debug = debugPKG('WXA:E2ETester');

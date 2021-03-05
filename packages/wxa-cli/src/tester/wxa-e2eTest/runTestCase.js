@@ -52,13 +52,25 @@ export default async function(cmd, wxaConfigs) {
         screenshotPath = timeStamp;
     }
     try {
+
+        let screenshotDiff = cmd.screenshotDiff;
+        if (typeof screenshotDiff === 'undefined') {
+            if (!cmd.base && !cmd.record) {
+                screenshotDiff = true;
+            } else {
+                screenshotDiff = false;
+            }
+        } else if (screenshotDiff === 'false'){
+            screenshotDiff = false;
+        }
+
         let recordString = await testCase2js({
             cliPath: cli,
             testCaseNameArr: JSON.stringify(testCaseNameArr),
             testDir,
             screenshotPath,
             base: !!cmd.base,
-            screenshotDiff: !!cmd.screenshotDiff,
+            screenshotDiff: screenshotDiff,
             noMockApi: !!cmd.noMock,
             customExpect: !!cmd.customExpect,
             mockWxMethodConfig
@@ -71,7 +83,7 @@ export default async function(cmd, wxaConfigs) {
 
 
     try {
-        execSync(`jest ${path.join(testDir, '.cache', 'index.test.js')}`, {
+        execSync(`./node_modules/.bin/jest ${path.join(testDir, '.cache', 'index.test.js')}`, {
             stdio: 'inherit'
         });
         process.exit(0);

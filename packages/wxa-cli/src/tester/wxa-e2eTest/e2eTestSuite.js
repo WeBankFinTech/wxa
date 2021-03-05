@@ -167,9 +167,7 @@ let $$testSuitePlugin = (options) => {
                             let originSuccess = config.success;
                             config.success = function() {
                                 const res = arguments[0] || {};
-                                apiRecord.get(key).push({
-                                    ...res
-                                })
+                                apiRecord.get(key).push(JSON.parse(JSON.stringify(res)))
 
                                 originSuccess.apply(this, arguments);
                             }
