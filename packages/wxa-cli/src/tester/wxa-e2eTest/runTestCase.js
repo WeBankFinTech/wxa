@@ -83,7 +83,7 @@ export default async function(cmd, wxaConfigs) {
 
 
     try {
-        execSync(`./node_modules/.bin/jest ${path.join(testDir, '.cache', 'index.test.js')}`, {
+        execSync(`npx jest ${path.join(testDir, '.cache', 'index.test.js')}`, {
             stdio: 'inherit'
         });
         process.exit(0);

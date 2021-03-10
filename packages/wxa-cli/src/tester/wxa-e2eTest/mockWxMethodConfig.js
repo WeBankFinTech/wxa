@@ -30,10 +30,10 @@ export default [
             name: 'request',
             recordStringify(config) {
                 console.log(getKey.call(this, [
-                    config.url, config.method, Object.keys(config.data).join(',')
+                    config.url, config.method, Object.keys(config.data || {}).join(',')
                 ]));
                 return getKey.call(this, [
-                    config.url, config.method, Object.keys(config.data).join(',')
+                    config.url, config.method, Object.keys(config.data || {}).join(',')
                 ])
             },
             tpl: (() => {

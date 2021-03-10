@@ -8,6 +8,7 @@
 * 已知bug：
     * 暂无
 * 待优化&计划：
+    * 截屏用的图片比对条件过于苛刻，稍微有些偏移就报错；理想情况：整体页面稍微有些偏移不应报错，因小程序rpx单位渲染，有小数点的时候，每次渲染不能保证位置一致，导致整体页面有位移，想调整下图片比对调节，时下能不能忽略偏移。
     * 不带-r参数时，即回放模式，仅添加元素id（回放测试用例时能找到对应元素），不侵入过多代码（现在会劫持各种tap等事件，植入全局按钮组件）
     * 高大上网页版测试报告
     * 【用例复用】：支持用例复用-公共用例不用重复录制（如：登陆模块只需要录制一次，其他用例复用，当登录模块更改时，只需要重新录制一次登录，不需要每个用例都重新录制）
@@ -15,69 +16,80 @@
     * 【服务器】：有个公共服务器解决用例执行的问题
     * 各种未知bug
 
-2020年3月2日
+2020年3月10日
 # 使用手册
 
 ### 安装
-* 项目下安装 `npm i -DE miniprogram-automator looks-same wxa-cli2-apple jest`
+* 任意目录执行命令 `npm i -g wxa-cli2-apple`
+* 先安装项目依赖 `npm i`
+* 项目目录下执行命令 `npm i -DE miniprogram-automator looks-same jest`
 
 ### 测试脚本录制
-1. 微信开发者工具，打开对应项目，勾选`不校验合法域名`
+1. 微信开发者工具，打开对应项目，勾选`不校验合法域名`（src/project.config.json需同步修改urlCheck:false）
 2. windows系统，wxa.config.js里增加属性`wechatwebdevtools `，配置微信开发者工具的安装目录
+
+	```
+	module.exports = {
+		wechatwebdevtools: "D:\....(开发者工具安装目录)"
+		.....
+	}
+
+	```
+3. 开发者工具修改调试基础库 2.7.3以上（src/project.config.json需同步修改libVersion）
+4. 项目根目录下添加文件`babel.config.js`(如果根目录下已有.babelrc，会有冲突，需将.babelrc中的配置合并到babel.config.js里)
+
+	```
+	const path = require('path');
+	const existsSync = require('fs').existsSync;
+
+
+	// try to find @babel/runtime to decide whether add @babel/plugin-transform-runtime.
+	const cwd = process.cwd();
+	const babelRuntime = path.join(cwd, 'node_modules', '@babel/runtime/package.json');
+	let hasRuntime = existsSync(babelRuntime);
+
+	const commonConfigs = {
+
+	    'plugins': [
+	        ['@babel/plugin-proposal-decorators', {'decoratorsBeforeExport': true}],
+	        ['@babel/plugin-proposal-class-properties'],
+	    ],
+	    'presets': ['@babel/preset-env'],
+
+	};
+	if (hasRuntime) {
+	    const pkg = require(babelRuntime);
+
+	    commonConfigs.plugins.unshift(['@babel/plugin-transform-runtime', {'version': pkg.version || '7.2.0'}]);
+	}
+
+	module.exports = {
+	    'sourceMap': false,
+	    'ignore': [],
+	    overrides: [{
+	        exclude: [/node_modules/, /wxa-cli/],
+	        ...commonConfigs
+	    },
+	    {
+	        test: /wxa-e2eTest/,
+	        ...commonConfigs
+	    }
+	]
+	};
+
+	```
+
 3. 项目目录下执行`wxa2-apple test --e2e -r`,开启录制模式
 * 用开发者工具打开项目，页面左上角有`结束录制`button，说明已成功开启录制模式
 * 此时与小程序的每一步交互都会录制为脚本，完成操作后，点击`结束录制`，输入用例名，对应脚本保存在`__wxa_e2e_test__`目录下
 
-### 进行基准截屏  
+### 进行基准截屏
 脚本录制过程中不会截屏，需要跑一次case脚本，完成基准截屏。若无基准截屏，用例回归时就不知道测试结果是否正确，所以这一步骤是必须的
 
 * 脚本录制完毕后，需执行`wxa2-apple test --e2e --base ` 回放用例，检查录制操作是否正确，且此次回放的截屏会作为后续回放用例的比较基准,用于判断测试是否通过
 * 基准截屏存放在`__wxa_e2e_test__/用例名/base_screenshot`中（`--test=test1,test2`可指定要回放的用例，多个用例逗号分隔）
 
 ### 测试脚本回放
-* 开发者工具修改调试基础库 2.7.3以上（src/project.config.json需同步修改libVersion）
-* 项目根目录下添加文件`babel.config.js`
-
-```
-const path = require('path');
-const existsSync = require('fs').existsSync;
-
-
-// try to find @babel/runtime to decide whether add @babel/plugin-transform-runtime.
-const cwd = process.cwd();
-const babelRuntime = path.join(cwd, 'node_modules', '@babel/runtime/package.json');
-let hasRuntime = existsSync(babelRuntime);
-
-const commonConfigs = {
-
-    'plugins': [
-        ['@babel/plugin-proposal-decorators', {'decoratorsBeforeExport': true}],
-        ['@babel/plugin-proposal-class-properties'],
-    ],
-    'presets': ['@babel/preset-env'],
-
-};
-if (hasRuntime) {
-    const pkg = require(babelRuntime);
-
-    commonConfigs.plugins.unshift(['@babel/plugin-transform-runtime', {'version': pkg.version || '7.2.0'}]);
-}
-
-module.exports = {
-    'sourceMap': false,
-    'ignore': [],
-    overrides: [{
-        exclude: [/node_modules/, /wxa-cli/],
-        ...commonConfigs
-    },
-    {
-        test: /wxa-e2eTest/,
-        ...commonConfigs
-    }
-]
-};
-
-```
 * `wxa2-apple test --e2e` 进入测试用例回放模式，操作截屏以时间命名保存在测试用例目录中（`--test=test1,test2`指定执行用例，多个用例逗号分隔）
 
 
