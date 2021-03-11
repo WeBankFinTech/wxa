@@ -8,7 +8,7 @@ import looksSame from 'looks-same';
 let miniProgram;
 let page;
 let testCaseNameArr = JSON.parse('<%- testCaseNameArr %>')
-let testDir = '<%- testDir %>';
+let testDir = '<%= testDir %>';
 let screenshotDirname = '<%- screenshotPath %>'
 let screenshotDiff = <%- screenshotDiff %>;
 let base = <%- base %>;
@@ -56,14 +56,18 @@ for (let j = 0; j < testCaseNameArr.length; j++) {
         if (base) {
             try {
                 fs.rmdirSync(screenshotDir);
-            } catch (err) {}
+            } catch (err) {
+                console.log(err)
+            }
         }
         try {
             fs.mkdirSync(screenshotDir)
             if (!base) {
                 fs.mkdirSync(diffDir);
             }
-        } catch(err) {}
+        } catch(err) {
+            console.log(err);
+        }
 
         let record = require(path.join(testDir, testName, `./record.js`));
         let screenCount = 0;
@@ -142,7 +146,7 @@ for (let j = 0; j < testCaseNameArr.length; j++) {
         // await miniprogram.restoreWxMethod('request');
         let same = await screenShot({
             screenshotDir,
-            screenCount: ++screenCount,
+            screenCount: screenCount,
             diff: screenshotDiff || record[record.length - 1].sceeenshotDiff
         })
         // 无diff图片，则比对通过

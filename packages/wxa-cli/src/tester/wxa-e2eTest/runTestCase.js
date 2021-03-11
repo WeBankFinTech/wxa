@@ -38,7 +38,7 @@ export default async function(cmd, wxaConfigs) {
     // 开发者工具clipath
     let clipath = {
         darwin: '/Contents/MacOS/cli',
-        win32: '/cli.bat',
+        win32: `/cli.bat`,
     };
     let {cliPath} = cmd;
     let cli = cliPath || path.join(wxaConfigs.wechatwebdevtools, clipath[process.platform]);
@@ -65,10 +65,10 @@ export default async function(cmd, wxaConfigs) {
         }
 
         let recordString = await testCase2js({
-            cliPath: cli,
+            cliPath: cli.split(path.sep).join('/'),
             testCaseNameArr: JSON.stringify(testCaseNameArr),
-            testDir,
-            screenshotPath,
+            testDir: testDir.split(path.sep).join('/'),
+            screenshotPath: screenshotPath.replace(' ', '_').replace(/:/g, '.'),
             base: !!cmd.base,
             screenshotDiff: screenshotDiff,
             noMockApi: !!cmd.noMock,
@@ -83,7 +83,7 @@ export default async function(cmd, wxaConfigs) {
 
 
     try {
-        execSync(`npx jest ${path.join(testDir, '.cache', 'index.test.js')}`, {
+        execSync(`npx jest ${path.join(testDir, '.cache', 'index.test.js').split(path.sep).join('/')}`, {
             stdio: 'inherit'
         });
         process.exit(0);
