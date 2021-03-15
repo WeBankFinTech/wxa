@@ -1,6 +1,6 @@
 {
   "name": "wxa-cli2-apple",
-  "version": "1.0.9",
+  "version": "1.0.25",
   "description": "cli for wxa development",
   "main": "dist/wxa.js",
   "scripts": {
