@@ -3,8 +3,8 @@ let $app = null
 // 使用内存传递参数，标记上生产页和消费页。 后续消费页消费后清除内存占用
 export function setRoutersParams(params, to) {
     _getApp().__routersParams = {
-        value: params, 
-        from: getCurrentURL(), 
+        value: params,
+        from: getCurrentURL(),
         to
     }
 }
@@ -15,14 +15,15 @@ export function comsumeRoutersParams() {
     let $app = _getApp();
     let routersParams = $app.__routersParams;
     if(routersParams && routersParams.to) {
-        console.log('comsumeRoutersParams', routersParams, getCurrentPages())
+        console.log('comsumeRoutersParams', routersParams);
+        console.log('getCurrentURL(), routersParams.to', getCurrentURL(), routersParams.to)
         if(getCurrentURL() === routersParams.to) {
             params = routersParams.value;
         }else {
             console.warn('路由参数目标不匹配，不进行消费')
         }
     }
-    $app.__routersParams = null;
+    // $app.__routersParams = null;
     return params;
 }
 
@@ -36,13 +37,17 @@ function _getApp() {
 
 function getCurrentURL() {
     // 注意避免在page生成前调用getCurrentPages
-    let from = '';
+    let currentURL = '';
     try {
-        let curPages = getCurrentPages();
-        let fromPage = allPage[allPage.length-1];
-        from = fromPage.route || '';
+        let currentPage = getCurrentPage();
+        currentURL = currentPage.route || '';
     }catch(e) {
         console.warn('getCurrentURL', e);
     }
-    return from;
+    return currentURL;
+}
+
+function getCurrentPage() {
+    let pages = getCurrentPages()
+    return pages[pages.length-1]
 }
