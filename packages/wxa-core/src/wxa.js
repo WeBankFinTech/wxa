@@ -10,6 +10,7 @@ import {
     setRequestExpiredTime,
 } from './utils/fetch';
 import batchUpdate from './batchUpdate';
+import { comsumeRoutersParams } from './utils/routerWithParams';
 
 // default component field
 const notCopy = ['properties', 'data', 'methods', 'behaviors', 'created', 'attached', 'ready', 'moved', 'detached', 'relations', 'options', 'lifetimes', 'pageLifetimes', 'definitionFilter'];
@@ -141,10 +142,10 @@ export class Wxa {
         // fallback for wxa1.0 and old wxa2 project.
         if (this.enableAppEmbed) {
             let onLoad = vm.onLoad;
-            vm.onLoad = function(...args) {
+            vm.onLoad = function(...query) {
                 this.$app = getApp();
-
-                onLoad && onLoad.apply(this, args);
+                let params = comsumeRoutersParams();
+                onLoad && onLoad.apply(this, query, params);
             };
         }
 
