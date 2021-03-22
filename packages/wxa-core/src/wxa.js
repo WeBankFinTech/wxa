@@ -142,10 +142,11 @@ export class Wxa {
         // fallback for wxa1.0 and old wxa2 project.
         if (this.enableAppEmbed) {
             let onLoad = vm.onLoad;
-            vm.onLoad = function(...query) {
+            vm.onLoad = function(...args) {
                 this.$app = getApp();
                 let params = comsumeRoutersParams();
-                onLoad && onLoad.apply(this, query, params);
+                args.push(params);
+                onLoad && onLoad.apply(this, args);
             };
         }
 

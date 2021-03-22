@@ -17,21 +17,12 @@ export default class Router {
             this[name] = (url, options = {})=> {
                 if(options.params) { 
                     // 使用内存传递参数，标记上生产页和消费页。 后续消费页消费后清除内存占用
-                    setRoutersParams(options.params, url);
-                    console.log('routersParams', options.params)
+                    setRoutersParams(options.params, this.resolvePath(url));
                     delete options.params; 
                 }
 
                 let promise = fn.call(this, {url, ...options});
                 this.preExec(url);
-
-                // _getApp().globalData.__routersParams = {
-                //     value: routersParams, 
-                //     from: getFromURL(), 
-                //     to: url
-                // }
-                // console.log('globalData', getCurrentPages(), _getApp().globalData)
-
 
                 return promise.catch((err)=>{
                     if (
@@ -58,30 +49,9 @@ export default class Router {
 
     preExec(url) {
         try {
-            let path = url.replace(/^\//, '');
+            // let path = url.replace(/^\//, '');
             let allPage = getCurrentPages();
-            let route = allPage[allPage.length-1].route;
-            // relative path
-            if (path[0] === '.' && route) {
-                let idx = 0;
-                let stack = [];
-                while (~['.', '/'].indexOf(path[idx]) && idx < path.length) {
-                    stack.push(path[idx]);
-
-                    let temp = stack.join('');
-                    if (temp === './') {
-                        route = route.replace(/[^\.\/]+$/, '');
-                        stack = [];
-                    } else if (temp === '../') {
-                        route = route.replace(/[^\.\/]+\/[^\.\/]+\/?$/, '');
-                        stack = [];
-                    }
-
-                    idx++;
-                }
-
-                path = route + path.slice(idx);
-            }
+            let path = this.resolvePath(url);
 
             let vm = wxa.$$pageMap.get(path);
             wxa.IS_DEBUG && console.info(`[beforeRouteEnter] target route is ${path}`);
@@ -108,6 +78,34 @@ export default class Router {
 
     close() {
         return this.wxapi.navigateBackMiniProgram();
+    }
+
+    resolvePath(url) {
+        let path = url.replace(/^\//, '');
+        let allPage = getCurrentPages();
+        let route = allPage[allPage.length-1].route;
+        // relative path
+        if (path[0] === '.' && route) {
+            let idx = 0;
+            let stack = [];
+            while (~['.', '/'].indexOf(path[idx]) && idx < path.length) {
+                stack.push(path[idx]);
+
+                let temp = stack.join('');
+                if (temp === './') {
+                    route = route.replace(/[^\.\/]+$/, '');
+                    stack = [];
+                } else if (temp === '../') {
+                    route = route.replace(/[^\.\/]+\/[^\.\/]+\/?$/, '');
+                    stack = [];
+                }
+
+                idx++;
+            }
+
+            path = route + path.slice(idx);
+        }
+        return path;
     }
 }
 
