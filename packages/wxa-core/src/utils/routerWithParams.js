@@ -31,7 +31,7 @@ export function comsumeRoutersParams() {
 
 function getCurrentURL() {
     // 注意避免在page生成前调用getCurrentPages
-    let from = '';
+    let currentURL = '';
     try {
         let curPages = getCurrentPages();
         let fromPage = curPages[curPages.length-1];
@@ -39,5 +39,5 @@ function getCurrentURL() {
     }catch(e) {
         console.warn('getCurrentURL', e);
     }
-    return from;
+    return currentURL;
 }

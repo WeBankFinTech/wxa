@@ -15,7 +15,8 @@ export default class Router {
 
         this.$apiMap.forEach((fn, name)=>{
             this[name] = (url, options = {})=> {
-                if(options.params) { 
+
+                if(options.params) {
                     // 使用内存传递参数，标记上生产页和消费页。 后续消费页消费后清除内存占用
                     setRoutersParams(options.params, this.resolvePath(url));
                     delete options.params; 
