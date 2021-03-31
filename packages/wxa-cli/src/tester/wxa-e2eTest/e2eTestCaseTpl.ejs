@@ -11,8 +11,8 @@ let testCaseNameArr = JSON.parse('<%- testCaseNameArr %>')
 let testDir = '<%= testDir %>';
 let screenshotDirname = '<%- screenshotPath %>'
 let screenshotDiff = <%- screenshotDiff %>;
+let mockApi = <%- mockApi %>;
 let base = <%- base %>;
-let noMockApi = <%- noMockApi%>
 let customExpect = <%- customExpect%>
 const sleep = t => new Promise(resolve => setTimeout(resolve, t));
 
@@ -73,7 +73,7 @@ for (let j = 0; j < testCaseNameArr.length; j++) {
         let apiMockMap = require(path.join(testDir, testName, `./api.json`));
         // for (let i = 0; i < mockWxMethodConfig.length; i++) {
         <% mockWxMethodConfig.forEach(function(mockItem){ %>
-            <% if(mockItem.name !== 'request' || !noMockApi) %>
+            <% if(mockItem.name !== 'request' || mockApi) {%>
         await miniProgram.mockWxMethod(
             '<%- mockItem.name %>',
             function(config, apiMockMap) {
@@ -92,7 +92,7 @@ for (let j = 0; j < testCaseNameArr.length; j++) {
             },
              apiMockMap
         )
-        <% }); %>
+        <% }}); %>
 
         // 开始回放+截屏
         page = await miniProgram.reLaunch(`/${record[0].action.page}`);

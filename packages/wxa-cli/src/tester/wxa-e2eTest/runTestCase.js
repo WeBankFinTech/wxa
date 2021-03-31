@@ -71,7 +71,7 @@ export default async function(cmd, wxaConfigs) {
             screenshotPath: screenshotPath.replace(' ', '_').replace(/:/g, '.'),
             base: !!cmd.base,
             screenshotDiff: screenshotDiff,
-            noMockApi: !!cmd.noMock,
+            mockApi: cmd.mock,
             customExpect: !!cmd.customExpect,
             mockWxMethodConfig
         });
