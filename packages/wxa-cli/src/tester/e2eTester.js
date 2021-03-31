@@ -12,7 +12,7 @@ import crypto from 'crypto';
 import debugPKG from 'debug';
 import path from 'path';
 import runTestCase from './wxa-e2eTest/runTestcase.js'
-
+import JSON5 from 'json5'
 const debug = debugPKG('WXA:E2ETester');
 const E2E_TEST_COMPONENT = 'wxa-e2e-record-btn';
 const E2E_TEST_URL = '/record';
@@ -121,7 +121,7 @@ class TesterScheduler extends Schedule {
 
     tryAddGlobalTestComponent(mdl) {
         try {
-            let appConfigs = JSON.parse(mdl.content);
+            let appConfigs = JSON5.parse(mdl.content);
 
             appConfigs['wxa.globalComponents'] = {
                 ...appConfigs['wxa.globalComponents'],
