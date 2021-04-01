@@ -112,8 +112,11 @@ class TesterScheduler extends Schedule {
             (/exports\.default/gm.test(mdl.code) || /exports\[["']default["']/gm.test(mdl.code))
         ) {
             mdl.code = `
+                var __e2e__state = require('wxa://wxa-e2eTest/state.js')
                 var __testSuitePlugin = require('wxa://wxa-e2eTest/e2eTestSuite.js');
-                require('@wxa/core').wxa.use(__testSuitePlugin, {record: ${!!this.cmdOptions.record}});
+                var __e2eMockWxMethod = require('wxa://wxa-e2eTest/e2eMockWxMethod.js');
+                __e2eMockWxMethod({state: __e2e__state});
+                require('@wxa/core').wxa.use(__testSuitePlugin, {record: ${!!this.cmdOptions.record}, state: __e2e__state});
                 ${mdl.code}
             `;
         }
