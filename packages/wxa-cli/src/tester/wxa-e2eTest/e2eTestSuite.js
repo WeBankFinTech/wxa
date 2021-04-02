@@ -69,11 +69,12 @@ const addRecord = function(type, ...args) {
     // 先判断是否需要记录
     if (shouldRecord.bind(this)(type, ...args)) {
         let pages = getCurrentPages();
+        let currentPage = pages[pages.length - 1];
         id = findParent(this, id);
         state.record.push({
             action: {
                 ...e,
-                page: pages[pages.length - 1].route,
+                page: joinURLQuery(currentPage.route, currentPage.options),
                 event: type,
                 id,
                 timeStamp: +new Date()
@@ -134,6 +135,38 @@ const mountStateAndWrapEvent = (vm) => {
     vm.$$e2e_state = state;
 };
 
+function joinURLQuery(url, query) {
+    let queryKey = Object.keys(query);
+    if (queryKey.length > 0) {
+        url += '?';
+        // TODO
+        queryKey.forEach((key) => {
+            url += `${key}=${query[key]}&`
+        })
+    }
+    return url;
+}
+
+// 劫持switchtab事件
+const hjSwitchTab = () => {
+    wx.onAppRoute(function(e) {
+        if (e.openType === 'switchTab') {
+            let action = {
+                event: 'switchTab',
+                path: e.path,
+                query: e.query
+            };
+            if (state.record.length === 0) {
+                let launchOpts = wx.getLaunchOptionsSync();
+                action.appStartPage = joinURLQuery(launchOpts.path, launchOpts.query)
+            }
+            state.record.push({
+                action
+            })
+        }
+    });
+}
+
 let $$testSuitePlugin = (options) => {
     state = options.state;
     // vm是当前实例，type为实例类型
@@ -144,6 +177,7 @@ let $$testSuitePlugin = (options) => {
                 // 自动开始录制
                 state.recording = true;
                 state.recordMode = true;
+                hjSwitchTab();
             }
         }
         if (['App', 'Page'].indexOf(type) > -1) {

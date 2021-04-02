@@ -95,7 +95,8 @@ for (let j = 0; j < testCaseNameArr.length; j++) {
         <% }}); %>
 
         // 开始回放+截屏
-        page = await miniProgram.reLaunch(`/${record[0].action.page}`);
+        let startPage = record[0].action.page || record[0].action.appStartPage;
+        page = await miniProgram.reLaunch(`/${startPage}`);
         let element;
         await page.waitFor(300);
         for (let i = 0; i < record.length; i++) {
@@ -103,17 +104,24 @@ for (let j = 0; j < testCaseNameArr.length; j++) {
             let recordAction = recordItem.action;
             while (true) {
                 page = await miniProgram.currentPage()
-                if (page.path === recordAction.page) {
+                if (page.path === (recordAction.page || recordAction.appStartPage).split('?')[0]) {
                     break;
                 }
                 await sleep(1000);
             }
-            let idPath = recordAction.id.split('-');
-            await page.waitFor(`.${idPath[0]}`);
-            element = await page.$(`.${idPath[0]}`)
-            for (let j = 1; j < idPath.length; j++) {
-                element = await element.$(`.${idPath[j]}`)
+            // 这里要区分下，如果是switchtab跳转页面，是没有elementid的
+            if (recordAction.id) {
+                let idPath = recordAction.id.split('-');
+                await page.waitFor(`.${idPath[0]}`);
+                element = await page.$(`.${idPath[0]}`)
+                for (let j = 1; j < idPath.length; j++) {
+                    element = await element.$(`.${idPath[j]}`)
+                }
+            } else {
+                element = null;
+                await sleep(3000)
             }
+
             let diff = screenshotDiff;
             if (record[i-1] && typeof record[i-1].screenshotDiff !== 'undefined') {
                 diff = screenshotDiff;
@@ -129,8 +137,10 @@ for (let j = 0; j < testCaseNameArr.length; j++) {
 
             if (!!~['tap', 'longpress'].indexOf(recordAction.event)) {
                 await element[recordAction.event]();
-            }else if (!!~['input'].indexOf(recordAction.event)) {
+            } else if (!!~['input'].indexOf(recordAction.event)) {
                 await element[recordAction.event](recordAction.detail.value);
+            } else if (!!~['switchTab'].indexOf(recordAction.event)) {
+                await miniProgram.switchTab(path.resolve('/', recordAction.path))
             } else if (!!~['touchstart', 'touchmove', 'touchend'].indexOf(recordAction.event)) {
                 await element[recordAction.event]({
                     touches: recordAction.touches,

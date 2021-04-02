@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import testCase2js from './e2eTestCase2js.js';
 import {exec, execSync} from 'child_process';
-import mockWxMethodConfig from './mockWxMethodConfig';
+import e2eMockWxMethod from './e2eMockWxMethod';
 
 // -t 跑测试用例
 // -s --screenshot 进行截屏比对
@@ -73,7 +73,7 @@ export default async function(cmd, wxaConfigs) {
             screenshotDiff: screenshotDiff,
             mockApi: cmd.mock,
             customExpect: !!cmd.customExpect,
-            mockWxMethodConfig
+            mockWxMethodConfig: e2eMockWxMethod.config
         });
         writeFile(path.join(testDir, '.cache', 'index.test.js'), recordString)
     } catch (err) {
