@@ -1,7 +1,7 @@
-import { formatDate, writeFile } from '../../utils';
+import {formatDate, writeFile} from '../../utils';
 import path from 'path';
 import fs from 'fs';
-import testCase2js from './e2eTestCase2js.js';
+import {e2eRecord2js} from './e2eTestCase2js.js';
 import {exec, execSync} from 'child_process';
 import e2eMockWxMethod from './e2eMockWxMethod';
 
@@ -64,7 +64,7 @@ export default async function(cmd, wxaConfigs) {
             screenshotDiff = false;
         }
 
-        let recordString = await testCase2js({
+        let recordString = await e2eRecord2js({
             cliPath: cli.split(path.sep).join('/'),
             testCaseNameArr: JSON.stringify(testCaseNameArr),
             testDir: testDir.split(path.sep).join('/'),

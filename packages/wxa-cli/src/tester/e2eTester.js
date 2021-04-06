@@ -11,8 +11,9 @@ import {DirectiveBroker} from '../directive/directiveBroker';
 import crypto from 'crypto';
 import debugPKG from 'debug';
 import path from 'path';
-import runTestCase from './wxa-e2eTest/runTestcase.js'
-import JSON5 from 'json5'
+import runTestCase from './wxa-e2eTest/runTestcase.js';
+import runWechatTools from './wxa-e2eTest/runWechatTools.js';
+import JSON5 from 'json5';
 const debug = debugPKG('WXA:E2ETester');
 const E2E_TEST_COMPONENT = 'wxa-e2e-record-btn';
 const E2E_TEST_URL = '/record';
@@ -180,8 +181,11 @@ class TesterBuilder extends Builder {
         if (!cmd.record) {
             setTimeout(() => {
                 runTestCase(cmd, this.wxaConfigs);
-            }, 3000)
-
+            }, 3000);
+        } else { // -r启动微信开发者工具
+            setTimeout(() => {
+                runWechatTools(cmd, this.wxaConfigs);
+            }, 3000);
         }
     }
 

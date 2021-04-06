@@ -13,4 +13,19 @@ const e2eRecord2js = (data) => {
     });
 };
 
-module.exports = e2eRecord2js;
+const e2eStartTools = (data) => {
+    return new Promise((resolve, reject) => {
+        ejs.renderFile(path.join(__dirname + '/e2eTpl.ejs'), data, (err, str) => {
+            if (err) {
+                return reject(err);
+            }
+            resolve(str);
+        });
+    });
+};
+
+
+module.exports = {
+    e2eRecord2js,
+    e2eStartTools,
+};

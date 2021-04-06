@@ -195,8 +195,8 @@ function imageDiff(actualImage, expectImage, diffPath) {
                 diff: diffPath,
                 highlightColor: '#ff00ff', // color to highlight the differences
                 strict: false, // strict comparsion
-                tolerance: 2.5,
-                antialiasingTolerance: 0,
+                tolerance: 5,
+                antialiasingTolerance: 3,
                 ignoreAntialiasing: true, // ignore antialising by default
                 ignoreCaret: true // ignore caret by default
             }, function(error, res) {
