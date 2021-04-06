@@ -141,7 +141,7 @@ export default class ASTManager {
                         case StringLiteralRequire:
                             // path.replaceWithSourceString(`require("${resolved}")`);
                             path.replaceWith( template(`require(SOURCE)`)({SOURCE: t.stringLiteral(resolved)}) );
-                            path.stop();
+                            path.skip();
                             break;
                         case ImportDeclaration:
                             path.get('source').replaceWith(t.stringLiteral(resolved));
