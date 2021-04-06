@@ -1,7 +1,7 @@
 import {writeFile} from '../../utils';
 import path from 'path';
 import {e2eStartTools} from './e2eTestCase2js.js';
-import {execSync} from 'child_process';
+import {exec} from 'child_process';
 
 export default async function(cmd, wxaConfigs) {
     let testDir = path.join(process.cwd(), cmd.outDir);
@@ -22,10 +22,10 @@ export default async function(cmd, wxaConfigs) {
         process.exit(-1);
     }
     try {
-        execSync(`node ${path.join(testDir, '.cache', 'start.test.js').split(path.sep).join('/')}`, {
-            stdio: 'inherit',
+        exec(`node ${path.join(testDir, '.cache', 'start.test.js').split(path.sep).join('/')}`, {
+            stdio: 'inherit'
         });
-        process.exit(0);
+        console.log(`wechat tools started`);
     } catch (err) {
         process.exit(-1);
     }

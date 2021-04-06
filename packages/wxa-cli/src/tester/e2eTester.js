@@ -182,16 +182,15 @@ class TesterBuilder extends Builder {
             setTimeout(() => {
                 runTestCase(cmd, this.wxaConfigs);
             }, 3000);
-        } else { // -r启动微信开发者工具
-            setTimeout(() => {
-                runWechatTools(cmd, this.wxaConfigs);
-            }, 3000);
         }
     }
 
 
-    listen(cmdOptions) {
+    async listen(cmdOptions) {
         let {port=9421, cliPath} = cmdOptions;
+        if (cmdOptions.record) { // -r启动微信开发者工具
+            runWechatTools(cmdOptions, this.wxaConfigs);
+        }
         let server = new Server({port}, logger);
         server.post(E2E_TEST_URL, async (data)=>{
             logger.info('Recieved Data: ', data);
@@ -234,11 +233,11 @@ export default class E2ETester {
         this.wxaConfigs = wxaConfigs;
     }
 
-    build() {
+    async build() {
         console.log('e2e tester start');
         let testerBuilder = new TesterBuilder(this.wxaConfigs, );
-
-        testerBuilder.build(this.cmdOptions);
-        testerBuilder.listen(this.cmdOptions);
+        
+        await testerBuilder.build(this.cmdOptions);
+        await testerBuilder.listen(this.cmdOptions);
     }
 }

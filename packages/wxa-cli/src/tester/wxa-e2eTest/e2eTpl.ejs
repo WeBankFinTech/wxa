@@ -4,15 +4,9 @@ const automator = require('miniprogram-automator');
 const path = require('path');
 let miniProgram;
 
-async function run() {
-    setTimeout(async () => {
+(async function run() {
         miniProgram = await automator.launch({
             cliPath: '<%= cliPath %>',
             projectPath: path.resolve(process.cwd(), './dist/'),
         });
-    
-        await miniProgram.currentPage();
-    }, 15000);
-};
-
-run();
+})();
