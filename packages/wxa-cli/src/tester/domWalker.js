@@ -54,8 +54,11 @@ class XMLManager {
                     element.attribs[`bind${$1}`] = `$$e2e_${$1}`;
                 }
             });
-
-
+        }
+        let openType = Object.keys(attributes).some((attr)=>attr === 'open-type');
+        let bindtap = Object.keys(attributes).some((attr)=>attr === 'bindtap');
+        if (openType && !bindtap) {
+            element.attribs[`bindtap`] = `$$e2e_tap`;
         }
         // navigator标签劫持
         if(element.name === 'navigator') {
