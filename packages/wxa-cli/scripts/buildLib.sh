@@ -5,12 +5,17 @@ rm -f ./dist/tester/wxa-e2eTest/e2eTpl.ejs
 rm -rf ./lib-dist/wxa-e2eTest
 mkdir -p ./lib-dist/wxa-e2eTest
 mkdir -p ./dist/tester/wxa-e2eTest
+mkdir -p ./dist/tester/imageSimilarity
 ln ./src/tester/wxa-e2eTest/state.js ./lib-dist/wxa-e2eTest/state.js
 ln ./src/tester/wxa-e2eTest/e2eTestSuite.js ./lib-dist/wxa-e2eTest/e2eTestSuite.js
 ln ./src/tester/wxa-e2eTest/e2eMockWxMethod.js ./lib-dist/wxa-e2eTest/e2eMockWxMethod.js
 ln ./src/tester/wxa-e2eTest/e2eRecordBtn.wxa ./lib-dist/wxa-e2eTest/e2eRecordBtn.wxa
 ln ./src/tester/wxa-e2eTest/e2eTestCaseTpl.ejs ./dist/tester/wxa-e2eTest/e2eTestCaseTpl.ejs
 ln ./src/tester/wxa-e2eTest/e2eTpl.ejs ./dist/tester/wxa-e2eTest/e2eTpl.ejs
+
+ln ./src/tester/imageSimilarity/dHash.py ./dist/tester/imageSimilarity/dHash.py
+ln ./src/tester/imageSimilarity/init.py ./dist/tester/imageSimilarity/init.py
+
 echo $MODE;
 if test "$MODE" = 'dev'
 then

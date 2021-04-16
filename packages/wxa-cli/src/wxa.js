@@ -107,6 +107,16 @@ commander
 });
 
 commander
+.command('test-diff')
+.description('测试结果校准')
+.action((cmd)=>{
+    logger.info('Hey', `This is ${chalk.keyword('orange')('wxa@'+version)}, Running in ${chalk.keyword('orange')(process.env.NODE_ENV || 'development')}, Tester diff Mode`);
+    // logger.info(cmd);
+    let wxaConfigs = getConfigs();
+    new Tester(cmd, wxaConfigs).diff();
+});
+
+commander
 .command('cli')
 .description('微信开发者工具命令行调用')
 .option('-a, --action <action>', '指定操作, open, login, preview, upload')
