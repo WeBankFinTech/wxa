@@ -134,7 +134,7 @@ const processParams = function (params) {
  * 2、getRealtimeLogManager
  * 3、getLogManager
  */
-const logFn = (e, key) => {
+const logFn = (e, key, autoConsole) => {
   try {
     if (e.length > 0) {
       if (e.length === 1 && !e[0]) {
@@ -144,7 +144,7 @@ const logFn = (e, key) => {
         const params = processParams(cloneDeep(e));
         if (params) {
           // 调用三种log
-          console[key](...e);
+          autoConsole && console[key](...e);
           // logger没有error方法，需要fallback
           logger && logger[key === 'error' ? 'warn' : key](params);
           log && log[key](params);
@@ -164,14 +164,15 @@ const logFn = (e, key) => {
  */
 
 export const $log = {
+  autoConsole: true,
   info() {
-    logFn(arguments, 'info');
+    logFn(arguments, 'info', this.autoConsole);
   },
   warn() {
-    logFn(arguments, 'warn');
+    logFn(arguments, 'warn', this.autoConsole);
   },
   error() {
-    logFn(arguments, 'error');
+    logFn(arguments, 'error', this.autoConsole);
   },
   setFilterMsg(msg) { // 从基础库2.7.3开始支持
     if (!log || !log.setFilterMsg) return
@@ -182,6 +183,9 @@ export const $log = {
     if (!log || !log.addFilterMsg) return
     if (typeof msg !== 'string') return
     log.addFilterMsg(msg)
+  },
+  switchAutoConsole(val) {
+    this.autoConsole = val;
   }
 };
 
