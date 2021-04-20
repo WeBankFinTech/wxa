@@ -44,7 +44,7 @@ class dHash():
 		code2 = self.getCode(image2, size)
 
 		assert len(code1) == len(code2),"error"
-		print(self.compCode(code1, code2))
+		# print(self.compCode(code1, code2))
 		return self.compCode(code1, code2)
 
 

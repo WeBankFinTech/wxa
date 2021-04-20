@@ -17,8 +17,10 @@ export default class TesterController {
     }
     
     // 测试结果图片校准
-    async diff() {
-        execSync(`python "${pyPath}"`, {
+    async diff(timeStamp, caseList) {
+        if (!Array.isArray(caseList) || caseList.length == 0 || !timeStamp) return;
+        const argv = caseList.join('-');
+        execSync(`python "${pyPath}" ${timeStamp} ${argv}`, {
             stdio: 'inherit',
         });
         return process.exit(0);

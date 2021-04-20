@@ -26,6 +26,10 @@
 * 先安装项目依赖 `npm i`
 * 项目目录下执行命令 `npm i -DE miniprogram-automator looks-same jest`
 
+### python 及依赖安装
+* [Python官网](https://www.python.org/)网下载Python安装包(python-3.X.X.exe)
+* 全局安装PIL `pip install pillow`
+
 ### 测试脚本录制
 1. 微信开发者工具 - 设置 - 安全设置 - 打开服务端口
 1. 微信开发者工具，打开对应项目，勾选`不校验合法域名`（src/project.config.json需同步修改urlCheck:false）
@@ -95,6 +99,9 @@
 ### 测试脚本回放
 * `wxa2-apple test --e2e` 进入测试用例回放模式，操作截屏以时间命名保存在测试用例目录中（`--test=test1,test2`指定执行用例，多个用例逗号分隔）
 
+### 测试结果校准
+
+* 进入项目根目录，执行`wxa2-apple test-diff`
 
 ### 二次开发录制好的测试用例
 通过修改`测试用例/record.js`，可以进行用例二次开发
