@@ -112,8 +112,8 @@ commander
 .action((cmd)=>{
     logger.info('Hey', `This is ${chalk.keyword('orange')('wxa@'+version)}, Running in ${chalk.keyword('orange')(process.env.NODE_ENV || 'development')}, Tester diff Mode`);
     // logger.info(cmd);
-    let wxaConfigs = getConfigs();
-    new Tester(cmd, wxaConfigs).diff();
+    // let wxaConfigs = getConfigs();
+    // new Tester(cmd, wxaConfigs).diff('2021.04.20-10.48.09', ['测试2']);
 });
 
 commander
