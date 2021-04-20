@@ -25,7 +25,7 @@ export default async function(cmd, wxaConfigs) {
     } else {
         let files = fs.readdirSync(testDir);
         files.forEach((item) => {
-            if (item === '.cache') {
+            if (item[0] === '.') {
                 return;
             }
             let stat = fs.lstatSync(path.join(testDir, item));
@@ -49,7 +49,7 @@ export default async function(cmd, wxaConfigs) {
         screenshotPath = 'base_screenshot';
     } else {
         let timeStamp = formatDate(+new Date());
-        screenshotPath = timeStamp;
+        screenshotPath = timeStamp.replace(' ', '_').replace(/:/g, '.');
     }
     try {
 
@@ -68,7 +68,7 @@ export default async function(cmd, wxaConfigs) {
             cliPath: cli.split(path.sep).join('/'),
             testCaseNameArr: JSON.stringify(testCaseNameArr),
             testDir: testDir.split(path.sep).join('/'),
-            screenshotPath: screenshotPath.replace(' ', '_').replace(/:/g, '.'),
+            screenshotPath,
             base: !!cmd.base,
             screenshotDiff: screenshotDiff,
             mockApi: cmd.mock,

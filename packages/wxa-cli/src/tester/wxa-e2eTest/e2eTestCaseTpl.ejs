@@ -51,7 +51,11 @@ afterAll(async () => {
 for (let j = 0; j < testCaseNameArr.length; j++) {
     let testName = testCaseNameArr[j];
     test(testName, async () => {
-        let screenshotDir = path.join(testDir, testName, screenshotDirname);
+        let screenshotDir = path.join(testDir, '.replay_result', screenshotDirname, testName, 'screenshot');
+        let baseScreenshot = path.join(testDir, testName, 'base_screenshot');
+        if (base) {
+            screenshotDir = baseScreenshot;
+        }
         let diffDir = path.join(screenshotDir, 'diff');
         if (base) {
             try {
@@ -60,9 +64,9 @@ for (let j = 0; j < testCaseNameArr.length; j++) {
             }
         }
         try {
-            fs.mkdirSync(screenshotDir)
+            mkdirsSync(screenshotDir)
             if (!base) {
-                fs.mkdirSync(diffDir);
+                mkdirsSync(diffDir);
             }
         } catch(err) {
         }
@@ -80,7 +84,11 @@ for (let j = 0; j < testCaseNameArr.length; j++) {
                 let mapKey = `<%- mockItem.tpl %>`
                 if (apiMockMap[mapKey] && apiMockMap[mapKey].length > 0) {
                     console.log(mapKey, 'mock success')
+                    <% if(mockItem.name === 'request') {%>
                     return apiMockMap[mapKey].shift();
+                    <% } else {%>
+                        return apiMockMap[mapKey][0];
+                    <% }%>
                 }
                 return new Promise(resolve => {
                     config.success = res => resolve(res)
@@ -104,7 +112,10 @@ for (let j = 0; j < testCaseNameArr.length; j++) {
             let recordAction = recordItem.action;
             while (true) {
                 page = await miniProgram.currentPage()
-                if (page.path === (recordAction.page || recordAction.appStartPage).split('?')[0]) {
+                if (recordAction.event === 'switchTab') {
+                    await sleep(4000);
+                    break;
+                } else if (page.path === (recordAction.page || recordAction.appStartPage).split('?')[0]) {
                     break;
                 }
                 await sleep(1000);
@@ -129,7 +140,8 @@ for (let j = 0; j < testCaseNameArr.length; j++) {
             let same = await screenShot({
                 screenshotDir,
                 screenCount: screenCount++,
-                diff
+                diff,
+                baseScreenshot
             })
             if (customExpect && i !== 0 && record[i - 1].customExpect && typeof record[i - 1].customExpect === 'function') {
                 record[i - 1].customExpect();
@@ -156,7 +168,8 @@ for (let j = 0; j < testCaseNameArr.length; j++) {
         let same = await screenShot({
             screenshotDir,
             screenCount: screenCount,
-            diff: screenshotDiff || record[record.length - 1].sceeenshotDiff
+            diff: screenshotDiff || record[record.length - 1].sceeenshotDiff,
+            baseScreenshot
         })
         // 无diff图片，则比对通过
         if (!base) {
@@ -165,9 +178,9 @@ for (let j = 0; j < testCaseNameArr.length; j++) {
     })
 }
 
-async function screenShot({screenshotDir, screenCount, diff}) {
+async function screenShot({screenshotDir, screenCount, diff, baseScreenshot}) {
     let actualImagePath = path.join(screenshotDir, `${screenCount}.png`);
-    let expectPath = path.resolve(screenshotDir, `../base_screenshot`, `${screenCount}.png` );
+    let expectPath = baseScreenshot;
     await miniProgram.screenshot({path: actualImagePath});
     if (diff) {
         let same = await imageDiff(actualImagePath, expectPath, path.join(screenshotDir, `diff/${screenCount}.png`));
@@ -207,4 +220,15 @@ function imageDiff(actualImage, expectImage, diffPath) {
             });
         })
     })
+}
+// 递归创建目录 同步方法
+function mkdirsSync(dirname) {
+    if (fs.existsSync(dirname)) {
+      return true;
+    } else {
+      if (mkdirsSync(path.dirname(dirname))) {
+        fs.mkdirSync(dirname);
+        return true;
+      }
+    }
 }
