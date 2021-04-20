@@ -39,7 +39,7 @@ class DiffImages():
             obj['case_name'] = cur_dir # 当前用例
             # 拼接路径
             cur_base = target_path + "\\" + cur_dir + "\\base_screenshot\\"
-            cur_replay = target_path + "\\replay_result\\" + ins + "\\" + cur_dir +"\\screenshot\\"
+            cur_replay = target_path + "\\.replay_result\\" + ins + "\\" + cur_dir +"\\screenshot\\"
             # 拿到目录下的图片列表
             base_img_list = self.GetDirList(cur_path = cur_base, cur_type = "file")
             replay_img_list = self.GetDirList(cur_path = cur_replay, cur_type = "file")
@@ -76,7 +76,7 @@ class DiffImages():
         dirnames = None
         if cur_type == 'dir':
             # 测试用例目录
-            dirnames = [name for name in names if os.path.isdir(os.path.join(cur_path, name)) and name != '.cache' and name != 'replay_result']
+            dirnames = [name for name in names if os.path.isdir(os.path.join(cur_path, name)) and name != '.cache' and name != '.replay_result']
         elif cur_type == 'file':
             dirnames = [name for name in names if os.path.isfile(os.path.join(cur_path, name))]
         # print(dirnames)
@@ -86,7 +86,7 @@ class DiffImages():
     生成结果
     '''
     def WriteFile(self, out_dir):
-        json_path = target_path + "\\replay_result\\" + out_dir + "\\diff_result.json"
+        json_path = target_path + "\\.replay_result\\" + out_dir + "\\diff_result.json"
         if os.path.exists(json_path):
             os.remove(json_path)  
         with open(json_path, 'xt', encoding='utf-8') as f:
