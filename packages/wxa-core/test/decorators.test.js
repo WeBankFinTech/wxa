@@ -399,15 +399,18 @@ describe('loading Decorators', ()=>{
 
     test('3. reject promise loading', async ()=>{
         let {descriptor: {value: dc1}} = Loading()({descriptor: {value: ()=>Promise.reject()}});
-
-        await dc1();
+        try {
+            await dc1();
+        } catch (__) {}
 
         expect(showLoading).toHaveBeenCalledTimes(3);
         expect(hideLoading).toHaveBeenCalledTimes(3);
 
         let {descriptor: {value: dc2}} = Loading(void(0), 'bar')({descriptor: {value: ()=>Promise.reject()}});
 
-        await dc2();
+        try {
+            await dc2();
+        } catch (__) {}
         expect(showNavigationBarLoading).toHaveBeenCalledTimes(3);
         expect(hideNavigationBarLoading).toHaveBeenCalledTimes(3);
     });

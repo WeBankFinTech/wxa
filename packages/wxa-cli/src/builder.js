@@ -53,6 +53,7 @@ class Builder {
             entryOption: new SyncBailHook(['entry']),
             beforeRun: new AsyncSeriesHook(['compiler']),
             run: new AsyncSeriesHook(['compiler']),
+            beforeDone: new AsyncSeriesHook(['compilation']),
             done: new AsyncParallelHook(['compilation']),
             rebuildModule: new AsyncSeriesHook(['changedModule']),
             finishRebuildModule: new AsyncParallelHook(['compilation', 'changedModule']),
@@ -279,6 +280,9 @@ class Builder {
         this.scheduler.perf.show();
 
         try {
+            // beforeDone.
+            await this.hooks.beforeDone.promise(this.scheduler);
+
             debug('schedule dependencies Tree is %O', this.scheduler.$indexOfModule);
             await this.optimizeAndGenerate(this.scheduler.$indexOfModule, this.scheduler.appConfigs, cmd);
 
