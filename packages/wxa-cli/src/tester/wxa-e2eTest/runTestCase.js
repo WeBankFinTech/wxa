@@ -4,7 +4,7 @@ import fs from 'fs';
 import {e2eRecord2js} from './e2eTestCase2js.js';
 import {exec, execSync} from 'child_process';
 import e2eMockWxMethod from './e2eMockWxMethod';
-
+import {diff as pyDiff} from '../imageSimilarity/index.js';
 // -t 跑测试用例
 // -s --screenshot 进行截屏比对
 // --base 截屏作为expected基准，不对截屏进行比对
@@ -86,6 +86,9 @@ export default async function(cmd, wxaConfigs) {
         execSync(`npx jest ${path.join(testDir, '.cache', 'index.test.js').split(path.sep).join('/')}`, {
             stdio: 'inherit'
         });
+        if (cmd.pyDiff && !cmd.base && !cmd.record) {
+            pyDiff(screenshotPath, testCaseNameArr)
+        }
         process.exit(0);
     } catch(err) {
         process.exit(-1);

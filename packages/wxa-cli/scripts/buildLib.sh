@@ -2,6 +2,8 @@
 
 rm -f ./dist/tester/wxa-e2eTest/e2eTestCaseTpl.ejs
 rm -f ./dist/tester/wxa-e2eTest/e2eTpl.ejs
+rm -f ./dist/tester/imageSimilarity/dHash.py
+rm -f ./dist/tester/imageSimilarity/init.py
 rm -rf ./lib-dist/wxa-e2eTest
 mkdir -p ./lib-dist/wxa-e2eTest
 mkdir -p ./dist/tester/wxa-e2eTest

@@ -99,21 +99,12 @@ commander
 .option('--base', '仅截屏，作为后续回放用例比较基准')
 .option('--screenshot-diff [screenshotDiff]', '是否进行截屏比对')
 .option('--custom-expect', '进行自定义期望匹配，record.js里每一步的customExpect函数编写期望代码')
+.option('--py-diff [pyDiff]', '是否使用python进行相似度比对')
 .option('--no-mock', '不mock接口')
 .action((cmd)=>{
     logger.info('Hey', `This is ${chalk.keyword('orange')('wxa@'+version)}, Running in ${chalk.keyword('orange')(process.env.NODE_ENV || 'development')}, Tester Mode`);
     let wxaConfigs = getConfigs();
     new Tester(cmd, wxaConfigs).build();
-});
-
-commander
-.command('test-diff')
-.description('测试结果校准')
-.action((cmd)=>{
-    logger.info('Hey', `This is ${chalk.keyword('orange')('wxa@'+version)}, Running in ${chalk.keyword('orange')(process.env.NODE_ENV || 'development')}, Tester diff Mode`);
-    // logger.info(cmd);
-    // let wxaConfigs = getConfigs();
-    // new Tester(cmd, wxaConfigs).diff('2021.04.20-10.48.09', ['测试2']);
 });
 
 commander

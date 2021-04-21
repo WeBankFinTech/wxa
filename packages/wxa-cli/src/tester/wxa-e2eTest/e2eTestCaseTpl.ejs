@@ -106,16 +106,23 @@ for (let j = 0; j < testCaseNameArr.length; j++) {
         let startPage = record[0].action.page || record[0].action.appStartPage;
         page = await miniProgram.reLaunch(`/${startPage}`);
         let element;
-        await page.waitFor(300);
+        await page.waitFor(3000);
         for (let i = 0; i < record.length; i++) {
             let recordItem = record[i];
             let recordAction = recordItem.action;
+            let lastRecordAction = record[i - 1]?.action;
             while (true) {
                 page = await miniProgram.currentPage()
                 if (recordAction.event === 'switchTab') {
                     await sleep(4000);
                     break;
                 } else if (page.path === (recordAction.page || recordAction.appStartPage).split('?')[0]) {
+                    if (!lastRecordAction) break;
+                    let lastPagePath = (lastRecordAction.page || lastRecordAction.appStartPage).split('?')[0]
+                    if (page.path !== lastPagePath) {
+                        // 和上一步的页面path不一致，说明页面切换了，需要等久一点让页面ready
+                        await sleep(3000);
+                    }
                     break;
                 }
                 await sleep(1000);
