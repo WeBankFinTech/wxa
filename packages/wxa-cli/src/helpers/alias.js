@@ -16,8 +16,8 @@ export default function resolveAlias(lib, alias, filepath) {
             let tar = lib.replace(new RegExp(key, 'g'), value);
             // logger.info('parsed lib', tar);
             // calc relative path base cwd;
-            let {isRelative} = pathParser.parse(tar);
-            if (isRelative) {
+            let {isRelative, isAPPAbsolute} = pathParser.parse(tar);
+            if (isRelative || isAPPAbsolute) {
                 tar = path.relative(opath.dir, tar);
                 lib = './'+tar.replace(/\\/g, '/');
             } else {

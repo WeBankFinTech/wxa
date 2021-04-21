@@ -1,4 +1,5 @@
 import path from 'path';
+import fs from 'fs';
 import PathParser, { isIgnoreFile } from '../helpers/pathParser';
 import {getDistPath, isFile, readFile, isDir} from '../utils';
 import findRoot from 'find-root';
@@ -7,32 +8,49 @@ import debugPKG from 'debug';
 
 let debug = debugPKG('WXA:DependencyResolver');
 
-const recursizePackageJSON = (prefixPath, tailPath) => {
-    const fields = ['miniprogram', 'browser', 'main'];
-    let currentDirPackageJSON = path.join(prefixPath, 'package.json');
+const checkFileExist = (filepath, extensions) => {
+    // full path or default phase
+    let ret = {};
+    ret.isFile = isFile(filepath);
 
+    if (!ret.isFile) {
+        ret.ext = extensions.find((ext)=>isFile(path.normalize(filepath+ext)));
+        ret.isFile = !!ret.ext;
+    }
+    return ret;
+}
+
+const recursizePackageJSON = (prefixPath, tailPath, extensions) => {
+    const fields = ['browser', 'main'];
+    let currentDirPackageJSON = path.join(prefixPath, 'package.json');
     if (isFile(currentDirPackageJSON)) {
         let pkg = require(currentDirPackageJSON);
-
         let field = fields.find((item) => pkg[item]);
 
-        return path.join(prefixPath, pkg[field], tailPath);
+        let webDistPath =  path.join(prefixPath, pkg[field] || '', tailPath);
+        let miniprogramDist = pkg['miniprogram'] || 'miniprogram_dist';
+        let mp = path.join(prefixPath, miniprogramDist);
+        if (fs.existsSync(mp)) {
+            // 符合小程序规范的 npm 包，优选选择
+            let miniprogramDistPath = path.join(prefixPath, miniprogramDist, tailPath);
+            let {isFile, ext} = checkFileExist(miniprogramDistPath, extensions);
+            if (ext) miniprogramDistPath += ext;
+            return isFile ? miniprogramDistPath : webDistPath;
+        } else {
+            return webDistPath;
+        }
     } else {
-        return recursizePackageJSON(path.dirname(prefixPath), path.basename(prefixPath) + (tailPath === '' ? tailPath : (path.sep + tailPath)));
+        return recursizePackageJSON(
+            path.dirname(prefixPath), 
+            path.basename(prefixPath) + ( tailPath === '' ? tailPath : (path.sep + tailPath) ), 
+            extensions
+        );
     }
 }
 
-const findOutNPMResolvedSource = (rawSourcePath, extensions = ['.js', '.json', '/index.js']) => {
-    if (
-        // full path 
-        isFile(rawSourcePath) ||
-        // or default phase
-        (
-            path.extname(rawSourcePath) === '' && 
-            extensions.some((ext)=>isFile(path.normalize(rawSourcePath+ext)))
-        )
-    ) return rawSourcePath;
-    else return recursizePackageJSON(rawSourcePath, '');
+const findOutNPMResolvedSource = (rawSourcePath, extensions = ['.wxml', '.wxss', '.js', '.json', '/index.js']) => {
+    if (checkFileExist(rawSourcePath, extensions).isFile) return rawSourcePath;
+    else return recursizePackageJSON(rawSourcePath, '', extensions);
 }
 
 class DependencyResolver {
@@ -70,6 +88,7 @@ class DependencyResolver {
                 if (ext == null) throw new Error('找不到文件 '+lib);
             } else if (isDir(source) && isFile(source+path.sep+'index.js')) ext = path.sep+'index.js';
             else {
+                debugger;
                 throw new Error('找不到文件 '+lib);
             }
         } else {
@@ -95,9 +114,7 @@ class DependencyResolver {
 
         let main = pkg.main || 'index.js';
         // 优先使用依赖的 browser 版本
-        if (pkg.miniprogram && typeof pkg.miniprogram === 'string') {
-            main = pkg.miniprogram;
-        } else if (pkg.browser && typeof pkg.browser === 'string') {
+        if (pkg.browser && typeof pkg.browser === 'string') {
             main = pkg.browser;
         } 
 

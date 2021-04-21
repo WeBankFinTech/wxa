@@ -95,6 +95,7 @@ export default class ASTManager {
                 ) {
                     let firstParam = path.node.arguments[0];
                     // debug(firstParam);
+                    
                     if ( t.isStringLiteral(firstParam) ) {
                         debug('callExpression %s', dep);
                         dep = firstParam.value;
@@ -124,6 +125,7 @@ export default class ASTManager {
                 try {
                     let dr = new DependencyResolver(self.resolve, self.meta);
 
+                    // if (~dep.indexOf('miniprogram-sm-crypto')) debugger;
                     let {source, pret, lib} = dr.resolveDep(dep, mdl, {needFindExt: true});
                     let outputPath = dr.getOutputPath(source, pret, mdl);
                     let resolved = dr.getResolved(lib, outputPath, mdl);
@@ -153,6 +155,7 @@ export default class ASTManager {
                             break;
                     }
                 } catch (e) {
+                    console.log('eee', dep,mdl)
                     logger.error('解析失败', e);
                     debug('resolve fail %O', e);
                 }
