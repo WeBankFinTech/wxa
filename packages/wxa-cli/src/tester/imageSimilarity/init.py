@@ -86,7 +86,7 @@ class DiffImages():
     生成结果
     '''
     def WriteFile(self, out_dir):
-        json_path = target_path + "\\.replay_result\\" + out_dir + "\\diff_result.json"
+        json_path = os.path.join(target_path, ".replay_result", out_dir, "diff_result.json")
         if os.path.exists(json_path):
             os.remove(json_path)
         with open(json_path, 'xt', encoding='utf-8') as f:

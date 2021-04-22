@@ -153,7 +153,7 @@ const hjSwitchTab = () => {
         if (e.openType === 'switchTab') {
             let action = {
                 event: 'switchTab',
-                path: e.path,
+                path: '/' + e.path,
                 query: e.query
             };
             if (state.record.length === 0) {

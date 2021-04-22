@@ -22,12 +22,11 @@
 # 使用手册
 
 ### 安装
-* 任意目录执行命令 `npm i -g wxa-cli2-apple`
-* 先安装项目依赖 `npm i`
-* 项目目录下执行命令 `npm i -DE miniprogram-automator looks-same jest`
+* 先安装项目依赖 `wnpm i`
+* 项目目录下执行命令 `wnpm i @webank/wxa-cli2-apple`
 
-### python 及依赖安装
-* [Python官网](https://www.python.org/)网下载Python安装包(python-3.X.X.exe)
+### python 及依赖安装(可选，带参数--py-diff时需要安装)
+* [Python官网](https://www.python.org/)下载Python安装包(python-3.X.X.exe)
 * 全局安装PIL `pip install pillow`
 
 ### 测试脚本录制
@@ -86,22 +85,19 @@
 
 	```
 
-3. 项目目录下执行`wxa2-apple test --e2e -r`,开启录制模式
+3. 项目目录下执行`npx wxa2-apple test --e2e -r`,开启录制模式
 * 用开发者工具打开项目，页面左上角有`结束录制`button，说明已成功开启录制模式
 * 此时与小程序的每一步交互都会录制为脚本，完成操作后，点击`结束录制`，输入用例名，对应脚本保存在`__wxa_e2e_test__`目录下
 
 ### 进行基准截屏
 脚本录制过程中不会截屏，需要跑一次case脚本，完成基准截屏。若无基准截屏，用例回归时就不知道测试结果是否正确，所以这一步骤是必须的
 
-* 脚本录制完毕后，需执行`wxa2-apple test --e2e --base ` 回放用例，检查录制操作是否正确，且此次回放的截屏会作为后续回放用例的比较基准,用于判断测试是否通过
+* 脚本录制完毕后，需执行`npx wxa2-apple test --e2e --base ` 回放用例，检查录制操作是否正确，且此次回放的截屏会作为后续回放用例的比较基准,用于判断测试是否通过
 * 基准截屏存放在`__wxa_e2e_test__/用例名/base_screenshot`中（`--test=test1,test2`可指定要回放的用例，多个用例逗号分隔）
 
 ### 测试脚本回放
-* `wxa2-apple test --e2e` 进入测试用例回放模式，操作截屏以时间命名保存在测试用例目录中（`--test=test1,test2`指定执行用例，多个用例逗号分隔）
-
-### 测试结果校准
-
-* 进入项目根目录，执行`wxa2-apple test-diff`
+* `npx wxa2-apple test --e2e` 进入测试用例回放模式，操作截屏以时间命名保存在测试用例目录中（`--test=test1,test2`指定执行用例，多个用例逗号分隔）
+* `npx wxa2-apple test --e2e --py-diff` 结果截屏进行相似度比对，不需要每个像素点一摸一样，需安装python3
 
 ### 二次开发录制好的测试用例
 通过修改`测试用例/record.js`，可以进行用例二次开发
@@ -117,6 +113,10 @@ record.js是一个数组，每一项Object对应用户一次操作（点击、�
 * `--no-mock` `wxa2-apple test --e2e --no-mock`此次用例回归，不mock api，直连真实接口（默认会用录制时的api数据来mock）
 * `--screenshot-diff` `wxa2-apple test --e2e --screenshot-diff=fasle` 此次用例回归，截屏是否要和base_screenshot目录下的首次截屏进行比对（不传值默认会比对，false不比对）
 * `--custom-expect` 进行自定义期望匹配，需要record.js里每一步的customExpect函数编写期望代码
+* `--py-diff` 结果截屏进行相似度比对，不需要每个像素点一摸一样，需安装python3
+
+
+
 
 ```
 module.exports = [

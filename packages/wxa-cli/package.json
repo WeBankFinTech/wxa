@@ -1,6 +1,6 @@
 {
   "name": "@webank/wxa-cli2-apple",
-  "version": "1.0.51",
+  "version": "1.0.57",
   "description": "cli for wxa development",
   "main": "dist/wxa.js",
   "scripts": {
@@ -20,6 +20,11 @@
   },
   "repository": "https://github.com/wxajs/wxa.git",
   "homepage": "https://wxajs.github.io/wxa/",
+  "peerDependencies": {
+    "miniprogram-automator": "^0.10.0",
+    "looks-same": "^7.3.0",
+    "jest": "^26.6.3"
+  },
   "devDependencies": {
     "@babel/cli": "^7.0.0",
     "@babel/core": "^7.0.0",

@@ -118,10 +118,14 @@ for (let j = 0; j < testCaseNameArr.length; j++) {
                     break;
                 } else if (page.path === (recordAction.page || recordAction.appStartPage).split('?')[0]) {
                     if (!lastRecordAction) break;
-                    let lastPagePath = (lastRecordAction.page || lastRecordAction.appStartPage).split('?')[0]
-                    if (page.path !== lastPagePath) {
-                        // 和上一步的页面path不一致，说明页面切换了，需要等久一点让页面ready
-                        await sleep(6000);
+                    try {
+                        let lastPagePath = (lastRecordAction.page || lastRecordAction.appStartPage || lastRecordAction.path).split('?')[0]
+                        if (page.path !== lastPagePath) {
+                            // 和上一步的页面path不一致，说明页面切换了，需要等久一点让页面ready
+                            await sleep(6000);
+                        }
+                    } catch(err) {
+                        await sleep(2000);
                     }
                     break;
                 }
@@ -159,7 +163,10 @@ for (let j = 0; j < testCaseNameArr.length; j++) {
             } else if (!!~['input'].indexOf(recordAction.event)) {
                 await element[recordAction.event](recordAction.detail.value);
             } else if (!!~['switchTab'].indexOf(recordAction.event)) {
-                await miniProgram.switchTab(path.resolve('/', recordAction.path))
+                if (recordAction.path[0] !== '/') {
+                    recordAction.path = '/' + recordAction.path;
+                }
+                await miniProgram.switchTab(recordAction.path)
             } else if (!!~['touchstart', 'touchmove', 'touchend'].indexOf(recordAction.event)) {
                 await element[recordAction.event]({
                     touches: recordAction.touches,
