@@ -1,3 +1,4 @@
+import path from 'path';
 import DependencyResolver from '../../helpers/dependencyResolver';
 import PathParser, { isIgnoreFile } from '../../helpers/pathParser';
 import logger from '../../helpers/logger';
@@ -52,6 +53,9 @@ export default class ComponentManager {
 
             try {
                 let {lib, source, pret} = dr.$resolve(com, mdl);
+                // 组件不需要添加后缀名
+                if (isFile(source)) source = source.replace(path.extname(source), '');
+
                 let outputPath = dr.getOutputPath(source, pret, mdl);
                 let resolved = dr.getResolved(lib, outputPath, mdl);
 
@@ -81,7 +85,7 @@ export default class ComponentManager {
                                 },
                             });
                         } else if (ext === '.json') {
-                            logger.warn(alias+'组件不存在json配置文件');
+                            logger.warn(`(${source}, ${src})`, alias+'组件不存在json配置文件');
                         }
                     });
                 }
