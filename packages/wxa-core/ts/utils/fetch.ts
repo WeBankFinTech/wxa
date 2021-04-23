@@ -1,4 +1,4 @@
-import {getPromise, WXAPromise} from './helpers';
+import {getPromise, noop, WXAPromise} from './helpers';
 
 interface WXAFetchRequestOptions {
     url: string;
@@ -214,15 +214,25 @@ export default function fetch(url: string, data: AnyObject = {}, axiosConfigs: A
 
     if ($noCache || validRequest) {
         return $request();
-    } 
+    } else {
+        try {
+            // tslint:disable-next-line: no-unused-expression
+            !validRequest && console && console.warn('重复的请求： ', configs);
+            // tslint:disable-next-line: no-empty
+        } catch (__) { }
 
-    try {
-        // tslint:disable-next-line: no-unused-expression
-        !validRequest && console && console.warn('重复的请求： ', configs);
-        // tslint:disable-next-line: no-empty
-    } catch (e) { }
+        let rejectPromise:Promise<any> = Promise.reject({data: {code: -101, msg: '重复的请求'}});
+        // Behavior should keep same with normal request.
+        return $withCancel ? {
+                request: rejectPromise, 
+                defer: {
+                    promise: rejectPromise,
+                    defer: rejectPromise,
+                }, 
+                cancel: noop,
+            } : rejectPromise;
 
-    return Promise.reject({data: {code: -101, msg: '重复的请求'}});
+    }
 
     function $request() {
         const defer = getPromise();

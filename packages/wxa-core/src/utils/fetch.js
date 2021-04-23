@@ -199,7 +199,7 @@ export default function fetch(url, data = {}, axiosConfigs = {}, method = 'get')
         } catch (__) {}
         let rejectPromise = Promise.reject({data: {code: -101, msg: '重复的请求'}});
         // Behavior should keep same with normal request.
-        return $withCancel ? {request: rejectPromise, defer: rejectPromise, rejectPromise, cancel: noop} : rejectPromise;
+        return $withCancel ? {request: rejectPromise, defer: {promise: rejectPromise}, cancel: noop} : rejectPromise;
     }
 
     function $request() {

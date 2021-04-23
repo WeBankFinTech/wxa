@@ -10,6 +10,7 @@ import {
     setMaxRequest,
     setRequestExpiredTime,
 } from './utils/fetch';
+import batchUpdate from '../src/batchUpdate';
 
 interface WxaComponentClass extends Partial<WechatMiniprogram.Component.Lifetimes> {
     data?: Record<string, any>;
@@ -41,7 +42,10 @@ export class Wxa {
     public $$pageMap;
     private $$globalMixins;
     private $$plugins;
+    private $$Component;
+    private $$Page;
     private enableAppEmbed: boolean;
+    private enableNativeAPIOverload: boolean;
     private __WXA_PLATFORM__: string;
     private platform: string;
 
@@ -90,6 +94,18 @@ export class Wxa {
 
         this.__WXA_PLATFORM__ = void(0);
         this.platform = this.getWxaPlatform();
+        // overload native Component Page API.
+        this.enableNativeAPIOverload = false;
+        this.$$Component = Component;
+        this.$$Page = Page;
+    }
+
+    overload() {
+        this.enableNativeAPIOverload = true;
+        this.$$Component = Component;
+        this.$$Page = Page;
+        Component = this.launchComponent.bind(this);
+        Page = this.launchPage.bind(this);
     }
 
     public setDebugMode(val: boolean) {
@@ -173,7 +189,10 @@ export class Wxa {
             };
         }
 
-        Page(vm);
+        batchUpdate(vm, 'Page');
+
+        // eslint-disable-next-line new-cap
+        this.enableNativeAPIOverload ? this.$$Page(vm) : Page(vm);
     }
 
     public launchComponent(instance: WxaComponent) {
@@ -213,7 +232,9 @@ export class Wxa {
             if (created) created.apply(this, args);
         };
 
-        Component(vm);
+        batchUpdate(vm, 'Component');
+        // eslint-disable-next-line new-cap
+        this.enableNativeAPIOverload ? this.$$Component(vm) : Component(vm);
     }
 
     public mixin(obj) {

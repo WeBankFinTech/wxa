@@ -65,8 +65,8 @@ export function compareVersion(v1, v2) {
 
 export interface WXAPromise {
     promise: Promise<any>;
-    resolve: AnyFunction;
-    reject: AnyFunction;
+    resolve?: AnyFunction;
+    reject?: AnyFunction;
     defer: Promise<any>;
 }
 
@@ -80,3 +80,5 @@ export function getPromise(): WXAPromise {
 
     return {promise, resolve: res, reject: rej, defer: promise};
 }
+
+export function noop() {}
