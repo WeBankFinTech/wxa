@@ -62,9 +62,22 @@ export class Wxa {
 
         // enable automatic embed app instance
         this.enableAppEmbed = true;
-
+        
         this.__WXA_PLATFORM__ = void(0);
         this.platform = this.getWxaPlatform();
+        
+        // overload native Component Page API.
+        this.enableNativeAPIOverload = false;
+        this.$$Component = Component;
+        this.$$Page = Page;
+    }
+    
+    overload() {
+        this.enableNativeAPIOverload = true;
+        this.$$Component = Component;
+        this.$$Page = Page;
+        Component = this.launchComponent.bind(this);
+        Page = this.launchPage.bind(this);
     }
 
     setDebugMode(val) {
@@ -149,7 +162,8 @@ export class Wxa {
         }
 
         batchUpdate(vm, 'Page');
-        Page(vm);
+        // eslint-disable-next-line new-cap
+        this.enableNativeAPIOverload ? this.$$Page(vm) : Page(vm);
     }
 
     launchComponent(instance) {
@@ -190,7 +204,8 @@ export class Wxa {
         };
 
         batchUpdate(vm, 'Component');
-        Component(vm);
+        // eslint-disable-next-line new-cap
+        this.enableNativeAPIOverload ? this.$$Component(vm) : Component(vm);
     }
 
     mixin(obj) {
