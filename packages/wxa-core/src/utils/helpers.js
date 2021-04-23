@@ -73,3 +73,5 @@ export function getPromise() {
 
     return {resolve: res, reject: rej, promise, defer: promise};
 }
+
+export function noop() {}
