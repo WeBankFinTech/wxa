@@ -68,21 +68,24 @@ const addRecord = function(type, ...args) {
     let id = target.dataset[IDKEY];
     // 先判断是否需要记录
     if (shouldRecord.bind(this)(type, ...args)) {
-        let pages = getCurrentPages();
-        let currentPage = pages[pages.length - 1];
-        id = findParent(this, id);
-        state.record.push({
-            action: {
-                ...e,
-                page: joinURLQuery(currentPage.route, currentPage.options),
-                event: type,
-                id,
-                timeStamp: +new Date()
-            }
-        });
-        console.log('e2eRecord:', e, id)
-    }
+        // tab-bar的操作直接忽略，因为回放找不到
+        if (this.is.slice(0, 14) !== 'custom-tab-bar') {
+            let pages = getCurrentPages();
+            let currentPage = pages[pages.length - 1];
+            id = findParent(this, id);
+            state.record.push({
+                action: {
+                    ...e,
+                    page: joinURLQuery(currentPage.route, currentPage.options),
+                    event: type,
+                    id,
+                    timeStamp: +new Date()
+                }
+            });
+            console.log('e2eRecord:', e, id)
+        }
 
+    }
     // 调用eventMap中原方法
     let eventFunc = getEventFunc(type, e.currentTarget.dataset[EVENTMAPKEY]);
     if (!eventFunc) {

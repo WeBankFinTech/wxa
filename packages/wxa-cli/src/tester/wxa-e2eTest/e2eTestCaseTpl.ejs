@@ -194,7 +194,7 @@ for (let j = 0; j < testCaseNameArr.length; j++) {
 
 async function screenShot({screenshotDir, screenCount, diff, baseScreenshot}) {
     let actualImagePath = path.join(screenshotDir, `${screenCount}.png`);
-    let expectPath = baseScreenshot;
+    let expectPath = path.join(baseScreenshot, `${screenCount}.png`)
     await miniProgram.screenshot({path: actualImagePath});
     if (diff) {
         let same = await imageDiff(actualImagePath, expectPath, path.join(screenshotDir, `diff/${screenCount}.png`));
