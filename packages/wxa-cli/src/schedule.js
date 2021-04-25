@@ -5,7 +5,7 @@ import globby from 'globby';
 import debugPKG from 'debug';
 import {SyncHook} from 'tapable';
 
-import {readFile, isFile, getHash, getHashWithString} from './utils';
+import {readFile, isFile, getHash, getHashWithString, copy} from './utils';
 import bar from './helpers/progressBar';
 import {logger, error} from './helpers/logger';
 import COLOR from './const/color';
@@ -452,6 +452,21 @@ class Schedule {
         if (this.appConfigs.usingComponents) {
             Object.values(this.appConfigs.usingComponents).forEach((val) => {
                 pages = pages.concat([['', val]]);
+            });
+        }
+
+        let themeLocation = this.appConfigs.themeLocation;
+        if (themeLocation) {
+            let srcPath = path.join(this.meta.context, themeLocation);
+            let dr = new DependencyResolver(this.wxaConfigs.resolve, this.meta);
+            this.addEntryPoint({
+                src: srcPath,
+                pret: defaultPret,
+                category: 'Entry',
+                meta: {
+                    source: srcPath,
+                    outputPath: dr.getOutputPath(srcPath, defaultPret, ROOT),
+                },
             });
         }
 
