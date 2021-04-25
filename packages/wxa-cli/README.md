@@ -5,6 +5,7 @@
 * 目前无法支持：
     * catchtap、catchlongpress等阻止冒泡事件（自动化element.tap、element.longpress等方法无法阻止冒泡）
 	* 主动操作返回（因无法监听返回事件，所以录制过程中 *点击物理返回键*、*小程序titlebar返回键*、*ios手势返回*等返回操作，暂无法支持）
+    * 刷脸、文件上传
 * 已知bug：
     * 暂无
 * 待优化&计划：
@@ -16,14 +17,17 @@
     * 简化配置步骤，对测试更友好点
     * 【真机】：支持真机
     * 【服务器】：有个公共服务器解决用例执行的问题
+    * 支持物理返回操作
+    * 支持清理历史案例结果，可个性化配置仅保留X次
+    * 开发配套web服务，实现录制回放全过程不用命令行
     * 各种未知bug
 
-2020年3月11日
+2021年4月23日
 # 使用手册
 
 ### 安装
 * 先安装项目依赖 `wnpm i`
-* 项目目录下执行命令 `wnpm i @webank/wxa-cli2-apple`
+* 项目目录下执行命令 `wnpm i @webank/wxa-cli2-apple -D`
 
 ### python 及依赖安装(可选，带参数--py-diff时需要安装)
 * [Python官网](https://www.python.org/)下载Python安装包(python-3.X.X.exe)

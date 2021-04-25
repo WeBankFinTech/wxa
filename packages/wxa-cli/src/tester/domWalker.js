@@ -79,7 +79,9 @@ class XMLManager {
             let {isIeration, indexVariable} = this.findSelfOrAncestorIterationDirective(element);
 
             let keyElement = [pagePath, hash, element.attribs.id];
-            if (isIeration) keyElement.push(`-{{${indexVariable}}}`);
+            if (isIeration){
+                keyElement.push(`-{{${indexVariable}}}`);
+            }
 
             let id = this.assembleUniqueId(keyElement);
             element.attribs['data-_wxaTestUniqueId'] = id;
@@ -136,7 +138,7 @@ class XMLManager {
     assembleUniqueId(keyElement) {
         return keyElement.reduce((prev, key)=>{
             if (key) {
-                key = key.replace(/[^\w]/g, '');
+                key = key.replace(/[^\w\{\}\-]/g, '');
                 key = key[0].toUpperCase() + key.slice(1);
 
                 return prev + key;

@@ -110,7 +110,7 @@ for (let j = 0; j < testCaseNameArr.length; j++) {
         for (let i = 0; i < record.length; i++) {
             let recordItem = record[i];
             let recordAction = recordItem.action;
-            let lastRecordAction = record[i - 1]?.action;
+            let lastRecordAction = record[i - 1] && record[i - 1].action;
             while (true) {
                 page = await miniProgram.currentPage()
                 if (recordAction.event === 'switchTab') {
