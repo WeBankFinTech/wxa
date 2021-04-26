@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link href="./static/antd.min.css" rel="stylesheet" type="text/css">
+	<link href="./static/style.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+<div id="app">
+	<a-layout>
+		<a-layout-header class="header">
+			<div style="color: #fff;">测试案例执行时间：{{time}}</div>
+			</a-layout-header>
+			<a-layout-content style="padding: 20px 0 50px">
+			<a-layout style="padding: 24px 0; background: #fff">
+				<a-layout-sider width="200" style="background: #fff">
+					<a-menu
+					mode="inline"
+					style="height: 100%"
+					@click="clickMenu"
+					>
+			<a-menu-item :key="index" v-for="(item,index) in testCase">
+				<div v-if="item.diffIndex.length !== 0" class="font-red">执行失败：{{item.name}}</div>
+				<div v-else style="color: rgb(120,199,86)">执行成功：{{item.name}}</div>
+				</a-menu-item>
+			</a-menu>
+			</a-layout-sider>
+			<a-layout-content :style="{ margin: '24px 24px 24px', overflow: 'initial', background: '#fff' }">
+				<a-collapse
+				:default-active-key="['1','2']">
+					<a-collapse-panel key="1" header="执行失败的步骤截屏" v-if="currentTestCase.diffImgSrc.length > 0">
+						<template v-for="item in currentTestCase.diffImgSrc">
+							<a-space>
+								<a-card title="diff高亮图" style="width: 300px">
+
+									<a-image :width="250" :src="item.diff" />
+								</a-card>
+								<a-card title="本次截屏" style="width: 300px">
+									<a-image :width="250":src="item.current" />
+								</a-card>
+								<a-card title="比较基准截屏" style="width: 300px">
+									<a-image :width="250" :src="item.base" />
+								</a-card>
+							</a-space>
+						</template>
+					</a-collapse-panel>
+					<a-collapse-panel key="2" header="本次案例全步骤截屏" :disabled="false">
+							<a-card v-for="(item,index) in currentTestCase.imgSrc" :title="`步骤${index+1}截屏`" style="width: 300px;display: inline-block;margin-bottom: 10px;margin-right: 10px">
+								<a-image :width="250" :src="item" />
+							</a-card>
+
+					</a-collapse-panel>
+			</a-layout-content>
+			</a-layout>
+		</a-layout-content>
+		<a-layout-footer style="text-align: center">
+			wxa e2e ©2021 Created by mumbleFe
+			</a-layout-footer>
+	</a-layout>
+</div>
+<script src="./static/vue@3.0.11.js"></script>
+<script src="./static/moment.js"></script>
+<script src="./static/antd.min.js"></script>
+<script src="../.replay_result/<%- time%>/py_diff_result.js"></script>
+<script>
+
+	let time = '<%- time%>';
+	let diffFailValue = 1000;
+	let testCase = JSON.parse('<%- testCase %>');
+	var app = Vue.createApp({
+		data(){
+			if (typeof py_diff_result !== 'undefined' && py_diff_result[time]) {
+				py_diff_result[time].forEach(pyDiffItem => {
+					var cur_case = testCase.find((testCaseItem) => {
+						return testCaseItem.name === pyDiffItem.case_name
+					})
+					if (!cur_case) return;
+					var diffIndex = [];
+					for (let i = 0; i < cur_case.totalScreenCount; i++) {
+						let cur_diffItem = pyDiffItem[`${i}.png`];
+						if (!cur_diffItem) {
+							return diffIndex.push(i);
+						}
+						if (cur_diffItem.diff_result > diffFailValue) {
+							return diffIndex.push(i);
+						}
+					}
+					cur_case.diffIndex = diffIndex;
+				})
+			}
+			return {
+				time,
+				testCase,
+				selectedKeys: ''
+			}
+		},
+		created() {
+			this.testCase.forEach(item => {
+				item.diffImgSrc = [];
+				if (item.diffIndex && item.diffIndex.length !== 0) {
+					item.diffIndex.forEach(diffIndexItem => {
+						item.diffImgSrc.push({
+							diff: `../.replay_result/${this.time}/${item.name}/screenshot/diff/${diffIndexItem}.png`,
+							base: `../${item.name}/base_screenshot/${diffIndexItem}.png`,
+							current: `../.replay_result/${this.time}/${item.name}/screenshot/${diffIndexItem}.png`,
+						})
+					})
+				}
+				item.imgSrc = [];
+				for (let i = 0; i < item.totalScreenCount; i++) {
+                    if (this.time === 'base_screenshot') {
+                        item.imgSrc.push(`../${item.name}/${this.time}/${i}.png`)
+                    } else {
+                        item.imgSrc.push(`../.replay_result/${this.time}/${item.name}/screenshot/${i}.png`)
+                    }
+
+				}
+			})
+		},
+		computed: {
+			currentTestCase() {
+				return this.testCase[this.selectedKeys] || this.testCase[0]
+			}
+		},
+		methods: {
+			clickMenu(e) {
+				this.selectedKeys = e.key
+			}
+		}
+	})
+	app.use(antd.Layout)
+	app.use(antd.Card)
+	app.use(antd.Row)
+	app.use(antd.Col)
+	app.use(antd.Image)
+	app.use(antd.Menu)
+	app.use(antd.PageHeader)
+	app.use(antd.Collapse)
+	app.use(antd.Space)
+
+	app.mount('#app')
+</script>
+</body>
+</html>

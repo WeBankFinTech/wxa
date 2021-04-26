@@ -86,11 +86,11 @@ class DiffImages():
     生成结果
     '''
     def WriteFile(self, out_dir):
-        json_path = os.path.join(target_path, ".replay_result", out_dir, "diff_result.json")
-        if os.path.exists(json_path):
-            os.remove(json_path)
-        with open(json_path, 'xt', encoding='utf-8') as f:
-            f.write(json.dumps(self.case_result,ensure_ascii=False,sort_keys=True, indent=4))
+        js_path = os.path.join(target_path, ".replay_result", out_dir, "py_diff_result.js")
+        if os.path.exists(js_path):
+            os.remove(js_path)
+        with open(js_path, 'xt', encoding='utf-8') as f:
+            f.write("var py_diff_result = " + json.dumps(self.case_result,ensure_ascii=False,sort_keys=True, indent=4))
 
     def FilterFun(self, item):
         if item in self.argv:

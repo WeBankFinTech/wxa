@@ -1,15 +1,16 @@
 import {formatDate, writeFile} from '../../utils';
 import path from 'path';
 import fs from 'fs';
-import {e2eRecord2js} from './e2eTestCase2js.js';
+import {e2eRecord2js, e2eStaticWeb2js} from './e2eTestCase2js.js';
 import {exec, execSync} from 'child_process';
 import e2eMockWxMethod from './e2eMockWxMethod';
 import {diff as pyDiff} from '../imageSimilarity/index.js';
+import open from 'open';
+
 // -t 跑测试用例
 // -s --screenshot 进行截屏比对
 // --base 截屏作为expected基准，不对截屏进行比对
 export default async function(cmd, wxaConfigs) {
-
     const sleep = t => new Promise(resolve => setTimeout(resolve, t));
     let testDir = path.join(process.cwd(), cmd.outDir);
     // --test=“xxx”指定用例，或--test默认执行outDir下所有用例
@@ -86,13 +87,42 @@ export default async function(cmd, wxaConfigs) {
         execSync(`npx jest ${path.join(testDir, '.cache', 'index.test.js').split(path.sep).join('/')}`, {
             stdio: 'inherit'
         });
-        if (cmd.pyDiff && !cmd.base && !cmd.record) {
-            pyDiff(screenshotPath, testCaseNameArr)
-        }
-        process.exit(0);
     } catch(err) {
-        process.exit(-1);
     }
-
-
+    if (cmd.pyDiff && !cmd.base && !cmd.record) {
+        pyDiff(screenshotPath, testCaseNameArr)
+    }
+    let testCase = [];
+    testCaseNameArr.forEach((item) => {
+        let baseDir = path.join(testDir, item, 'base_screenshot')
+        let currentDiffDir = path.join(testDir, '.replay_result', screenshotPath, item, 'screenshot', 'diff')
+        let files = fs.readdirSync(baseDir);
+        let diffIndex = [];
+        if (!cmd.base && !cmd.record) {
+            let diffFiles = fs.readdirSync(currentDiffDir);
+            let diffIndex = [];
+            diffFiles.forEach(item => {
+                diffIndex.push(item.split('.')[0])
+            })
+        }
+        testCase.push({
+            name: item,
+            totalScreenCount: files.length,
+            diffIndex
+        })
+    })
+    let staticWebString = await e2eStaticWeb2js({
+        time: screenshotPath,
+        testCase: JSON.stringify(testCase)
+    })
+    let docPath = path.join(testDir, '.doc', `${screenshotPath}.html`)
+    writeFile(docPath, staticWebString)
+    // 复制文档目录
+    execSync(`cp -r ${path.join(__dirname, './staticWeb/staticFile')} ${path.join(testDir, '.doc', 'static')}`);
+    console.log(`cp -r ${path.join(__dirname, './staticWeb/staticFile')} ${path.join(testDir, '.doc', 'static')}`)
+    // 使用指定浏览器打开
+    open(`${docPath}`, { app: {
+        name: open.apps.chrome
+    }});
+    process.exit(0);
 }

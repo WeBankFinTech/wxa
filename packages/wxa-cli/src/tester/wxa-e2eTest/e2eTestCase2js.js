@@ -24,8 +24,19 @@ const e2eStartTools = (data) => {
     });
 };
 
+const e2eStaticWeb2js = (data) => {
+    return new Promise((resolve, reject) => {
+        ejs.renderFile(path.join(__dirname, './e2eResultTpl.ejs'), data, (err, str) => {
+            if (err) {
+                return reject(err);
+            }
+            resolve(str);
+        });
+    });
+};
 
 module.exports = {
     e2eRecord2js,
     e2eStartTools,
+    e2eStaticWeb2js
 };

@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link href="./static/antd.min.css" rel="stylesheet" type="text/css">
+	<link href="./static/style.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+<div id="app">
+	<a-layout>
+		<a-layout-header class="header">
+			<div style="color: #fff;">测试案例执行时间：{{time}}</div>
+			</a-layout-header>
+			<a-layout-content style="padding: 20px 0 50px">
+			<a-layout style="padding: 24px 0; background: #fff">
+				<a-layout-sider width="200" style="background: #fff">
+					<a-menu
+					mode="inline"
+					style="height: 100%"
+					@click="clickMenu"
+					>
+			<a-menu-item :key="index" v-for="(item,index) in testCase">
+				<div v-if="item.diffIndex.length !== 0" class="font-red">执行失败：{{item.name}}</div>
+				<div v-else style="color: rgb(120,199,86)">执行成功：{{item.name}}</div>
+				</a-menu-item>
+			</a-menu>
+			</a-layout-sider>
+			<a-layout-content :style="{ margin: '24px 24px 24px', overflow: 'initial', background: '#fff' }">
+				<a-collapse
+				:default-active-key="['1','2']">
+					<a-collapse-panel key="1" header="执行失败的步骤截屏">
+						<template v-if="currentTestCase.diffImgSrc.length !== 0" v-for="item in currentTestCase.diffImgSrc">
+							<a-space>
+								<a-card title="diff高亮图" style="width: 300px">
+
+									<a-image :width="250" :src="item.diff" />
+								</a-card>
+								<a-card title="本次截屏" style="width: 300px">
+									<a-image :width="250":src="item.current" />
+								</a-card>
+								<a-card title="比较基准截屏" style="width: 300px">
+									<a-image :width="250" :src="item.base" />
+								</a-card>
+							</a-space>
+						</template>
+					</a-collapse-panel>
+					<a-collapse-panel key="2" header="本次案例全步骤截屏" :disabled="false">
+							<a-card v-for="(item,index) in currentTestCase.imgSrc" :title="`步骤${index+1}截屏`" style="width: 300px;display: inline-block;margin-bottom: 10px;margin-right: 10px">
+								<a-image :width="250" :src="item" />
+							</a-card>
+
+					</a-collapse-panel>
+			</a-layout-content>
+			</a-layout>
+		</a-layout-content>
+		<a-layout-footer style="text-align: center">
+			wxa e2e ©2021 Created by mumbleFe
+			</a-layout-footer>
+	</a-layout>
+</div>
+<script src="./static/vue@3.0.11.js"></script>
+<script src="./static/moment.js"></script>
+<script src="./static/antd.min.js"></script>
+<script>
+	var diff_result = {
+		"2021-04-25_19.56.20": [
+			{
+				"0.png": {
+					"diff_result": 41463,
+					"name": "0.png"
+				},
+				"1.png": {
+					"diff_result": 55321,
+					"name": "1.png"
+				},
+				"case_name": "ad"
+			},
+			{
+				"0.png": {
+					"diff_result": 8030,
+					"name": "0.png"
+				},
+				"1.png": {
+					"diff_result": 12729,
+					"name": "1.png"
+				},
+				"2.png": {
+					"diff_result": 0,
+					"name": "2.png"
+				},
+				"3.png": {
+					"diff_result": 0,
+					"name": "3.png"
+				},
+				"4.png": {
+					"diff_result": 10952,
+					"name": "4.png"
+				},
+				"case_name": "switch-tab"
+			},
+			{
+				"0.png": {
+					"diff_result": 0,
+					"name": "0.png"
+				},
+				"1.png": {
+					"diff_result": 0,
+					"name": "1.png"
+				},
+				"10.png": {
+					"diff_result": 0,
+					"name": "10.png"
+				},
+				"11.png": {
+					"diff_result": 0,
+					"name": "11.png"
+				},
+				"12.png": {
+					"diff_result": 0,
+					"name": "12.png"
+				},
+				"13.png": {
+					"diff_result": 0,
+					"name": "13.png"
+				},
+				"14.png": {
+					"diff_result": 0,
+					"name": "14.png"
+				},
+				"15.png": {
+					"diff_result": 0,
+					"name": "15.png"
+				},
+				"16.png": {
+					"diff_result": 0,
+					"name": "16.png"
+				},
+				"17.png": {
+					"diff_result": 0,
+					"name": "17.png"
+				},
+				"18.png": {
+					"diff_result": 0,
+					"name": "18.png"
+				},
+				"19.png": {
+					"diff_result": 0,
+					"name": "19.png"
+				},
+				"2.png": {
+					"diff_result": 0,
+					"name": "2.png"
+				},
+				"20.png": {
+					"diff_result": 0,
+					"name": "20.png"
+				},
+				"21.png": {
+					"diff_result": 0,
+					"name": "21.png"
+				},
+				"22.png": {
+					"diff_result": 0,
+					"name": "22.png"
+				},
+				"23.png": {
+					"diff_result": 0,
+					"name": "23.png"
+				},
+				"24.png": {
+					"diff_result": 0,
+					"name": "24.png"
+				},
+				"25.png": {
+					"diff_result": 1,
+					"name": "25.png"
+				},
+				"3.png": {
+					"diff_result": 0,
+					"name": "3.png"
+				},
+				"4.png": {
+					"diff_result": 0,
+					"name": "4.png"
+				},
+				"5.png": {
+					"diff_result": 0,
+					"name": "5.png"
+				},
+				"6.png": {
+					"diff_result": 0,
+					"name": "6.png"
+				},
+				"7.png": {
+					"diff_result": 0,
+					"name": "7.png"
+				},
+				"8.png": {
+					"diff_result": 0,
+					"name": "8.png"
+				},
+				"9.png": {
+					"diff_result": 0,
+					"name": "9.png"
+				},
+				"case_name": "test1"
+			},
+			{
+				"0.png": {
+					"diff_result": 6148,
+					"name": "0.png"
+				},
+				"1.png": {
+					"diff_result": 1840,
+					"name": "1.png"
+				},
+				"10.png": {
+					"diff_result": 0,
+					"name": "10.png"
+				},
+				"11.png": {
+					"diff_result": 0,
+					"name": "11.png"
+				},
+				"12.png": {
+					"diff_result": 0,
+					"name": "12.png"
+				},
+				"13.png": {
+					"diff_result": 0,
+					"name": "13.png"
+				},
+				"14.png": {
+					"diff_result": 0,
+					"name": "14.png"
+				},
+				"15.png": {
+					"diff_result": 0,
+					"name": "15.png"
+				},
+				"16.png": {
+					"diff_result": 0,
+					"name": "16.png"
+				},
+				"17.png": {
+					"diff_result": 0,
+					"name": "17.png"
+				},
+				"18.png": {
+					"diff_result": 0,
+					"name": "18.png"
+				},
+				"19.png": {
+					"diff_result": 0,
+					"name": "19.png"
+				},
+				"2.png": {
+					"diff_result": 0,
+					"name": "2.png"
+				},
+				"20.png": {
+					"diff_result": 0,
+					"name": "20.png"
+				},
+				"21.png": {
+					"diff_result": 0,
+					"name": "21.png"
+				},
+				"22.png": {
+					"diff_result": 0,
+					"name": "22.png"
+				},
+				"23.png": {
+					"diff_result": 0,
+					"name": "23.png"
+				},
+				"24.png": {
+					"diff_result": 0,
+					"name": "24.png"
+				},
+				"25.png": {
+					"diff_result": 0,
+					"name": "25.png"
+				},
+				"26.png": {
+					"diff_result": 0,
+					"name": "26.png"
+				},
+				"27.png": {
+					"diff_result": 0,
+					"name": "27.png"
+				},
+				"28.png": {
+					"diff_result": 0,
+					"name": "28.png"
+				},
+				"29.png": {
+					"diff_result": 0,
+					"name": "29.png"
+				},
+				"3.png": {
+					"diff_result": 0,
+					"name": "3.png"
+				},
+				"30.png": {
+					"diff_result": 0,
+					"name": "30.png"
+				},
+				"31.png": {
+					"diff_result": 0,
+					"name": "31.png"
+				},
+				"32.png": {
+					"diff_result": 0,
+					"name": "32.png"
+				},
+				"33.png": {
+					"diff_result": 0,
+					"name": "33.png"
+				},
+				"34.png": {
+					"diff_result": 0,
+					"name": "34.png"
+				},
+				"35.png": {
+					"diff_result": 0,
+					"name": "35.png"
+				},
+				"36.png": {
+					"diff_result": 0,
+					"name": "36.png"
+				},
+				"37.png": {
+					"diff_result": 0,
+					"name": "37.png"
+				},
+				"38.png": {
+					"diff_result": 0,
+					"name": "38.png"
+				},
+				"39.png": {
+					"diff_result": 0,
+					"name": "39.png"
+				},
+				"4.png": {
+					"diff_result": 0,
+					"name": "4.png"
+				},
+				"40.png": {
+					"diff_result": 0,
+					"name": "40.png"
+				},
+				"41.png": {
+					"diff_result": 0,
+					"name": "41.png"
+				},
+				"42.png": {
+					"diff_result": 0,
+					"name": "42.png"
+				},
+				"43.png": {
+					"diff_result": 0,
+					"name": "43.png"
+				},
+				"44.png": {
+					"diff_result": 0,
+					"name": "44.png"
+				},
+				"45.png": {
+					"diff_result": 0,
+					"name": "45.png"
+				},
+				"46.png": {
+					"diff_result": 0,
+					"name": "46.png"
+				},
+				"47.png": {
+					"diff_result": 0,
+					"name": "47.png"
+				},
+				"48.png": {
+					"diff_result": 0,
+					"name": "48.png"
+				},
+				"49.png": {
+					"diff_result": 0,
+					"name": "49.png"
+				},
+				"5.png": {
+					"diff_result": 0,
+					"name": "5.png"
+				},
+				"50.png": {
+					"diff_result": 0,
+					"name": "50.png"
+				},
+				"51.png": {
+					"diff_result": 0,
+					"name": "51.png"
+				},
+				"52.png": {
+					"diff_result": 0,
+					"name": "52.png"
+				},
+				"53.png": {
+					"diff_result": 0,
+					"name": "53.png"
+				},
+				"54.png": {
+					"diff_result": 0,
+					"name": "54.png"
+				},
+				"55.png": {
+					"diff_result": 0,
+					"name": "55.png"
+				},
+				"6.png": {
+					"diff_result": 0,
+					"name": "6.png"
+				},
+				"7.png": {
+					"diff_result": 0,
+					"name": "7.png"
+				},
+				"8.png": {
+					"diff_result": 0,
+					"name": "8.png"
+				},
+				"9.png": {
+					"diff_result": 0,
+					"name": "9.png"
+				},
+				"case_name": "register"
+			},
+			{
+				"0.png": {
+					"diff_result": 0,
+					"name": "0.png"
+				},
+				"1.png": {
+					"diff_result": 6777,
+					"name": "1.png"
+				},
+				"case_name": "login-error"
+			},
+			{
+				"0.png": {
+					"diff_result": 43057,
+					"name": "0.png"
+				},
+				"1.png": {
+					"diff_result": 54839,
+					"name": "1.png"
+				},
+				"case_name": "login"
+			}
+		]
+	};
+	let time = '2021-04-25_19.56.20';
+	let diffFailValue = 1000;
+	let testCase = [{
+		name: 'ad',
+		totalScreenCount: 2,
+		diffIndex: [0, 1]
+	}, {
+		name: 'login',
+		totalScreenCount: 2,
+		diffIndex: [0, 1]
+	}, {
+		name: 'login-error',
+		totalScreenCount: 2,
+		diffIndex: [1]
+	},  {
+		name: 'register',
+		totalScreenCount: 56,
+		diffIndex: [0, 1]
+	}, {
+		name: 'switch-tab',
+		totalScreenCount: 5,
+		diffIndex: [0, 1, 4]
+	}, {
+		name: 'test1',
+		totalScreenCount: 26,
+		diffIndex: []
+	}];
+	var app = Vue.createApp({
+		data(){
+			if (diff_result[time]) {
+				diff_result[time].forEach(pyDiffItem => {
+					var cur_case = testCase.find((testCaseItem) => {
+						return testCaseItem.name === pyDiffItem.case_name
+					})
+					if (!cur_case) return;
+					var diffIndex = [];
+					for (let i = 0; i < cur_case.totalScreenCount; i++) {
+						let cur_diffItem = pyDiffItem[`${i}.png`];
+						if (!cur_diffItem) {
+							return diffIndex.push(i);
+						}
+						if (cur_diffItem.diff_result > diffFailValue) {
+							return diffIndex.push(i);
+						}
+					}
+					cur_case.diffIndex = diffIndex;
+				})
+			}
+			return {
+				time,
+				testCase,
+				selectedKeys: ''
+			}
+		},
+		created() {
+			this.testCase.forEach(item => {
+				item.diffImgSrc = [];
+				if (item.diffIndex && item.diffIndex.length !== 0) {
+					item.diffIndex.forEach(diffIndexItem => {
+						item.diffImgSrc.push({
+							diff: `../.replay_result/${this.time}/${item.name}/screenshot/diff/${diffIndexItem}.png`,
+							base: `../${item.name}/base_screenshot/${diffIndexItem}.png`,
+							current: `../.replay_result/${this.time}/${item.name}/screenshot/${diffIndexItem}.png`,
+						})
+					})
+				}
+				item.imgSrc = [];
+				for (let i = 0; i < item.totalScreenCount; i++) {
+					item.imgSrc.push(`../.replay_result/${this.time}/${item.name}/screenshot/${i}.png`)
+				}
+			})
+		},
+		computed: {
+			currentTestCase() {
+				return this.testCase[this.selectedKeys] || this.testCase[0]
+			}
+		},
+		methods: {
+			clickMenu(e) {
+				this.selectedKeys = e.key
+			}
+		}
+	})
+	app.use(antd.Layout)
+	app.use(antd.Card)
+	app.use(antd.Row)
+	app.use(antd.Col)
+	app.use(antd.Image)
+	app.use(antd.Menu)
+	app.use(antd.PageHeader)
+	app.use(antd.Collapse)
+	app.use(antd.Space)
+
+	app.mount('#app')
+</script>
+</body>
+</html>

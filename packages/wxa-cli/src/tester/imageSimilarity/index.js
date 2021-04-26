@@ -13,5 +13,4 @@ export function diff(timeStamp, caseList) {
     execSync(`${executable[process.platform]} "${pyPath}" ${timeStamp} ${argv}`, {
         stdio: 'inherit',
     });
-    return process.exit(0);
 }
