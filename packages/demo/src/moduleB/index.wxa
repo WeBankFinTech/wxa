@@ -1,0 +1,39 @@
+<script>
+import {Page} from '@wxa/core';
+// import util from "../js/util.js";
+import {myisString} from "../js/util.js";
+import each from "lodash/each";
+// import isString from "lodash/isString";
+
+@Page
+export default class Index {
+    data = {
+        CASCADE_DATA,
+    
+        tbr: ['1'],
+        // visible: true
+    }
+
+}
+
+</script>
+
+<config>
+{
+    "navigationBarTitleText": "分包B",
+    "usingComponents": {
+      "componentA": "../components/componentA"
+    }
+}
+</config>
+
+<template>
+<button>ss</button>
+<componentA/>
+<!-- <we-footer image-src=""></we-footer> -->
+</template>
+
+<style lang="scss">
+@import "../layout.scss";
+
+</style>

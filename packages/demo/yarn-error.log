@@ -1,0 +1,80 @@
+Arguments: 
+  D:\My development tools\node\node.exe D:\My development tools\node\node_global\node_modules\yarn\bin\yarn.js add @wxa/plugin-bind-hijack -D
+
+PATH: 
+  C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files\NVIDIA Corporation\NVIDIA NGX;C:\Program Files\Intel\WiFi\bin\;C:\Program Files\Common Files\Intel\WirelessCommon\;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\git-scm\cmd;D:\My development tools\Microsoft VS Code;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files\NVIDIA Corporation\NVIDIA NGX;C:\Program Files\Intel\WiFi\bin\;C:\Program Files\Common Files\Intel\WirelessCommon\;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\git-scm\cmd;D:\My development tools\Microsoft VS Code;D:\My development tools\node\node_global;D:\My development tools\node;D:\My development tools\Microsoft VS Code\bin;D:\My development tools\node\node_global\bin;
+
+Yarn version: 
+  1.17.3
+
+Node version: 
+  12.4.0
+
+Platform: 
+  win32 x64
+
+Trace: 
+  Error: https://registry.npm.taobao.org/@webank%2fweuxd-mina: Not found
+      at Request.params.callback [as _callback] (D:\My development tools\node\node_global\node_modules\yarn\lib\cli.js:66830:18)
+      at Request.self.callback (D:\My development tools\node\node_global\node_modules\yarn\lib\cli.js:140464:22)
+      at Request.emit (events.js:200:13)
+      at Request.<anonymous> (D:\My development tools\node\node_global\node_modules\yarn\lib\cli.js:141436:10)
+      at Request.emit (events.js:200:13)
+      at IncomingMessage.<anonymous> (D:\My development tools\node\node_global\node_modules\yarn\lib\cli.js:141358:12)
+      at Object.onceWrapper (events.js:288:20)
+      at IncomingMessage.emit (events.js:205:15)
+      at endReadableNT (_stream_readable.js:1154:12)
+      at processTicksAndRejections (internal/process/task_queues.js:84:9)
+
+npm manifest: 
+  {
+    "name": "client",
+    "version": "0.0.0",
+    "description": "客户端",
+    "author": "",
+    "homepage": "",
+    "license": "ISC",
+    "main": "lib/client.js",
+    "directories": {
+      "lib": "lib",
+      "test": "__tests__"
+    },
+    "files": [
+      "lib"
+    ],
+    "repository": {
+      "type": "git",
+      "url": "git@git.weoa.com:rcp/rrwxa.git"
+    },
+    "scripts": {
+      "test": "echo \"Error: run tests from root\" && exit 1",
+      "dev": "wxa2 build --watch",
+      "build": "cross-env NODE_ENV=production wxa2 build --no-cache"
+    },
+    "devDependencies": {
+      "@babel/runtime": "^7.11.2",
+      "@wxa/plugin-replace": "^2.0.0",
+      "@wxa/plugin-uglifyjs": "^2.0.0",
+      "babel-eslint": "^8.2.3",
+      "cross-env": "^5.1.6",
+      "eslint": "^4.19.1",
+      "eslint-config-google": "^0.9.1",
+      "eslint-plugin-vue": "^4.5.0",
+      "vue-eslint-parser": "^3.2.2"
+    },
+    "dependencies": {
+      "@babel/core": "^7.11.6",
+      "@babel/plugin-proposal-decorators": "^7.10.5",
+      "@babel/preset-env": "^7.11.5",
+      "@webank/weuxd-mina": "^0.8.0",
+      "@wxa/cli2": "^2.2.6",
+      "@wxa/core": "^2.0.0",
+      "regenerator-runtime": "^0.13.1"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile

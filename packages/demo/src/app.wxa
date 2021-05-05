@@ -1,0 +1,48 @@
+<script>
+import { App, wxa } from "@wxa/core";
+
+@App
+export default class Main {
+    globalData = {
+        userInfo: "Genuifx"
+    };
+}
+</script>
+
+<config>
+{
+    "window": {
+        "navigationBarBackgroundColor": "#ffffff",
+        "navigationBarTextStyle": "black",
+        "backgroundColor": "#eeeeee",
+        "backgroundTextStyle": "light"
+    },
+    "pages": [
+        "pages/index"
+    ],
+    "subpackages": [
+        {
+            "root": "moduleA",
+            "pages": [
+                "index",
+                "my/me",
+                "nativePage/badge/badge"
+            ]
+        },
+         {
+            "root": "moduleB",
+            "pages": [
+                "index"
+            ]
+        }
+    ]
+}
+</config>
+
+<style lang="scss">
+@import "./layout.scss";
+page {
+    width: 100%;
+    height: 100%;
+}
+</style>
