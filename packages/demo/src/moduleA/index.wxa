@@ -1,0 +1,102 @@
+<script>
+import { Page } from "@wxa/core";
+import {myisString} from "../js/util.js";
+import each from "lodash/each";
+// import isString from "lodash/isString";
+
+@Page
+export default class Index {
+    data = {
+        num: 0
+    };
+
+    onReady() {
+        let count = 5;
+        let length = 10000;
+        wx._instance_moduleA_index = this
+
+        setTimeout(() => {
+            console.log("------------setData--------");
+            for (let i = 0; i < count; i++) {
+                this.setData(
+                    {
+                        num: new Array(length).fill(Math.random()).join()
+                    },
+                    () => {
+                        console.log(Date.now());
+                    }
+                );
+            }
+        }, 2000);
+
+        setTimeout(() => {
+            console.log("------------group-setData--------");
+            this.groupSetData(() => {
+                for (let i = 0; i < count; i++) {
+                    this.setData(
+                        {
+                            num: new Array(length).fill(Math.random()).join()
+                        },
+                        () => {
+                            console.log(Date.now());
+                        }
+                    );
+                }
+            });
+        }, 3000);
+
+        setTimeout(() => {
+            console.log("------------setData-other-page--------");
+            let instance = wx._instance_index;
+            for (let i = 0; i < count; i++) {
+                instance.setData(
+                    {
+                        num: new Array(length).fill(Math.random()).join()
+                    },
+                    () => {
+                        console.log(Date.now());
+                    }
+                );
+            }
+        }, 4000);
+
+        setTimeout(() => {
+            console.log("------------group-setData-other-page--------");
+            let instance = wx._instance_index;
+            instance.groupSetData(() => {
+                for (let i = 0; i < count; i++) {
+                    instance.setData(
+                        {
+                            num: new Array(length).fill(Math.random()).join()
+                        },
+                        () => {
+                            console.log(Date.now());
+                        }
+                    );
+                }
+            });
+        }, 5000);
+    }
+}
+</script>
+
+<config>
+{
+    "navigationBarTitleText": "投保页",
+    "usingComponents": {
+      "componentA": "../components/componentA",
+      "mp-dialog": "weui-miniprogram/miniprogram_dist/tabbar/tabbar"
+    }
+}
+</config>
+
+<template>
+    <view class="">{{num}}</view>
+
+    <componentA />
+    <!-- <we-footer image-src=""></we-footer> -->
+</template>
+
+<style lang="scss">
+@import "../layout.scss";
+</style>
