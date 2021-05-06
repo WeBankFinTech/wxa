@@ -1,4 +1,4 @@
-import {formatDate, writeFile} from '../../utils';
+import {formatDate, writeFile, readFile} from '../../utils';
 import path from 'path';
 import fs from 'fs';
 import {e2eRecord2js, e2eStaticWeb2js} from './e2eTestCase2js.js';
@@ -6,6 +6,7 @@ import {exec, execSync} from 'child_process';
 import e2eMockWxMethod from './e2eMockWxMethod';
 import {diff as pyDiff} from '../imageSimilarity/index.js';
 import open from 'open';
+import shelljs from 'shelljs';
 
 // -t 跑测试用例
 // -s --screenshot 进行截屏比对
@@ -82,13 +83,21 @@ export default async function(cmd, wxaConfigs) {
         process.exit(-1);
     }
 
-
+    let jestResPath = path.join(testDir, '.replay_result', screenshotPath, 'jest_result.js');
     try {
-        execSync(`npx jest ${path.join(testDir, '.cache', 'index.test.js').split(path.sep).join('/')}`, {
+
+
+        execSync(`npx jest ${path.join(testDir, '.cache', 'index.test.js').split(path.sep).join('/')} --outputFile=${jestResPath} --json`, {
             stdio: 'inherit'
         });
+
     } catch(err) {
     }
+    // 处理jest结果，方便网页文档读取
+    let jestErrArr = [];
+    let jestResJson = JSON.parse(readFile(jestResPath));
+    writeFile(jestResPath, `var jest_result = ${JSON.stringify(jestResJson)}`)
+
     if (cmd.pyDiff && !cmd.base && !cmd.record) {
         pyDiff(screenshotPath, testCaseNameArr)
     }
@@ -100,9 +109,8 @@ export default async function(cmd, wxaConfigs) {
         let diffIndex = [];
         if (!cmd.base && !cmd.record) {
             let diffFiles = fs.readdirSync(currentDiffDir);
-            let diffIndex = [];
-            diffFiles.forEach(item => {
-                diffIndex.push(item.split('.')[0])
+            diffFiles.forEach(diffFileItem => {
+                diffIndex.push(diffFileItem.split('.')[0])
             })
         }
         testCase.push({
@@ -118,10 +126,10 @@ export default async function(cmd, wxaConfigs) {
     let docPath = path.join(testDir, '.doc', `${screenshotPath}.html`)
     writeFile(docPath, staticWebString)
     // 复制文档目录
-    execSync(`cp -r ${path.join(__dirname, './staticWeb/staticFile')} ${path.join(testDir, '.doc', 'static')}`);
-    console.log(`cp -r ${path.join(__dirname, './staticWeb/staticFile')} ${path.join(testDir, '.doc', 'static')}`)
+    shelljs.cp(`-R`, path.join(__dirname, '../../../src/tester/wxa-e2eTest/staticWeb/staticFile'), path.join(testDir, '.doc', 'static'));
     // 使用指定浏览器打开
-    open(`${docPath}`, { app: {
+    console.log(docPath);
+    open(docPath, { app: {
         name: open.apps.chrome
     }});
     process.exit(0);

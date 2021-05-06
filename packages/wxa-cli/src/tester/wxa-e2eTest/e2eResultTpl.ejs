@@ -19,7 +19,7 @@
 					@click="clickMenu"
 					>
 			<a-menu-item :key="index" v-for="(item,index) in testCase">
-				<div v-if="item.diffIndex.length !== 0" class="font-red">执行失败：{{item.name}}</div>
+				<div v-if="item.diffIndex.length !== 0 || item.status === 'failed'" class="font-red">执行失败：{{item.name}}</div>
 				<div v-else style="color: rgb(120,199,86)">执行成功：{{item.name}}</div>
 				</a-menu-item>
 			</a-menu>
@@ -61,6 +61,8 @@
 <script src="./static/moment.js"></script>
 <script src="./static/antd.min.js"></script>
 <script src="../.replay_result/<%- time%>/py_diff_result.js"></script>
+<script src="../.replay_result/<%- time%>/jest_result.js"></script>
+
 <script>
 
 	let time = '<%- time%>';
@@ -86,7 +88,25 @@
 					}
 					cur_case.diffIndex = diffIndex;
 				})
-			}
+			} else if (typeof jest_result !== 'undefined' && jest_result.testResults && jest_result.testResults.length > 0) {
+                let testResult = jest_result.testResults[0];
+                if (testResult.status === 'failed') {
+                    if (testResult.assertionResults.length > 0) {
+                        testResult.assertionResults.forEach(jestTestItem => {
+                            if (jestTestItem.status === 'failed') {
+								var cur_case = testCase.find((testCaseItem) => {
+									return testCaseItem.name === jestTestItem.title
+								});
+								cur_case.status = 'failed';
+							}
+                        })
+                    } else {
+                        testCase.forEach(item => {
+                            item.status = 'failed';
+                        })
+                    }
+                }
+            }
 			return {
 				time,
 				testCase,
@@ -112,7 +132,6 @@
                     } else {
                         item.imgSrc.push(`../.replay_result/${this.time}/${item.name}/screenshot/${i}.png`)
                     }
-
 				}
 			})
 		},

@@ -1,6 +1,6 @@
 {
   "name": "@webank/wxa-cli2-apple",
-  "version": "1.0.67",
+  "version": "1.0.79",
   "description": "cli for wxa development",
   "main": "dist/wxa.js",
   "scripts": {
@@ -75,7 +75,7 @@
     "postcss": "^7.0.27",
     "postcss-pxtorpx-pro": "^1.0.0",
     "promise.prototype.finally": "^3.1.0",
-    "shelljs": "^0.8.3",
+    "shelljs": "^0.8.4",
     "tapable": "^1.0.0",
     "valid-url": "^1.0.9"
   },
