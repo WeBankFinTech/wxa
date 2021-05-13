@@ -88,7 +88,7 @@
 					}
 					cur_case.diffIndex = diffIndex;
 				})
-			} else if (typeof jest_result !== 'undefined' && jest_result.testResults && jest_result.testResults.length > 0) {
+			} else if (typeof jest_result !== 'undefined' && jest_result && jest_result.testResults && jest_result.testResults.length > 0) {
                 let testResult = jest_result.testResults[0];
                 if (testResult.status === 'failed') {
                     if (testResult.assertionResults.length > 0) {

@@ -80,7 +80,7 @@ class XMLManager {
 
             let keyElement = [pagePath, hash, element.attribs.id];
             if (isIeration){
-                keyElement.push(`-{{${indexVariable}}}`);
+                keyElement.push(`_{{${indexVariable}}}`);
             }
 
             let id = this.assembleUniqueId(keyElement);
@@ -138,7 +138,7 @@ class XMLManager {
     assembleUniqueId(keyElement) {
         return keyElement.reduce((prev, key)=>{
             if (key) {
-                key = key.replace(/[^\w\{\}\-]/g, '');
+                key = key.replace(/[^\w\{\}\_]/g, '');
                 key = key[0].toUpperCase() + key.slice(1);
 
                 return prev + key;

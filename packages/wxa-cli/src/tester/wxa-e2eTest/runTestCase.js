@@ -94,7 +94,6 @@ export default async function(cmd, wxaConfigs) {
     } catch(err) {
     }
     // 处理jest结果，方便网页文档读取
-    let jestErrArr = [];
     let jestResJson = JSON.parse(readFile(jestResPath));
     writeFile(jestResPath, `var jest_result = ${JSON.stringify(jestResJson)}`)
 
@@ -128,9 +127,12 @@ export default async function(cmd, wxaConfigs) {
     // 复制文档目录
     shelljs.cp(`-R`, path.join(__dirname, '../../../src/tester/wxa-e2eTest/staticWeb/staticFile'), path.join(testDir, '.doc', 'static'));
     // 使用指定浏览器打开
-    console.log(docPath);
-    open(docPath, { app: {
+    console.log(`生成测试报告：${docPath}`);
+    await open(docPath, { app: {
         name: open.apps.chrome
     }});
-    process.exit(0);
+
+    setTimeout(() => {
+        process.exit(0);
+    }, 5000);
 }
