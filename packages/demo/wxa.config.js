@@ -33,7 +33,9 @@ module.exports = {
         // new BindCapture([])
     ],
     optimization: {
-        splitDeps: 3
+        splitDeps: {
+            maxDeps: -1
+        }
     }
 };
 

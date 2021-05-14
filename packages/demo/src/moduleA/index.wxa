@@ -99,4 +99,10 @@ export default class Index {
 
 <style lang="scss">
 @import "../layout.scss";
+
+.a {
+    .b {
+        text-align: left;
+    }
+}
 </style>

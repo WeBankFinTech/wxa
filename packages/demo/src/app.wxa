@@ -26,7 +26,7 @@ export default class Main {
             "pages": [
                 "index",
                 "my/me",
-                "nativePage/badge/badge"
+                "nativePage/n1/n1"
             ]
         },
          {
