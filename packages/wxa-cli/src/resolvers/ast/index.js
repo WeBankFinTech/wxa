@@ -9,6 +9,12 @@ import {generateCodeFromAST} from '../../compilers/script';
 
 let debug = debugPKG('WXA:ASTManager');
 
+const isStaticSource = (filepath) => {
+    let ext = path.extname(filepath);
+
+    return ~['png','jpg','jpeg','webp','eot','woff','woff2','ttf','file', 'gif','webm', 'mp3', 'mp4'].indexOf(ext.replace(/^\./, ''));
+}
+
 export default class ASTManager {
     constructor(resolve, meta, wxaConfigs) {
         this.resolve = resolve;
@@ -138,6 +144,12 @@ export default class ASTManager {
                             source, outputPath, resolved,
                         },
                     });
+                    
+                    // Allow use import to add static file to project
+                    if (isStaticSource(source)) {
+                        path.remove();
+                        return;
+                    }
 
                     switch (typeOfPath) {
                         case StringLiteralRequire:
