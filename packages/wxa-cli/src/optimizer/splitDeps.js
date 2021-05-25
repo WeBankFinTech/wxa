@@ -27,7 +27,6 @@ function getBytes(str) {
     return totalLength;
 }
 
-
 export default class SplitDeps {
     constructor({appConfigs, wxaConfigs, cwd, cmdOptions}) {
         this.cmdOptions = cmdOptions;
@@ -71,6 +70,10 @@ export default class SplitDeps {
     run(indexedMap) {
         if (this.isNoSubPackage) return;
 
+        if (!this.config.enable) {
+            return;
+        }
+
         let [src, root] =
             Array.from(indexedMap).find(([src, mdl]) => mdl.isROOT) || [];
 
@@ -95,7 +98,7 @@ export default class SplitDeps {
         this.collectDeps();
         this.normalizeDeps();
         this.analysisDeps();
-        this.fliterDeps();
+        this.filterDeps();
         this.moveDeps();
     }
 
@@ -140,7 +143,6 @@ export default class SplitDeps {
             }
         });
     }
-
 
     /**
      * 格式化 subPackagesDeps：
@@ -338,14 +340,10 @@ export default class SplitDeps {
     /**
      * 过滤依赖，根据条件将 subPackagesDeps 中的依赖放入到 subPackagesDepsInMain
      */
-    fliterDeps() {
-        if (!this.config) {
-            return;
-        }
-
+    filterDeps() {
         // 如果要移动到主包
         // 那该dep且其所有子dep都需要被移动
-        let moveToMain = (fliter) => {
+        let moveToMain = (filter) => {
             let mark = (depInfo) => {
                 if (depInfo.inMain) {
                     return;
@@ -361,7 +359,7 @@ export default class SplitDeps {
             this.subPackagesDeps.forEach((subPackageInfo) => {
                 Object.keys(subPackageInfo).forEach((depSrc) => {
                     let depInfo = subPackageInfo[depSrc];
-                    if (fliter(depSrc, depInfo)) {
+                    if (filter(depSrc, depInfo)) {
                         mark(depInfo);
                     }
                 });
@@ -384,29 +382,51 @@ export default class SplitDeps {
             });
         };
 
-        let {maxDeps} = this.config;
+        this.computeDepSize();
 
-        if (typeof maxDeps === 'number') {
+        let {enableLocalDep} = this.config;
+
+        if (!enableLocalDep) {
             moveToMain((depSrc, depInfo) => {
-                // 依赖所在分包个数超过限制
-                // 放在主包
-                return depInfo.references >= maxDeps;
+                // 非npm的依赖放入主包
+                return !this.NMReg.test(depSrc);
             });
-
-            this.computeDepSize();
         }
 
-        let {size, references} = this.config;
+        let doFilter = (filter) => {
+            let defaultFilter = {
+                maxDeps: Number.MAX_SAFE_INTEGER,
+                minDeps: 0,
+                maxDepSize: Number.MAX_SAFE_INTEGER,
+                minDepSize: 0,
+            };
+            let {maxDeps, minDeps, maxDepSize, minDepSize} = Object.assign(
+                defaultFilter,
+                filter
+            );
 
-        if (typeof size === 'number' && typeof references === 'number') {
             moveToMain((depSrc, depInfo) => {
-                // 大小超过
-                // 且依赖所在分包个数超过
                 // 放在主包
-                return depInfo.size >= size && depInfo.references >= references;
+                return (
+                    depInfo.references > maxDeps ||
+                    depInfo.references < minDeps ||
+                    depInfo.size > maxDepSize ||
+                    depInfo.size < minDepSize
+                );
             });
 
             this.computeDepSize();
+        };
+
+
+        let {filter} = this.config;
+
+        if (Array.isArray(filter)) {
+            filter.forEach((item) => {
+                doFilter(item);
+            });
+        } else {
+            doFilter(filter);
         }
     }
 
@@ -646,7 +666,6 @@ export default class SplitDeps {
 
             // 是否被主包页面直接依赖
             let isMainDependent = refs.some(([src, mdl]) => {
-                // if a child module has neigth subpage nor node_modules reference, then it's in main package
                 return this.mainNodes.some((node) => node.src === mdl.src);
             });
 
