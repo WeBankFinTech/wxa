@@ -6,6 +6,7 @@ let a = {x: 1},
     n = 1;
 let t = a;
 function m(x = 1, y) {
+  	a.x;
     a = 5;
     ++a;
     t = 9;
@@ -31,7 +32,6 @@ class myclass {}
 
 export function mm() {}
 
-export {m as qqqqq, a};
 
 function name(params) {
     let t = {q: 1};
@@ -54,6 +54,10 @@ export default {
     age,
 };
 export * from './user';
+export function getName() {
+    
+}
+export {m as qqqqq, a};
 // export {x, y} from './a';
 
 /**
