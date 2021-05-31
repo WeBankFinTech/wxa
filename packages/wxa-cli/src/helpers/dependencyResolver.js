@@ -40,9 +40,15 @@ const recursizePackageJSON = (prefixPath, tailPath, extensions) => {
             return webDistPath;
         }
     } else {
+        let tail = ( tailPath === '' ? tailPath : (path.sep + tailPath) );
+        if (prefixPath === '/') {
+            // 找不到对应的依赖
+            return prefixPath + tail;
+        }
+
         return recursizePackageJSON(
             path.dirname(prefixPath), 
-            path.basename(prefixPath) + ( tailPath === '' ? tailPath : (path.sep + tailPath) ), 
+            path.basename(prefixPath) + tail, 
             extensions
         );
     }
@@ -138,6 +144,12 @@ class DependencyResolver {
         } else if (pret.isNodeModule) {
             source = path.join(this.modulesPath, lib);
             if (recursizeFindPackage) source = findOutNPMResolvedSource(source, extensions);
+            
+            if (!isFile(source)) {
+                // 小程序中允许 abc.wxml 这种相对路径写法
+                let relativePath = path.join(opath.dir, lib);
+                source = isFile(relativePath) ? relativePath : source;
+            }
 
             ext = '';
         } else if (pret.isWXALib) {
