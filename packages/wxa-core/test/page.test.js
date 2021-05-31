@@ -1,4 +1,4 @@
-import {wxa as page} from '../src/wxa';
+import {wxa as page} from '../ts/wxa';
 import debounce from 'lodash/debounce';
 jest.mock('lodash/debounce', () => jest.fn(fn => fn));
 

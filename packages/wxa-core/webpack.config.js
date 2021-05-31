@@ -7,17 +7,21 @@ module.exports = {
     },
     module: {
         rules: [
-            {
-                test: /\.js$/,
-                use: {
-                    loader: 'babel-loader',
-                },
-            },
+            // {
+            //     test: /\.js$/,
+            //     use: {
+            //         loader: 'babel-loader',
+            //     },
+            // },
+            { test: /\.tsx?$/, loader: "ts-loader" }
         ],
     },
     plugins: [
         new UglifyJsPlugin(),
     ],
+    resolve: {
+        extensions: [".ts", ".js"]
+    },
     // devtool: 'source-map',
     target: 'node',
 };

@@ -1,4 +1,4 @@
-import {Wxa, default as wxa} from '../src/wxa';
+import {Wxa, default as wxa} from '../ts/wxa';
 import 'jest-plugin-console-matchers/setup';
 
 describe('wxa unit test', ()=>{
