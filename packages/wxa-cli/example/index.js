@@ -2,6 +2,8 @@
 import getMyUser, {getName as getMyName} from './user';
 import * as user from './user';
 
+
+console.console.log(getMyUser);
 let a = {x: 1},
     n = 1;
 let t = a;
@@ -28,9 +30,16 @@ if (a) {
 
 for (i = 0; i < 100; i++) {}
 
-class myclass {}
+class myclass {
+    [n]=1;
+    [n]=()=>{
+
+    }
+}
 
 export function mm() {}
+
+mm();
 
 
 function name(params) {
@@ -47,19 +56,34 @@ let obj = {
 
 (function(x, y) {})();
 
-export default {
-    x: 1,
-    t() {},
-    m,
-    age,
-};
+// export default {
+//     x: 1,
+//     t() {},
+//     m,
+//     age,
+// };
 export * from './user';
 export function getName() {
     
 }
-export {m as qqqqq, a};
+export {m as qqqqq, a as default};
+
 // export {x, y} from './a';
 
 /**
 export default function(){}
 */
+
+export {ss1s};
+// eslint-disable-next-line no-var
+let ss1s=1;
+
+export {
+    mm as ttttttt,
+};
+
+export {getName as tttt} from './user';
+
+
+export * as tttttt from 'user';
+
