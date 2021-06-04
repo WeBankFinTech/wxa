@@ -79,6 +79,22 @@ class Graph {
         return path.resolve(path.dirname(baseSrc), relativeSrc);
     }
 
+    getExpSrc(node, src) {
+        let expSrc = '';
+
+        if (node.source) {
+            expSrc = this.getAbsolutePath(src, node.source.value + '.js');
+        } else {
+            expSrc = src;
+        }
+
+        return expSrc;
+    }
+
+    markShakingFlag(node) {
+        node._shake = 1;
+    }
+
     analysis(src) {
         let imports = {};
         let exports = {};
@@ -93,7 +109,7 @@ class Graph {
                 identifierNode._skip = true;
             }
 
-            node._used = 0;
+            node._usedNodes = [];
             scope.add(node, identifierNode.name, isBlockDeclaration);
         }
 
@@ -145,21 +161,81 @@ class Graph {
                             addToScope(specifier, 'local', true);
                         });
 
-                        let depSrc = this.getAbsolutePath(
+                        let impSrc = this.getAbsolutePath(
                             src,
                             node.source.value + '.js'
                         );
-                        imports[depSrc] = imports[depSrc] || [];
-                        imports[depSrc] = imports[depSrc].concat([
-                            ...node.specifiers,
-                        ]);
+                        imports[impSrc] = imports[impSrc] || {};
+                        node.specifiers.forEach((specifier) => {
+                            let name =
+                                specifier.imported && specifier.imported.name;
+                            if (!name) {
+                                if (
+                                    specifier.type === 'ImportDefaultSpecifier'
+                                ) {
+                                    name = 'default';
+                                } else if (
+                                    specifier.type ===
+                                    'ImportNamespaceSpecifier'
+                                ) {
+                                    name = '*';
+                                }
+                            }
+                            imports[impSrc][name] = specifier;
+                        });
                         break;
-                    // import 的声明
+                    // export 的声明
                     case 'ExportNamedDeclaration':
-                        exports[src] = exports[src] || [];
-                        exports[src] = imports[src].concat([
-                            ...node.specifiers,
-                        ]);
+                        let expSrc = this.getExpSrc(node, src);
+
+                        exports[expSrc] = exports[expSrc] || {};
+
+                        if (node.specifiers && node.specifiers.length) {
+                            node.specifiers.forEach((specifier) => {
+                                let name = specifier.exported.name;
+                                exports[expSrc][name] = specifier;
+                                this.markShakingFlag(specifier);
+                            });
+                        } else {
+                            let declaration = node.declaration;
+
+                            if (declaration.type === 'FunctionDeclaration') {
+                                let name = declaration.id.name;
+                                exports[expSrc][name] = declaration;
+                                declaration._shake = 1;
+                                this.markShakingFlag(declaration);
+                            } else if (
+                                declaration.type === 'VariableDeclaration'
+                            ) {
+                                declaration.declarations.forEach(
+                                    (variableDeclarator) => {
+                                        let name = variableDeclarator.id.name;
+                                        exports[expSrc][name] =
+                                            variableDeclarator;
+                                        this.markShakingFlag(
+                                            variableDeclarator
+                                        );
+                                    }
+                                );
+                            } else if (
+                                declaration.type === 'ClassDeclaration'
+                            ) {
+                                let name = declaration.id.name;
+                                exports[expSrc][name] = declaration;
+                                this.markShakingFlag(declaration);
+                            }
+                        }
+                        break;
+                    case 'ExportDefaultDeclaration':
+                        exports[src] = exports[src] || {};
+                        exports[src].default = node;
+                        this.markShakingFlag(node);
+                        break;
+                    case 'ExportAllDeclaration':
+                        let exportSrc = this.getExpSrc(node, src);
+                        exports[exportSrc] = exports[exportSrc] || {};
+                        exports[exportSrc]['*'] = node;
+                        this.markShakingFlag(node);
                         break;
                 }
 
@@ -178,27 +254,71 @@ class Graph {
             },
         });
 
+        function findScope(node) {
+            let defineScope = scope.findDefiningScope(node.name);
+            if (defineScope) {
+                defineScope.nodes[node.name].forEach((node) => {
+                    node._usedNodes.push(node);
+                });
+            }
+        }
+
         traverse(ast, {
-            enter(path) {
+            enter: (path) => {
                 let {node} = path;
 
                 if (node._scope) {
                     scope = node._scope;
                 }
 
-                // obj.x 类型的属性访问，不算对x变量的使用
-                if (t.isMemberExpression(node) && !node.computed) {
-                    path.skip();
-                }
+                // else if (node.type === 'ExportNamedDeclaration') {
+                //     node.specifiers.forEach((specifier) => {
+                //         let nodes = scope.nodes[specifier.local.name];
+                //         if (nodes) {
+                //             nodes.forEach((node) => {
+                //                 this.markShakingFlag(node);
+                //             });
 
-                // TODO，怎么才算变量已经使用
-                if (t.isIdentifier(node) && !node._skip) {
-                    let defineScope = scope.findDefiningScope(node.name);
-                    if (defineScope) {
-                        defineScope.nodes[node.name].forEach((node) => {
-                            node._used = 1;
-                        });
-                    }
+                //             specifier._referenceNodes = nodes;
+                //         }
+                //     });
+                // } else if (
+                //     // export default {}
+                //     node.type === 'ExportDefaultDeclaration' &&
+                //     node.declaration.type === 'ObjectExpression'
+                // ) {
+                //     node.declaration.properties.forEach((p)=>{
+                //         if (p.computed) {
+                //             let nodes = scope.nodes[p.key.name];
+                //             if (nodes) {
+                //                 node._referenceNodes = nodes;
+                //             }
+                //         }
+                //         // let nodes
+                //         // TODO，如何判断对象属性中对外部变量的引用
+                //     });
+                // }
+
+                // obj.x 类型的属性访问，不算对x变量的使用
+                if (node.type === 'MemberExpression') {
+                    !node.computed && path.skip();
+                } else if (node.type === 'ObjectProperty') {
+                    // {x:1} 对象属性
+                    !node.computed && path.skipKey('key');
+                } else if (
+                    [
+                        'ClassMethod',
+                        'ClassPrivateMethod',
+                        'ClassProperty',
+                        'ClassDeclaration',
+                    ].includes(node.type)
+                ) {
+                    !node.computed && path.skipKey('key');
+                } else if (t.isIdentifier(node)) {
+                    // TODO，怎么才算变量已经使用
+                    // 这里的判断不准确，无法判断类似函数a引用函数b，但a并没有没使用到
+                    // 这里只会去除掉函数a，去除不了函数b
+                    !node._skip && findScope(node);
                 }
             },
             // 退出节点
@@ -211,8 +331,41 @@ class Graph {
         });
 
         console.log(src);
-        console.log(imports);
-        console.log(exports);
+        console.log('imports', imports);
+        console.log('exports', exports);
+
+        // import * 和 export * 不包括default
+        // export * from '' 和 export 本文件冲突，export 本文件优先级更高
+        // export * from '' 互相冲突，后export * from '' 优先
+        // export {} from ''， 从其他文件导出，导出的变量无法在本文件使用
+        /**
+         * imports: {
+         *      [路径]: {
+         *          [name]: ImportSpecifier,
+         *          default: ImportDefaultSpecifier,
+         *          *: ImportNamespaceSpecifier
+         *      }
+         * }
+         *
+         * exports: {
+         *      [本文件路径]: {
+         *          // export function(){}
+         *          [name]: FunctionDeclaration|VariableDeclaration|ClassDeclaration
+         *          // export default function(){} | export default{} | export {a as default} | export default a
+         *          default: ExportDefaultDeclaration | ExportSpecifier,
+         *          // export {a as aaa,b,c}
+         *          [name]: ExportSpecifier
+         *      },
+         *      [其他路径]: {
+         *          // export {a as aaa,b,c} from '' | export * as all from ''
+         *          [name]: ExportSpecifier
+         *          // export {default} from '' | export {a as default} from '' | export * as default from ''
+         *          default: ExportSpecifier,
+         *          // export * from ''
+         *          *: ExportAllDeclaration
+         *      },
+         * }
+         */
 
         let dep = {
             src,
@@ -224,6 +377,8 @@ class Graph {
             scope,
         };
 
+        // TODO，只是imports节点不准确
+        // export {} from './a' a 文件也是子节点
         Object.keys(dep.imports).forEach((childSrc, index) => {
             dep.children[index] = this.analysis(childSrc);
         });
@@ -234,6 +389,111 @@ class Graph {
 
 let entrySrc = path.resolve(__dirname, '../../example/index.js');
 let graph = new Graph(entrySrc);
+
+/**
+ * export node 有一个_shake标志，如果该export没有被import，或者被import后没有使用，_shake = 1
+ * 输出时，判断export node 的_shake，当等于1时，遍历子节点，看是否有声明节点，如果声明节点未被引用才可以shake掉
+ *
+ */
+
+function shake(dep) {
+    let imports = dep.imports;
+
+    let mark = (dep, usedNames, childSrc) => {
+        if (usedNames.length) {
+            let child = dep.children.find((child) => child.src === childSrc);
+            let exportsArray = Object.entries(child.exports);
+            let localIndex = exportsArray.findIndex(
+                ([src]) => src == child.src
+            );
+            let localExports = null;
+            let externalExports = [...exportsArray];
+            if (localIndex !== -1) {
+                localExports = externalExports.splice(localIndex, 1);
+            }
+
+            let hasAll = usedNames.some((name) => name === '*');
+            let usedExports = {};
+            let addUsedExport = (src, node) => {
+                usedExports[src] = usedExports[src] || {};
+                let local = node.local;
+                if (local) {
+                    usedExports[src][local.name] = node;
+                } else {
+                    usedExports[src]['*'] = node;
+                }
+            };
+            if (hasAll) {
+                let hasDefalut = usedNames.some((name) => name === 'default');
+                let markedDefalut = false;
+                if (localExports) {
+                    localExports.forEach(([src, value]) => {
+                        Object.entries(value).forEach(([name, node]) => {
+                            if (name === 'default') {
+                                if (hasDefalut) {
+                                    node._shake = 0;
+                                    markedDefalut = true;
+                                }
+                            } else {
+                                node._shake = 0;
+                            }
+                        });
+                    });
+                }
+
+                externalExports.forEach(([src, value]) => {
+                    Object.entries(value).forEach(([name, node]) => {
+                        if (
+                            (name === 'default' &&
+                                hasDefalut &&
+                                !markedDefalut) ||
+                            name !== 'default'
+                        ) {
+                            node._shake = 0;
+                            addUsedExport(src, node);
+                        }
+                    });
+                });
+            } else {
+                usedNames.forEach((name) => {
+                    if (localExports) {
+                        let node = localExports[1][name];
+                        if (node) {
+                            node._shake = 0;
+                            return;
+                        }
+                    }
+
+                    externalExports.forEach(([src, value]) => {
+                        let node = value[name] || value['*'];
+                        if (node) {
+                            node._shake = 0;
+                            addUsedExport(src, node);
+                        }
+                    });
+                });
+            }
+
+            Object.entries(usedExports).forEach((src, value)=>{
+                mark(child, Object.keys(value), src);
+            });
+        }
+    };
+
+    Object.entries(imports).forEach(([src, value], index) => {
+        let usedNames = [];
+
+        Object.entries(value).forEach(([name, node]) => {
+            if (node._usedNodes && node._usedNodes.length) {
+                usedNames.push(name);
+            }
+        });
+        mark(dep, usedNames, src);
+    });
+
+    dep.children.forEach((child)=>shake(child));
+}
+
 function run(dep) {
     let {ast, scope, code, src} = dep;
 
@@ -241,7 +501,7 @@ function run(dep) {
         enter(path) {
             let {node} = path;
 
-            if (node._used === 0) {
+            if (node._usedNodes && node._usedNodes.length === 0) {
                 path.remove();
             }
         },
@@ -265,6 +525,7 @@ function run(dep) {
     });
 }
 
+// shake(graph.root);
 run(graph.root);
 
 // function name(params) {
