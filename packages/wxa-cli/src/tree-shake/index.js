@@ -387,8 +387,6 @@ class Graph {
     }
 }
 
-let entrySrc = path.resolve(__dirname, '../../example/index.js');
-let graph = new Graph(entrySrc);
 
 /**
  * export node 有一个_shake标志，如果该export没有被import，或者被import后没有使用，_shake = 1
@@ -525,7 +523,9 @@ function run(dep) {
     });
 }
 
-// shake(graph.root);
+let entrySrc = path.resolve(__dirname, '../../example/index.js');
+let graph = new Graph(entrySrc);
+shake(graph.root);
 run(graph.root);
 
 // function name(params) {
