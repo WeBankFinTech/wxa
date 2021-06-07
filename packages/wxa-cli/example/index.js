@@ -3,18 +3,17 @@ import getMyUser, {getName as getMyName} from './user';
 import * as user from './user';
 
 
-console.console.log(getMyUser);
+console.log(user);
 let a = {x: 1},
     n = 1;
-let t = a;
+let t = 10;
 function m(x = 1, y) {
-  	a.x;
     a = 5;
     ++a;
     t = 9;
+    t+5;
     let qqq = 10;
 }
-
 m();
 
 let ttt = function({x: xxx, y}) {};
@@ -25,12 +24,11 @@ let sss = (a, b) => {};
 
 {
 }
-if (a) {
-}
+
 
 for (i = 0; i < 100; i++) {}
 
-class myclass {
+class Myclass {
     [n]=1;
     [n]=()=>{
 
@@ -56,9 +54,12 @@ let obj = {
 
 (function(x, y) {})();
 
+
+getName();
 // export default {
 //     x: 1,
-//     t() {},
+//     t() {
+//     },
 //     m,
 //     age,
 // };
@@ -66,17 +67,14 @@ export * from './user';
 export function getName() {
     
 }
-export {m as qqqqq, a as default};
+// export {m as qqqqq, a as default};
 
 // export {x, y} from './a';
 
-/**
-export default function(){}
-*/
+export default function() {}
 
-export {ss1s};
+export {Myclass};
 // eslint-disable-next-line no-var
-let ss1s=1;
 
 export {
     mm as ttttttt,
@@ -86,4 +84,5 @@ export {getName as tttt} from './user';
 
 
 export * as tttttt from 'user';
+
 
