@@ -35,7 +35,7 @@ function getCurrentURL() {
     try {
         let curPages = getCurrentPages();
         let fromPage = curPages[curPages.length-1];
-        from = fromPage.route || '';
+        currentURL = fromPage.route || '';
     }catch(e) {
         console.warn('getCurrentURL', e);
     }
