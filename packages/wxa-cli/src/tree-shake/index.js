@@ -33,6 +33,10 @@ class Scope {
         this.names = options.params || [];
         this.nodes = {};
         this.isBlockScope = !!options.block;
+        this.children = [];
+        if (this.parent) {
+            this.parent.children.push(this);
+        }
     }
     // 添加变量名
     // isBlockDeclaration 是否是块级声明：let const class import
@@ -99,17 +103,23 @@ class Graph {
         let imports = {};
         let exports = {};
         let code = readFile(src);
-        let ast = parse(code, {sourceType: 'unambiguous'});
+        let ast = parse(code, {
+            sourceType: 'unambiguous',
+            plugins: ['classProperties'],
+        });
 
         let scope = new Scope();
         function addToScope(node, attr, isBlockDeclaration = false) {
             let identifierNode = node[attr];
 
-            if (t.isIdentifier(identifierNode)) {
-                identifierNode._skip = true;
+            // 类似于export default function(){}
+            if (!identifierNode || !identifierNode.name) {
+                return;
             }
 
-            node._usedNodes = [];
+            identifierNode._skip = true;
+
+            node._usedByNodes = [];
             scope.add(node, identifierNode.name, isBlockDeclaration);
         }
 
@@ -257,8 +267,8 @@ class Graph {
         function findScope(node) {
             let defineScope = scope.findDefiningScope(node.name);
             if (defineScope) {
-                defineScope.nodes[node.name].forEach((node) => {
-                    node._usedNodes.push(node);
+                defineScope.nodes[node.name].forEach((declarationNode) => {
+                    declarationNode._usedByNodes.push(node);
                 });
             }
         }
@@ -270,34 +280,6 @@ class Graph {
                 if (node._scope) {
                     scope = node._scope;
                 }
-
-                // else if (node.type === 'ExportNamedDeclaration') {
-                //     node.specifiers.forEach((specifier) => {
-                //         let nodes = scope.nodes[specifier.local.name];
-                //         if (nodes) {
-                //             nodes.forEach((node) => {
-                //                 this.markShakingFlag(node);
-                //             });
-
-                //             specifier._referenceNodes = nodes;
-                //         }
-                //     });
-                // } else if (
-                //     // export default {}
-                //     node.type === 'ExportDefaultDeclaration' &&
-                //     node.declaration.type === 'ObjectExpression'
-                // ) {
-                //     node.declaration.properties.forEach((p)=>{
-                //         if (p.computed) {
-                //             let nodes = scope.nodes[p.key.name];
-                //             if (nodes) {
-                //                 node._referenceNodes = nodes;
-                //             }
-                //         }
-                //         // let nodes
-                //         // TODO，如何判断对象属性中对外部变量的引用
-                //     });
-                // }
 
                 // obj.x 类型的属性访问，不算对x变量的使用
                 if (node.type === 'MemberExpression') {
@@ -314,7 +296,7 @@ class Graph {
                     ].includes(node.type)
                 ) {
                     !node.computed && path.skipKey('key');
-                } else if (t.isIdentifier(node)) {
+                } else if (node.type === 'Identifier') {
                     // TODO，怎么才算变量已经使用
                     // 这里的判断不准确，无法判断类似函数a引用函数b，但a并没有没使用到
                     // 这里只会去除掉函数a，去除不了函数b
@@ -330,14 +312,15 @@ class Graph {
             },
         });
 
-        console.log(src);
-        console.log('imports', imports);
-        console.log('exports', exports);
+        // console.log(src);
+        // console.log('imports', imports);
+        // console.log('exports', exports);
 
         // import * 和 export * 不包括default
         // export * from '' 和 export 本文件冲突，export 本文件优先级更高
         // export * from '' 互相冲突，后export * from '' 优先
         // export {} from ''， 从其他文件导出，导出的变量无法在本文件使用
+        // export default function(){}，导出的函数没有name，不能再本文件使用
         /**
          * imports: {
          *      [路径]: {
@@ -387,7 +370,6 @@ class Graph {
     }
 }
 
-
 /**
  * export node 有一个_shake标志，如果该export没有被import，或者被import后没有使用，_shake = 1
  * 输出时，判断export node 的_shake，当等于1时，遍历子节点，看是否有声明节点，如果声明节点未被引用才可以shake掉
@@ -407,7 +389,7 @@ function shake(dep) {
             let localExports = null;
             let externalExports = [...exportsArray];
             if (localIndex !== -1) {
-                localExports = externalExports.splice(localIndex, 1);
+                localExports = externalExports.splice(localIndex, 1)[0];
             }
 
             let hasAll = usedNames.some((name) => name === '*');
@@ -425,17 +407,15 @@ function shake(dep) {
                 let hasDefalut = usedNames.some((name) => name === 'default');
                 let markedDefalut = false;
                 if (localExports) {
-                    localExports.forEach(([src, value]) => {
-                        Object.entries(value).forEach(([name, node]) => {
-                            if (name === 'default') {
-                                if (hasDefalut) {
-                                    node._shake = 0;
-                                    markedDefalut = true;
-                                }
-                            } else {
+                    Object.entries(localExports[1]).forEach(([name, node]) => {
+                        if (name === 'default') {
+                            if (hasDefalut) {
                                 node._shake = 0;
+                                markedDefalut = true;
                             }
-                        });
+                        } else {
+                            node._shake = 0;
+                        }
                     });
                 }
 
@@ -472,7 +452,7 @@ function shake(dep) {
                 });
             }
 
-            Object.entries(usedExports).forEach((src, value)=>{
+            Object.entries(usedExports).forEach((src, value) => {
                 mark(child, Object.keys(value), src);
             });
         }
@@ -482,24 +462,96 @@ function shake(dep) {
         let usedNames = [];
 
         Object.entries(value).forEach(([name, node]) => {
-            if (node._usedNodes && node._usedNodes.length) {
+            if (node._usedByNodes && node._usedByNodes.length) {
                 usedNames.push(name);
             }
         });
         mark(dep, usedNames, src);
     });
 
-    dep.children.forEach((child)=>shake(child));
+    dep.children.forEach((child) => shake(child));
+}
+
+function remove(dep) {
+    let {ast, scope, code, src, exports} = dep;
+    let loop = true;
+    let doRemove = (scope) => {
+        let {nodes: allNodes} = scope;
+        Object.values(allNodes).forEach((nodes) => {
+            nodes.forEach((node) => {
+                if (node._removed === 1) {
+                    return;
+                }
+
+                if (t.isClassDeclaration(node)) {
+                    console.log('--------------');
+                    console.log(node._usedByNodes[0]);
+                }
+
+                if (
+                    (node._usedByNodes.length === 0 &&
+                        (node._shake === 1 || node._shake === undefined)) ||
+                    (node._usedByNodes.length !== 0 &&
+                        node._usedByNodes.every(
+                            (node) => node._removed || node._shake === 1
+                        ))
+                ) {
+                    node._removed = 1;
+                    loop = true;
+
+                    traverse(node, {
+                        noScope: true,
+                        enter(path) {
+                            let {node} = path;
+                            node._removed = 1;
+                        },
+                    });
+                }
+            });
+        });
+
+        scope.children.forEach((childScope) => {
+            doRemove(childScope);
+        });
+    };
+
+    while (loop) {
+        Object.entries(exports).forEach(([src, value]) => {
+            Object.entries(value).forEach(([name, node]) => {
+                if (
+                    node._shake === 1 &&
+                    (!node._usedByNodes ||
+                        (node._usedByNodes && node._usedByNodes.length === 0))
+                ) {
+                    traverse(node, {
+                        noScope: true,
+                        enter(path) {
+                            let {node} = path;
+                            node._shake = 1;
+                        },
+                    });
+                } else {
+                    node._shake = 0;
+                }
+            });
+        });
+        loop = false;
+        doRemove(scope);
+    }
+
+    dep.children.forEach((child) => remove(child));
 }
 
 function run(dep) {
-    let {ast, scope, code, src} = dep;
+    let {ast, code, src} = dep;
 
     traverse(ast, {
         enter(path) {
             let {node} = path;
-
-            if (node._usedNodes && node._usedNodes.length === 0) {
+            if (
+                node._removed === 1 ||
+                (!node._usedByNodes && node._shake === 1)
+            ) {
                 path.remove();
             }
         },
@@ -523,13 +575,48 @@ function run(dep) {
     });
 }
 
+console.time('end');
 let entrySrc = path.resolve(__dirname, '../../example/index.js');
 let graph = new Graph(entrySrc);
 shake(graph.root);
+remove(graph.root);
 run(graph.root);
+console.timeEnd('end');
 
 // function name(params) {
 //     console.log(m);
 // }
 
 // name();
+
+// let code = `function scopeOnce() {
+//     var ref = "This is a binding";
+//     var xx = 'binding2'
+
+//     if(xx){
+//         let oo="binding3"
+//     }
+
+//     ref + '1'; // This is a reference to a binding
+
+//     function scopeTwo() {
+//       ref+'2'; // This is a reference to a binding from a lower scope
+//     }
+//   }`;
+// let ast = parse(code, {sourceType: 'unambiguous'});
+// traverse(ast, {
+//     enter(path) {
+//         let {node} =path;
+//         if (node.type === 'VariableDeclarator') {
+//             console.log(path.scope);
+//         }
+//     },
+// });
+
+// console.log(generate(
+//     ast,
+//     {
+//         /* options */
+//     },
+//     code
+// ).code);
