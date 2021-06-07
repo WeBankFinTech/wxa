@@ -67,6 +67,8 @@ export default class Router {
                 path = route + path.slice(idx);
             }
 
+            path = path.replace(/\?.*/, '');
+
             let vm = wxa.$$pageMap.get(path);
             wxa.IS_DEBUG && console.info(`[beforeRouteEnter] target route is ${path}`);
             wxa.IS_DEBUG && console.info(`[beforeRouteEnter] target route vm is %o`, vm);
