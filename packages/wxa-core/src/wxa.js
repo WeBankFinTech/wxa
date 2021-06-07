@@ -10,6 +10,7 @@ import {
     setRequestExpiredTime,
 } from './utils/fetch';
 import batchUpdate from './batchUpdate';
+import { comsumeRoutersParams } from './utils/routerWithParams';
 
 // default component field
 const notCopy = ['properties', 'data', 'methods', 'behaviors', 'created', 'attached', 'ready', 'moved', 'detached', 'relations', 'options', 'lifetimes', 'pageLifetimes', 'definitionFilter'];
@@ -156,7 +157,8 @@ export class Wxa {
             let onLoad = vm.onLoad;
             vm.onLoad = function(...args) {
                 this.$app = getApp();
-
+                let params = comsumeRoutersParams();
+                args.push(params);
                 onLoad && onLoad.apply(this, args);
             };
         }
