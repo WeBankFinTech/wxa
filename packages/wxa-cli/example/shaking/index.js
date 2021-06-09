@@ -5,19 +5,18 @@ console.log(user);
 let a = {
   x: 1,
 };
-let t = a;
+let t = 10;
 
 function m(x = 1, y) {
-  // eslint-disable-next-line no-tabs
   a = 5;
   ++a;
   t = 9;
+  t + 5;
 }
 
 m();
 [1, 2, 3].forEach(function(item) {});
 {}
-
 
 for (i = 0; i < 100; i++) {}
 
