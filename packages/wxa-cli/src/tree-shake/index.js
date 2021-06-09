@@ -1,278 +1,24 @@
-let fs = require('fs');
 let path = require('path');
-let mkdirp = require('mkdirp');
-const {parse} = require('@babel/parser');
 const traverse = require('@babel/traverse').default;
 const generate = require('@babel/generator').default;
-const t = require('@babel/types');
 
-function readFile(p) {
-    let rst = '';
-    p = typeof p === 'object' ? path.join(p.dir, p.base) : p;
-    try {
-        rst = fs.readFileSync(p, 'utf-8');
-    } catch (e) {
-        rst = null;
-    }
+let {writeFile} = require('./util');
+let {Graph} = require('./graph');
 
-    return rst;
-}
+function collectReferences(dep) {
+    let {ast, scope} = dep;
 
-function writeFile(p, data) {
-    let opath = typeof p === 'string' ? path.parse(p) : p;
-    mkdirp.sync(opath.dir);
-    fs.writeFileSync(p, data);
-}
-
-class Scope {
-    constructor(options) {
-        options = options || {};
-
-        this.parent = options.parent;
-        this.depth = this.parent ? this.parent.depth + 1 : 0;
-        this.names = options.params || [];
-        this.nodes = {};
-        this.isBlockScope = !!options.block;
-        this.children = [];
-        if (this.parent) {
-            this.parent.children.push(this);
+    let findScope = (node) => {
+        let defineScope = scope.findDefiningScope(node.name);
+        if (defineScope) {
+            defineScope.nodes[node.name].forEach((declarationNode) => {
+                // 该声明语句被哪些identifier节点使用过
+                declarationNode._usedByNodes.push(node);
+            });
         }
-    }
-    // 添加变量名
-    // isBlockDeclaration 是否是块级声明：let const class import
-    add(node, name, isBlockDeclaration) {
-        if (!isBlockDeclaration && this.isBlockScope) {
-            // it's a `var` or function declaration, and this
-            // is a block scope, so we need to go up
-            this.parent.add(node, name, isBlockDeclaration);
-        } else {
-            this.names.push(name);
-            // 变量名可能重复，两个var声明同一变量
-            if (this.nodes[name]) {
-                this.nodes[name].push(node);
-            } else {
-                this.nodes[name] = [node];
-            }
-        }
-    }
+    };
 
-    contains(name) {
-        return !!this.findDefiningScope(name);
-    }
-
-    findDefiningScope(name) {
-        if (this.names.includes(name)) {
-            return this;
-        }
-
-        if (this.parent) {
-            return this.parent.findDefiningScope(name);
-        }
-
-        return null;
-    }
-}
-
-class Graph {
-    constructor(entrySrc) {
-        this.entrySrc = entrySrc;
-        this.root = this.analysis(entrySrc);
-    }
-
-    getAbsolutePath(baseSrc, relativeSrc) {
-        return path.resolve(path.dirname(baseSrc), relativeSrc);
-    }
-
-    getExpSrc(node, src) {
-        let expSrc = '';
-
-        if (node.source) {
-            expSrc = this.getAbsolutePath(src, node.source.value + '.js');
-        } else {
-            expSrc = src;
-        }
-
-        return expSrc;
-    }
-
-    markShakingFlag(node) {
-        node._shake = 1;
-    }
-
-    analysis(src) {
-        let imports = {};
-        let exports = {};
-        let code = readFile(src);
-        let ast = parse(code, {
-            sourceType: 'unambiguous',
-            plugins: ['classProperties'],
-        });
-
-        let scope = new Scope();
-        function addToScope(node, attr, isBlockDeclaration = false) {
-            let identifierNode = node[attr];
-
-            // 类似于export default function(){}
-            if (!identifierNode || !identifierNode.name) {
-                return;
-            }
-
-            identifierNode._skip = true;
-
-            node._usedByNodes = [];
-            scope.add(node, identifierNode.name, isBlockDeclaration);
-        }
-
-        traverse(ast, {
-            enter: (path) => {
-                let {node} = path;
-                let childScope;
-                switch (node.type) {
-                    // 函数声明 function a(){}
-                    case 'FunctionDeclaration':
-                        childScope = new Scope({
-                            parent: scope,
-                            block: false,
-                        });
-                        addToScope(node, 'id', false);
-                    // 箭头函数 ()=>{}
-                    case 'ArrowFunctionExpression':
-                    // 函数表达式 function(){}
-                    case 'FunctionExpression':
-                        childScope = new Scope({
-                            parent: scope,
-                            block: false,
-                        });
-                        break;
-                    // 块级作用域{}
-                    case 'BlockStatement':
-                        childScope = new Scope({
-                            parent: scope,
-                            block: true,
-                        });
-                        break;
-                    // 变量声明
-                    case 'VariableDeclaration':
-                        node.declarations.forEach((variableDeclarator) => {
-                            if (node.kind === 'let' || node.kind === 'const') {
-                                addToScope(variableDeclarator, 'id', true);
-                            } else {
-                                addToScope(variableDeclarator, 'id', false);
-                            }
-                        });
-                        break;
-                    // 类的声明
-                    case 'ClassDeclaration':
-                        addToScope(node, 'id', true);
-                        break;
-                    // import 的声明
-                    case 'ImportDeclaration':
-                        node.specifiers.forEach((specifier) => {
-                            addToScope(specifier, 'local', true);
-                        });
-
-                        let impSrc = this.getAbsolutePath(
-                            src,
-                            node.source.value + '.js'
-                        );
-                        imports[impSrc] = imports[impSrc] || {};
-                        node.specifiers.forEach((specifier) => {
-                            let name =
-                                specifier.imported && specifier.imported.name;
-                            if (!name) {
-                                if (
-                                    specifier.type === 'ImportDefaultSpecifier'
-                                ) {
-                                    name = 'default';
-                                } else if (
-                                    specifier.type ===
-                                    'ImportNamespaceSpecifier'
-                                ) {
-                                    name = '*';
-                                }
-                            }
-                            imports[impSrc][name] = specifier;
-                        });
-                        break;
-                    // export 的声明
-                    case 'ExportNamedDeclaration':
-                        let expSrc = this.getExpSrc(node, src);
-
-                        exports[expSrc] = exports[expSrc] || {};
-
-                        if (node.specifiers && node.specifiers.length) {
-                            node.specifiers.forEach((specifier) => {
-                                let name = specifier.exported.name;
-                                exports[expSrc][name] = specifier;
-                                this.markShakingFlag(specifier);
-                            });
-                        } else {
-                            let declaration = node.declaration;
-
-                            if (declaration.type === 'FunctionDeclaration') {
-                                let name = declaration.id.name;
-                                exports[expSrc][name] = declaration;
-                                declaration._shake = 1;
-                                this.markShakingFlag(declaration);
-                            } else if (
-                                declaration.type === 'VariableDeclaration'
-                            ) {
-                                declaration.declarations.forEach(
-                                    (variableDeclarator) => {
-                                        let name = variableDeclarator.id.name;
-                                        exports[expSrc][name] =
-                                            variableDeclarator;
-                                        this.markShakingFlag(
-                                            variableDeclarator
-                                        );
-                                    }
-                                );
-                            } else if (
-                                declaration.type === 'ClassDeclaration'
-                            ) {
-                                let name = declaration.id.name;
-                                exports[expSrc][name] = declaration;
-                                this.markShakingFlag(declaration);
-                            }
-                        }
-                        break;
-                    case 'ExportDefaultDeclaration':
-                        exports[src] = exports[src] || {};
-                        exports[src].default = node;
-                        this.markShakingFlag(node);
-                        break;
-                    case 'ExportAllDeclaration':
-                        let exportSrc = this.getExpSrc(node, src);
-                        exports[exportSrc] = exports[exportSrc] || {};
-                        exports[exportSrc]['*'] = node;
-                        this.markShakingFlag(node);
-                        break;
-                }
-
-                if (childScope) {
-                    node._scope = childScope;
-                    scope = childScope;
-                }
-            },
-
-            // 退出节点
-            exit(path) {
-                let {node} = path;
-                if (node._scope) {
-                    scope = scope.parent;
-                }
-            },
-        });
-
-        function findScope(node) {
-            let defineScope = scope.findDefiningScope(node.name);
-            if (defineScope) {
-                defineScope.nodes[node.name].forEach((declarationNode) => {
-                    declarationNode._usedByNodes.push(node);
-                });
-            }
-        }
-
+    let collect = () => {
         traverse(ast, {
             enter: (path) => {
                 let {node} = path;
@@ -298,8 +44,6 @@ class Graph {
                     !node.computed && path.skipKey('key');
                 } else if (node.type === 'Identifier') {
                     // TODO，怎么才算变量已经使用
-                    // 这里的判断不准确，无法判断类似函数a引用函数b，但a并没有没使用到
-                    // 这里只会去除掉函数a，去除不了函数b
                     !node._skip && findScope(node);
                 }
             },
@@ -311,69 +55,15 @@ class Graph {
                 }
             },
         });
+    };
 
-        // console.log(src);
-        // console.log('imports', imports);
-        // console.log('exports', exports);
+    collect();
 
-        // import * 和 export * 不包括default
-        // export * from '' 和 export 本文件冲突，export 本文件优先级更高
-        // export * from '' 互相冲突，后export * from '' 优先
-        // export {} from ''， 从其他文件导出，导出的变量无法在本文件使用
-        // export default function(){}，导出的函数没有name，不能再本文件使用
-        /**
-         * imports: {
-         *      [路径]: {
-         *          [name]: ImportSpecifier,
-         *          default: ImportDefaultSpecifier,
-         *          *: ImportNamespaceSpecifier
-         *      }
-         * }
-         *
-         * exports: {
-         *      [本文件路径]: {
-         *          // export function(){}
-         *          [name]: FunctionDeclaration|VariableDeclaration|ClassDeclaration
-         *          // export default function(){} | export default{} | export {a as default} | export default a
-         *          default: ExportDefaultDeclaration | ExportSpecifier,
-         *          // export {a as aaa,b,c}
-         *          [name]: ExportSpecifier
-         *      },
-         *      [其他路径]: {
-         *          // export {a as aaa,b,c} from '' | export * as all from ''
-         *          [name]: ExportSpecifier
-         *          // export {default} from '' | export {a as default} from '' | export * as default from ''
-         *          default: ExportSpecifier,
-         *          // export * from ''
-         *          *: ExportAllDeclaration
-         *      },
-         * }
-         */
-
-        let dep = {
-            src,
-            code,
-            ast,
-            imports,
-            exports,
-            children: [],
-            scope,
-        };
-
-        // TODO，只是imports节点不准确
-        // export {} from './a' a 文件也是子节点
-        Object.keys(dep.imports).forEach((childSrc, index) => {
-            dep.children[index] = this.analysis(childSrc);
-        });
-
-        return dep;
-    }
+    dep.children.forEach((child) => collectReferences(child));
 }
 
 /**
  * export node 有一个_shake标志，如果该export没有被import，或者被import后没有使用，_shake = 1
- * 输出时，判断export node 的_shake，当等于1时，遍历子节点，看是否有声明节点，如果声明节点未被引用才可以shake掉
- *
  */
 
 function shake(dep) {
@@ -388,11 +78,11 @@ function shake(dep) {
             );
             let localExports = null;
             let externalExports = [...exportsArray];
+
             if (localIndex !== -1) {
                 localExports = externalExports.splice(localIndex, 1)[0];
             }
 
-            let hasAll = usedNames.some((name) => name === '*');
             let usedExports = {};
             let addUsedExport = (src, node) => {
                 usedExports[src] = usedExports[src] || {};
@@ -403,6 +93,9 @@ function shake(dep) {
                     usedExports[src]['*'] = node;
                 }
             };
+
+            let hasAll = usedNames.some((name) => name === '*');
+
             if (hasAll) {
                 let hasDefalut = usedNames.some((name) => name === 'default');
                 let markedDefalut = false;
@@ -473,8 +166,20 @@ function shake(dep) {
 }
 
 function remove(dep) {
-    let {ast, scope, code, src, exports} = dep;
+    let {scope, exports} = dep;
     let loop = true;
+
+    let markRemoved = (node)=>{
+        node._removed = 1;
+        traverse(node, {
+            noScope: true,
+            enter(path) {
+                let {node} = path;
+                node._removed = 1;
+            },
+        });
+    };
+
     let doRemove = (scope) => {
         let {nodes: allNodes} = scope;
         Object.values(allNodes).forEach((nodes) => {
@@ -483,29 +188,14 @@ function remove(dep) {
                     return;
                 }
 
-                if (t.isClassDeclaration(node)) {
-                    console.log('--------------');
-                    console.log(node._usedByNodes[0]);
-                }
-
                 if (
                     (node._usedByNodes.length === 0 &&
                         (node._shake === 1 || node._shake === undefined)) ||
                     (node._usedByNodes.length !== 0 &&
-                        node._usedByNodes.every(
-                            (node) => node._removed || node._shake === 1
-                        ))
+                        node._usedByNodes.every((node) => node._removed))
                 ) {
-                    node._removed = 1;
                     loop = true;
-
-                    traverse(node, {
-                        noScope: true,
-                        enter(path) {
-                            let {node} = path;
-                            node._removed = 1;
-                        },
-                    });
+                    markRemoved(node);
                 }
             });
         });
@@ -515,26 +205,27 @@ function remove(dep) {
         });
     };
 
-    while (loop) {
-        Object.entries(exports).forEach(([src, value]) => {
-            Object.entries(value).forEach(([name, node]) => {
-                if (
-                    node._shake === 1 &&
-                    (!node._usedByNodes ||
-                        (node._usedByNodes && node._usedByNodes.length === 0))
-                ) {
-                    traverse(node, {
-                        noScope: true,
-                        enter(path) {
-                            let {node} = path;
-                            node._shake = 1;
-                        },
-                    });
-                } else {
-                    node._shake = 0;
-                }
-            });
+    /**
+     * 遍历exports，shake 标志表示该节点是否被外部有效的 import（即import的方法变量被使用过）
+     * 如果shake=1，表示没有被有效import过
+     * _usedByNodes只存在于声明语句上，表示该声明语句被哪些identifier节点使用过。
+     * 只有具名导出函数变量（export function(){}），这样的导出节点才会有_usedByNodes
+     * shake=1且_usedByNodes不存在，表示该export节点即不被外部有效import，也不会被内部使用
+     * shake=1且_usedByNodes存在且有值，表示该节点不被外部有效import，但被内部使用
+     */
+    Object.entries(exports).forEach(([src, value]) => {
+        Object.entries(value).forEach(([name, node]) => {
+            if (
+                node._shake === 1 &&
+                (!node._usedByNodes ||
+                    (node._usedByNodes && node._usedByNodes.length === 0))
+            ) {
+                markRemoved(node);
+            } 
         });
+    });
+
+    while (loop) {
         loop = false;
         doRemove(scope);
     }
@@ -542,22 +233,19 @@ function remove(dep) {
     dep.children.forEach((child) => remove(child));
 }
 
-function run(dep) {
+function output(dep) {
     let {ast, code, src} = dep;
 
     traverse(ast, {
         enter(path) {
             let {node} = path;
-            if (
-                node._removed === 1 ||
-                (!node._usedByNodes && node._shake === 1)
-            ) {
+            if (node._removed === 1) {
                 path.remove();
             }
         },
     });
 
-    const output = generate(
+    const {code: outputCode} = generate(
         ast,
         {
             /* options */
@@ -567,20 +255,21 @@ function run(dep) {
 
     writeFile(
         path.resolve(path.dirname(src), './shaking', path.basename(src)),
-        output.code
+        outputCode
     );
 
     dep.children.forEach((child) => {
-        run(child);
+        output(child);
     });
 }
 
 console.time('end');
 let entrySrc = path.resolve(__dirname, '../../example/index.js');
 let graph = new Graph(entrySrc);
+collectReferences(graph.root);
 shake(graph.root);
 remove(graph.root);
-run(graph.root);
+output(graph.root);
 console.timeEnd('end');
 
 // function name(params) {

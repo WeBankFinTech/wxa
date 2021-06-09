@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+
+<html>
+    <body>
+        <input
+            type="text"
+            oninput="value=value.replace(/[^\d]/g,'');if(value>366)value=366;if(value<0)value=0"
+        />
+    </body>
+</html>
+
+<script>
+    document.body.innerHTML=`<input
+            type="text"
+            id='45'
+            oninput="value=value.replace(/[^\d]/g,'');if(value>366)value=366;if(value<0)value=0"
+        />`
+</script>
