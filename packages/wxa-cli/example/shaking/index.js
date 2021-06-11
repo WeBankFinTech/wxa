@@ -3,7 +3,7 @@ import './user';
 import * as user from './user';
 console.log(user);
 let a = {
-  x: 1,
+  x: 1
 };
 let t = 10;
 
@@ -15,15 +15,14 @@ function m(x = 1, y) {
 }
 
 m();
-[1, 2, 3].forEach(function(item) {});
-{}
+[1, 2, 3].forEach(function (item) {});
 
 for (i = 0; i < 100; i++) {}
 
 export function mm() {}
 mm();
 
-(function(x, y) {})();
+(function (x, y) {})();
 
 getName(); // export default {
 //     x: 1,
@@ -40,4 +39,4 @@ export {}; // eslint-disable-next-line no-var
 
 export {};
 export {} from './user';
-export {} from 'user';
+export {} from './user';

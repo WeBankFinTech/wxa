@@ -1,4 +1,3 @@
-let path = require('path');
 const traverse = require('@babel/traverse').default;
 const generate = require('@babel/generator').default;
 
@@ -6,6 +5,10 @@ let {writeFile} = require('./util');
 let {Graph} = require('./graph');
 
 function collectReferences(dep) {
+    if (dep._collcted) {
+        return;
+    }
+
     let {ast, scope} = dep;
 
     let findScope = (node) => {
@@ -29,7 +32,7 @@ function collectReferences(dep) {
 
                 // obj.x 类型的属性访问，不算对x变量的使用
                 if (node.type === 'MemberExpression') {
-                    !node.computed && path.skip();
+                    !node.computed && path.skipKey('property');
                 } else if (node.type === 'ObjectProperty') {
                     // {x:1} 对象属性
                     !node.computed && path.skipKey('key');
@@ -58,15 +61,22 @@ function collectReferences(dep) {
     };
 
     collect();
+    dep._collcted = true;
 
     dep.children.forEach((child) => collectReferences(child));
 }
 
 /**
  * export node 有一个_shake标志，如果该export没有被import，或者被import后没有使用，_shake = 1
+ * 在这里，遍历全局文件树，根据import和export关系，对没使用的export进行标记
+ * 但如果用require去引入一个export函数变量，这里并不能分析到这个export函数变量被使用过（所以不能去 require 一个 export）
  */
 
 function shake(dep) {
+    if (dep._shook) {
+        return;
+    }
+
     let imports = dep.imports;
 
     let mark = (dep, usedNames, childSrc) => {
@@ -120,8 +130,10 @@ function shake(dep) {
                                 !markedDefalut) ||
                             name !== 'default'
                         ) {
-                            node._shake = 0;
-                            addUsedExport(src, node);
+                            if (node._shake === 1) {
+                                node._shake = 0;
+                                addUsedExport(src, node);
+                            }
                         }
                     });
                 });
@@ -138,11 +150,17 @@ function shake(dep) {
                     externalExports.forEach(([src, value]) => {
                         let node = value[name] || value['*'];
                         if (node) {
-                            node._shake = 0;
-                            addUsedExport(src, node);
+                            if (node._shake === 1) {
+                                node._shake = 0;
+                                addUsedExport(src, node);
+                            }
                         }
                     });
                 });
+            }
+
+            if (childSrc.endsWith('store\\configure.js')) {
+                console.log('1111');
             }
 
             Object.entries(usedExports).forEach((src, value) => {
@@ -151,7 +169,7 @@ function shake(dep) {
         }
     };
 
-    Object.entries(imports).forEach(([src, value], index) => {
+    Object.entries(imports).forEach(([src, value]) => {
         let usedNames = [];
 
         Object.entries(value).forEach(([name, node]) => {
@@ -162,14 +180,20 @@ function shake(dep) {
         mark(dep, usedNames, src);
     });
 
+    dep._shook = true;
+
     dep.children.forEach((child) => shake(child));
 }
 
 function remove(dep) {
+    if (dep._removed) {
+        return;
+    }
+
     let {scope, exports} = dep;
     let loop = true;
 
-    let markRemoved = (node)=>{
+    let markRemoved = (node) => {
         node._removed = 1;
         traverse(node, {
             noScope: true,
@@ -209,7 +233,8 @@ function remove(dep) {
      * 遍历exports，shake 标志表示该节点是否被外部有效的 import（即import的方法变量被使用过）
      * 如果shake=1，表示没有被有效import过
      * _usedByNodes只存在于声明语句上，表示该声明语句被哪些identifier节点使用过。
-     * 只有具名导出函数变量（export function(){}），这样的导出节点才会有_usedByNodes
+     * 在导出语句中：
+     * 只有类似有name的函数变量（export function a(){} export default function a(){}），这样的导出节点才会有_usedByNodes
      * shake=1且_usedByNodes不存在，表示该export节点即不被外部有效import，也不会被内部使用
      * shake=1且_usedByNodes存在且有值，表示该节点不被外部有效import，但被内部使用
      */
@@ -221,7 +246,7 @@ function remove(dep) {
                     (node._usedByNodes && node._usedByNodes.length === 0))
             ) {
                 markRemoved(node);
-            } 
+            }
         });
     });
 
@@ -230,47 +255,90 @@ function remove(dep) {
         doRemove(scope);
     }
 
+    dep._removed = true;
+
     dep.children.forEach((child) => remove(child));
 }
 
 function output(dep) {
-    let {ast, code, src} = dep;
+    let contents = {};
 
-    traverse(ast, {
-        enter(path) {
-            let {node} = path;
-            if (node._removed === 1) {
-                path.remove();
-            }
-        },
-    });
+    let run = (dep) => {
+        let {ast, code, src} = dep;
 
-    const {code: outputCode} = generate(
-        ast,
-        {
-            /* options */
-        },
-        code
-    );
+        if (dep._output) {
+            return;
+        }
 
-    writeFile(
-        path.resolve(path.dirname(src), './shaking', path.basename(src)),
-        outputCode
-    );
+        traverse(ast, {
+            enter(path) {
+                let {node} = path;
+                if (node._removed === 1) {
+                    path.remove();
+                }
+            },
+        });
 
-    dep.children.forEach((child) => {
-        output(child);
-    });
+        const {code: outputCode} = generate(
+            ast,
+            {
+                /* options */
+                decoratorsBeforeExport: true,
+            },
+            code
+        );
+
+        // writeFile(
+        //     path.resolve(path.dirname(src), './shaking', path.basename(src)),
+        //     outputCode
+        // );
+
+        contents[src] = outputCode;
+
+        dep._output = true;
+
+        dep.children.forEach((child) => {
+            run(child);
+        });
+    };
+
+    run(dep);
+
+    return contents;
 }
 
-console.time('end');
-let entrySrc = path.resolve(__dirname, '../../example/index.js');
-let graph = new Graph(entrySrc);
-collectReferences(graph.root);
-shake(graph.root);
-remove(graph.root);
-output(graph.root);
-console.timeEnd('end');
+function start(entries) {
+    let graph = new Graph(entries);
+
+    graph.roots.forEach((root) => {
+        collectReferences(root);
+    });
+
+    console.log('collected');
+
+    graph.roots.forEach((root) => {
+        shake(root);
+    });
+
+    console.log('shook');
+
+    let contents = {};
+    graph.roots.forEach((root) => {
+        remove(root);
+        contents = {...contents, ...output(root)};
+    });
+
+    return contents;
+}
+
+module.exports = {
+    start,
+};
+
+// console.time('end');
+// let entrySrc = path.resolve(__dirname, '../../example/index.js');
+// start([entrySrc]);
+// console.timeEnd('end');
 
 // function name(params) {
 //     console.log(m);
