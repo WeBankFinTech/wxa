@@ -1,37 +1,32 @@
 /* eslint-disable one-var */
-import getMyUser, {getName as getMyName} from './user';
-import * as user from './user';
 
-console.log(user);
-let a = {x: 1},
-    n = 1;
-let t = 10;
-function m(x = 1, y) {
-    a = 5;
-    ++a;
-    t = 9;
-    t + 5;
+let obj = {x: 1},
+    num1 = 1;
+let num2 = 10;
+let str1 = 'a';
+function m() {
+    num1 = 5;
+    ++num2;
     let qqq = 10;
 }
+
 m();
 
-let ttt = function({x: xxx, y}) {};
+let fn1 = function() {};
 
-let sss = (a, b) => {};
+let fn2 = () => {};
 
 [1, 2, 3].forEach(function(item) {});
-
 
 for (i = 0; i < 100; i++) {}
 
 class Myclass {
-    [n] = 1;
-    [n] = () => {};
+    [str1] = 1;
+    [str1] = () => {};
 }
 
-export function mm() {}
 
-mm();
+m();
 
 function name(params) {
     let t = {q: 1};
@@ -40,10 +35,6 @@ function name(params) {
     t.q;
 }
 
-let obj = {
-    x: 1,
-    t() {},
-};
 
 (function(x, y) {})();
 
@@ -65,9 +56,3 @@ export default function() {}
 
 export {Myclass};
 // eslint-disable-next-line no-var
-
-export {mm as ttttttt};
-
-export {getName as tttt} from './user';
-
-export * as tttttt from './user';

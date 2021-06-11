@@ -1,24 +1,36 @@
-const path = require('path');
-const {parse} = require('@babel/parser');
 const traverse = require('@babel/traverse').default;
 const {Scope} = require('./scope');
-const {readFile} = require('./util');
+const {readFile, resolveDepSrc, parseESCode} = require('./util');
 
 class Graph {
-    constructor(entrySrc) {
-        this.entrySrc = entrySrc;
-        this.root = this.analysis(entrySrc);
+    constructor(entries) {
+        this.entries = entries;
+        this.analysis();
     }
 
-    getAbsolutePath(baseSrc, relativeSrc) {
-        return path.resolve(path.dirname(baseSrc), relativeSrc);
+    getAbsolutePath(fileSrc, depSrc) {
+        let s = resolveDepSrc({
+            fileSrc,
+            depSrc,
+            root: 'src',
+            alias: {'@': 'src'},
+        });
+
+        if (!s.endsWith('.js')) {
+            s += '.js';
+        }
+
+        // console.log('--------');
+        // console.log(s);
+
+        return s;
     }
 
     getExpSrc(node, src) {
         let expSrc = '';
 
         if (node.source) {
-            expSrc = this.getAbsolutePath(src, node.source.value + '.js');
+            expSrc = this.getAbsolutePath(src, node.source.value);
         } else {
             expSrc = src;
         }
@@ -120,12 +132,16 @@ class Graph {
         return importInfo;
     }
 
-    collectExport(path) {
+    collectExport(path, isRoot) {
         let {node} = path;
         let exportInfo = null;
 
         let markShakingFlag = (node) => {
-            node._shake = 1;
+            if (isRoot) {
+                node._shake = 0;
+            } else {
+                node._shake = 1;
+            }
         };
 
         switch (node.type) {
@@ -163,8 +179,15 @@ class Graph {
                 break;
             case 'ExportDefaultDeclaration':
                 exportInfo = {};
-                exportInfo.default = node;
-                markShakingFlag(node);
+                let declaration = node.declaration;
+
+                if (declaration) {
+                    exportInfo.default = declaration;
+                } else {
+                    exportInfo.default = node;
+                }
+                
+                markShakingFlag(exportInfo.default);
                 break;
             case 'ExportAllDeclaration':
                 exportInfo = {};
@@ -176,114 +199,141 @@ class Graph {
         return exportInfo;
     }
 
-    analysis(src) {
-        let imports = {};
-        let exports = {};
-        let code = readFile(src);
-        let ast = parse(code, {
-            sourceType: 'unambiguous',
-            plugins: ['classProperties'],
-        });
+    analysis() {
+        let analyzedFile = {};
 
-        let scope = new Scope();
+        let doAnalysis = (entry, isRoot) => {
+            let src = '';
+            let content = '';
 
-        traverse(ast, {
-            enter: (path) => {
-                let {node} = path;
+            if (typeof entry === 'string') {
+                src = entry;
+            } else {
+                src = entry.src;
+                content = entry.content;
+            }
 
-                let childScope = this.collectDeclaration(path, scope);
-                if (childScope) {
-                    node._scope = childScope;
-                    scope = childScope;
+            // if (src.endsWith('safe-area-inset\\index.js')) {
+            //     console.log('src', src);
+            // }
+
+            if (analyzedFile[src]) {
+                return analyzedFile[src];
+            }
+
+            let imports = {};
+            let exports = {};
+            let code = content || readFile(src);
+            let ast = parseESCode(code);
+
+            let scope = new Scope();
+
+            traverse(ast, {
+                enter: (path) => {
+                    let {node} = path;
+
+                    let childScope = this.collectDeclaration(path, scope);
+                    if (childScope) {
+                        node._scope = childScope;
+                        scope = childScope;
+                    }
+
+                    let importInfo = this.collectImport(path);
+                    if (importInfo) {
+                        let impSrc = this.getAbsolutePath(
+                            src,
+                            node.source.value
+                        );
+                        imports[impSrc] = imports[impSrc] || {};
+                        imports[impSrc] = {...imports[impSrc], ...importInfo};
+                    }
+
+                    let exportInfo = this.collectExport(path, isRoot);
+                    if (exportInfo) {
+                        let expSrc = this.getExpSrc(node, src);
+                        exports[expSrc] = exports[expSrc] || {};
+                        exports[expSrc] = {...exports[expSrc], ...exportInfo};
+                    }
+                },
+
+                // 退出节点
+                exit(path) {
+                    let {node} = path;
+                    if (node._scope) {
+                        scope = scope.parent;
+                    }
+                },
+            });
+
+            // console.log(src);
+            // console.log('imports', imports);
+            // console.log('exports', exports);
+
+            // import * 和 export * 不包括default
+            // export * from '' 和 export 本文件冲突，export 本文件优先级更高
+            // export * from '' 互相冲突，后export * from '' 优先
+            // export {} from ''， 从其他文件导出，导出的变量无法在本文件使用
+            // export default function(){}，导出的函数没有name时，不能在本文件使用
+            // 不存在语法 export default let a =1
+            /**
+             * imports: {
+             *      [路径]: {
+             *          [name]: ImportSpecifier,
+             *          default: ImportDefaultSpecifier,
+             *          *: ImportNamespaceSpecifier
+             *      }
+             * }
+             *
+             * exports: {
+             *      [本文件路径]: {
+             *          // export function(){}
+             *          [name]: FunctionDeclaration|VariableDeclaration|ClassDeclaration
+             *          // export default function(){} | export default{} | export {a as default} | export default a
+             *          default: ExportDefaultDeclaration | FunctionDeclaration | ClassDeclaration |ExportSpecifier,
+             *          // export {a as aaa,b,c}
+             *          [name]: ExportSpecifier
+             *      },
+             *      [其他路径]: {
+             *          // export {a as aaa,b,c} from '' | export * as all from ''
+             *          [name]: ExportSpecifier
+             *          // export {default} from '' | export {a as default} from '' | export * as default from ''
+             *          default: ExportSpecifier,
+             *          // export * from ''
+             *          *: ExportAllDeclaration
+             *      },
+             * }
+             */
+
+            let dep = {
+                src,
+                code,
+                ast,
+                imports,
+                exports,
+                children: [],
+                scope,
+                isRoot,
+            };
+
+            analyzedFile[src] = dep;
+
+            Object.keys(dep.imports).forEach((childSrc, index) => {
+                dep.children.push(doAnalysis(childSrc));
+            });
+
+            // export {} from './a' a 文件也是子节点
+            Object.keys(dep.exports).forEach((childSrc) => {
+                if (childSrc !== src) {
+                    dep.children.push(doAnalysis(childSrc));
                 }
+            });
 
-                let importInfo = this.collectImport(path);
-                if (importInfo) {
-                    let impSrc = this.getAbsolutePath(
-                        src,
-                        node.source.value + '.js'
-                    );
-                    imports[impSrc] = imports[impSrc] || {};
-                    imports[impSrc] = {...imports[impSrc], ...importInfo};
-                }
-
-                let exportInfo = this.collectExport(path);
-                if (exportInfo) {
-                    let expSrc = this.getExpSrc(node, src);
-                    exports[expSrc] = exports[expSrc] || {};
-                    exports[expSrc] = {...exports[expSrc], ...exportInfo};
-                }
-            },
-
-            // 退出节点
-            exit(path) {
-                let {node} = path;
-                if (node._scope) {
-                    scope = scope.parent;
-                }
-            },
-        });
-
-        // console.log(src);
-        // console.log('imports', imports);
-        // console.log('exports', exports);
-
-        // import * 和 export * 不包括default
-        // export * from '' 和 export 本文件冲突，export 本文件优先级更高
-        // export * from '' 互相冲突，后export * from '' 优先
-        // export {} from ''， 从其他文件导出，导出的变量无法在本文件使用
-        // export default function(){}，导出的函数没有name，不能在本文件使用
-        /**
-         * imports: {
-         *      [路径]: {
-         *          [name]: ImportSpecifier,
-         *          default: ImportDefaultSpecifier,
-         *          *: ImportNamespaceSpecifier
-         *      }
-         * }
-         *
-         * exports: {
-         *      [本文件路径]: {
-         *          // export function(){}
-         *          [name]: FunctionDeclaration|VariableDeclaration|ClassDeclaration
-         *          // export default function(){} | export default{} | export {a as default} | export default a
-         *          default: ExportDefaultDeclaration | ExportSpecifier,
-         *          // export {a as aaa,b,c}
-         *          [name]: ExportSpecifier
-         *      },
-         *      [其他路径]: {
-         *          // export {a as aaa,b,c} from '' | export * as all from ''
-         *          [name]: ExportSpecifier
-         *          // export {default} from '' | export {a as default} from '' | export * as default from ''
-         *          default: ExportSpecifier,
-         *          // export * from ''
-         *          *: ExportAllDeclaration
-         *      },
-         * }
-         */
-
-        let dep = {
-            src,
-            code,
-            ast,
-            imports,
-            exports,
-            children: [],
-            scope,
+            return dep;
         };
 
-        Object.keys(dep.imports).forEach((childSrc, index) => {
-            dep.children.push(this.analysis(childSrc));
+        this.roots = this.entries.map((entry) => {
+            return doAnalysis(entry, true);
         });
-
-        // export {} from './a' a 文件也是子节点
-        Object.keys(dep.exports).forEach((childSrc, index) => {
-            if (childSrc !== src) {
-                dep.children.push(this.analysis(childSrc));
-            }
-        });
-
-        return dep;
     }
 }
 
