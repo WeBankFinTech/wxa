@@ -1,7 +1,6 @@
 const traverse = require('@babel/traverse').default;
 const generate = require('@babel/generator').default;
 
-let {writeFile} = require('./util');
 let {Graph} = require('./graph');
 
 function collectReferences(dep) {
