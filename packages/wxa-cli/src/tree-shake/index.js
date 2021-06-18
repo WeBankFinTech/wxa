@@ -1,5 +1,6 @@
 const traverse = require('@babel/traverse').default;
 const generate = require('@babel/generator').default;
+const {writeFile} = require('./util');
 
 let {Graph} = require('./graph');
 
@@ -65,6 +66,7 @@ function collectReferences(dep) {
     dep.children.forEach((child) => collectReferences(child));
 }
 
+const REQUIRE_TO_IMPORT_DEFAULT = 'require_to_import_default';
 /**
  * export node 有一个_shake标志，如果该export没有被import，或者被import后没有使用，_shake = 1
  * 在这里，遍历全局文件树，根据import和export关系，对没使用的export进行标记
@@ -103,10 +105,15 @@ function shake(dep) {
                 }
             };
 
-            let hasAll = usedNames.some((name) => name === '*');
+            let hasAll = usedNames.some(
+                (name) => name === '*' || name === REQUIRE_TO_IMPORT_DEFAULT
+            );
 
             if (hasAll) {
-                let hasDefalut = usedNames.some((name) => name === 'default');
+                let hasDefalut = usedNames.some(
+                    (name) =>
+                        name === 'default' || name === REQUIRE_TO_IMPORT_DEFAULT
+                );
                 let markedDefalut = false;
                 if (localExports) {
                     Object.entries(localExports[1]).forEach(([name, node]) => {
@@ -139,6 +146,17 @@ function shake(dep) {
             } else {
                 usedNames.forEach((name) => {
                     if (localExports) {
+                        // if (name === REQUIRE_TO_IMPORT_DEFAULT) {
+                        //     Object.values(localExports[1]).forEach((node) => {
+                        //         // exports 转换的 export 节点
+                        //         if (node.$t_cjs_temp_export) {
+                        //             node._shake = 0;
+                        //         }
+                        //     });
+
+                        //     return;
+                        // }
+
                         let node = localExports[1][name];
                         if (node) {
                             node._shake = 0;
@@ -158,10 +176,6 @@ function shake(dep) {
                 });
             }
 
-            if (childSrc.endsWith('store\\configure.js')) {
-                console.log('1111');
-            }
-
             Object.entries(usedExports).forEach((src, value) => {
                 mark(child, Object.keys(value), src);
             });
@@ -172,6 +186,23 @@ function shake(dep) {
         let usedNames = [];
 
         Object.entries(value).forEach(([name, node]) => {
+            // require 转成的 import default 节点
+            // 这些节点默认被本文件使用
+            if (node.$t_cjs_temp_default_import) {
+                usedNames.push(REQUIRE_TO_IMPORT_DEFAULT);
+                return;
+            }
+
+            if (node === 'child_scope_require') {
+                if (name === 'default') {
+                    usedNames.push(REQUIRE_TO_IMPORT_DEFAULT);
+                } else {
+                    usedNames.push(name);
+                }
+
+                return;
+            }
+
             if (node._usedByNodes && node._usedByNodes.length) {
                 usedNames.push(name);
             }
@@ -228,6 +259,9 @@ function remove(dep) {
         });
     };
 
+    let transformCommonJs = dep.transformCommonJs;
+    transformCommonJs.traverseTransformedModuleDeclaration(markRemoved);
+
     /**
      * 遍历exports，shake 标志表示该节点是否被外部有效的 import（即import的方法变量被使用过）
      * 如果shake=1，表示没有被有效import过
@@ -239,6 +273,22 @@ function remove(dep) {
      */
     Object.entries(exports).forEach(([src, value]) => {
         Object.entries(value).forEach(([name, node]) => {
+            if (node.$t_cjs_temp_export) {
+                if (
+                    !transformCommonJs.state.isDynamicUsedExportsProperty &&
+                    node._shake === 1 &&
+                    !transformCommonJs.state.usedExports.has(name)
+                ) {
+                    let cjsExportNode = transformCommonJs.getCJSExport(node);
+                    if (cjsExportNode) {
+                        console.log('111');
+                        markRemoved(cjsExportNode);
+                    }
+                }
+
+                return;
+            }
+
             if (
                 node._shake === 1 &&
                 (!node._usedByNodes ||
@@ -269,9 +319,15 @@ function output(dep) {
             return;
         }
 
+        console.log(src);
+        if (src.endsWith('cjs1.js')) {
+            console.log('ss');
+        }
+
         traverse(ast, {
             enter(path) {
                 let {node} = path;
+                // console.log(path.toString());
                 if (node._removed === 1) {
                     path.remove();
                 }
@@ -287,10 +343,10 @@ function output(dep) {
             code
         );
 
-        // writeFile(
-        //     path.resolve(path.dirname(src), './shaking', path.basename(src)),
-        //     outputCode
-        // );
+        writeFile(
+            path.resolve(path.dirname(src), './shaking', path.basename(src)),
+            outputCode
+        );
 
         contents[src] = outputCode;
 
@@ -334,10 +390,11 @@ module.exports = {
     start,
 };
 
-// console.time('end');
-// let entrySrc = path.resolve(__dirname, '../../example/index.js');
-// start([entrySrc]);
-// console.timeEnd('end');
+console.time('end');
+let path = require('path');
+let entrySrc = path.resolve(__dirname, '../../example/index.js');
+start([{src: entrySrc}]);
+console.timeEnd('end');
 
 // function name(params) {
 //     console.log(m);

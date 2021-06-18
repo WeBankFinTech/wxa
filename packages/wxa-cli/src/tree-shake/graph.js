@@ -1,6 +1,7 @@
 const traverse = require('@babel/traverse').default;
 const {Scope} = require('./scope');
 const {readFile, resolveDepSrc, parseESCode} = require('./util');
+let {TransformCommonJs} = require('./tansform-commonJS');
 
 class Graph {
     constructor(entries) {
@@ -43,6 +44,7 @@ class Graph {
             let identifierNode = node[attr];
 
             // 类似于export default function(){}
+            // 这类声明也不能在本文件内使用，直接忽略
             if (!identifierNode || !identifierNode.name) {
                 return;
             }
@@ -97,6 +99,9 @@ class Graph {
             // import 的声明
             case 'ImportDeclaration':
                 node.specifiers.forEach((specifier) => {
+                    if (node.$t_cjs_temp_import) {
+                        return;
+                    }
                     addToScope(specifier, 'local', true);
                 });
                 break;
@@ -186,7 +191,7 @@ class Graph {
                 } else {
                     exportInfo.default = node;
                 }
-                
+
                 markShakingFlag(exportInfo.default);
                 break;
             case 'ExportAllDeclaration':
@@ -221,10 +226,14 @@ class Graph {
                 return analyzedFile[src];
             }
 
+            // console.log(src);
+
             let imports = {};
             let exports = {};
             let code = content || readFile(src);
             let ast = parseESCode(code);
+
+            let transformCommonJs = new TransformCommonJs({src, code, ast});
 
             let scope = new Scope();
 
@@ -304,6 +313,17 @@ class Graph {
              * }
              */
 
+            transformCommonJs.state.childScopeRequires.forEach(
+                (names, requireSrc) => {
+                    let abSrc = this.getAbsolutePath(src, requireSrc);
+                    let info = Array.from(names).map((name) => ({
+                        name: 'child_scope_require',
+                    }));
+                    imports[abSrc] = imports[abSrc] || {};
+                    imports[abSrc] = {...imports[abSrc], ...info};
+                }
+            );
+
             let dep = {
                 src,
                 code,
@@ -313,6 +333,7 @@ class Graph {
                 children: [],
                 scope,
                 isRoot,
+                transformCommonJs,
             };
 
             analyzedFile[src] = dep;
