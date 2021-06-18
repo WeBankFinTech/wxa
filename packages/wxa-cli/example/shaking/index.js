@@ -1,10 +1,14 @@
 /* eslint-disable one-var */
 import './user';
 import * as user from './user';
+import {writeFile, isFile} from './cjs1';
+writeFile();
+isFile();
 console.log(user);
 let a = {
-  x: 1
-};
+  x: 1,
+},
+    n = 1;
 let t = 10;
 
 function m(x = 1, y) {
@@ -15,16 +19,19 @@ function m(x = 1, y) {
 }
 
 m();
-[1, 2, 3].forEach(function (item) {});
+[1, 2, 3].forEach(function(item) {});
 
 for (i = 0; i < 100; i++) {}
+
+class Myclass {
+  [n] = 1;
+  [n] = () => {};
+}
 
 export function mm() {}
 mm();
 
-(function (x, y) {})();
-
-getName(); // export default {
+(function(x, y) {})(); // export default {
 //     x: 1,
 //     t() {
 //     },
@@ -32,11 +39,13 @@ getName(); // export default {
 //     age,
 // };
 
+
 export function getName() {} // export {m as qqqqq, a as default};
 // export {x, y} from './a';
 
-export {}; // eslint-disable-next-line no-var
+export default function() {}
+export {Myclass}; // eslint-disable-next-line no-var
 
-export {};
-export {} from './user';
-export {} from './user';
+export {mm as ttttttt};
+export {getName as tttt} from './user';
+export * as tttttt from './user';

@@ -1,6 +1,15 @@
 /* eslint-disable one-var */
 import getMyUser, {getName as getMyName} from './user';
 import * as user from './user';
+import {getName as tttqw} from './user';
+
+import {writeFile, isFile} from './cjs1';
+
+writeFile();
+isFile();
+
+getName();
+
 
 console.log(user);
 let a = {x: 1},
@@ -47,7 +56,6 @@ let obj = {
 
 (function(x, y) {})();
 
-getName();
 // export default {
 //     x: 1,
 //     t() {
@@ -55,7 +63,6 @@ getName();
 //     m,
 //     age,
 // };
-export * from './user';
 export function getName() {}
 // export {m as qqqqq, a as default};
 
