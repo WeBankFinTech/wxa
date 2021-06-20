@@ -15,11 +15,13 @@ export {o1 as o11, o2};
 // export {default} from ''
 // export {a as default} from ''
 // export * as default from ''
-// export default function() {}
-// export default {}
 // export  {a as default}
 // let p1 = 1
 // export default p1
+// export default 1
+// export default a=1
+// export default function() {}
+// export default {}
 
 // 导出全部
 export * from '';

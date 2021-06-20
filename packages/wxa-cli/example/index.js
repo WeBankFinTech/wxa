@@ -10,6 +10,7 @@ isFile();
 
 getName();
 
+let ssqqww =1;
 
 console.log(user);
 let a = {x: 1},
@@ -21,6 +22,8 @@ function m(x = 1, y) {
     t = 9;
     t + 5;
     let qqq = 10;
+    let ssqqww =5;
+    console.log(ssqqww);
 }
 m();
 
@@ -63,12 +66,14 @@ let obj = {
 //     m,
 //     age,
 // };
+
+export let qwe=1, rty=2;
 export function getName() {}
 // export {m as qqqqq, a as default};
 
 // export {x, y} from './a';
 
-export default function() {}
+// export default function asf() {};
 
 export {Myclass};
 // eslint-disable-next-line no-var
@@ -76,5 +81,6 @@ export {Myclass};
 export {mm as ttttttt};
 
 export {getName as tttt} from './user';
+export {default} from './user';
 
 export * as tttttt from './user';

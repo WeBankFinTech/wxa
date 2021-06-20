@@ -2,6 +2,7 @@ let fs = require('fs');
 let path = require('path');
 let mkdirp = require('mkdirp');
 const {parse} = require('@babel/parser');
+const t = require('@babel/types');
 let findRoot = require('find-root');
 
 function readFile(p) {
@@ -145,6 +146,54 @@ function parseESCode(code, plugins = [], options) {
     });
 }
 
+function dceDeclaration(scope, trackReferences = false) {
+    let hasRemoved = false;
+    Object.entries(scope.bindings).forEach(([name, binding]) => {
+        // 类似于let a = function ff(){}
+        // ff 是函数内部作用域的binding，ff不应该被删除
+        if (t.isFunctionExpression(binding.path)) {
+            return;
+        }
+
+        if (!binding.referenced) {
+            scope.removeOwnBinding(name);
+            binding.path.remove();
+            hasRemoved = true;
+            return;
+        }
+
+        // 使用path.remove删除节点后
+        // 并不会让 scope 中的 binding.referenced 等信息更新
+        // 即使重新遍历也不会更新
+        if (trackReferences) {
+            let canRemove = binding.referencePaths.every((reference) => {
+                let parentPath = reference;
+                while (parentPath) {
+                    if (!parentPath.node) {
+                        return true;
+                    }
+
+                    parentPath = parentPath.parentPath;
+                }
+
+                return false;
+            });
+
+            if (canRemove) {
+                scope.removeOwnBinding(name);
+                binding.path.remove();
+                hasRemoved = true;
+            }
+        }
+    });
+
+    // 处理声明之间循环引用
+    // 当一个声明未被使用时，那该声明所引用的其他声明不算真正使用
+    if (hasRemoved) {
+        dceDeclaration(scope, true);
+    }
+}
+
 // console.log(
 //     resolveDepSrc({
 //         fileSrc: path.join(cwd, './src/a.js'),
@@ -161,4 +210,5 @@ module.exports = {
     writeFile,
     resolveDepSrc,
     parseESCode,
+    dceDeclaration,
 };
