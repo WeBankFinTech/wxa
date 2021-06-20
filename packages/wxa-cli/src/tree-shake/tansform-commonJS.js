@@ -96,30 +96,15 @@ class TransformCommonJs {
         });
     }
 
-    deleteCJSExport(esmExportNode) {
+    deleteCJSExport(esmExportPath) {
         Array.from(this.state.globalESMExports).some(
             ([exportPath, cjsPaths]) => {
-                if (this.isChildNode(exportPath.node, esmExportNode)) {
+                if (this.isChildNode(exportPath.node, esmExportPath.node)) {
                     cjsPaths.forEach((p) => p.remove());
                     return true;
                 }
             }
         );
-    }
-
-    getCJSExport(esmExportNode) {
-        let node = null;
-
-        Array.from(this.state.globalESMExports).some(
-            ([exportPath, cjsPaths]) => {
-                if (this.isChildNode(exportPath.node, esmExportNode)) {
-                    node = cjsPaths[0].node;
-                    return true;
-                }
-            }
-        );
-
-        return node;
     }
 
     markNodeDeep(node, flag) {
@@ -203,16 +188,16 @@ class TransformCommonJs {
 
                     let globalESMImports = new Map();
                     this.state.globalESMImports.forEach((paths, node) => {
-                        this.markNodeDeep(node, '$t_cjs_temp_import');
                         let importPath = path.unshiftContainer('body', node)[0];
+                        this.markNodeDeep(node, '$t_cjs_temp_import');
                         globalESMImports.set(importPath, paths);
                     });
                     this.state.globalESMImports = globalESMImports;
 
                     let globalESMExports = new Map();
                     this.state.globalESMExports.forEach((paths, node) => {
-                        this.markNodeDeep(node, '$t_cjs_temp_export');
                         let exportPath = path.pushContainer('body', node)[0];
+                        this.markNodeDeep(node, '$t_cjs_temp_export');
                         globalESMExports.set(exportPath, paths);
                     });
                     this.state.globalESMExports = globalESMExports;
@@ -395,6 +380,7 @@ class TransformCommonJs {
                             ]);
                             let declarationPath =
                                 path.insertBefore(declaration)[0];
+                            path.scope.registerBinding('let', declarationPath);
 
                             let rightPath = path.get('right');
                             rightPath.replaceWith(id);

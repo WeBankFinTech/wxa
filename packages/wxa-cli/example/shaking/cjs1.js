@@ -10,7 +10,7 @@ module.exports = {
   getFiles,
 };
 
-function getFiles(dir = process.cwd(), prefix = '') {
+function getFiles() {
   let rst = [];
   exports.rst = rst; // exports[aaaa] = aaaa;
   // let ttt= require('sss');
@@ -25,6 +25,6 @@ function getFiles(dir = process.cwd(), prefix = '') {
 // }
 
 
-function writeFile(p, data) {}
+function writeFile() {}
 
-function isFile(p) {}
+function isFile() {}

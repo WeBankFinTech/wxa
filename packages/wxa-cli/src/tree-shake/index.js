@@ -1,6 +1,6 @@
 const traverse = require('@babel/traverse').default;
 const generate = require('@babel/generator').default;
-const {writeFile} = require('./util');
+const {writeFile, dceDeclaration} = require('./util');
 
 let {Graph} = require('./graph');
 
@@ -66,6 +66,34 @@ function collectReferences(dep) {
     dep.children.forEach((child) => collectReferences(child));
 }
 
+// 判断两个path是否互相包含
+function checkTwoPathContainMutually(pathA, pathB) {
+    let is = false;
+
+    let doCheck = (_pathA, _pathB) => {
+        traverse(
+            _pathA.node,
+            {
+                enter(path) {
+                    if (path === _pathB) {
+                        is = true;
+                        path.stop();
+                    }
+                },
+            },
+            _pathA.scope
+        );
+    };
+
+    doCheck(pathA, pathB);
+
+    if (!is) {
+        doCheck(pathB, pathA);
+    }
+
+    return is;
+}
+
 const REQUIRE_TO_IMPORT_DEFAULT = 'require_to_import_default';
 /**
  * export node 有一个_shake标志，如果该export没有被import，或者被import后没有使用，_shake = 1
@@ -78,7 +106,7 @@ function shake(dep) {
         return;
     }
 
-    let imports = dep.imports;
+    let {imports, exports, isRoot} = dep;
 
     let mark = (dep, usedNames, childSrc) => {
         if (usedNames.length) {
@@ -95,13 +123,13 @@ function shake(dep) {
             }
 
             let usedExports = {};
-            let addUsedExport = (src, node) => {
+            let addUsedExport = (src, path) => {
                 usedExports[src] = usedExports[src] || {};
-                let local = node.local;
+                let local = path.node.local;
                 if (local) {
-                    usedExports[src][local.name] = node;
+                    usedExports[src][local.name] = path;
                 } else {
-                    usedExports[src]['*'] = node;
+                    usedExports[src]['*'] = path;
                 }
             };
 
@@ -116,29 +144,29 @@ function shake(dep) {
                 );
                 let markedDefalut = false;
                 if (localExports) {
-                    Object.entries(localExports[1]).forEach(([name, node]) => {
+                    Object.entries(localExports[1]).forEach(([name, path]) => {
                         if (name === 'default') {
                             if (hasDefalut) {
-                                node._shake = 0;
+                                path._shake = 0;
                                 markedDefalut = true;
                             }
                         } else {
-                            node._shake = 0;
+                            path._shake = 0;
                         }
                     });
                 }
 
                 externalExports.forEach(([src, value]) => {
-                    Object.entries(value).forEach(([name, node]) => {
+                    Object.entries(value).forEach(([name, path]) => {
                         if (
                             (name === 'default' &&
                                 hasDefalut &&
                                 !markedDefalut) ||
                             name !== 'default'
                         ) {
-                            if (node._shake === 1) {
-                                node._shake = 0;
-                                addUsedExport(src, node);
+                            if (path._shake === 1) {
+                                path._shake = 0;
+                                addUsedExport(src, path);
                             }
                         }
                     });
@@ -146,30 +174,19 @@ function shake(dep) {
             } else {
                 usedNames.forEach((name) => {
                     if (localExports) {
-                        // if (name === REQUIRE_TO_IMPORT_DEFAULT) {
-                        //     Object.values(localExports[1]).forEach((node) => {
-                        //         // exports 转换的 export 节点
-                        //         if (node.$t_cjs_temp_export) {
-                        //             node._shake = 0;
-                        //         }
-                        //     });
-
-                        //     return;
-                        // }
-
-                        let node = localExports[1][name];
-                        if (node) {
-                            node._shake = 0;
+                        let path = localExports[1][name];
+                        if (path) {
+                            path._shake = 0;
                             return;
                         }
                     }
 
                     externalExports.forEach(([src, value]) => {
-                        let node = value[name] || value['*'];
-                        if (node) {
-                            if (node._shake === 1) {
-                                node._shake = 0;
-                                addUsedExport(src, node);
+                        let path = value[name] || value['*'];
+                        if (path) {
+                            if (path._shake === 1) {
+                                path._shake = 0;
+                                addUsedExport(src, path);
                             }
                         }
                     });
@@ -185,15 +202,15 @@ function shake(dep) {
     Object.entries(imports).forEach(([src, value]) => {
         let usedNames = [];
 
-        Object.entries(value).forEach(([name, node]) => {
+        Object.entries(value).forEach(([name, path]) => {
             // require 转成的 import default 节点
             // 这些节点默认被本文件使用
-            if (node.$t_cjs_temp_default_import) {
+            if (path.node.$t_cjs_temp_default_import) {
                 usedNames.push(REQUIRE_TO_IMPORT_DEFAULT);
                 return;
             }
 
-            if (node === 'child_scope_require') {
+            if (path.node === 'child_scope_require') {
                 if (name === 'default') {
                     usedNames.push(REQUIRE_TO_IMPORT_DEFAULT);
                 } else {
@@ -203,12 +220,24 @@ function shake(dep) {
                 return;
             }
 
-            if (node._usedByNodes && node._usedByNodes.length) {
-                usedNames.push(name);
-            }
+            usedNames.push(name);
         });
         mark(dep, usedNames, src);
     });
+
+    // 根节点的export语句默认全部保留
+    // 所以还需要处理根节点的export语句（export {} from ''）
+    if (isRoot) {
+        Object.entries(exports).forEach(([src, value]) => {
+            if (src !== dep.src) {
+                let usedNames = [];
+                Object.entries(value).forEach(([name]) => {
+                    usedNames.push(name);
+                });
+                mark(dep, usedNames, src);
+            }
+        });
+    }
 
     dep._shook = true;
 
@@ -220,47 +249,9 @@ function remove(dep) {
         return;
     }
 
-    let {scope, exports} = dep;
-    let loop = true;
-
-    let markRemoved = (node) => {
-        node._removed = 1;
-        traverse(node, {
-            noScope: true,
-            enter(path) {
-                let {node} = path;
-                node._removed = 1;
-            },
-        });
-    };
-
-    let doRemove = (scope) => {
-        let {nodes: allNodes} = scope;
-        Object.values(allNodes).forEach((nodes) => {
-            nodes.forEach((node) => {
-                if (node._removed === 1) {
-                    return;
-                }
-
-                if (
-                    (node._usedByNodes.length === 0 &&
-                        (node._shake === 1 || node._shake === undefined)) ||
-                    (node._usedByNodes.length !== 0 &&
-                        node._usedByNodes.every((node) => node._removed))
-                ) {
-                    loop = true;
-                    markRemoved(node);
-                }
-            });
-        });
-
-        scope.children.forEach((childScope) => {
-            doRemove(childScope);
-        });
-    };
+    let {topScope, exports, src} = dep;
 
     let transformCommonJs = dep.transformCommonJs;
-    transformCommonJs.traverseTransformedModuleDeclaration(markRemoved);
 
     /**
      * 遍历exports，shake 标志表示该节点是否被外部有效的 import（即import的方法变量被使用过）
@@ -271,38 +262,31 @@ function remove(dep) {
      * shake=1且_usedByNodes不存在，表示该export节点即不被外部有效import，也不会被内部使用
      * shake=1且_usedByNodes存在且有值，表示该节点不被外部有效import，但被内部使用
      */
+
     Object.entries(exports).forEach(([src, value]) => {
-        Object.entries(value).forEach(([name, node]) => {
-            if (node.$t_cjs_temp_export) {
+        Object.entries(value).forEach(([name, path]) => {
+            if (path.node.$t_cjs_temp_export) {
                 if (
                     !transformCommonJs.state.isDynamicUsedExportsProperty &&
-                    node._shake === 1 &&
+                    path._shake === 1 &&
                     !transformCommonJs.state.usedExports.has(name)
                 ) {
-                    let cjsExportNode = transformCommonJs.getCJSExport(node);
-                    if (cjsExportNode) {
-                        console.log('111');
-                        markRemoved(cjsExportNode);
-                    }
+                    transformCommonJs.deleteCJSExport(path);
                 }
 
                 return;
             }
 
-            if (
-                node._shake === 1 &&
-                (!node._usedByNodes ||
-                    (node._usedByNodes && node._usedByNodes.length === 0))
-            ) {
-                markRemoved(node);
+            if (path._shake === 1) {
+                path.remove();
             }
         });
     });
 
-    while (loop) {
-        loop = false;
-        doRemove(scope);
-    }
+    transformCommonJs.deleteTransformedModuleDeclaration();
+
+
+    dceDeclaration(topScope, true);
 
     dep._removed = true;
 
@@ -318,21 +302,6 @@ function output(dep) {
         if (dep._output) {
             return;
         }
-
-        console.log(src);
-        if (src.endsWith('cjs1.js')) {
-            console.log('ss');
-        }
-
-        traverse(ast, {
-            enter(path) {
-                let {node} = path;
-                // console.log(path.toString());
-                if (node._removed === 1) {
-                    path.remove();
-                }
-            },
-        });
 
         const {code: outputCode} = generate(
             ast,
@@ -365,11 +334,11 @@ function output(dep) {
 function start(entries) {
     let graph = new Graph(entries);
 
-    graph.roots.forEach((root) => {
-        collectReferences(root);
-    });
+    // graph.roots.forEach((root) => {
+    //     collectReferences(root);
+    // });
 
-    console.log('collected');
+    // console.log('collected');
 
     graph.roots.forEach((root) => {
         shake(root);

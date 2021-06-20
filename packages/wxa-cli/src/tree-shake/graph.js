@@ -1,6 +1,6 @@
 const traverse = require('@babel/traverse').default;
-const {Scope} = require('./scope');
-const {readFile, resolveDepSrc, parseESCode} = require('./util');
+const t = require('@babel/types');
+const {readFile, resolveDepSrc, parseESCode, dceDeclaration} = require('./util');
 let {TransformCommonJs} = require('./tansform-commonJS');
 
 class Graph {
@@ -21,9 +21,6 @@ class Graph {
             s += '.js';
         }
 
-        // console.log('--------');
-        // console.log(s);
-
         return s;
     }
 
@@ -39,169 +36,172 @@ class Graph {
         return expSrc;
     }
 
-    collectDeclaration(path, scope) {
-        function addToScope(node, attr, isBlockDeclaration = false) {
-            let identifierNode = node[attr];
-
-            // 类似于export default function(){}
-            // 这类声明也不能在本文件内使用，直接忽略
-            if (!identifierNode || !identifierNode.name) {
-                return;
-            }
-
-            identifierNode._skip = true;
-
-            node._usedByNodes = [];
-            scope.add(node, identifierNode.name, isBlockDeclaration);
-        }
-
-        let {node} = path;
-        let childScope;
-
-        switch (node.type) {
-            // 函数声明 function a(){}
-            case 'FunctionDeclaration':
-                childScope = new Scope({
-                    parent: scope,
-                    block: false,
-                });
-                addToScope(node, 'id', false);
-            // 箭头函数 ()=>{}
-            case 'ArrowFunctionExpression':
-            // 函数表达式 function(){}
-            case 'FunctionExpression':
-                childScope = new Scope({
-                    parent: scope,
-                    block: false,
-                });
-                break;
-            // 块级作用域{}
-            case 'BlockStatement':
-                childScope = new Scope({
-                    parent: scope,
-                    block: true,
-                });
-                break;
-            // 变量声明
-            case 'VariableDeclaration':
-                node.declarations.forEach((variableDeclarator) => {
-                    if (node.kind === 'let' || node.kind === 'const') {
-                        addToScope(variableDeclarator, 'id', true);
-                    } else {
-                        addToScope(variableDeclarator, 'id', false);
-                    }
-                });
-                break;
-            // 类的声明
-            case 'ClassDeclaration':
-                addToScope(node, 'id', true);
-                break;
-            // import 的声明
-            case 'ImportDeclaration':
-                node.specifiers.forEach((specifier) => {
-                    if (node.$t_cjs_temp_import) {
-                        return;
-                    }
-                    addToScope(specifier, 'local', true);
-                });
-                break;
-        }
-
-        return childScope;
-    }
-
-    collectImport(path) {
-        let {node} = path;
-        let importInfo = null;
-
-        switch (node.type) {
-            // import 的声明
-            case 'ImportDeclaration':
-                importInfo = {};
-                node.specifiers.forEach((specifier) => {
-                    let name = specifier.imported && specifier.imported.name;
-                    if (!name) {
-                        if (specifier.type === 'ImportDefaultSpecifier') {
-                            name = 'default';
-                        } else if (
-                            specifier.type === 'ImportNamespaceSpecifier'
-                        ) {
-                            name = '*';
-                        }
-                    }
-                    importInfo[name] = specifier;
-                });
-                break;
-        }
-
-        return importInfo;
-    }
-
-    collectExport(path, isRoot) {
-        let {node} = path;
-        let exportInfo = null;
-
-        let markShakingFlag = (node) => {
-            if (isRoot) {
-                node._shake = 0;
-            } else {
-                node._shake = 1;
-            }
+    collectImport(src) {
+        let imports = {};
+        let store = (name, path, node) => {
+            let impSrc = this.getAbsolutePath(src, node.source.value);
+            imports[impSrc] = imports[impSrc] || {};
+            imports[impSrc][name] = path;
         };
 
-        switch (node.type) {
-            // export 的声明
-            case 'ExportNamedDeclaration':
-                exportInfo = {};
-                if (node.specifiers && node.specifiers.length) {
-                    node.specifiers.forEach((specifier) => {
-                        let name = specifier.exported.name;
-                        exportInfo[name] = specifier;
-                        markShakingFlag(specifier);
-                    });
-                } else {
-                    let declaration = node.declaration;
+        let visitor = {
+            ImportDeclaration: {
+                enter: (path) => {
+                    let {node} = path;
+                    let specifierPaths = path.get('specifiers');
+                    specifierPaths.forEach((specifierPath) => {
+                        let specifierNode = specifierPath.node;
+                        let name =
+                            specifierNode.imported &&
+                            specifierNode.imported.name;
 
-                    if (declaration.type === 'FunctionDeclaration') {
-                        let name = declaration.id.name;
-                        exportInfo[name] = declaration;
-                        declaration._shake = 1;
-                        markShakingFlag(declaration);
-                    } else if (declaration.type === 'VariableDeclaration') {
-                        declaration.declarations.forEach(
-                            (variableDeclarator) => {
-                                let name = variableDeclarator.id.name;
-                                exportInfo[name] = variableDeclarator;
-                                markShakingFlag(variableDeclarator);
+                        if (!name) {
+                            if (
+                                specifierNode.type === 'ImportDefaultSpecifier'
+                            ) {
+                                name = 'default';
+                            } else if (
+                                specifierNode.type ===
+                                'ImportNamespaceSpecifier'
+                            ) {
+                                name = '*';
                             }
+                        }
+                        store(name, specifierPath, node);
+                    });
+                },
+            },
+        };
+
+        return {visitor, imports};
+    }
+
+    collectExport(src, isRoot) {
+        let exports = {};
+
+        let store = (name, path, node) => {
+            if (isRoot) {
+                path._shake = 0;
+            } else {
+                path._shake = 1;
+            }
+            let expSrc = this.getExpSrc(node, src);
+            exports[expSrc] = exports[expSrc] || {};
+            exports[expSrc][name] = path;
+        };
+
+        let storeSpecifiers = (path, node) => {
+            let specifierPaths = path.get('specifiers');
+            specifierPaths.forEach((specifierPath) => {
+                let name = specifierPath.node.exported.name;
+                store(name, specifierPath, node);
+            });
+        };
+
+        let transformExportDeclarationToSpecifiers = (path) => {
+            let declarationPath = path.get('declaration');
+            let declarationNode = declarationPath.node;
+            let specifiers = [];
+
+            if (declarationNode.type === 'FunctionDeclaration') {
+                let name = declarationNode.id.name;
+                specifiers.push(
+                    t.exportSpecifier(t.identifier(name), t.identifier(name))
+                );
+            } else if (declarationNode.type === 'VariableDeclaration') {
+                let declarationPaths = declarationPath.get('declarations');
+                declarationPaths.forEach((variableDeclaratorPath) => {
+                    let name = variableDeclaratorPath.node.id.name;
+                    specifiers.push(
+                        t.exportSpecifier(
+                            t.identifier(name),
+                            t.identifier(name)
+                        )
+                    );
+                });
+            } else if (declarationNode.type === 'ClassDeclaration') {
+                let name = declarationNode.id.name;
+                specifiers.push(
+                    t.exportSpecifier(t.identifier(name), t.identifier(name))
+                );
+            }
+
+            return {specifiers, declarationNode};
+        };
+
+        let visitor = {
+            ExportNamedDeclaration: {
+                enter: (path) => {
+                    let {node} = path;
+
+                    if (node.specifiers && node.specifiers.length) {
+                        storeSpecifiers(path, node);
+                    } else {
+                        let {specifiers, declarationNode} =
+                            transformExportDeclarationToSpecifiers(path);
+
+                        path.insertBefore(declarationNode);
+                        let exportNamedDeclaration = t.exportNamedDeclaration(
+                            null,
+                            specifiers
                         );
-                    } else if (declaration.type === 'ClassDeclaration') {
-                        let name = declaration.id.name;
-                        exportInfo[name] = declaration;
-                        markShakingFlag(declaration);
+                        let newExportPath = path.insertAfter(
+                            exportNamedDeclaration
+                        )[0];
+                        path.remove();
+
+                        storeSpecifiers(newExportPath, node);
                     }
+                },
+            },
+            ExportDefaultDeclaration: {
+                enter: (path) => {
+                    let {node} = path;
+                    let declarationNode = node.declaration;
+                    let exportPath = path;
+
+                    // TODO，未处理 export default a=1 这类表达式
+                    // 类似于export default function mm(){}
+                    // 单独声明mm，并export default {mm}
+                    if (declarationNode.id && declarationNode.id.name) {
+                        path.insertBefore(declarationNode);
+                        let exportDefaultNode = t.exportDefaultDeclaration(
+                            t.objectExpression([
+                                t.objectProperty(
+                                    t.identifier(declarationNode.id.name),
+                                    t.identifier(declarationNode.id.name)
+                                ),
+                            ])
+                        );
+                        exportPath = path.insertAfter(exportDefaultNode)[0];
+                        path.remove();
+                    }
+
+                    store('default', exportPath, node);
+                },
+            },
+            ExportAllDeclaration: {
+                enter: (path) => {
+                    let {node} = path;
+                    store('*', path, node);
+                },
+            },
+        };
+
+        return {visitor, exports};
+    }
+
+    dceDeclaration(ast) {
+        let currentScope = null;
+        traverse(ast, {
+            enter: (path) => {
+                let scope = path.scope;
+                if (currentScope !== scope) {
+                    currentScope = scope;
+                    dceDeclaration(currentScope);
                 }
-                break;
-            case 'ExportDefaultDeclaration':
-                exportInfo = {};
-                let declaration = node.declaration;
-
-                if (declaration) {
-                    exportInfo.default = declaration;
-                } else {
-                    exportInfo.default = node;
-                }
-
-                markShakingFlag(exportInfo.default);
-                break;
-            case 'ExportAllDeclaration':
-                exportInfo = {};
-                exportInfo['*'] = node;
-                markShakingFlag(node);
-                break;
-        }
-
-        return exportInfo;
+            },
+        });
     }
 
     analysis() {
@@ -218,60 +218,39 @@ class Graph {
                 content = entry.content;
             }
 
-            // if (src.endsWith('safe-area-inset\\index.js')) {
+            // if (src.endsWith('user.js')) {
             //     console.log('src', src);
+            //     this.debug = true;
             // }
 
             if (analyzedFile[src]) {
                 return analyzedFile[src];
             }
+            
+            console.log('---');
+            console.log(src);
 
-            // console.log(src);
-
-            let imports = {};
-            let exports = {};
             let code = content || readFile(src);
             let ast = parseESCode(code);
 
-            let transformCommonJs = new TransformCommonJs({src, code, ast});
+            this.dceDeclaration(ast);
 
-            let scope = new Scope();
+            let topScope = null;
+            let transformCommonJs = new TransformCommonJs({src, code, ast});
+            let {visitor: exportVisitor, exports} = this.collectExport(
+                src,
+                isRoot
+            );
+            let {visitor: importVisitor, imports} = this.collectImport(src);
 
             traverse(ast, {
-                enter: (path) => {
-                    let {node} = path;
-
-                    let childScope = this.collectDeclaration(path, scope);
-                    if (childScope) {
-                        node._scope = childScope;
-                        scope = childScope;
-                    }
-
-                    let importInfo = this.collectImport(path);
-                    if (importInfo) {
-                        let impSrc = this.getAbsolutePath(
-                            src,
-                            node.source.value
-                        );
-                        imports[impSrc] = imports[impSrc] || {};
-                        imports[impSrc] = {...imports[impSrc], ...importInfo};
-                    }
-
-                    let exportInfo = this.collectExport(path, isRoot);
-                    if (exportInfo) {
-                        let expSrc = this.getExpSrc(node, src);
-                        exports[expSrc] = exports[expSrc] || {};
-                        exports[expSrc] = {...exports[expSrc], ...exportInfo};
-                    }
+                Program: {
+                    enter: (path) => {
+                        topScope = path.scope;
+                    },
                 },
-
-                // 退出节点
-                exit(path) {
-                    let {node} = path;
-                    if (node._scope) {
-                        scope = scope.parent;
-                    }
-                },
+                ...exportVisitor,
+                ...importVisitor,
             });
 
             // console.log(src);
@@ -296,7 +275,7 @@ class Graph {
              * exports: {
              *      [本文件路径]: {
              *          // export function(){}
-             *          [name]: FunctionDeclaration|VariableDeclaration|ClassDeclaration
+             *          // [name]: FunctionDeclaration|VariableDeclaration|ClassDeclaration
              *          // export default function(){} | export default{} | export {a as default} | export default a
              *          default: ExportDefaultDeclaration | FunctionDeclaration | ClassDeclaration |ExportSpecifier,
              *          // export {a as aaa,b,c}
@@ -331,10 +310,30 @@ class Graph {
                 imports,
                 exports,
                 children: [],
-                scope,
+                topScope,
                 isRoot,
                 transformCommonJs,
             };
+
+            // const generate = require('@babel/generator').default;
+            // const {writeFile} = require('./util');
+            // let path = require('path');
+            // const {code: outputCode} = generate(
+            //     ast,
+            //     {
+            //         /* options */
+            //         decoratorsBeforeExport: true,
+            //     },
+            //     code
+            // );
+            // writeFile(
+            //     path.resolve(
+            //         path.dirname(src),
+            //         './shaking',
+            //         path.basename(src)
+            //     ),
+            //     outputCode
+            // );
 
             analyzedFile[src] = dep;
 
