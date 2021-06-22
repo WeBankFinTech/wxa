@@ -41,10 +41,6 @@ class TesterScheduler extends Schedule {
 
             this.perf.markEnd(relativeSrc);
 
-            // Inject test suite into app.js
-            if (dep.meta && dep.meta.source === this.APP_SCRIPT_PATH) {
-                this.tryWrapWXATestSuite(dep);
-            }
             if (dep.meta && dep.meta.source === this.APP_CONFIG_PATH) {
                 this.tryAddGlobalTestComponent(dep);
             }
@@ -52,6 +48,10 @@ class TesterScheduler extends Schedule {
             // try to wrap wxa every app and page
             this.tryWrapWXA(dep);
             this.tryAddPolyfill(dep);
+            // Inject test suite into app.js
+            if (dep.meta && dep.meta.source === this.APP_SCRIPT_PATH) {
+                this.tryWrapWXATestSuite(dep);
+            }
 
             // Todo: conside if cache is necessary here.
             // debug('dep to process %O', dep);
