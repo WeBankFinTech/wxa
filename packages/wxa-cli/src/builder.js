@@ -303,9 +303,12 @@ class Builder {
      * optiming and generating is parallel.
      *
      * @param {Array<Object>} indexedMap
+     * @param {Object} appConfigs
      * @param {Object} cmdOptions cmd options
+     * @param {Array<Object>} fullModuleMap
      */
-    async optimizeAndGenerate(indexedMap, appConfigs, cmdOptions) {
+    async optimizeAndGenerate(indexedMap, appConfigs, cmdOptions, fullModuleMap) {
+        if (fullModuleMap == null) fullModuleMap = this.scheduler.$indexOfModule;
         try {
             // module optimize, dependencies merge, minor.
             let optimizer = new Optimizer({
@@ -316,7 +319,7 @@ class Builder {
             });
             applyPlugins(this.scheduler.wxaConfigs.plugins, optimizer);
 
-            await optimizer.run(indexedMap);
+            await optimizer.run(indexedMap, appConfigs, fullModuleMap);
 
             // write module to dest, dependencies copy.
             let generator = new Generator(this.current, this.scheduler.meta, this.wxaConfigs, cmdOptions);

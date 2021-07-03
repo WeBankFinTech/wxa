@@ -39,3 +39,5 @@ export default class Performance {
         this.logger = null;
     }
 }
+
+export const wxaPerformance = new Performance();
