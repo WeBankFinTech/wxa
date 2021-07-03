@@ -302,7 +302,7 @@ class Schedule {
             outerDependencies: new Set(),
             dependency: function(file) {
                 // debugger;
-                this.outerDependencies.add(file);
+                this.outerDependencies.add(path.normalize(file));
             },
         };
 
