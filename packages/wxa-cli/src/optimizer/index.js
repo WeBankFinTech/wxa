@@ -25,8 +25,9 @@ export default class Optimizer {
     }
 
     async run(indexedMap, appConfigs, fullMap) {
+        wxaPerformance.markStart('wxa_optimize_code-plugin');
+        
         let optimizeTasks = [];
-
         indexedMap.forEach((dep)=>{
             let task = async ()=>{
                 await this.do(dep, appConfigs, indexedMap);
@@ -34,16 +35,16 @@ export default class Optimizer {
 
             optimizeTasks.push(task());
         });
-
+        
         await Promise.all(optimizeTasks);
+
+        wxaPerformance.markEnd('wxa_optimize_code-plugin');
 
         // Once start optimize，we need track all the project's map.
         // This job is fast at Watch-mode, because the previously split task already finished.
         wxaPerformance.markStart('wxa_split_npm_deps');
         this.splitDeps.run(fullMap);
         wxaPerformance.markEnd('wxa_split_npm_deps');
-        wxaPerformance.show();
-        wxaPerformance.destory();
     }
 
     async do(dep, indexedMap) {

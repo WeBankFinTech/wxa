@@ -15,7 +15,7 @@ import wrapWxa from './helpers/wrapWxa';
 import Compiler from './compilers/index';
 import DependencyResolver from './helpers/dependencyResolver';
 import ProgressTextBar from './helpers/progressTextBar';
-import Preformance from './helpers/performance';
+import Preformance, {wxaPerformance} from './helpers/performance';
 import simplify from './helpers/simplifyObj';
 import {isIgnoreFile} from './helpers/pathParser';
 
@@ -154,13 +154,15 @@ class Schedule {
             const text = this.cmdOptions.verbose ? `(Hash: ${dep.hash})    ${relativeSrc}` : relativeSrc;
 
             this.progress.draw(text, 'COMPILING', !this.cmdOptions.verbose);
-            this.perf.markStart(relativeSrc);
+            // this.perf.markStart(relativeSrc);
             this.hooks.buildModule.call(dep);
 
             // loader: use custom compiler to load resource.
+            wxaPerformance.markStart('wxa_dep_analysis-loader');
             await this.loader.compile(dep, this);
+            wxaPerformance.markEnd('wxa_dep_analysis-loader');
 
-            this.perf.markEnd(relativeSrc);
+            // this.perf.markEnd(relativeSrc);
 
             // try to wrap wxa every app and page
             this.tryWrapWXA(dep);
