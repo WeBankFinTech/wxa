@@ -296,7 +296,7 @@ class Builder {
 
             debug('Project Pages', this.scheduler.$pageArray);
             wxaPerformance.show();
-            wxaPerformance.destory();
+            wxaPerformance.clear();
             logger.log('Done', 'AT: '+new Date().toLocaleString());
         } catch (e) {
             error('编译失败', {error: e});

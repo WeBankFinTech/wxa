@@ -33,6 +33,10 @@ export default class Performance {
         });
     }
 
+    clear() {
+        this.entries.clear();
+    }
+
     destory() {
         this.ob.disconnect();
         this.ob = null;
