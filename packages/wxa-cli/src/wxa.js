@@ -110,20 +110,6 @@ commander
 });
 
 commander
-.command('cli')
-.description('微信开发者工具命令行调用')
-.option('-a, --action <action>', '指定操作, open, login, preview, upload')
-.option('-m, --multi', '三方开发模式，一次操作多个项目')
-.option('-p, --project <project>', '三方开发模式，单独指定操作的项目')
-.action(async (cmd)=>{
-    let wxaConfigs = getConfigs();
-
-    let newCli = wrapWxaConfigs((subWxaConfigs, cmd)=>{
-        let cli = new Toolcli(subWxaConfigs);
-        cli.run(cmd);
-    });
-
-commander
     .command('convert')
     .description('原生小程序代码转 wxa')
     .option('-i, --input <input>', '原生小程序代码路径')
