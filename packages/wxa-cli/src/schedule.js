@@ -5,7 +5,7 @@ import globby from 'globby';
 import debugPKG from 'debug';
 import {SyncHook} from 'tapable';
 
-import {readFile, isFile, getHash, getHashWithString} from './utils';
+import {readFile, isFile, getHash, getHashWithString, copy} from './utils';
 import bar from './helpers/progressBar';
 import {logger, error} from './helpers/logger';
 import COLOR from './const/color';
@@ -15,8 +15,9 @@ import wrapWxa from './helpers/wrapWxa';
 import Compiler from './compilers/index';
 import DependencyResolver from './helpers/dependencyResolver';
 import ProgressTextBar from './helpers/progressTextBar';
-import Preformance from './helpers/performance';
+import Preformance, {wxaPerformance} from './helpers/performance';
 import simplify from './helpers/simplifyObj';
+import {isIgnoreFile} from './helpers/pathParser';
 
 let debug = debugPKG('WXA:Schedule');
 
@@ -153,13 +154,15 @@ class Schedule {
             const text = this.cmdOptions.verbose ? `(Hash: ${dep.hash})    ${relativeSrc}` : relativeSrc;
 
             this.progress.draw(text, 'COMPILING', !this.cmdOptions.verbose);
-            this.perf.markStart(relativeSrc);
+            // this.perf.markStart(relativeSrc);
             this.hooks.buildModule.call(dep);
 
             // loader: use custom compiler to load resource.
+            wxaPerformance.markStart('wxa_dep_analysis-loader');
             await this.loader.compile(dep, this);
+            wxaPerformance.markEnd('wxa_dep_analysis-loader');
 
-            this.perf.markEnd(relativeSrc);
+            // this.perf.markEnd(relativeSrc);
 
             // try to wrap wxa every app and page
             this.tryWrapWXA(dep);
@@ -279,10 +282,7 @@ class Schedule {
         // if a dependency is from remote, or dynamic path, or base64 format, then we ignore it.
         // cause we needn't process this kind of resource.
         if (
-            dep.pret.isURI ||
-            dep.pret.isDynamic ||
-            dep.pret.isBase64 ||
-            dep.pret.isPlugin
+            isIgnoreFile(dep.pret)
         ) return null;
 
         debug('Find Dependencies started %O', simplify(dep));
@@ -304,7 +304,7 @@ class Schedule {
             outerDependencies: new Set(),
             dependency: function(file) {
                 // debugger;
-                this.outerDependencies.add(file);
+                this.outerDependencies.add(path.normalize(file));
             },
         };
 
@@ -454,6 +454,21 @@ class Schedule {
         if (this.appConfigs.usingComponents) {
             Object.values(this.appConfigs.usingComponents).forEach((val) => {
                 pages = pages.concat([['', val]]);
+            });
+        }
+
+        let themeLocation = this.appConfigs.themeLocation;
+        if (themeLocation) {
+            let srcPath = path.join(this.meta.context, themeLocation);
+            let dr = new DependencyResolver(this.wxaConfigs.resolve, this.meta);
+            this.addEntryPoint({
+                src: srcPath,
+                pret: defaultPret,
+                category: 'Entry',
+                meta: {
+                    source: srcPath,
+                    outputPath: dr.getOutputPath(srcPath, defaultPret, ROOT),
+                },
             });
         }
 

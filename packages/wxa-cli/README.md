@@ -163,3 +163,11 @@ module.exports = [
 * pacakages/wxa-cli，执行`npm run dev`
 * vscode启动程序，开始调试开发
 
+5. 调用微信开发者工具, windows用户需要在 `wxa.config.js` 设置开发者工具的路径 `wechatwebdevtools`
+    - `wxa2 cli -a open`: 打开开发者工具
+    - `wxa2 cli -a preview`: 预览项目
+    - `wxa2 cli -a upload`: 上传项目
+    - `wxa2 cli -a login`: 登录微信，`preview`和`upload`都需要登录微信后操作
+
+6. 原生代码转换为 `.wxa` 代码  
+`wxa convert -i <src directory> -o <output directory>`

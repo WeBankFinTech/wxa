@@ -39,7 +39,8 @@ export default class DefaultWxaConfigs {
             ],
             optimization: {
                 splitDeps: {
-                    maxDeps: -1,
+                    // 默认开启
+                    maxDeps: 1,
                 },
                 allowEmptyAttributes: true,
                 transformPxToRpx: false,

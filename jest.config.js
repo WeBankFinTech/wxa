@@ -12,7 +12,7 @@ module.exports = {
         '<rootDir>/packages/wxa-validate/test/helpers/*',
         '<rootDir>/packages/wxa-compiler-babel/src/fs-cache.js',
     ],
-    'testMatch': ['**/test/**/*.test.js', '**/test/**/*.spec.js'],
+    'testMatch': ['**/test?(s)/**/*.test.js', '**/test?(s)/**/*.spec.js'],
     'setupFiles': ['./scripts/setupJest.js'],
     "moduleNameMapper": {
         "^@/(.*)$": "<rootDir>/src/$1"

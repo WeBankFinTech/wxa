@@ -7,6 +7,7 @@ import https from 'https';
 import {spawnBuilder} from './builder';
 import chalk from 'chalk';
 import Creator from './creator';
+import convert from './convert';
 import {spawnDevToolCli} from './toolcli';
 import {getConfigs} from './getConfigs';
 import {WXA_PROJECT_NAME} from './const/wxaConfigs';
@@ -78,6 +79,7 @@ commander
 .option('--configs-path <configsPath>', 'wxa.configs.js文件路径，默认项目根目录')
 .option('-a, --action <action>', '指定操作, open, login, preview, upload')
 .option('-p, --project <project>', '三方开发模式，单独指定操作的项目')
+.option('--project-name <projectName>', '项目名')
 .action(async (cmd)=>{
     showSlogan();
     console.info('🐌 目前仅支持调用微信开发者工具指令');
@@ -121,54 +123,17 @@ commander
         cli.run(cmd);
     });
 
-    let question = async ()=>await inquirer.prompt([
-        {
-            type: 'input',
-            name: 'version',
-            message: '小程序版本号',
-            default: require(path.join(process.cwd(), 'package.json')).version || '1.0.0',
-        },
-        {
-            type: 'input',
-            name: 'desc',
-            message: '版本描述',
-            default: '版本描述',
-        },
-    ]);
+commander
+    .command('convert')
+    .description('原生小程序代码转 wxa')
+    .option('-i, --input <input>', '原生小程序代码路径')
+    .option('-o, --output <output>', '输出路径')
+    .action(async (cmd)=>{
+        showSlogan();
+        console.info('🦊 Converting 转换中');
 
-    if (
-        cmd.multi &&
-        wxaConfigs.thirdParty &&
-        wxaConfigs.thirdParty.length &&
-        cmd.action === 'upload'
-    ) {
-        let options = await question();
-        cmd.options = options;
-        // third party development
-        if (cmd.project) {
-            cmd.project.split(',').forEach((project)=>{
-                // specify project to compile
-                project = wxaConfigs.thirdParty.find((instance)=>instance.name===project);
-
-                if (!project) {
-                    logger.error('找不到指定的项目，请检查wxa.config.js中的三方配置');
-                    process.exit(0);
-                } else {
-                    newCli(wxaConfigs, project, cmd);
-                }
-            });
-        } else {
-            // compile and watch all projects.
-            wxaConfigs.thirdParty.forEach((project)=>{
-                newCli(wxaConfigs, project, {...cmd});
-            });
-        }
-    } else {
-        if (cmd.action === 'upload') cmd.options = await question();
-        // normal build.
-        newCli(wxaConfigs, void(0), cmd);
-    }
-});
+        convert(cmd);
+    });
 
 commander.parse(process.argv);
 

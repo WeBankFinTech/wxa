@@ -4,7 +4,6 @@ import fs from 'fs';
 import path from 'path';
 import shell from 'shelljs';
 import https from 'https';
-import {isUri} from 'valid-url';
 import inquirer from 'inquirer';
 
 let remoteMap = new Map([
@@ -29,8 +28,11 @@ function getQATemplate(templateConfigs) {
     }
     ];
 }
-
-function getQAProjectName() {
+function getQAProjectName(projectName) {
+    // 如果已经带name参数，不需要再次询问项目名
+    if (projectName) {
+        return [];
+    }
     return [
     {
         type: 'input',
@@ -42,17 +44,16 @@ function getQAProjectName() {
     }
     ];
 }
-
-function getQA(templateConfigs) {
+function getQA(templateConfigs, projectName) {
     return [
-        ...getQAProjectName(),
+        ...getQAProjectName(projectName),
         ...getQATemplate(templateConfigs)
     ]
 }
 class Creator {
     constructor(cmd) {
         this.cmdOptions = cmd;
-        this.prefix = isUri(cmd.repo) ? cmd.repo : remoteMap.get(cmd.repo);
+        this.prefix = remoteMap.get(cmd.repo) || cmd.repo;
     }
 
     async run() {
@@ -60,11 +61,12 @@ class Creator {
         try {
             // 先尝试从github、gitee远程拉取模版配置json，并询问项目名+模板类型
             let configs = await this.getRemoteConfigs();
-            options = await inquirer.prompt(getQA(JSON.parse(configs)));
+            options = await inquirer.prompt(getQA(JSON.parse(configs), this.cmdOptions.projectName));
         } catch (err) {
             // getRemoteConfigs失败后，先询问项目名，clone git模版仓库，拿到模版再配置询问模版类型
-            options = await inquirer.prompt(getQAProjectName());
+                options = await inquirer.prompt(getQAProjectName(this.cmdOptions.projectName));
         }
+        options.projectName = options.projectName || this.cmdOptions.projectName;
         this.create(options);
     }
 
@@ -129,7 +131,6 @@ class Creator {
             logger.info('Child Process', err);
         });
     }
-
 
     getLocalConfigs(projectName) {
         const data = fs.readFileSync(path.resolve('./', projectName, 'configs.json'));

@@ -1,5 +1,6 @@
+import path from 'path';
 import DependencyResolver from '../../helpers/dependencyResolver';
-import PathParser from '../../helpers/pathParser';
+import PathParser, { isIgnoreFile } from '../../helpers/pathParser';
 import logger from '../../helpers/logger';
 import {isFile} from '../../utils';
 import debugPKG from 'debug';
@@ -45,10 +46,13 @@ export default class ComponentManager {
                 let {lib, source, pret} = dr.$resolve(com, mdl);
                 // pret shouldn't set ext to .js
                 if (pret.isWXALib) pret.ext = '';
+                // 组件不需要添加后缀名
+                if (isFile(source)) source = source.replace(path.extname(source), '');
+
                 let outputPath = dr.getOutputPath(source, pret, mdl);
                 let resolved = dr.getResolved(lib, outputPath, mdl);
 
-                if (pret.isPlugin || pret.isURI) return ret;
+                if (isIgnoreFile(pret)) return ret;
 
                 // check if wxa file.
                 if (isFile(source+this.meta.wxaExt)) {
@@ -74,8 +78,7 @@ export default class ComponentManager {
                                 },
                             });
                         } else if (ext === '.json') {
-                            logger.warn(alias+'组件不存在json配置文件');
-                            debugger;
+                            logger.warn(`(${source}, ${src})`, alias+'组件不存在json配置文件');
                         }
                     });
                 }

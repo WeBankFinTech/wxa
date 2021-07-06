@@ -9,6 +9,8 @@ import {
     setMaxRequest,
     setRequestExpiredTime,
 } from './utils/fetch';
+import batchUpdate from './batchUpdate';
+import { comsumeRoutersParams } from './utils/routerWithParams';
 
 // default component field
 const notCopy = ['properties', 'data', 'methods', 'behaviors', 'created', 'attached', 'ready', 'moved', 'detached', 'relations', 'options', 'lifetimes', 'pageLifetimes', 'definitionFilter'];
@@ -61,9 +63,22 @@ export class Wxa {
 
         // enable automatic embed app instance
         this.enableAppEmbed = true;
-
+        
         this.__WXA_PLATFORM__ = void(0);
         this.platform = this.getWxaPlatform();
+        
+        // overload native Component Page API.
+        this.enableNativeAPIOverload = false;
+        this.$$Component = Component;
+        this.$$Page = Page;
+    }
+    
+    overload() {
+        this.enableNativeAPIOverload = true;
+        this.$$Component = Component;
+        this.$$Page = Page;
+        Component = this.launchComponent.bind(this);
+        Page = this.launchPage.bind(this);
     }
 
     setDebugMode(val) {
@@ -142,12 +157,15 @@ export class Wxa {
             let onLoad = vm.onLoad;
             vm.onLoad = function(...args) {
                 this.$app = getApp();
-
+                let params = comsumeRoutersParams();
+                args.push(params);
                 onLoad && onLoad.apply(this, args);
             };
         }
 
-        Page(vm);
+        batchUpdate(vm, 'Page');
+        // eslint-disable-next-line new-cap
+        this.enableNativeAPIOverload ? this.$$Page(vm) : Page(vm);
     }
 
     launchComponent(instance) {
@@ -187,7 +205,9 @@ export class Wxa {
             if (created) created.apply(this, args);
         };
 
-        Component(vm);
+        batchUpdate(vm, 'Component');
+        // eslint-disable-next-line new-cap
+        this.enableNativeAPIOverload ? this.$$Component(vm) : Component(vm);
     }
 
     mixin(obj) {

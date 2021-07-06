@@ -1,4 +1,4 @@
-import {getPromise} from './helpers.js';
+import {getPromise, noop} from './helpers.js';
 
 let MAXREQUEST = 5; // 最大请求数
 // 增加请求队列
@@ -152,7 +152,7 @@ function $$fetch(configs) {
     let requestTask = wx.request({
         ...postconfig,
         success(response) {
-            if (response && response.statusCode === 200) {
+            if (response && String(response.statusCode).startsWith('2')) {
                 defer.resolve(response);
             } else {
                 defer.reject(response);
@@ -196,9 +196,10 @@ export default function fetch(url, data = {}, axiosConfigs = {}, method = 'get')
     } else {
         try {
             !validRequest && console && console.warn('重复的请求： ', configs);
-        } catch (e) {}
-
-        return Promise.reject({data: {code: -101, msg: '重复的请求'}});
+        } catch (__) {}
+        let rejectPromise = Promise.reject({data: {code: -101, msg: '重复的请求'}});
+        // Behavior should keep same with normal request.
+        return $withCancel ? {request: rejectPromise, defer: rejectPromise, rejectPromise, cancel: noop} : rejectPromise;
     }
 
     function $request() {

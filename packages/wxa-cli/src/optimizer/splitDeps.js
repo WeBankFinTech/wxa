@@ -1,3 +1,4 @@
+import {writeFile} from '../utils';
 import path from 'path';
 import logger from '../helpers/logger';
 
@@ -12,6 +13,7 @@ export default class SplitDeps {
         this.wxaConfigs = wxaConfigs;
         this.maxSplitDeps = wxaConfigs.optimization.splitDeps.maxDeps;
         this.NMReg = new RegExp(path.join(cwd, 'node_modules'));
+        this.manifest = {};
 
         let pkg = appConfigs.subpackages || appConfigs.subPackages;
         if (pkg) {
@@ -45,6 +47,8 @@ export default class SplitDeps {
                 this.start(entryPoint, pkg);
             }
         });
+
+        writeFile(path.join(process.cwd(), '.wxa', 'subpackages-manifest.json'), JSON.stringify(this.manifest, void 0, 4)); 
     }
 
     clean(dep) {
@@ -72,7 +76,20 @@ export default class SplitDeps {
                 return this.start(child, pkg);
             }
 
-            if (!this.ifMatchRule(child)) return;
+            let isMatch = this.ifMatchRule(child);
+
+            try {
+                this.manifest[src] = {
+                    childNodes: Array.from(child.childNodes).map((i)=>i[0]),
+                    reference: Array.from(child.reference).map((i)=>i[0]),
+                    ...child.pret,
+                    isMatch,
+                };
+            } catch (error) {
+                debugger;
+            }
+
+            if (!isMatch) return;
 
             if (this.cmdOptions.verbose) logger.info('Find NPM need track to subpackages', child.src);
             // fulfill all condition just track all the sub-nodes without any hesitate.
@@ -125,6 +142,8 @@ export default class SplitDeps {
             for (let i = 0; i < refs.length; i ++) {
                 let parentNode = refs[i][1];
                 if (parentNode.isROOT) continue;
+                // circular deps
+                if (parentNode.src === child.src) continue;
 
                 isInMainPkg = this.isInMainPackage(parentNode);
                 // if one of parent is in main, then just stop the loop.
@@ -175,7 +194,15 @@ export default class SplitDeps {
 
         if (dep.childNodes) {
             dep.childNodes.forEach((child)=>{
+                this.manifest[child.src] = {
+                    childNodes: Array.from(child.childNodes).map((i)=>i[0]),
+                    reference: Array.from(child.reference).map((i)=>i[0]),
+                    ...child.pret,
+                    ...this.manifest[child.src],
+                };
+                if (child.src === dep.src) return;
                 // check node_modules's dependencies.
+                // 不满足条件，子组件不需要递归处理，但是父节点已经分配到对应分包去了 所以需要重新计算相对地址
                 if (!this.ifMatchRule(child)) {
                     // if (/wxa_wrap/.test(child.src)) {
                     //     debugger;
