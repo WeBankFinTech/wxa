@@ -157,8 +157,9 @@ for (let j = 0; j < testCaseNameArr.length; j++) {
             if (customExpect && i !== 0 && record[i - 1].customExpect && typeof record[i - 1].customExpect === 'function') {
                 record[i - 1].customExpect();
             }
-
-            if (!!~['tap', 'longpress'].indexOf(recordAction.event)) {
+            if (!!~['catchtap'].indexOf(recordAction.event)) {
+                await element.tap();
+            } else if (!!~['tap', 'longpress'].indexOf(recordAction.event)) {
                 await element[recordAction.event]();
             } else if (!!~['input'].indexOf(recordAction.event)) {
                 await element[recordAction.event](recordAction.detail.value);

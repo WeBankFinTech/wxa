@@ -100,6 +100,9 @@ const addRecord = function(type, ...args) {
 };
 
 const wrapEvent = {
+    $$e2e_catchtap(...args) {
+        addRecord.bind(this)('catchtap', ...args);
+    },
     $$e2e_navigator(...args) {
         addRecord.bind(this)('navigator', ...args);
     },

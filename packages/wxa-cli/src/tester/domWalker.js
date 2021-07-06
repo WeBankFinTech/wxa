@@ -13,7 +13,7 @@ class XMLManager {
     constructor(mdl, scheduler) {
         this.mdl = mdl;
         this.scheduler = scheduler;
-        this.supportEvents = ['tap', 'longpress', 'change', 'input', 'touchstart', 'touchmove', 'touchend'];
+        this.supportEvents = ['tap', 'catchtap', 'longpress', 'change', 'input', 'touchstart', 'touchmove', 'touchend'];
     }
 
     parse(xml) {
@@ -44,10 +44,21 @@ class XMLManager {
 
     walkAttr(attributes, element) {
         debug('attributes walk %o', attributes);
-        let events = Object.keys(attributes).filter((attr)=>/bind/.test(attr));
+        if ( !this.scheduler.cmdOptions.record && Object.keys(attributes).includes('catchtap')) { // 非录制，且Catchtap
+            delete element.attribs[`catchtap`];
+            element.attribs[`bindtap`] = `{{tester.simulationCatchTap}}`;
+            return;
+        }
+        let events = Object.keys(attributes).filter((attr)=>/bind/.test(attr) || attr === 'catchtap');
         let eventMap = '';
         if (events.length) {
             events.forEach((attr)=>{
+                if (attr === 'catchtap') { // 增加 Catchtap
+                    eventMap += `|catchtap:${attributes[attr]}`;
+                    // element.attribs[`data-fun`] = `tester.simulationCatchTap`;
+                    element.attribs[`catchtap`] = `$$e2e_catchtap`;
+                    return;
+                } 
                 let [, $1] = /bind(?::)?([\w]*)/g.exec(attr);
                 if (!!~this.supportEvents.indexOf($1)) {
                     eventMap += `|${$1}:${attributes[attr]}`;
@@ -61,7 +72,7 @@ class XMLManager {
             element.attribs[`bindtap`] = `$$e2e_tap`;
         }
         // navigator标签劫持
-        if(element.name === 'navigator') {
+        if (element.name === 'navigator') {
             element.attribs['bindtap'] = `$$e2e_tap`;
         }
         if (eventMap) {
@@ -79,7 +90,7 @@ class XMLManager {
             let {isIeration, indexVariable} = this.findSelfOrAncestorIterationDirective(element);
 
             let keyElement = [pagePath, hash, element.attribs.id];
-            if (isIeration){
+            if (isIeration) {
                 keyElement.push(`_{{${indexVariable}}}`);
             }
 

@@ -76,6 +76,7 @@ class TesterScheduler extends Schedule {
             dep.childNodes = new Map(children);
 
             if (dep.kind === 'xml') {
+                await this.tryWrapCatchTapWxs(dep);
                 await domWalker(dep, this);
             }
 
@@ -105,7 +106,24 @@ class TesterScheduler extends Schedule {
             throw e;
         }
     }
-
+    tryWrapCatchTapWxs(dep) { // 为CatchTap方法页面添加wxs方法
+        let injectCode = `
+        <wxs module="tester">
+            function simulationCatchTap(event, ownerInstance) {
+                ownerInstance.callMethod(event.currentTarget.dataset.tap, event);
+                return false;
+            }
+            module.exports = {
+                simulationCatchTap: simulationCatchTap
+            }
+        </wxs>`;
+        if (!dep.isCatchTapWxs && dep.code.indexOf('catchtap') !== -1) {
+            // console.log(dep.$from);
+            dep.isCatchTapWxs = true;
+            dep.code += injectCode;
+            dep.content += injectCode;
+        }
+    }
     tryWrapWXATestSuite(mdl) {
         if (
             ~['app'].indexOf(mdl.category ? mdl.category.toLowerCase() : '') &&
@@ -212,7 +230,7 @@ class TesterBuilder extends Builder {
                 // save file;
 
                 writeFile(e2eRecordOutputPath, `module.exports = ${JSON.stringify(data.record, null, 4)}`);
-                writeFile(apiRecordOutputPath, JSON.stringify(data.apiRecord, null, 4))
+                writeFile(apiRecordOutputPath, JSON.stringify(data.apiRecord, null, 4));
             } catch (e) {
                 logger.error('生成测试案例失败', e);
             }
