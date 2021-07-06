@@ -33,13 +33,13 @@ class TesterScheduler extends Schedule {
             const text = this.cmdOptions.verbose ? `(Hash: ${dep.hash})    ${relativeSrc}` : relativeSrc;
 
             this.progress.draw(text, 'COMPILING', !this.cmdOptions.verbose);
-            this.perf.markStart(relativeSrc);
+            // this.perf.markStart(relativeSrc);
             this.hooks.buildModule.call(dep);
 
             // loader: use custom compiler to load resource.
             await this.loader.compile(dep, this);
 
-            this.perf.markEnd(relativeSrc);
+            // this.perf.markEnd(relativeSrc);
 
             if (dep.meta && dep.meta.source === this.APP_CONFIG_PATH) {
                 this.tryAddGlobalTestComponent(dep);
@@ -193,7 +193,8 @@ class TesterBuilder extends Builder {
 
         await this.run(cmd);
 
-        console.log('E2ETester work done', cmd.record);
+        logger.log('Tester E2E', `compile done. ${cmd.record ? 'Enabled' : 'Disabled'} record`);
+        // console.log('E2ETester work done', cmd.record);
 
         // 要等wxa编译完不然会报错
         if (!cmd.record) {

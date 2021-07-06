@@ -103,6 +103,8 @@ commander
 .option('--custom-expect', '进行自定义期望匹配，record.js里每一步的customExpect函数编写期望代码')
 .option('--py-diff [pyDiff]', '是否使用python进行相似度比对')
 .option('--no-mock', '不mock接口')
+.option('--verbose', '展示多余的信息')
+.option('--no-progress', '不展示文件进度')
 .action((cmd)=>{
     logger.info('Hey', `This is ${chalk.keyword('orange')('wxa@'+version)}, Running in ${chalk.keyword('orange')(process.env.NODE_ENV || 'development')}, Tester Mode`);
     let wxaConfigs = getConfigs();
