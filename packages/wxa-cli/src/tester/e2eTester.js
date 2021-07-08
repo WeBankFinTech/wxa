@@ -135,7 +135,9 @@ class TesterScheduler extends Schedule {
                 var __e2eMockWxMethod = require('wxa://wxa-e2eTest/e2eMockWxMethod.js');
                 __e2eMockWxMethod.mock({state: __e2e__state});
                 var __testSuitePlugin = require('wxa://wxa-e2eTest/e2eTestSuite.js');
-                require('@wxa/core').wxa.use(__testSuitePlugin, {record: ${!!this.cmdOptions.record}, state: __e2e__state});
+                var __wxa__ = require('@wxa/core').wxa;
+                __wxa__.use(__testSuitePlugin, {record: ${!!this.cmdOptions.record}, state: __e2e__state});
+                __wxa__.overload();
                 ${mdl.code}
             `;
         }

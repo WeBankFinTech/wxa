@@ -105,10 +105,17 @@ commander
 .option('--no-mock', '不mock接口')
 .option('--verbose', '展示多余的信息')
 .option('--no-progress', '不展示文件进度')
+.option('--project-name <projectName>', '项目名')
 .action((cmd)=>{
-    logger.info('Hey', `This is ${chalk.keyword('orange')('wxa@'+version)}, Running in ${chalk.keyword('orange')(process.env.NODE_ENV || 'development')}, Tester Mode`);
+    showSlogan();
     let wxaConfigs = getConfigs();
-    new Tester(cmd, wxaConfigs).build();
+    processProjectsOptions(wxaConfigs, cmd);
+    
+    let [target] = cmd.project;
+    let projectConfigs = wxaConfigs.find((item)=> item.name === target);
+    
+    console.info(`➰ Tester Mode. Building with ${chalk.keyword('orange')(process.env.NODE_ENV || 'development')} env. ${target.toUpperCase()}` );
+    new Tester(cmd, projectConfigs).build();
 });
 
 commander

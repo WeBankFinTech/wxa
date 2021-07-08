@@ -26,17 +26,18 @@ class XMLManager {
         debug('walk xml start %s', xml.nodeType);
         // ignore comment
         if (xml.type === 'comment') return xml;
-
+    
+        if (xml.children) {
+            // 故意浅拷贝，仅调整遍历顺序，不改变页面结构
+            [...xml.children].reverse().forEach((child)=>{
+                this.walkXML(child);
+            });
+        }
+        
         if (xml.type === 'tag') {
             // element p view
             debug('xml %O', xml);
             this.walkAttr(xml.attribs, xml);
-        }
-
-        if (xml.children) {
-            xml.children.forEach((child)=>{
-               this.walkXML(child);
-            });
         }
 
         return xml;
@@ -80,23 +81,23 @@ class XMLManager {
             element.attribs['data-_wxaTestEventMap'] = eventMap;
         }
         // generate unique id for tag.
-            // pagePath + hash(parentNode + prevNode) + optional(class/id)
-            let pagePath = path.relative(this.scheduler.wxaConfigs.context, path.dirname(this.mdl.src) + path.sep + path.basename(this.mdl.src, path.extname(this.mdl.src)));
+        // pagePath + hash(parentNode + prevNode) + optional(class/id)
+        let pagePath = path.relative(this.scheduler.wxaConfigs.context, path.dirname(this.mdl.src) + path.sep + path.basename(this.mdl.src, path.extname(this.mdl.src)));
 
-            let ele = this.getParentAndPrevNode(element);
-            let eleString = new Coder().decodeTemplate(domSerializer(ele, {xmlMode: true}));
-            let hash= getHashWithString(eleString);
+        let ele = this.getParentAndPrevNode(element);
+        let eleString = new Coder().decodeTemplate(domSerializer(ele, {xmlMode: true}));
+        let hash= getHashWithString(eleString);
 
-            let {isIeration, indexVariable} = this.findSelfOrAncestorIterationDirective(element);
+        let {isIeration, indexVariable} = this.findSelfOrAncestorIterationDirective(element);
 
-            let keyElement = [pagePath, hash, element.attribs.id];
-            if (isIeration) {
-                keyElement.push(`_{{${indexVariable}}}`);
-            }
+        let keyElement = [pagePath, hash, element.attribs.id];
+        if (isIeration) {
+            keyElement.push(`_{{${indexVariable}}}`);
+        }
 
-            let id = this.assembleUniqueId(keyElement);
-            element.attribs['data-_wxaTestUniqueId'] = id;
-            element.attribs['class'] = this.dropSpace((element.attribs['class'] || '') + ' '+ id);
+        let id = this.assembleUniqueId(keyElement);
+        element.attribs['data-_wxaTestUniqueId'] = id;
+        element.attribs['class'] = this.dropSpace((element.attribs['class'] || '') + ' '+ id);
     }
 
     findSelfOrAncestorIterationDirective(element) {
@@ -113,14 +114,30 @@ class XMLManager {
     }
 
     getParentAndPrevNode(element) {
+        // 1. 找到所有父级和同级位置靠前的节点
+        // 2. 清理掉所有后续节点及父级节点的后续节点
+        // 3. 清理除了class id 之后所有的属性
+        // 4. 清理注释、空白节点
         let copyChildren = (element)=>{
             element = _.cloneDeep(element);
             let children = [];
             let el = element;
-            while (el.prev) {
-                children.push(el.prev);
+            do {
+                if (
+                    ~['tag'].indexOf(el.type) ||
+                    (el.type === 'text' && el.data.replace(/(?<!\\)\\n/g, '').trim() !== '')
+                ) {
+                    if (el.attribs) {
+                        // 清理除了class id 之后所有的属性
+                        el.attribs = {
+                            class: el.attribs.class,
+                            id: el.attribs.id,
+                        };
+                    }
+                    children.push(el);
+                }
                 el = el.prev;
-            }
+            } while (el);
             children = children.reverse();
             children.push(element);
             element.next = null;
@@ -128,22 +145,29 @@ class XMLManager {
             return children;
         };
 
-        let findRoot = (element)=>{
+        let travelToRoot = (element)=>{
             while (element.parent) {
+                element.parent.children = copyChildren(element);
+
                 element = element.parent;
             }
+            return copyChildren(element);
+        };
+
+        let cleanChildNodes = (element) => {
+            if (Array.isArray(element.children)) {
+                element.children = [];
+            }
+
             return element;
         };
 
         let _ele = _.cloneDeep(element);
+        cleanChildNodes(_ele);
 
-        if (_ele.parent) {
-            _ele.parent.children = copyChildren(_ele);
-
-            return findRoot(_ele);
-        } else {
-            return copyChildren(_ele);
-        }
+        let root = travelToRoot(_ele);
+        
+        return root;
     }
 
     assembleUniqueId(keyElement) {
