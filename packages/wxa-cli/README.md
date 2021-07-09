@@ -36,7 +36,7 @@
 ### 测试脚本录制
 1. 微信开发者工具 - 设置 - 安全设置 - 打开服务端口
 1. 微信开发者工具，打开对应项目，勾选`不校验合法域名`（src/project.config.json需同步修改urlCheck:false）
-2. windows系统，wxa.config.js里增加属性`wechatwebdevtools `，配置微信开发者工具的安装目录
+2. windows系统，测试程序首次运行时，会主动去查找微信开发者工具安装目录，也可以手动添加属性`wechatwebdevtools ` 到 wxa.config.js里，手动配置如下：
 
 	```
 	module.exports = {
