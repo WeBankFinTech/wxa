@@ -2,6 +2,7 @@ import {writeFile} from '../../utils';
 import path from 'path';
 import {e2eStartTools} from './e2eTestCase2js.js';
 import {exec} from 'child_process';
+import FindWechatPath from './findWechatPath';
 
 export default async function(cmd, wxaConfigs) {
     let testDir = path.join(process.cwd(), cmd.outDir);
@@ -11,7 +12,14 @@ export default async function(cmd, wxaConfigs) {
         win32: `/cli.bat`,
     };
     let {cliPath} = cmd;
-    let cli = cliPath || path.join(wxaConfigs.wechatwebdevtools, clipath[process.platform]);
+    let wechatwebdevtools = wxaConfigs.wechatwebdevtools;
+    if (!wechatwebdevtools) {
+        console.log('查找微信开发者工具安装目录');
+        wechatwebdevtools = await FindWechatPath.start();
+        console.log('微信开发者工具安装目录: ', wechatwebdevtools);
+    }
+    
+    let cli = cliPath || path.join(wechatwebdevtools, clipath[process.platform]);
     try {
         let recordString = await e2eStartTools({
             cliPath: cli.split(path.sep).join('/'),
