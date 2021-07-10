@@ -1,115 +1,51 @@
-const traverse = require('@babel/traverse').default;
 const generate = require('@babel/generator').default;
 const {writeFile, dceDeclaration} = require('./util');
+let config = require('./config');
 
 let {Graph} = require('./graph');
 
-function collectReferences(dep) {
-    if (dep._collcted) {
-        return;
-    }
-
-    let {ast, scope} = dep;
-
-    let findScope = (node) => {
-        let defineScope = scope.findDefiningScope(node.name);
-        if (defineScope) {
-            defineScope.nodes[node.name].forEach((declarationNode) => {
-                // 该声明语句被哪些identifier节点使用过
-                declarationNode._usedByNodes.push(node);
-            });
-        }
-    };
-
-    let collect = () => {
-        traverse(ast, {
-            enter: (path) => {
-                let {node} = path;
-
-                if (node._scope) {
-                    scope = node._scope;
-                }
-
-                // obj.x 类型的属性访问，不算对x变量的使用
-                if (node.type === 'MemberExpression') {
-                    !node.computed && path.skipKey('property');
-                } else if (node.type === 'ObjectProperty') {
-                    // {x:1} 对象属性
-                    !node.computed && path.skipKey('key');
-                } else if (
-                    [
-                        'ClassMethod',
-                        'ClassPrivateMethod',
-                        'ClassProperty',
-                        'ClassDeclaration',
-                    ].includes(node.type)
-                ) {
-                    !node.computed && path.skipKey('key');
-                } else if (node.type === 'Identifier') {
-                    // TODO，怎么才算变量已经使用
-                    !node._skip && findScope(node);
-                }
-            },
-            // 退出节点
-            exit(path) {
-                let {node} = path;
-                if (node._scope) {
-                    scope = scope.parent;
-                }
-            },
-        });
-    };
-
-    collect();
-    dep._collcted = true;
-
-    dep.children.forEach((child) => collectReferences(child));
-}
-
-// 判断两个path是否互相包含
-function checkTwoPathContainMutually(pathA, pathB) {
-    let is = false;
-
-    let doCheck = (_pathA, _pathB) => {
-        traverse(
-            _pathA.node,
-            {
-                enter(path) {
-                    if (path === _pathB) {
-                        is = true;
-                        path.stop();
-                    }
-                },
-            },
-            _pathA.scope
-        );
-    };
-
-    doCheck(pathA, pathB);
-
-    if (!is) {
-        doCheck(pathB, pathA);
-    }
-
-    return is;
-}
-
-const REQUIRE_TO_IMPORT_DEFAULT = 'require_to_import_default';
 /**
  * export node 有一个_shake标志，如果该export没有被import，或者被import后没有使用，_shake = 1
  * 在这里，遍历全局文件树，根据import和export关系，对没使用的export进行标记
  * 但如果用require去引入一个export函数变量，这里并不能分析到这个export函数变量被使用过（所以不能去 require 一个 export）
  */
 
+let chain = {};
+
 function shake(dep) {
     if (dep._shook) {
         return;
     }
 
-    let {imports, exports, isRoot} = dep;
+    let {imports, exports, isRoot, src: depSrc} = dep;
 
-    let mark = (dep, usedNames, childSrc) => {
-        if (usedNames.length) {
+    console.log('---');
+    console.log('shake src', depSrc);
+
+    let fileExportChain = [];
+    chain[depSrc] = fileExportChain;
+    let nameInExport = new Map();
+
+    // let markExport = (fileExportChain) => {
+    //     Object.values(fileExportChain).forEach(([name, chainInfo]) => {});
+    // };
+
+    let collectExportChain = (dep, childSrc, currentChain) => {
+        if (currentChain.length) {
+            let nextChain = [];
+
+            let setCurrentChain = (chainNode, childName, path) => {
+                let childChainNode = {
+                    name: childName,
+                    path,
+                    children: [],
+                    parent: chainNode,
+                };
+                chainNode.children.push(childChainNode);
+                nextChain.push(childChainNode);
+                path.$chain
+            };
+
             let child = dep.children.find((child) => child.src === childSrc);
             let exportsArray = Object.entries(child.exports);
             let localIndex = exportsArray.findIndex(
@@ -123,121 +59,173 @@ function shake(dep) {
             }
 
             let usedExports = {};
-            let addUsedExport = (src, path) => {
-                usedExports[src] = usedExports[src] || {};
+
+            let getExportLocalName = (path) => {
                 let local = path.node.local;
                 if (local) {
-                    usedExports[src][local.name] = path;
-                } else {
-                    usedExports[src]['*'] = path;
+                    return local.name;
+                }
+
+                return '*';
+            };
+
+            let addUsedExport = (src, name, path) => {
+                usedExports[src] = usedExports[src] || {};
+
+                if (name) {
+                    usedExports[src][name] = path;
                 }
             };
 
-            let hasAll = usedNames.some(
-                (name) => name === '*' || name === REQUIRE_TO_IMPORT_DEFAULT
+            let collect = (chainNode, path, src, defaultLocalName) => {
+                let localName = '';
+                let name = chainNode.name;
+
+                if (defaultLocalName) {
+                    localName = defaultLocalName;
+                } else {
+                    localName = getExportLocalName(path);
+                }
+
+                let names = nameInExport.get(path);
+
+                if (names && names.has(localName)) {
+                    return;
+                }
+
+                if (names) {
+                    names.add(localName);
+                } else {
+                    names = new Set();
+                    names.add(localName);
+                }
+
+                setCurrentChain(chainNode, localName, path);
+                addUsedExport(src, localName, path);
+            };
+
+            let importAllChainNode = currentChain.find(
+                (node) => node.name === '*'
             );
 
-            if (hasAll) {
-                let hasDefalut = usedNames.some(
-                    (name) =>
-                        name === 'default' || name === REQUIRE_TO_IMPORT_DEFAULT
+            if (importAllChainNode) {
+                let importDefaultChainNode = currentChain.find(
+                    (node) => node.name === 'default'
                 );
+
                 let markedDefalut = false;
                 if (localExports) {
                     Object.entries(localExports[1]).forEach(([name, path]) => {
                         if (name === 'default') {
-                            if (hasDefalut) {
-                                path._shake = 0;
+                            if (importDefaultChainNode) {
                                 markedDefalut = true;
+                                setCurrentChain(
+                                    importDefaultChainNode,
+                                    'dafault',
+                                    path
+                                );
                             }
                         } else {
-                            path._shake = 0;
+                            let localName = getExportLocalName(path);
+                            setCurrentChain(
+                                importAllChainNode,
+                                localName,
+                                path
+                            );
                         }
                     });
                 }
 
-                externalExports.forEach(([src, value]) => {
-                    Object.entries(value).forEach(([name, path]) => {
+                externalExports.forEach(([src, exportInfo]) => {
+                    Object.entries(exportInfo).forEach(([name, path]) => {
                         if (
-                            (name === 'default' &&
-                                hasDefalut &&
-                                !markedDefalut) ||
-                            name !== 'default'
+                            name === 'default' &&
+                            importDefaultChainNode &&
+                            !markedDefalut
                         ) {
-                            if (path._shake === 1) {
-                                path._shake = 0;
-                                addUsedExport(src, path);
-                            }
+                            collect(importDefaultChainNode, path, src);
+                        } else if (name !== 'default') {
+                            collect(importAllChainNode, path, src);
                         }
                     });
                 });
             } else {
-                usedNames.forEach((name) => {
+                currentChain.forEach((chainNode) => {
+                    let name = chainNode.name;
                     if (localExports) {
                         let path = localExports[1][name];
+
                         if (path) {
-                            path._shake = 0;
+                            if (name === 'default') {
+                                setCurrentChain(chainNode, 'dafault', path);
+                            } else {
+                                let localName = getExportLocalName(path);
+                                setCurrentChain(chainNode, localName, path);
+                            }
                             return;
                         }
                     }
 
-                    externalExports.forEach(([src, value]) => {
-                        let path = value[name] || value['*'];
+                    externalExports.forEach(([src, exportInfo]) => {
+                        let path = exportInfo[name];
+
                         if (path) {
-                            if (path._shake === 1) {
-                                path._shake = 0;
-                                addUsedExport(src, path);
-                            }
+                            collect(chainNode, path, src);
+                        }
+
+                        path = exportInfo['*'];
+
+                        if (path) {
+                            collect(chainNode, path, src, name);
                         }
                     });
                 });
             }
 
             Object.entries(usedExports).forEach((src, value) => {
-                mark(child, Object.keys(value), src);
+                let childUsedNames = Object.keys(value);
+                let childChain = childUsedNames.map((n) => {
+                    return nextChain.find((chainNode) =>chainNode.name === n);
+                });
+
+                collectExportChain(child, src, childChain);
             });
         }
     };
+
+    // if (depSrc.endsWith('ZY\\models\\index.js')) {
+    //     console.log('ssssss');
+    // }
 
     Object.entries(imports).forEach(([src, value]) => {
         let usedNames = [];
 
         Object.entries(value).forEach(([name, path]) => {
-            // require 转成的 import default 节点
-            // 这些节点默认被本文件使用
-            if (path.node.$t_cjs_temp_default_import) {
-                usedNames.push(REQUIRE_TO_IMPORT_DEFAULT);
-                return;
-            }
-
-            if (path.node === 'child_scope_require') {
-                if (name === 'default') {
-                    usedNames.push(REQUIRE_TO_IMPORT_DEFAULT);
-                } else {
-                    usedNames.push(name);
-                }
-
-                return;
-            }
-
             usedNames.push(name);
+            fileExportChain.push({
+                parent: null,
+                name,
+                path,
+                children: [],
+            });
         });
-        mark(dep, usedNames, src);
+
+        collectExportChain(dep, src, fileExportChain);
     });
 
     // 根节点的export语句默认全部保留
     // 所以还需要处理根节点的export语句（export {} from ''）
-    if (isRoot) {
-        Object.entries(exports).forEach(([src, value]) => {
-            if (src !== dep.src) {
-                let usedNames = [];
-                Object.entries(value).forEach(([name]) => {
-                    usedNames.push(name);
-                });
-                mark(dep, usedNames, src);
-            }
-        });
-    }
+    // if (isRoot) {
+    //     Object.entries(exports).forEach(([src, exportInfo]) => {
+    //         if (src !== dep.src) {
+    //             let usedNames = [];
+    //             Object.entries(exportInfo).forEach(([name]) => {
+    //                 usedNames.push(name);
+    //             });
+    //             collectExportChain(dep, usedNames, src);
+    //         }
+    //     });
+    // }
 
     dep._shook = true;
 
@@ -253,6 +241,12 @@ function remove(dep) {
 
     let transformCommonJs = dep.transformCommonJs;
 
+    console.log('remove', src);
+
+    // if (src.endsWith('ZY\\models\\applyCenter.model.js')) {
+    //     console.log('ss');
+    // }
+
     /**
      * 遍历exports，shake 标志表示该节点是否被外部有效的 import（即import的方法变量被使用过）
      * 如果shake=1，表示没有被有效import过
@@ -265,28 +259,16 @@ function remove(dep) {
 
     Object.entries(exports).forEach(([src, value]) => {
         Object.entries(value).forEach(([name, path]) => {
-            if (path.node.$t_cjs_temp_export) {
-                if (
-                    !transformCommonJs.state.isDynamicUsedExportsProperty &&
-                    path._shake === 1 &&
-                    !transformCommonJs.state.usedExports.has(name)
-                ) {
-                    transformCommonJs.deleteCJSExport(path);
-                }
-
-                return;
-            }
-
             if (path._shake === 1) {
+                if (path.$isCjsExport) {
+                    transformCommonJs.deleteCJSExport(name);
+                }
                 path.remove();
             }
         });
     });
 
-    transformCommonJs.deleteTransformedModuleDeclaration();
-
-
-    dceDeclaration(topScope, true);
+    dceDeclaration(topScope);
 
     dep._removed = true;
 
@@ -331,14 +313,47 @@ function output(dep) {
     return contents;
 }
 
-function start(entries) {
-    let graph = new Graph(entries);
+function setConfig(options) {
+    if (
+        !options.entry ||
+        !Array.isArray(options.entry) ||
+        !options.entry.length
+    ) {
+        throw new Error('Options entry is required');
+    }
 
-    // graph.roots.forEach((root) => {
-    //     collectReferences(root);
-    // });
+    config.entry = options.entry;
 
-    // console.log('collected');
+    if (options.resolveSrc) {
+        Object.assign(config.resolveSrc, options.resolveSrc);
+    }
+
+    if (options.commonJS) {
+        Object.assign(config.commonJS, options.commonJS);
+        config.commonJS.ingoreKeys.push('__esModule');
+    }
+
+    if (options.parseOptions) {
+        if (options.parseOptions.plugins) {
+            config.parseOptions.plugins = [
+                ...config.parseOptions.plugins,
+                ...options.parseOptions.plugins,
+            ];
+
+            delete options.parseOptions.plugins;
+        }
+
+        config.parseOptions = {
+            ...config.parseOptions,
+            ...options.parseOptions,
+        };
+    }
+}
+
+function treeShake(options = {}) {
+    setConfig(options);
+
+    let graph = new Graph();
 
     graph.roots.forEach((root) => {
         shake(root);
@@ -356,13 +371,13 @@ function start(entries) {
 }
 
 module.exports = {
-    start,
+    treeShake,
 };
 
 console.time('end');
 let path = require('path');
 let entrySrc = path.resolve(__dirname, '../../example/index.js');
-start([{src: entrySrc}]);
+treeShake([{src: entrySrc}]);
 console.timeEnd('end');
 
 // function name(params) {
@@ -370,28 +385,15 @@ console.timeEnd('end');
 // }
 
 // name();
-
-// let code = `function scopeOnce() {
-//     var ref = "This is a binding";
-//     var xx = 'binding2'
-
-//     if(xx){
-//         let oo="binding3"
-//     }
-
-//     ref + '1'; // This is a reference to a binding
-
-//     function scopeTwo() {
-//       ref+'2'; // This is a reference to a binding from a lower scope
-//     }
-//   }`;
+// const generate = require('@babel/generator').default;
+// const traverse = require('@babel/traverse').default;
+// const {parse} = require('@babel/parser');
+// let code = `exports.x=1;let t =exports`;
 // let ast = parse(code, {sourceType: 'unambiguous'});
 // traverse(ast, {
 //     enter(path) {
-//         let {node} =path;
-//         if (node.type === 'VariableDeclarator') {
-//             console.log(path.scope);
-//         }
+//         console.log(path.scope)
+
 //     },
 // });
 

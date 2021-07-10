@@ -1,16 +1,11 @@
-function getName() {}
+export {};
 
-export {getName};
-// export default function getUser(params) {
-// }
-let a = 1;
-export default a; // eslint-disable-next-line one-var
+function getAge(params) {}
+
+export default getAge;
 
 let mm1 = 1,
-    c = function mm2() {};
+    c = function mm2(params) {};
 
-export {mm1, c};
-
-function fn2() {}
-
-export {fn2};
+export {};
+export {};

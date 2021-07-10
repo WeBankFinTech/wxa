@@ -1,5 +1,5 @@
 /* eslint-disable one-var */
-import getMyUser, {getName as getMyName} from './user';
+import getAge, {getName as getMyName} from './user';
 import * as user from './user';
 import {getName as tttqw} from './user';
 
@@ -12,7 +12,9 @@ getName();
 
 let ssqqww =1;
 
-console.log(user);
+// console.log(user);
+console.log(getAge);
+
 let a = {x: 1},
     n = 1;
 let t = 10;
@@ -26,6 +28,13 @@ function m(x = 1, y) {
     console.log(ssqqww);
 }
 m();
+
+try {
+    let a = 1;
+    console.log(a);
+} catch (error) {
+    
+}
 
 let ttt = function({x: xxx, y}) {};
 
@@ -41,7 +50,36 @@ class Myclass {
     [n] = () => {};
 }
 
-export function mm() {}
+let [zz, xx, cc] = [1, 2, 3];
+let {x: x1} = {x: 1, y2: 2};
+
+let {detail: {code, code1}} = {detail: {code: 1}};
+
+
+let o22=1;
+let o11 = o22 =3; 
+
+console.log(o22);
+
+
+let clearErrorMsg = function({p1, p2}, {currentTarget: {dataset: {rule, as, name, opts={}}}}, [asq, ttqw], ppp) {
+    let asdf='p';
+};
+
+
+function aaa({p1, p2}) {
+    let asdwqe='p';
+
+    function att() {
+        
+    }
+};
+
+aaa();
+
+
+clearErrorMsg();
+
 
 mm();
 
@@ -50,6 +88,11 @@ function name(params) {
     let q = 2;
     q++;
     t.q;
+}
+
+
+function aaas() {
+    name();
 }
 
 let obj = {
@@ -69,18 +112,20 @@ let obj = {
 
 export let qwe=1, rty=2;
 export function getName() {}
+export function mm() {}
+
 // export {m as qqqqq, a as default};
 
 // export {x, y} from './a';
 
-// export default function asf() {};
+export default class asf {};
 
 export {Myclass};
 // eslint-disable-next-line no-var
 
 export {mm as ttttttt};
 
-export {getName as tttt} from './user';
-export {default} from './user';
+// export {getName as tttt} from './user';
+// export {default} from './user';
 
-export * as tttttt from './user';
+// export * as tttttt from './user';

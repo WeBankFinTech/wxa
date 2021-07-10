@@ -1,9 +1,16 @@
+let path = require('path');
+
 const traverse = require('@babel/traverse').default;
 const generate = require('@babel/generator').default;
-let {check} = require('reserved-words');
-const {readFile, writeFile, parseESCode} = require('./util');
+const {
+    readFile,
+    writeFile,
+    parseESCode,
+    isChildNode,
+    unique,
+} = require('./util');
 let t = require('@babel/types');
-let path = require('path');
+const config = require('./config');
 
 let options = {};
 
@@ -20,7 +27,8 @@ function getStaticValue(node) {
     return false;
 }
 
-function getStaticMemberProValue(node) {
+// node: MemberExpression
+function getStaticMemberPro(node) {
     if (node.computed) {
         return getStaticValue(node.property);
     }
@@ -30,16 +38,22 @@ function getStaticMemberProValue(node) {
 
 class TransformCommonJs {
     state = {
-        globalESMImports: new Map(),
-        globalESMExports: new Map(),
+        // {
+        //   moduleName: exports Path
+        // }
+        cjsExportModules: new Map(),
+        // {
+        //   src: [moduleName]
+        // }
+        cjsRequireModules: new Map(),
         renamed: new Map(),
         identifiers: new Set(),
         isCJS: false,
         isESM: false,
-        childScopeRequires: new Map(),
         deletedNodes: new Map(),
         usedExports: new Set(),
         isDynamicUsedExportsProperty: false,
+        isUsedExportsObject: false,
     };
 
     constructor({src, code, ast}) {
@@ -47,23 +61,24 @@ class TransformCommonJs {
         this.code = code;
         this.ast = ast || parseESCode(code);
 
-        let dynamicRequireTargets = options.dynamicRequireTargets || [];
+        let dynamicRequireTargets = config.commonJS.dynamicRequireTargets || [];
         // 如果一个模块被其他模块动态导入
         // 不对这个模块做任何处理
-        if (dynamicRequireTargets.includes(src)) {
+        if (dynamicRequireTargets.includes(src) || !config.commonJS.enable) {
             return {src, code};
         }
 
+        this.ingorekeys = config.commonJS.ingoreKeys;
+
         this.transform(this.ast, options);
 
-        console.log('childScopeRequires', this.state.childScopeRequires);
+        console.log('cjsRequireModules', this.state.cjsRequireModules);
         console.log('usedExports', this.state.usedExports);
         console.log(
             'isDynamicUsedExportsProperty',
             this.state.isDynamicUsedExportsProperty
         );
-
-        // this.deleteTransformedModuleDeclaration();
+        console.log('isUsedExportsObject', this.state.isUsedExportsObject);
     }
 
     reset() {
@@ -76,35 +91,21 @@ class TransformCommonJs {
         });
     }
 
-    deleteTransformedModuleDeclaration() {
-        this.state.globalESMImports.forEach((paths, importPath) => {
-            importPath.remove();
-        });
+    deleteCJSExport(exportName) {
+        if (
+            this.state.isDynamicUsedExportsProperty ||
+            this.state.usedExports.has(name) ||
+            this.state.isUsedExportsObject
+        ) {
+            return;
+        }
 
-        this.state.globalESMExports.forEach((paths, exportPath) => {
-            exportPath.remove();
-        });
-    }
-
-    traverseTransformedModuleDeclaration(cb) {
-        this.state.globalESMImports.forEach((paths, importPath) => {
-            cb(importPath.node);
-        });
-
-        this.state.globalESMExports.forEach((paths, exportPath) => {
-            cb(exportPath.node);
-        });
-    }
-
-    deleteCJSExport(esmExportPath) {
-        Array.from(this.state.globalESMExports).some(
-            ([exportPath, cjsPaths]) => {
-                if (this.isChildNode(exportPath.node, esmExportPath.node)) {
-                    cjsPaths.forEach((p) => p.remove());
-                    return true;
-                }
+        Array.from(this.state.cjsExportModules).some(([name, cjsPath]) => {
+            if (exportName === name) {
+                cjsPath.remove();
+                return true;
             }
-        );
+        });
     }
 
     markNodeDeep(node, flag) {
@@ -118,219 +119,116 @@ class TransformCommonJs {
         });
     }
 
-    isChildNode(parent, child) {
-        if (parent === child) {
-            return true;
-        }
-
-        let is = false;
-
-        traverse(parent, {
-            noScope: true,
-            enter(path) {
-                let {node} = path;
-                if (node === child) {
-                    is = true;
-                    path.stop();
-                }
-            },
-        });
-
-        return is;
-    }
-
     transform(ast, options = {}) {
+        let that = this;
         traverse(ast, {
-            Program: {
-                exit: (path) => {
-                    // let allDeletePaths = [];
-
-                    // this.state.globalESMImports.forEach((paths) => {
-                    //     allDeletePaths = allDeletePaths.concat(paths);
-                    // });
-
-                    // this.state.globalESMExports.forEach((paths) => {
-                    //     allDeletePaths = allDeletePaths.concat(paths);
-                    // });
-
-                    // allDeletePaths.forEach((path) => {
-                    //     let allNextSiblingPaths = path.getAllNextSiblings();
-
-                    //     if (!allNextSiblingPaths.length) {
-                    //         this.state.deletedNodes.set(
-                    //             path.node,
-                    //             path.parentPath
-                    //         );
-                    //         path.remove();
-                    //         return;
-                    //     }
-
-                    //     for (let i = 0; i < allNextSiblingPaths.length; i++) {
-                    //         let nextPath = allNextSiblingPaths[i];
-                    //         let last = i === allNextSiblingPaths.length - 1;
-                    //         let find =
-                    //             !allDeletePaths.includes(nextPath) || last;
-
-                    //         if (last) {
-                    //             nextPath = path.parentPath;
-                    //         }
-
-                    //         if (find) {
-                    //             this.state.deletedNodes.set(
-                    //                 path.node,
-                    //                 nextPath
-                    //             );
-                    //             path.remove();
-                    //             break;
-                    //         }
-                    //     }
-                    // });
-
-                    let globalESMImports = new Map();
-                    this.state.globalESMImports.forEach((paths, node) => {
-                        let importPath = path.unshiftContainer('body', node)[0];
-                        this.markNodeDeep(node, '$t_cjs_temp_import');
-                        globalESMImports.set(importPath, paths);
-                    });
-                    this.state.globalESMImports = globalESMImports;
-
-                    let globalESMExports = new Map();
-                    this.state.globalESMExports.forEach((paths, node) => {
-                        let exportPath = path.pushContainer('body', node)[0];
-                        this.markNodeDeep(node, '$t_cjs_temp_export');
-                        globalESMExports.set(exportPath, paths);
-                    });
-                    this.state.globalESMExports = globalESMExports;
-                },
-            },
             CallExpression: {
                 enter: (path) => {
                     const {node} = path;
-                    // Look for `require()` any renaming is assumed to be intentionally
-                    // done to break state kind of check, so we won't look for aliases.
+
                     if (
                         t.isIdentifier(node.callee) &&
                         node.callee.name === 'require'
                     ) {
-                        // Require must be global for us to consider this a CommonJS
-                        // module.
                         this.state.isCJS = true;
 
-                        // Normalize the string value, default to the standard string
-                        // literal format of `{ value: "" }`.
                         let source = getStaticValue(node.arguments[0]);
 
                         if (source === false) {
                             console.warn(
-                                `Dynamic requires are not currently supported: ${path.toString()}. please configure dynamicrequiretargets`
+                                `Dynamic cjsRequireModules are not currently supported: ${path.toString()}. please configure dynamicrequiretargets`
                             );
 
                             return;
                         }
 
-                        const specifiers = [];
                         let {parentPath} = path;
                         let {node: parentNode} = parentPath;
 
-                        let childScopeRequireNames = null;
-
-                        if (!t.isProgram(path.scope.path)) {
-                            childScopeRequireNames =
-                                this.state.childScopeRequires.get(source);
-                            if (!childScopeRequireNames) {
-                                childScopeRequireNames = new Set();
-                                this.state.childScopeRequires.set(
-                                    source,
-                                    childScopeRequireNames
-                                );
-                            }
+                        let requireNames =
+                            this.state.cjsRequireModules.get(source);
+                        if (!requireNames) {
+                            requireNames = new Set();
+                            this.state.cjsRequireModules.set(
+                                source,
+                                requireNames
+                            );
                         }
 
-                        // Convert to named import.
                         // let {a} = require('a')
-                        if (t.isObjectPattern(parentNode.id)) {
-                            if (childScopeRequireNames) {
-                                parentNode.id.properties.forEach((prop) => {
-                                    childScopeRequireNames.add(prop.key);
-                                });
-                                return;
-                            }
+                        let objectPatternPath = path.findParent((parent) => {
+                            return t.isObjectPattern(parent.node.id);
+                        });
 
-                            parentNode.id.properties.forEach((prop) => {
-                                specifiers.push(
-                                    t.importSpecifier(
-                                        t.identifier(prop.value),
-                                        t.identifier(prop.key)
-                                    )
-                                );
-                            });
-                        } else if (t.isMemberExpression(parentNode)) {
-                            // let a = require('a')[a]，属于动态导入
-                            if (parentNode.computed) {
-                                console.warn(
-                                    `Dynamic requires are not currently supported: ${path.toString()}. please configure dynamicrequiretargets`
-                                );
-
-                                return;
-                            }
-
-                            if (childScopeRequireNames) {
-                                childScopeRequireNames.add(
-                                    parentNode.property.key
-                                );
-                                return;
-                            }
-
-                            specifiers.push(
-                                t.importSpecifier(
-                                    t.identifier(parentNode.property.name),
-                                    t.identifier(parentNode.property.name)
-                                )
+                        if (objectPatternPath) {
+                            objectPatternPath.node.properties.forEach(
+                                (prop) => {
+                                    requireNames.add(prop.key);
+                                }
                             );
-                        } else if (source) {
-                            // Convert to default import.
-                            if (childScopeRequireNames) {
-                                childScopeRequireNames.add('default');
+                        } else if (t.isMemberExpression(parentNode)) {
+                            // require('a').a
+                            let name = getStaticMemberPro(parentNode);
+
+                            // let a = require('a')[a]，属于动态导入
+                            if (name === false) {
+                                console.warn(
+                                    `Dynamic cjsRequireModules are not currently supported: ${path.toString()}. please configure dynamicrequiretargets`
+                                );
+
                                 return;
                             }
 
+                            requireNames.add(name);
+                        } else if (source) {
+                            // require('./a')
+                            // 声明语句才有：let a = require('./a')
                             let declaratorParentPath = path.find((path) => {
                                 return t.isVariableDeclarator(path);
                             });
-
                             let name =
-                                (declaratorParentPath.node.id &&
+                                (declaratorParentPath &&
+                                    declaratorParentPath.node.id &&
                                     declaratorParentPath.node.id.name) ||
                                 '';
-                            let id = name
-                                ? t.identifier(name)
-                                : path.scope.generateUidIdentifier();
+                            let usedNames = [];
 
-                            // 由 require 转换的 import default 节点
-                            // 标记
-                            // 当 tree shake 时，对于这类节点：
-                            // 1. 这类节点默认在本文件使用
-                            // 2. 当找到依赖文件时，依赖文件的 $t_cjs_temp_export（exports 转换的 export 节点）节点默认全部被有效 import
-                            let defaultImportNode =
-                                t.importDefaultSpecifier(id);
+                            if (name) {
+                                let binding = path.scope.getBinding(name);
 
-                            this.markNodeDeep(
-                                defaultImportNode,
-                                '$t_cjs_temp_default_import'
-                            );
-                            specifiers.push(defaultImportNode);
+                                binding.referencePaths.every((rPath) => {
+                                    let {parent} = rPath;
+
+                                    if (!t.isMemberExpression(parent)) {
+                                        usedNames = [];
+                                        return;
+                                    } else {
+                                        let proKey = getStaticMemberPro(parent);
+
+                                        if (proKey === false) {
+                                            usedNames = [];
+                                            return;
+                                        }
+
+                                        usedNames.push(proKey);
+                                        return true;
+                                    }
+                                });
+
+                                usedNames = unique(usedNames);
+                                usedNames = usedNames.filter(
+                                    (n) => n !== 'default'
+                                );
+                            }
+
+                            if (usedNames.length) {
+                                usedNames.forEach((n) => {
+                                    requireNames.add(n);
+                                });
+                            } else {
+                                requireNames.add('default');
+                            }
                         }
-
-                        const importDeclaration = t.importDeclaration(
-                            specifiers,
-                            t.stringLiteral(source)
-                        );
-
-                        this.state.globalESMImports.set(importDeclaration, [
-                            path.find((path) => {
-                                return t.isProgram(path.parentPath);
-                            }),
-                        ]);
                     }
                 },
             },
@@ -343,62 +241,34 @@ class TransformCommonJs {
 
             AssignmentExpression: {
                 enter: (path) => {
-                    if (path.node.$t_ignore) {
-                        return;
-                    }
-
-                    path.node.$t_ignore = true;
-
                     let generateExportNode = (path, name) => {
                         let exportName = name;
                         let rightNode = path.node.right;
 
                         if (t.isIdentifier(rightNode)) {
-                            let exportNamedDeclaration =
-                                t.exportNamedDeclaration(null, [
-                                    t.exportSpecifier(
-                                        t.identifier(rightNode.name),
-                                        t.identifier(exportName)
-                                    ),
-                                ]);
-                            this.state.globalESMExports.set(
-                                exportNamedDeclaration,
-                                [
-                                    path.find((path) => {
-                                        return t.isProgram(path.parentPath);
-                                    }),
-                                ]
+                            this.state.cjsExportModules.set(
+                                exportName,
+                                path.find((path) => {
+                                    return t.isProgram(path.parentPath);
+                                })
                             );
                         } else {
                             let id =
-                                path.scope.generateUidIdentifierBasedOnNode(
-                                    rightNode,
-                                    exportName
-                                );
+                                path.scope.generateUidIdentifier(exportName);
                             let declaration = t.variableDeclaration('let', [
                                 t.variableDeclarator(id, rightNode),
                             ]);
-                            let declarationPath =
-                                path.insertBefore(declaration)[0];
-                            path.scope.registerBinding('let', declarationPath);
+
+                            path.insertBefore(declaration);
 
                             let rightPath = path.get('right');
                             rightPath.replaceWith(id);
 
-                            let exportNamedDeclaration =
-                                t.exportNamedDeclaration(null, [
-                                    t.exportSpecifier(
-                                        id,
-                                        t.identifier(exportName)
-                                    ),
-                                ]);
-                            this.state.globalESMExports.set(
-                                exportNamedDeclaration,
-                                [
-                                    path.find((path) => {
-                                        return t.isProgram(path.parentPath);
-                                    }),
-                                ]
+                            this.state.cjsExportModules.set(
+                                exportName,
+                                path.find((path) => {
+                                    return t.isProgram(path.parentPath);
+                                })
                             );
                         }
                     };
@@ -415,7 +285,7 @@ class TransformCommonJs {
                         const moduleBinding = path.scope.getBinding('module');
                         const exportsBinding = path.scope.getBinding('exports');
 
-                        // Something like `module.exports.namedExport = true;`.
+                        // module.exports.x = 1; 不包含子属性 module.exports.x.y = 1;
                         if (
                             t.isMemberExpression(path.node.left.object) &&
                             path.node.left.object.object.name === 'module'
@@ -424,27 +294,28 @@ class TransformCommonJs {
                                 return;
                             }
 
-                            this.state.isCJS = true;
-
                             if (
-                                getStaticMemberProValue(
-                                    path.node.left.object
-                                ) === 'exports'
+                                getStaticMemberPro(path.node.left.object) ===
+                                'exports'
                             ) {
-                                let name = getStaticMemberProValue(
-                                    path.node.left
-                                );
+                                let name = getStaticMemberPro(path.node.left);
 
                                 // 动态导出，不转换
                                 if (name === false) {
                                     return;
                                 }
 
+                                if (this.ingorekeys.includes(name)) {
+                                    return;
+                                }
+
+                                this.state.isCJS = true;
+
                                 generateExportNode(path, name);
                             }
                         } else if (path.node.left.object.name === 'exports') {
-                            // Check for regular exports
-                            let name = getStaticMemberProValue(path.node.left);
+                            // exports.x = 1; 不包含子属性 exports.x.y = 1;
+                            let name = getStaticMemberPro(path.node.left);
                             if (
                                 exportsBinding ||
                                 // If export is named "default" leave as is.
@@ -454,6 +325,10 @@ class TransformCommonJs {
                                 name === 'default' ||
                                 name === false
                             ) {
+                                return;
+                            }
+
+                            if (this.ingorekeys.includes(name)) {
                                 return;
                             }
 
@@ -468,19 +343,17 @@ class TransformCommonJs {
             MemberExpression: {
                 enter: (path) => {
                     if (
-                        path.node.$t_ignore2 ||
-                        this.state.isDynamicUsedExportsProperty
+                        this.state.isDynamicUsedExportsProperty ||
+                        this.state.isUsedExportsObject
                     ) {
                         return;
                     }
-
-                    path.node.$t_ignore2 = true;
 
                     const moduleBinding = path.scope.getBinding('module');
                     const exportsBinding = path.scope.getBinding('exports');
 
                     let addUsedExports = () => {
-                        let exportsProVal = getStaticMemberProValue(path.node);
+                        let exportsProVal = getStaticMemberPro(path.node);
 
                         // 动态访问了 exports 上的属性
                         if (exportsProVal === false) {
@@ -491,12 +364,21 @@ class TransformCommonJs {
                         this.state.usedExports.add(exportsProVal);
                     };
 
+                    // 连等情况
+                    // let a = exports.x = 1，返回true，不算对x的引用，可直接删除exports.x
+                    // let a = exports.x.y = 1, 返回false，算对x的引用，不会删除exports.x
                     let checkIsAssignmentExpressionLeft = () => {
                         let parentPath = path.parentPath;
+
+                        if (!t.isAssignmentExpression(parentPath)) {
+                            return false;
+                        }
+
                         let leftPath = parentPath.get('left');
                         return leftPath === path;
                     };
 
+                    // module.exports.x
                     if (
                         t.isMemberExpression(path.node.object) &&
                         path.node.object.object.name === 'module'
@@ -509,7 +391,7 @@ class TransformCommonJs {
                             return;
                         }
 
-                        let staticModuleProVal = getStaticMemberProValue(
+                        let staticModuleProVal = getStaticMemberPro(
                             path.node.object
                         );
 
@@ -527,6 +409,7 @@ class TransformCommonJs {
 
                         addUsedExports();
                     } else if (path.node.object.name === 'exports') {
+                        // exports.x
                         if (exportsBinding) {
                             return;
                         }
@@ -536,10 +419,92 @@ class TransformCommonJs {
                         }
 
                         addUsedExports();
+                    } else if (path.node.object.name === 'module') {
+                        // 直接使用 module.exports 对象整体
+                        if (moduleBinding) {
+                            return;
+                        }
+
+                        let staticModuleProVal = getStaticMemberPro(path.node);
+
+                        if (staticModuleProVal !== 'exports') {
+                            return;
+                        }
+
+                        // module.exports.x 情况
+                        // 不算对 module.exports 整体的使用
+                        if (t.isMemberExpression(path.parentPath)) {
+                            return;
+                        }
+
+                        // 到这里该语句一定严格是 module.exports
+                        // 判断是否使用
+                        if (!that.checkUsed(path)) {
+                            return;
+                        }
+
+                        this.state.isUsedExportsObject = true;
+                    }
+                },
+            },
+
+            Identifier: {
+                enter: (path) => {
+                    if (
+                        this.state.isDynamicUsedExportsProperty ||
+                        this.state.isUsedExportsObject
+                    ) {
+                        return;
+                    }
+
+                    // 直接使用 exports 对象整体
+                    if (
+                        // 是exports
+                        path.node.name === 'exports' &&
+                        // 父节点不是对象属性访问，例如：module.exports
+                        !t.isMemberExpression(path.parentPath) &&
+                        // 作用域无 binding exports
+                        !path.scope.getBinding('exports') &&
+                        that.checkUsed(path)
+                    ) {
+                        this.state.isUsedExportsObject = true;
                     }
                 },
             },
         });
+    }
+
+    // 检查是否赋值给其他变量
+    checkUsed(path) {
+        let parentPath = path.parentPath;
+
+        // 处于等式左边，且右边不为 Identifier
+        // 即语句类似于：exports = {}
+
+        // 且该语句没有赋值给其他语句，例如：
+        // let a = exports = {}
+        // a = exports = {}
+        // {a: exports = {}}
+        // [exports = {}] 等等
+
+        // 这里没有去一一判断，而是作了简单处理
+        // 判断 exports = {} 的父节点为作用域语句，例如：
+        // function(){exports = {}}
+        // if(a){exports = {}}
+        // 但这会造成漏判，例如：
+        // if(exports = {}){}
+        // 并没有将 exports 赋值给其他变量，但这里拦截不了
+        if (
+            t.isAssignmentExpression(parentPath) &&
+            parentPath.get('left') === path &&
+            !t.isIdentifier(parentPath.get('right')) &&
+            // 父节点是赋值语句，且父节点直接在作用域语句中
+            t.isScopable(parentPath.parentPath)
+        ) {
+            return false;
+        }
+
+        return true;
     }
 }
 
