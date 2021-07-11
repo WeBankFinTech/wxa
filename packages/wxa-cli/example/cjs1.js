@@ -1,12 +1,10 @@
-let fn1= require('./cjs2').fn1;
-
+let fn1 = require('./cjs2').fn1;
 
 fn1();
 
-
-Object.defineProperty(exports, '__esModule', {
-    value: true,
-});
+// Object.defineProperty(exports, '__esModule', {
+//     value: true,
+// });
 exports.getFiles = getFiles;
 // exports.getConfig = getConfig;
 module.exports.readFile = readFile;
@@ -26,17 +24,16 @@ exports.getClassSet = getClassSet;
 exports.addClass = addClass;
 exports.removeClass = removeClass;
 
-module.exports ={getFiles};
-
+module.exports = {getFiles};
 
 function getFiles(dir = process.cwd(), prefix = '') {
     let rst = [];
 
-    exports.rst= rst;
+    exports.rst = rst;
 
-    let aaaa= 'aaa';
+    let aaaa = 'aaa';
     // exports[aaaa] = aaaa;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
+
     // let ttt= require('sss');
 
     // console.log(ttt);
@@ -54,44 +51,28 @@ function getFiles(dir = process.cwd(), prefix = '') {
 //     return config;
 // }
 
-function readFile(p) {
+function readFile(p) {}
 
-}
+function writeFile(p, data) {}
 
-function writeFile(p, data) {
-   
-}
+function isFile(p) {}
 
-function isFile(p) {
-  
-}
+function isDir(p) {}
 
-function isDir(p) {
+function getRelative(opath) {}
 
-}
+function getDistPath(opath, ext, src, dist) {}
 
-function getRelative(opath) {
-   
-}
+function copy(from, to) {}
 
-function getDistPath(opath, ext, src, dist) {
-
-}
-
-function copy(from, to) {
-    
-}
-
-function amazingCache(params, needCache) {
-
-}
+function amazingCache(params, needCache) {}
 
 function applyPlugins(plugins, compiler) {
     if (plugins == null) return; // console.log(plugins);
 
     if (typeof plugins !== 'object') {
-throw new Error('wxa配置文件有误，plugins');
-}
+        throw new Error('wxa配置文件有误，plugins');
+    }
     if (!Array.isArray(plugins)) plugins = [plugins];
     plugins.forEach((plugin) => plugin.apply(compiler));
 }
@@ -100,11 +81,9 @@ function isEmpty(n) {
     return n == null || n === '';
 }
 
-function getHash(filepath) {
-}
+function getHash(filepath) {}
 
-function getHashWithString(content) {
-}
+function getHashWithString(content) {}
 
 function promiseSerial(funs) {
     return funs.reduce((promise, fun) => {
@@ -137,8 +116,4 @@ function removeClass(classStr, destClass) {
 }
 // # sourceMappingURL=utils.js.map
 
-exports.a=function m() {
-    
-};
-
-
+exports.a = function m() {};

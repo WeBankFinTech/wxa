@@ -95,9 +95,9 @@ class Graph {
 
         let store = (name, path, node) => {
             if (isRoot) {
-                path.$extReferences = ['root'];
+                path.$extReferences = new Set().add('root');
             } else {
-                path.$extReferences = [];
+                path.$extReferences = new Set();
             }
             let expSrc = this.getExpSrc(node, src);
             exports[expSrc] = exports[expSrc] || {};
@@ -312,28 +312,39 @@ class Graph {
              * }
              */
 
-            transformCommonJs.state.cjsRequireModules.forEach(
-                (names, requireSrc) => {
-                    let abSrc = this.getAbsolutePath(src, requireSrc);
+            if (transformCommonJs) { 
+                transformCommonJs.state.cjsRequireModules.forEach(
+                    (names, requireSrc) => {
+                        let abSrc = this.getAbsolutePath(src, requireSrc);
 
-                    imports[abSrc] = imports[abSrc] || {};
-                    Array.from(names).forEach((name) => {
-                        if (name === 'default') {
-                            imports[abSrc].default = 'custom_import_name';
-                            imports[abSrc]['*'] = 'custom_import_name';
-                            return;
+                        imports[abSrc] = imports[abSrc] || {};
+                        Array.from(names).forEach((name) => {
+                            if (name === 'default') {
+                                imports[abSrc].default = 'custom_import_name';
+                                imports[abSrc]['*'] = 'custom_import_name';
+                                return;
+                            }
+
+                            imports[abSrc][name] = 'custom_import_name';
+                        });
+                    }
+                );
+
+                transformCommonJs.state.cjsExportModules.forEach(
+                    (path, name) => {
+                        exports[src] = exports[src] || {};
+                        exports[src][name] = path;
+                        path.$isCjsExport = true;
+                        if (isRoot) {
+                            path.$extReferences = new Set().add('root');
+                        } else {
+                            path.$extReferences = new Set();
                         }
 
-                        imports[abSrc][name] = 'custom_import_name';
-                    });
-                }
-            );
-
-            transformCommonJs.state.cjsExportModules.forEach((path, name) => {
-                exports[src] = imports[src] || {};
-                exports[src][name] = path;
-                path.$isCjsExport = true;
-            });
+                        // console.log('s：', name, path.toString());
+                    }
+                );
+            }
 
             let dep = {
                 src,
