@@ -65,20 +65,25 @@ class TransformCommonJs {
         // 如果一个模块被其他模块动态导入
         // 不对这个模块做任何处理
         if (dynamicRequireTargets.includes(src) || !config.commonJS.enable) {
-            return {src, code};
+            return;
         }
 
         this.ingorekeys = config.commonJS.ingoreKeys;
 
         this.transform(this.ast, options);
 
-        console.log('cjsRequireModules', this.state.cjsRequireModules);
-        console.log('usedExports', this.state.usedExports);
-        console.log(
-            'isDynamicUsedExportsProperty',
-            this.state.isDynamicUsedExportsProperty
-        );
-        console.log('isUsedExportsObject', this.state.isUsedExportsObject);
+        if (this.state.isCJS) {
+            console.log('---------');
+            console.log('cjsRequireModules', this.state.cjsRequireModules);
+            console.log('usedExports', this.state.usedExports);
+            console.log(
+                'isDynamicUsedExportsProperty',
+                this.state.isDynamicUsedExportsProperty
+            );
+            console.log('isUsedExportsObject', this.state.isUsedExportsObject);
+            // console.log('cjsExportModules', this.state.cjsExportModules);
+            console.log('---------');
+        }
     }
 
     reset() {
@@ -94,11 +99,13 @@ class TransformCommonJs {
     deleteCJSExport(exportName) {
         if (
             this.state.isDynamicUsedExportsProperty ||
-            this.state.usedExports.has(name) ||
+            this.state.usedExports.has(exportName) ||
             this.state.isUsedExportsObject
         ) {
             return;
         }
+
+        console.log(exportName);
 
         Array.from(this.state.cjsExportModules).some(([name, cjsPath]) => {
             if (exportName === name) {
@@ -499,7 +506,7 @@ class TransformCommonJs {
             parentPath.get('left') === path &&
             !t.isIdentifier(parentPath.get('right')) &&
             // 父节点是赋值语句，且父节点直接在作用域语句中
-            t.isScopable(parentPath.parentPath)
+            t.isScopable(parentPath.parentPath.parentPath)
         ) {
             return false;
         }

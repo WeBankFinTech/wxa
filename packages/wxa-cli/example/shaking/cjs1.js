@@ -1,13 +1,13 @@
 let fn1 = require('./cjs2').fn1;
 
-fn1();
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
+fn1(); // Object.defineProperty(exports, '__esModule', {
+//     value: true,
+// });
+
 exports.writeFile = writeFile;
 exports.isFile = isFile;
 module.exports = {
-  getFiles
+  getFiles,
 };
 
 function getFiles(dir = process.cwd(), prefix = '') {
@@ -30,4 +30,4 @@ function writeFile(p, data) {}
 
 function isFile(p) {}
 
-let _m = function m() {};
+let _a = function m() {};

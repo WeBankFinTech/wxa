@@ -1,3 +1,4 @@
+import './user2';
 export {};
 
 function getAge(params) {}
@@ -9,3 +10,5 @@ let mm1 = 1,
 
 export {};
 export {};
+export {};
+export {} from './user2';
