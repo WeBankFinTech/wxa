@@ -164,6 +164,13 @@ class CompilerLoader {
         await this.promiseSerial(tasks);
         debug('finish with module %O', mdl);
     }
+
+    clean() {
+        for (let task of this.loaders) {
+            let {loader} = task;
+            loader.destroy && loader.destroy();
+        }
+    }
 }
 
 // const compilerLoader = new CompilerLoader(process.cwd());

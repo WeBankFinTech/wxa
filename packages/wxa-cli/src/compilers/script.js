@@ -2,6 +2,7 @@ import {readFile} from '../utils';
 import logger from '../helpers/logger';
 import generator from '@babel/generator';
 import {parse} from '@babel/parser';
+import {wxaPerformance} from '../helpers/performance';
 
 export default class scriptCompiler {
     parse(filepath, code, configs) {
@@ -11,7 +12,9 @@ export default class scriptCompiler {
 
         let ast;
         try {
+            wxaPerformance.markStart('wxa_dep_analysis-dep-parse-babel ' + filepath);
             ast = parseESCode(code, [], configs);
+            wxaPerformance.markEnd('wxa_dep_analysis-dep-parse-babel ' + filepath);
         } catch (e) {
             logger.error('编译失败', e);
             return Promise.reject(e);
