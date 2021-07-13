@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import debugPKG from 'debug';
 import cache from './fs-cache';
+import workerFarm from 'worker-farm';
 
 let debug = debugPKG('WXA:BABEL_Loader');
 
@@ -36,8 +37,15 @@ function amazingCache(params, needCache) {
     }
 }
 
+const FARM_OPTIONS = {
+    maxConcurrentWorkers        : require('os').cpus().length,
+    maxCallsPerWorker           : Infinity,
+    maxConcurrentCallsPerWorker : 1
+};
+
 class BabelLoader {
     constructor(cwd, configs) {
+        // console.log('configs', configs);
         // default match file path.
         this.test = /\.js$|\.wxs$/;
 
@@ -58,6 +66,13 @@ class BabelLoader {
 
         // setup default babel config
         this.configs = this.configs || configs || {};
+        configs = configs || {};
+        this.enableConcurrent = Boolean(configs.concurrent);
+        let farmOptions = {
+            ...FARM_OPTIONS,
+            ...configs.farmOptions, 
+        }
+        this.babelWorker = workerFarm(farmOptions, require.resolve('./babel-compile'));
         // process ignore to compat babel6
         if (
             typeof this.configs.ignore === 'string' || 
@@ -74,12 +89,12 @@ class BabelLoader {
         }
     }
 
-    transform(type, ...args) {
+    transform({type, code, src, options}) {
         let map = new Map([['transform', transform], ['transformFile', transformFile]]);
 
         return new Promise((resolve, reject)=>{
-            debug('arguments %O', args)
-            map.get(type).call(null, ...args, function(err, result){
+            // debug('arguments %O', args)
+            map.get(type).call(null, code || src, options, function(err, result){
                 if(err) reject(err);
 
                 resolve(result)
@@ -87,9 +102,27 @@ class BabelLoader {
         })
     }
 
+    workerTransform({type, code, src, options: {filename, ...configs}}) {
+        return new Promise((resolve, reject) => {
+            this.babelWorker({
+                type, 
+                source: code || src, 
+                options: {
+                    ...configs,
+                    filename,
+                }
+            }, (err, ret) => {
+                if (err) return reject(err);
+                
+                resolve(ret)
+            })
+        })
+    }
 
     async parse(mdl, cmdOptions) {
+        // console.log('counter', counter, timer);
         debug('transform started %O', mdl);
+        let i = Date.now();
 
         let {meta: {source: src}, content: code} = mdl;
 
@@ -111,12 +144,12 @@ class BabelLoader {
                     filename: src
                 },
                 transform: ()=>{
-                    return this.transform(type, code || src, {
-                        ...configs,
-                        filename: src,
-                    });
+                    let param = {type, code, src, options: {...configs, filename: src}};
+                    return this.enableConcurrent ? this.workerTransform(param) : this.transform(param);
                 }
             }, cmdOptions.cache);
+
+            // timer += Date.now() - i;
 
             debug('transform succ %s', ret.code);
             return Promise.resolve({ret, code: ret.code, sourceMap: ret.map});
@@ -138,6 +171,9 @@ class BabelLoader {
         return path.replace(/\\/g, '/');
     }
 
+    destroy() {
+        workerFarm.end(this.babelWorker);
+    }
 }
 
 export default BabelLoader;
