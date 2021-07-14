@@ -1,4 +1,5 @@
 import path from 'path';
+import fs from 'fs';
 import {exec} from 'child_process';
 import logger from './helpers/logger';
 import inquirer from 'inquirer';
@@ -19,7 +20,13 @@ class Toolcli {
                 darwin: '/Contents/Resources/app.nw/bin/cli',
                 win32: '/cli.bat',
             };
+            let darwinV2 = '/Contents/MacOS/cli';
             this.cliPath = clipath[process.platform];
+            // V2 改版之后路径变更
+            // TODO: 支持新版本的命令行调用
+            if (!fs.existsSync(path.normalize(`"${this.appPath}${this.cliPath}"`))) {
+                this.cliPath = darwinV2;
+            }
         } else {
             throw new Error('微信开发者工具不支持的系统类型');
         }
