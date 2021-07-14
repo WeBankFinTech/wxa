@@ -32,20 +32,3 @@ function treeShake(options = {}) {
 module.exports = {
     treeShake,
 };
-
-// console.time('end');
-// let path = require('path');
-// const {writeFile} = require('./util');
-// let entrySrc = path.resolve(__dirname, '../../example/index.js');
-// let files = treeShake({
-//     entry: [{src: entrySrc}],
-//     commonJS: {enable: true},
-// });
-
-// Object.values(files).forEach(({src, formattedCode}) => {
-//     writeFile(
-//         path.resolve(path.dirname(src), './shaking', path.basename(src)),
-//         formattedCode
-//     );
-// });
-// console.timeEnd('end');
