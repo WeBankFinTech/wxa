@@ -5,9 +5,10 @@ const {
     resolveDepSrc,
     parseESCode,
     dceDeclaration,
+    log,
 } = require('./util');
 let config = require('./config');
-let {TransformCommonJs} = require('./tansform-commonJS');
+let {CommonJS} = require('./shake-cjs');
 
 class Graph {
     constructor(entries) {
@@ -151,12 +152,15 @@ class Graph {
                     if (node.specifiers && node.specifiers.length) {
                         storeSpecifiers(path, node);
                     } else {
-                        let {specifiers, declarationPath} =
-                            transformExportDeclarationToSpecifiers(path);
+                        // 类似于export function mm(){}
+                        // 单独声明 function mm(){}，并export default mm
+                        let {
+                            specifiers,
+                            declarationPath,
+                        } = transformExportDeclarationToSpecifiers(path);
 
-                        let newDeclarationPath = path.insertBefore(
-                            declarationPath.node
-                        )[0];
+                        path.insertBefore(declarationPath.node);
+
                         let exportNamedDeclaration = t.exportNamedDeclaration(
                             null,
                             specifiers
@@ -164,14 +168,8 @@ class Graph {
                         let newExportPath = path.insertAfter(
                             exportNamedDeclaration
                         )[0];
-                        // 删除声明节点会同时删除相应binding
-                        path.remove();
-                        // 注册binding
-                        // 注册binding是根据path来注册
-                        // path.scope.registerBinding(declarationPath.node.kind || 'hoisted', newDeclarationPath);
-                        // 注册binding，并不会自动更新相应binding的referencePaths等信息，调用crawl更新
-                        // path.scope.crawl();
 
+                        path.remove();
                         storeSpecifiers(newExportPath, node);
                     }
                 },
@@ -179,26 +177,37 @@ class Graph {
             ExportDefaultDeclaration: {
                 enter: (path) => {
                     let {node} = path;
-                    let declarationNode = node.declaration;
-                    let exportPath = path;
+                    let declarationPath = path.get('declaration');
+                    let declarationNode = declarationPath.node;
 
-                    // TODO，未处理 export default a=1 这类表达式
-                    // 类似于export default function mm(){}
-                    // 单独声明mm，并export default mm
-                    if (declarationNode.id && declarationNode.id.name) {
-                        let newDeclarationPath =
-                            path.insertBefore(declarationNode)[0];
-                        let exportDefaultNode = t.exportDefaultDeclaration(
-                            t.identifier(declarationNode.id.name)
-                        );
-                        exportPath = path.insertAfter(exportDefaultNode)[0];
-                        path.remove();
-                        // 注册binding
-                        // path.scope.registerBinding( declarationNode.kind || 'hoisted', newDeclarationPath);
-                        // path.scope.crawl();
+                    // 类似于 export default function mm(){}
+                    // 单独声明 mm，然后 export default mm
+                    if (
+                        (t.isFunctionDeclaration(declarationNode) ||
+                            t.isClassDeclaration(declarationNode)) &&
+                        declarationNode.id &&
+                        declarationNode.id.name
+                    ) {
+                        path.insertBefore(declarationNode);
+                        declarationPath.replaceWith(declarationNode.id);
+                    } else if (
+                        !t.isFunctionDeclaration(declarationNode) &&
+                        !t.isClassDeclaration(declarationNode) &&
+                        !t.isIdentifier(declarationNode)
+                    ) {
+                        // 类似于 export default {}
+                        // 单独声明 let _temp = {}，然后 export default _temp
+                        let id = path.scope.generateUidIdentifier();
+                        let declaration = t.variableDeclaration('let', [
+                            t.variableDeclarator(id, declarationNode),
+                        ]);
+                        path.insertBefore(declaration);
+                        declarationPath.replaceWith(id);
                     }
 
-                    store('default', exportPath, node);
+                    // 剩余情况：export default a, export default function(){}
+
+                    store('default', path, node);
                 },
             },
             ExportAllDeclaration: {
@@ -239,16 +248,11 @@ class Graph {
                 content = entry.content;
             }
 
-            // if (src.endsWith('user.js')) {
-            //     console.log('src', src);
-            //     this.debug = true;
-            // }
-
             if (analyzedFile[src]) {
                 return analyzedFile[src];
             }
-
-            console.log('graph', src);
+            
+            log('graph', src);
 
             let code = content || readFile(src);
             let ast = parseESCode(code);
@@ -257,7 +261,7 @@ class Graph {
 
             let topScope = null;
 
-            let transformCommonJs = new TransformCommonJs({src, code, ast});
+            let commonjs = new CommonJS({src, code, ast});
 
             let {visitor: exportVisitor, exports} = this.collectExport(
                 src,
@@ -274,10 +278,6 @@ class Graph {
                 ...exportVisitor,
                 ...importVisitor,
             });
-
-            // console.log(src);
-            // console.log('imports', imports);
-            // console.log('exports', exports);
 
             // import * 和 export * 不包括default
             // export * from '' 和 export 本文件冲突，export 本文件优先级更高
@@ -312,36 +312,37 @@ class Graph {
              * }
              */
 
-            if (transformCommonJs) { 
-                transformCommonJs.state.cjsRequireModules.forEach(
-                    (names, requireSrc) => {
-                        let abSrc = this.getAbsolutePath(src, requireSrc);
+            commonjs.state.cjsRequireModules.forEach(
+                (names, requireSrc) => {
+                    let abSrc = this.getAbsolutePath(src, requireSrc);
 
-                        imports[abSrc] = imports[abSrc] || {};
-                        Array.from(names).forEach((name) => {
-                            if (name === 'default') {
-                                imports[abSrc].default = 'custom_import_name';
-                                imports[abSrc]['*'] = 'custom_import_name';
-                                return;
-                            }
+                    imports[abSrc] = imports[abSrc] || {};
+                    Array.from(names).forEach((name) => {
+                        if (name === 'default') {
+                            imports[abSrc].default = 'custom_import_name';
+                            imports[abSrc]['*'] = 'custom_import_name';
+                            return;
+                        }
 
-                            imports[abSrc][name] = 'custom_import_name';
-                        });
-                    }
-                );
+                        imports[abSrc][name] = 'custom_import_name';
+                    });
+                }
+            );
 
-                transformCommonJs.state.cjsExportModules.forEach(
+            if (!commonjs.state.dynamicRequired) {
+                commonjs.state.cjsExportModules.forEach(
                     (path, name) => {
                         exports[src] = exports[src] || {};
                         exports[src][name] = path;
                         path.$isCjsExport = true;
+
                         if (isRoot) {
                             path.$extReferences = new Set().add('root');
                         } else {
                             path.$extReferences = new Set();
                         }
 
-                        // console.log('s：', name, path.toString());
+                        // log('cjsExportName', name, path.toString());
                     }
                 );
             }
@@ -355,28 +356,8 @@ class Graph {
                 children: [],
                 topScope,
                 isRoot,
-                transformCommonJs,
+                commonjs,
             };
-
-            // const generate = require('@babel/generator').default;
-            // const {writeFile} = require('./util');
-            // let path = require('path');
-            // const {code: outputCode} = generate(
-            //     ast,
-            //     {
-            //         /* options */
-            //         decoratorsBeforeExport: true,
-            //     },
-            //     code
-            // );
-            // writeFile(
-            //     path.resolve(
-            //         path.dirname(src),
-            //         './shaking',
-            //         path.basename(src)
-            //     ),
-            //     outputCode
-            // );
 
             analyzedFile[src] = dep;
 

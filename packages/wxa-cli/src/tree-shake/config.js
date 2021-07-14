@@ -1,16 +1,13 @@
 module.exports = {
-    entry: [
-        {
-            // 路径
-            src: '',
-            // 文件内容（可选）
-            content: '',
-        },
-    ],
+    // {
+    //    src: '', // 路径
+    //    content: '', // 文件内容（可选）
+    // },
+    entry: [],
     resolveSrc: {
         // '/a/b/c'，绝对路径根目录
         // 例如src, '/a/b/c' 转换为 /src/a/b/b
-        root: '',
+        root: 'src',
         // {'@': 'src'}，路径别名
         alias: {},
         npm: 'node_modules',
@@ -18,23 +15,25 @@ module.exports = {
     commonJS: {
         enable: false,
         // 无法追踪动态引入的模块
-        // 如果有模块被动态引入，需要在这里设置该模块路径
-        // 将跳过对该模块的 cjs 转 esm
+        // 如果有模块被动态引入，需要在这里设置该模块文件路径
+        // 将跳过对该文件的 tree shake
         dynamicRequireTargets: [],
         // 设置 exports 上的哪些属性不会被转换为 esm
         // 默认值有 '__esModule'
-        ingoreKeys: [],
+        ingoreKeys: ['__esModule'],
     },
     parseOptions: {
         plugins: [
             ['decorators', {decoratorsBeforeExport: true}],
             'classProperties',
-            'jsx',
-            'typescript',
             'exportNamespaceFrom',
             'exportDefaultFrom',
             'objectRestSpread',
         ],
         sourceType: 'unambiguous',
     },
+    generateOptions: {
+        decoratorsBeforeExport: true,
+    },
+    debug: false,
 };

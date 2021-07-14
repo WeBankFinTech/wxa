@@ -1,18 +1,7 @@
-let path = require('path');
-
 const traverse = require('@babel/traverse').default;
-const generate = require('@babel/generator').default;
-const {
-    readFile,
-    writeFile,
-    parseESCode,
-    isChildNode,
-    unique,
-} = require('./util');
+const {parseESCode, unique, log} = require('./util');
 let t = require('@babel/types');
 const config = require('./config');
-
-let options = {};
 
 function getStaticValue(node) {
     if (t.isStringLiteral(node) || t.isNumericLiteral(node)) {
@@ -27,7 +16,7 @@ function getStaticValue(node) {
     return false;
 }
 
-// node: MemberExpression
+// 获得 MemberExpression 节点的属性的静态值
 function getStaticMemberPro(node) {
     if (node.computed) {
         return getStaticValue(node.property);
@@ -36,7 +25,7 @@ function getStaticMemberPro(node) {
     return node.property.name;
 }
 
-class TransformCommonJs {
+class CommonJS {
     state = {
         // {
         //   moduleName: exports Path
@@ -54,6 +43,7 @@ class TransformCommonJs {
         usedExports: new Set(),
         isDynamicUsedExportsProperty: false,
         isUsedExportsObject: false,
+        dynamicRequired: false,
     };
 
     constructor({src, code, ast}) {
@@ -62,27 +52,31 @@ class TransformCommonJs {
         this.ast = ast || parseESCode(code);
 
         let dynamicRequireTargets = config.commonJS.dynamicRequireTargets || [];
-        // 如果一个模块被其他模块动态导入
-        // 不对这个模块做任何处理
-        if (dynamicRequireTargets.includes(src) || !config.commonJS.enable) {
+
+        if (!config.commonJS.enable) {
             return;
         }
 
         this.ingorekeys = config.commonJS.ingoreKeys;
 
-        this.transform(this.ast, options);
+        this.transform(this.ast);
+
+        if (dynamicRequireTargets.includes(src)) {
+            this.state.dynamicRequired = true;
+            return;
+        }
 
         if (this.state.isCJS) {
-            console.log('---------');
-            console.log('cjsRequireModules', this.state.cjsRequireModules);
-            console.log('usedExports', this.state.usedExports);
-            console.log(
+            log('---------');
+            log('cjsRequireModules', this.state.cjsRequireModules);
+            log('usedExports', this.state.usedExports);
+            log(
                 'isDynamicUsedExportsProperty',
                 this.state.isDynamicUsedExportsProperty
             );
-            console.log('isUsedExportsObject', this.state.isUsedExportsObject);
-            // console.log('cjsExportModules', this.state.cjsExportModules);
-            console.log('---------');
+            log('isUsedExportsObject', this.state.isUsedExportsObject);
+            // log('cjsExportModules', this.state.cjsExportModules);
+            log('---------');
         }
     }
 
@@ -105,8 +99,6 @@ class TransformCommonJs {
             return;
         }
 
-        console.log(exportName);
-
         Array.from(this.state.cjsExportModules).some(([name, cjsPath]) => {
             if (exportName === name) {
                 cjsPath.remove();
@@ -115,18 +107,7 @@ class TransformCommonJs {
         });
     }
 
-    markNodeDeep(node, flag) {
-        node[flag] = true;
-        traverse(node, {
-            noScope: true,
-            enter(path) {
-                let {node} = path;
-                node[flag] = true;
-            },
-        });
-    }
-
-    transform(ast, options = {}) {
+    transform(ast) {
         let that = this;
         traverse(ast, {
             CallExpression: {
@@ -141,6 +122,7 @@ class TransformCommonJs {
 
                         let source = getStaticValue(node.arguments[0]);
 
+                        // 动态导入
                         if (source === false) {
                             console.warn(
                                 `Dynamic cjsRequireModules are not currently supported: ${path.toString()}. please configure dynamicrequiretargets`
@@ -152,8 +134,9 @@ class TransformCommonJs {
                         let {parentPath} = path;
                         let {node: parentNode} = parentPath;
 
-                        let requireNames =
-                            this.state.cjsRequireModules.get(source);
+                        let requireNames = this.state.cjsRequireModules.get(
+                            source
+                        );
                         if (!requireNames) {
                             requireNames = new Set();
                             this.state.cjsRequireModules.set(
@@ -162,7 +145,10 @@ class TransformCommonJs {
                             );
                         }
 
-                        // let {a} = require('a')
+                        // 节点：let {a} = require('a')
+                        // 可能存在的问题，require 的对象被其他函数包装后。例如：
+                        // let {a} = fn(require('a'))
+                        // 此时的 a 并不是原对象的 a 属性
                         let objectPatternPath = path.findParent((parent) => {
                             return t.isObjectPattern(parent.node.id);
                         });
@@ -188,8 +174,9 @@ class TransformCommonJs {
 
                             requireNames.add(name);
                         } else if (source) {
-                            // require('./a')
-                            // 声明语句才有：let a = require('./a')
+                            // 节点是 require('./a') 的情况
+
+                            // 声明语句：let a = require('./a')
                             let declaratorParentPath = path.find((path) => {
                                 return t.isVariableDeclarator(path);
                             });
@@ -200,6 +187,8 @@ class TransformCommonJs {
                                 '';
                             let usedNames = [];
 
+                            // 只有是声明语句才去分析属性的使用情况
+                            // 例如：let a = require('./a')，去分析 a 上哪些属性被访问
                             if (name) {
                                 let binding = path.scope.getBinding(name);
 
@@ -260,8 +249,9 @@ class TransformCommonJs {
                                 })
                             );
                         } else {
-                            let id =
-                                path.scope.generateUidIdentifier(exportName);
+                            let id = path.scope.generateUidIdentifier(
+                                exportName
+                            );
                             let declaration = t.variableDeclaration('let', [
                                 t.variableDeclarator(id, rightNode),
                             ]);
@@ -292,7 +282,8 @@ class TransformCommonJs {
                         const moduleBinding = path.scope.getBinding('module');
                         const exportsBinding = path.scope.getBinding('exports');
 
-                        // module.exports.x = 1; 不包含子属性 module.exports.x.y = 1;
+                        // 节点 module.exports.x = 1;
+                        // 不包含访问子属性 module.exports.x.y = 1;
                         if (
                             t.isMemberExpression(path.node.left.object) &&
                             path.node.left.object.object.name === 'module'
@@ -307,7 +298,7 @@ class TransformCommonJs {
                             ) {
                                 let name = getStaticMemberPro(path.node.left);
 
-                                // 动态导出，不转换
+                                // 动态导出
                                 if (name === false) {
                                     return;
                                 }
@@ -316,20 +307,15 @@ class TransformCommonJs {
                                     return;
                                 }
 
-                                this.state.isCJS = true;
-
                                 generateExportNode(path, name);
                             }
                         } else if (path.node.left.object.name === 'exports') {
-                            // exports.x = 1; 不包含子属性 exports.x.y = 1;
+                            // 节点 exports.x = 1;
+                            // 不包含访问子属性 exports.x.y = 1;
                             let name = getStaticMemberPro(path.node.left);
                             if (
                                 exportsBinding ||
-                                // If export is named "default" leave as is.
-                                // It is not possible to export "default" as a named export.
-                                // e.g. `export.default = 'a'`
-                                // 动态导出和默认导出，不转换
-                                name === 'default' ||
+                                // 动态导出
                                 name === false
                             ) {
                                 return;
@@ -338,8 +324,6 @@ class TransformCommonJs {
                             if (this.ingorekeys.includes(name)) {
                                 return;
                             }
-
-                            this.state.isCJS = true;
 
                             generateExportNode(path, name);
                         }
@@ -385,7 +369,7 @@ class TransformCommonJs {
                         return leftPath === path;
                     };
 
-                    // module.exports.x
+                    // 节点 module.exports.x
                     if (
                         t.isMemberExpression(path.node.object) &&
                         path.node.object.object.name === 'module'
@@ -393,6 +377,8 @@ class TransformCommonJs {
                         if (moduleBinding) {
                             return;
                         }
+
+                        this.state.isCJS = true;
 
                         if (checkIsAssignmentExpressionLeft()) {
                             return;
@@ -402,9 +388,9 @@ class TransformCommonJs {
                             path.node.object
                         );
 
-                        // 动态访问了module上的属性
-                        // 无法确切的知道是否访问了exports属性
-                        // 进而无法知道访问了exports的哪些属性
+                        // 动态访问了 module 上的属性
+                        // 无法确切的知道是否访问了 exports 属性
+                        // 进而无法知道访问了exports 的哪些属性
                         if (staticModuleProVal === false) {
                             this.state.isDynamicUsedExportsProperty = true;
                             return;
@@ -416,10 +402,12 @@ class TransformCommonJs {
 
                         addUsedExports();
                     } else if (path.node.object.name === 'exports') {
-                        // exports.x
+                        // 节点 exports.x
                         if (exportsBinding) {
                             return;
                         }
+
+                        this.state.isCJS = true;
 
                         if (checkIsAssignmentExpressionLeft()) {
                             return;
@@ -431,6 +419,8 @@ class TransformCommonJs {
                         if (moduleBinding) {
                             return;
                         }
+
+                        this.state.isCJS = true;
 
                         let staticModuleProVal = getStaticMemberPro(path.node);
 
@@ -468,13 +458,16 @@ class TransformCommonJs {
                     if (
                         // 是exports
                         path.node.name === 'exports' &&
-                        // 父节点不是对象属性访问，例如：module.exports
+                        // 父节点不是对象属性访问，例如：module.exports 或者 exports.a
                         !t.isMemberExpression(path.parentPath) &&
                         // 作用域无 binding exports
-                        !path.scope.getBinding('exports') &&
-                        that.checkUsed(path)
+                        !path.scope.getBinding('exports')
                     ) {
-                        this.state.isUsedExportsObject = true;
+                        this.state.isCJS = true;
+
+                        if (that.checkUsed(path)) {
+                            this.state.isUsedExportsObject = true;
+                        }
                     }
                 },
             },
@@ -511,31 +504,26 @@ class TransformCommonJs {
             return false;
         }
 
+        // Object.defineProperty(exports, "__esModule", {
+        //     value: true
+        // });
+        // 特殊处理，不算对 exports 整体的使用
+        if (t.isCallExpression(parentPath)) {
+            let nextParam = path.getAllNextSiblings()[0];
+
+            let defineEsModule =
+                t.isStringLiteral(nextParam) &&
+                nextParam.node.value === '__esModule';
+
+            if (defineEsModule) {
+                return false;
+            }
+        }
+
         return true;
     }
 }
 
 module.exports = {
-    TransformCommonJs,
+    CommonJS,
 };
-
-// let src = path.resolve(__dirname, './transform-test.js');
-// let code = readFile(src);
-
-// console.time('transform');
-// let tt = new TransformCommonJs({src, code});
-// console.timeEnd('transform');
-
-// const {code: outputCode} = generate(
-//     tt.ast,
-//     {
-//         /* options */
-//         decoratorsBeforeExport: true,
-//     },
-//     code
-// );
-
-// writeFile(
-//     path.resolve(path.resolve(__dirname, './transform-test-a.js')),
-//     outputCode
-// );

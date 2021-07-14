@@ -32,7 +32,6 @@ function isFile(p) {
 }
 
 function isDir(p) {
-    // console.log(isDir, fs.existsSync(p), p);
     if (!fs.existsSync(p)) {
         return false;
     }
@@ -54,14 +53,28 @@ function getPkgConfig(npmSrc, lib) {
 }
 
 /**
- * import路径：
- * "./a", "a", "@/a", "/a"
- *
+ * 
+ * @description 将import路径解析为绝对路径
+ * @example
+ *  resolveDepSrc({
+        fileSrc: path.join(process.cwd(), './src/a.js'),
+        depSrc: '@/b',
+        root: 'src',
+        alias: {
+            '@': path.join(process.cwd(), '/src/xxx'),
+        },
+    })
+ * @param {string} fileSrc 文件路径
+ * @param {string} depSrc impot 引入的路径（"./a", "a", "@/a", "/a"）
+ * @param {string} root depsrc 为绝对路径（例如：/a）时相对的目录
+ * @param {string} alias 路径别名，例如：{'@': 'src'}
+ * @param {string} npm npm 目录，例如：node_modules
+ * @return {string} 依赖的绝对路径
  */
-
-let cwd = process.cwd();
 function resolveDepSrc({fileSrc, depSrc, root, alias, npm}) {
-    let getDepAbsoulte = (src) => {
+    let cwd = process.cwd();
+
+    let getFileSrc = (src) => {
         if (isDir(src)) {
             return path.join(src, 'index.js');
         }
@@ -90,17 +103,17 @@ function resolveDepSrc({fileSrc, depSrc, root, alias, npm}) {
         });
 
         if (matched) {
-            return getDepAbsoulte(absoluteSrc);
+            return getFileSrc(absoluteSrc);
         }
     }
 
     if (depSrc.startsWith('/')) {
-        return getDepAbsoulte(path.resolve(cwd, root, depSrc.replace('/', '')));
+        return getFileSrc(path.resolve(cwd, root, depSrc.replace('/', '')));
     }
 
     if (depSrc.startsWith('./') || depSrc.startsWith('../')) {
         let fileDir = path.dirname(fileSrc);
-        return getDepAbsoulte(path.resolve(fileDir, depSrc));
+        return getFileSrc(path.resolve(fileDir, depSrc));
     }
 
     let npmSrc = path.join(cwd, npm);
@@ -126,7 +139,7 @@ function resolveDepSrc({fileSrc, depSrc, root, alias, npm}) {
         main = pkg.browser;
     }
 
-    return getDepAbsoulte(path.join(npmSrc, depSrc, main));
+    return getFileSrc(path.join(npmSrc, depSrc, main));
 }
 
 function parseESCode(code) {
@@ -154,6 +167,7 @@ function isChildNode(parent, child) {
     return is;
 }
 
+// 删除 scope 下未引用的 binding
 function dceDeclaration(scope) {
     let importPaths = [];
 
@@ -253,9 +267,18 @@ function dceDeclaration(scope) {
             if (
                 // 过滤 let [zz, xx, cc] = [1, 2, 3];
                 // 变量声明语句可能有副作用，不能简单去除
-                // 例如：let a = obj.x，obj.x 可能有访问器属性。其他连等情况等等
-                // (t.isVariableDeclarator(bindingPath) &&
-                //     !t.isArrayPattern(bindingPath.node.id)) ||
+                // 例如：
+                // let a = obj.x，obj.x 可能有访问器属性。
+                // let a = b = 1 连等
+                // let a = fn() 非纯函数运行
+                // 先处理为 init 为 identifier、函数、class、Literals 时，可以删除
+                (t.isVariableDeclarator(bindingPath) &&
+                    !t.isArrayPattern(bindingPath.node.id) &&
+                    (t.isIdentifier(bindingPath.node.init) ||
+                        t.isLiteral(bindingPath.node.init) ||
+                        t.isArrowFunctionExpression(bindingPath.node.init) ||
+                        t.isFunctionExpression(bindingPath.node.init) ||
+                        t.isClassExpression(bindingPath.node.init))) ||
                 t.isClassDeclaration(bindingPath) ||
                 t.isFunctionDeclaration(bindingPath) ||
                 t.isImportDefaultSpecifier(bindingPath) ||
@@ -278,19 +301,12 @@ function dceDeclaration(scope) {
     return importPaths;
 }
 
-// console.log(
-//     resolveDepSrc({
-//         fileSrc: path.join(cwd, './src/a.js'),
-//         depSrc: '@/b',
-//         root: 'src',
-//         alias: {
-//             '@': path.join(cwd, '/src/xxx'),
-//         },
-//     })
-// );
-
 function unique(ary) {
     return [...new Set(ary)];
+}
+
+function log(...params) {
+    config.debug && log(...params);
 }
 
 module.exports = {
@@ -301,4 +317,5 @@ module.exports = {
     dceDeclaration,
     isChildNode,
     unique,
+    log,
 };
