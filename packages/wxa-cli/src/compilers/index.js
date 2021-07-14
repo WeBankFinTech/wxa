@@ -12,6 +12,7 @@ import path from 'path';
 import ComponentManager from '../resolvers/component';
 import {readFile} from '../utils';
 import resolveWxsDependencies from '../resolvers/wxs';
+import { wxaPerformance } from '../helpers/performance';
 
 let debug = debugPKG('WXA:Compilers');
 
@@ -54,7 +55,9 @@ export default class Compiler {
             'js': jsOptions,
         };
 
+        wxaPerformance.markStart('wxa_dep_analysis-dep-parse ' + mdl.src);
         let {kind, ...rest} = await this.$parse(content, options[type], mdl.meta.source, type, mdl);
+        wxaPerformance.markEnd('wxa_dep_analysis-dep-parse ' + mdl.src);
 
         debug('kind %s, rest %o', kind, rest);
         mdl.kind = kind;
@@ -177,7 +180,9 @@ export default class Compiler {
     }
 
     $$parseAST(mdl) {
+        wxaPerformance.markStart('wxa_dep_analysis-dep-parse-ast ' + mdl.src);
         let deps = new ASTManager(this.resolve||{}, this.meta, this.$scheduer.wxaConfigs).parse(mdl);
+        wxaPerformance.markEnd('wxa_dep_analysis-dep-parse-ast ' + mdl.src);
 
         // analysis deps;
         return deps;

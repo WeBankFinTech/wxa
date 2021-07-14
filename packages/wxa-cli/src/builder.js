@@ -1,4 +1,4 @@
-import {readFile, applyPlugins, isFile, getHash, promiseSerial} from './utils';
+import {readFile, applyPlugins, isFile, getHash, promiseSerial, writeFile} from './utils';
 import path from 'path';
 import fs from 'fs';
 import chokidar from 'chokidar';
@@ -67,6 +67,10 @@ class Builder {
         // mount loader
         this.loader = new CompilerLoader(this.wxaConfigs, this.current);
         return this.loader.mount(this.wxaConfigs.use, cmd);
+    }
+
+    cleanup() {
+        this.loader.clean();
     }
 
     filterModule(indexedMap) {
@@ -266,6 +270,7 @@ class Builder {
         await this.run(cmd);
 
         if (cmd.watch) this.watch(cmd);
+        else this.cleanup();
     }
 
     async run(cmd) {
@@ -276,6 +281,7 @@ class Builder {
         // do dependencies analysis.
         wxaPerformance.markStart('wxa_dep_analysis');
         await this.scheduler.doDPA();
+        wxaPerformance.clear();
         wxaPerformance.markEnd('wxa_dep_analysis');
         await this.directiveBroker.run();
 
@@ -295,7 +301,6 @@ class Builder {
 
             debug('Project Pages', this.scheduler.$pageArray);
             wxaPerformance.show();
-            wxaPerformance.clear();
             logger.log('Done', 'AT: '+new Date().toLocaleString());
         } catch (e) {
             error('编译失败', {error: e});

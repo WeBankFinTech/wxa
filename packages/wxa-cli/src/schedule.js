@@ -158,9 +158,9 @@ class Schedule {
             this.hooks.buildModule.call(dep);
 
             // loader: use custom compiler to load resource.
-            wxaPerformance.markStart('wxa_dep_analysis-loader');
+            wxaPerformance.markStart('wxa_dep_analysis-loader '+relativeSrc);
             await this.loader.compile(dep, this);
-            wxaPerformance.markEnd('wxa_dep_analysis-loader');
+            wxaPerformance.markEnd('wxa_dep_analysis-loader '+relativeSrc);
 
             // this.perf.markEnd(relativeSrc);
 
@@ -170,8 +170,10 @@ class Schedule {
 
             // Todo: conside if cache is necessary here.
             // debug('dep to process %O', dep);
+            wxaPerformance.markStart('wxa_dep_analysis-dep ' +relativeSrc);
             let compiler = new Compiler(this.wxaConfigs.resolve, this.meta, this.appConfigs, this);
             let childNodes = await compiler.parse(dep);
+            wxaPerformance.markEnd('wxa_dep_analysis-dep ' +relativeSrc);
 
             compiler.destroy();
 
