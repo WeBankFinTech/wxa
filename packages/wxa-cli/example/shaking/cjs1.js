@@ -7,13 +7,12 @@ fn1(); // Object.defineProperty(exports, '__esModule', {
 exports.writeFile = writeFile;
 exports.isFile = isFile;
 module.exports = {
-  getFiles,
+  getFiles
 };
 
 function getFiles(dir = process.cwd(), prefix = '') {
   let rst = [];
-  exports.rst = rst;
-  let aaaa = 'aaa'; // exports[aaaa] = aaaa;
+  exports.rst = rst; // exports[aaaa] = aaaa;
   // let ttt= require('sss');
   // console.log(ttt);
   // exports.addClass;
@@ -29,5 +28,3 @@ function getFiles(dir = process.cwd(), prefix = '') {
 function writeFile(p, data) {}
 
 function isFile(p) {}
-
-let _a = function m() {};

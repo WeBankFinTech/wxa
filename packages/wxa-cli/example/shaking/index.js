@@ -6,8 +6,7 @@ import { writeFile, isFile } from './cjs1';
 writeFile();
 isFile();
 getName();
-let ssqqww = 1; // console.log(user);
-
+// console.log(user);
 console.log(getAge);
 let a = {
   x: 1
@@ -20,7 +19,6 @@ function m(x = 1, y) {
   ++a;
   t = 9;
   t + 5;
-  let qqq = 10;
   let ssqqww = 5;
   console.log(ssqqww);
 }
@@ -31,13 +29,6 @@ try {
   let a = 1;
   console.log(a);
 } catch (error) {}
-
-let ttt = function ({
-  x: xxx,
-  y
-}) {};
-
-let sss = (a, b) => {};
 
 [1, 2, 3].forEach(function (item) {});
 
@@ -81,16 +72,12 @@ let clearErrorMsg = function ({
       opts = {}
     }
   }
-}, [asq, ttqw], ppp) {
-  let asdf = 'p';
-};
+}, [asq, ttqw], ppp) {};
 
 function aaa({
   p1,
   p2
-}) {
-  let asdwqe = 'p';
-}
+}) {}
 
 ;
 aaa();
@@ -126,6 +113,8 @@ export { mm };
 
 class asf {}
 
+// export {m as qqqqq, a as default};
+// export {x, y} from './a';
 export default asf;
 ;
 export { Myclass }; // eslint-disable-next-line no-var
