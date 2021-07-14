@@ -14,12 +14,15 @@ export default function resolveAlias(lib, alias, filepath) {
         if (aliasReg.test(lib)) {
             // logger.info('find alias', lib);
             let tar = lib.replace(new RegExp(key, 'g'), value);
-            // logger.info('parsed lib', tar);
-            // calc relative path base cwd;
-            let {isRelative, isAPPAbsolute} = pathParser.parse(tar);
-            if (isRelative || isAPPAbsolute) {
+            tar = path.normalize(tar);
+            let calcRel = () => {
                 tar = path.relative(opath.dir, tar);
                 lib = './'+tar.replace(/\\/g, '/');
+            };
+            // logger.info('parsed lib', tar);
+            // calc relative path base cwd;
+            if (path.isAbsolute(tar)) {
+                calcRel();
             } else {
                 lib = tar;
             }

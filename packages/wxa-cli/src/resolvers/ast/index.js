@@ -170,7 +170,6 @@ export default class ASTManager {
                             break;
                     }
                 } catch (e) {
-                    console.log('eee', dep, mdl);
                     logger.error('解析失败', e);
                     debug('resolve fail %O', e);
                 }
