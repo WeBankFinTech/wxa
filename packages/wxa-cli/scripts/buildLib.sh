@@ -13,6 +13,7 @@ mkdir -p ./dist/tester/wxa-e2eTest
 mkdir -p ./dist/tester/imageSimilarity
 
 ln -fs ../../../src/tester/wxa-e2eTest/staticWeb ./dist/tester/wxa-e2eTest/staticWeb
+cp -r ./src/tester/wxa-e2eTest/simulateBack/. ./lib-dist/wxa-e2eTest/simulateBack
 ln -f ./src/tester/wxa-e2eTest/state.js ./lib-dist/wxa-e2eTest/state.js
 ln -f ./src/tester/wxa-e2eTest/e2eTestSuite.js ./lib-dist/wxa-e2eTest/e2eTestSuite.js
 ln -f ./src/tester/wxa-e2eTest/e2eMockWxMethod.js ./lib-dist/wxa-e2eTest/e2eMockWxMethod.js

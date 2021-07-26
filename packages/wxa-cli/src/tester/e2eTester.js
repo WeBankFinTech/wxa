@@ -16,7 +16,9 @@ import runWechatTools from './wxa-e2eTest/runWechatTools.js';
 import JSON5 from 'json5';
 const debug = debugPKG('WXA:E2ETester');
 const E2E_TEST_COMPONENT = 'wxa-e2e-record-btn';
+const E2E_BACK_COMPONENT = 'wxa-e2e-test-back';
 const E2E_TEST_URL = '/record';
+const outRange = ['pages/index', 'pages/home', 'pages/find', 'pages/discount'];
 
 class TesterScheduler extends Schedule {
     async $parse(dep) {
@@ -75,6 +77,18 @@ class TesterScheduler extends Schedule {
             // cover new childNodes
             dep.childNodes = new Map(children);
 
+            if (dep.category === 'Page' && dep.kind === 'json' ) { // 为所有的组件设置Nav样式，它会影响到自定义返回按钮
+                try {
+                    // console.log(dep.pagePath);
+                    if (!outRange.includes(dep.pagePath)) {
+                        const wxConfig = JSON5.parse(dep.code);
+                        wxConfig.navigationStyle = 'custom';
+                        dep.code = JSON.stringify(wxConfig);
+                    }
+                } catch (e) {
+                    logger.warn('wrap navigationStyle fail', e);
+                }
+            }
             if (dep.kind === 'xml') {
                 await this.tryWrapCatchTapWxs(dep);
                 await domWalker(dep, this);
@@ -82,6 +96,7 @@ class TesterScheduler extends Schedule {
 
             if (dep.category === 'Page' && dep.kind === 'xml') {
                 this.tryAddTestComponent(dep);
+                if (!outRange.includes(dep.pagePath)) this.tryAddBackComponent(dep);
             }
 
             dep.color = COLOR.COMPILED;
@@ -150,6 +165,7 @@ class TesterScheduler extends Schedule {
             appConfigs['wxa.globalComponents'] = {
                 ...appConfigs['wxa.globalComponents'],
                 [E2E_TEST_COMPONENT]: 'wxa://wxa-e2eTest/e2eRecordBtn',
+                [E2E_BACK_COMPONENT]: 'wxa://wxa-e2eTest/simulateBack/backNav',
             };
 
             mdl.code = JSON.stringify(appConfigs);
@@ -160,6 +176,11 @@ class TesterScheduler extends Schedule {
 
     tryAddTestComponent(mdl) {
         mdl.code = (mdl.code || '') + `<${E2E_TEST_COMPONENT}></${E2E_TEST_COMPONENT}>`;
+    }
+    tryAddBackComponent(mdl) {
+        // console.log(` title: ${mdl.navigationBarTitleText}`);
+        // console.log(mdl.navigationBarTitleText === 'undefined', mdl.navigationBarTitleText === undefined);
+        mdl.code = `<${E2E_BACK_COMPONENT} id="c-bar" title="${mdl.navigationBarTitleText === undefined ? '' : mdl.navigationBarTitleText }" background="${mdl.navigationBarBackgroundColor}" color="${mdl.navigationBarTextStyle}" showBack="{{true}}" showHome="{{true}}" ></${E2E_BACK_COMPONENT}>` + (mdl.code || '');
     }
 }
 

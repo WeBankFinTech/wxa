@@ -173,6 +173,10 @@ export default class Compiler {
             dep.pret = mdl.pret || defaultPret;
             dep.category = mdl.category || '';
             dep.pagePath = mdl.pagePath || void(0);
+            // for e2e tester back comp
+            dep.navigationBarTitleText = mdl.wxaDefinition[key].navigationBarTitleText || void(0);
+            dep.navigationBarBackgroundColor = mdl.wxaDefinition[key].navigationBarBackgroundColor || void(0);
+            dep.navigationBarTextStyle = mdl.wxaDefinition[key].navigationBarTextStyle || void(0);
             // in case output the original file, we should delete code here.
             delete dep.code;
             return dep;

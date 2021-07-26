@@ -5,6 +5,7 @@ import logger from '../helpers/logger';
 import DependencyResolver from '../helpers/dependencyResolver';
 import defaultPret from '../const/defaultPret';
 import {parseXML, serializeXML} from './xml';
+import JSON5 from 'json5';
 
 const SCRIPT_TAG = 'script';
 const CONFIG_TAG = 'config';
@@ -92,12 +93,25 @@ export default class WxaCompiler {
 
         xml = parseXML(content, path.parse(filepath));
 
+        for (let z = 0; z < xml.length; z++) {
+            if (xml[z].name === CONFIG_TAG) {
+                let t = xml[z];
+                xml.splice(z, 1);
+                xml.unshift(t);
+                break;
+            }
+        }
+
         let wxaDefinition = getWxaDefinition();
 
-        xml.forEach((node) => {
+        const storeNav = {};
+
+        // xml.forEach((node) => {
+        for (let node of xml) {
             const nodeName = node.name;
             if (~[SCRIPT_TAG, CONFIG_TAG, STYLE_TAG, TEMPLATE_TAG].indexOf(nodeName)) {
                 let definition = wxaDefinition[nodeName];
+                
                 definition.src = node.attribs.src;
                 definition.type = node.attribs.lang || node.attribs.type || defaultTypeMap.get(nodeName);
 
@@ -120,6 +134,23 @@ export default class WxaCompiler {
                         }
                     });
                 }
+                // e2e tester set nav info to template module
+                if (nodeName === CONFIG_TAG) {
+                    const tempContent = JSON5.parse(definition.code);
+                    storeNav.navigationBarTitleText = tempContent.navigationBarTitleText || '';
+                    storeNav.navigationBarBackgroundColor = tempContent.navigationBarBackgroundColor || '';
+                    storeNav.navigationBarTextStyle = tempContent.navigationBarTextStyle || '';
+                }
+                const {navigationBarTitleText, navigationBarBackgroundColor, navigationBarTextStyle} = storeNav;
+                if (nodeName === TEMPLATE_TAG && navigationBarTitleText ) {
+                    definition.navigationBarTitleText = navigationBarTitleText;
+                }
+                if (nodeName === TEMPLATE_TAG && navigationBarBackgroundColor) {
+                    definition.navigationBarBackgroundColor = navigationBarBackgroundColor;
+                }
+                if (nodeName === TEMPLATE_TAG && navigationBarTextStyle) {
+                    definition.navigationBarTextStyle = navigationBarTextStyle;
+                }
 
                 let opath = path.parse(filepath);
                 definition.src = opath.dir + path.sep + opath.name + '.' + definition.type;
@@ -135,7 +166,8 @@ export default class WxaCompiler {
                     outputPath,
                 };
             }
-        });
+        // });
+        }
 
         wxaDefinition = Object.keys(wxaDefinition).reduce((ret, key)=>{
             // in wxa tempate and script is alway generated cause they are required.

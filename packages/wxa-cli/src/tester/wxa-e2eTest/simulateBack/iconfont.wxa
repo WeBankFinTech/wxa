@@ -1,0 +1,94 @@
+<script>
+export default class IconFont{
+    options = {
+        addGlobalClass: true
+    }
+
+    externalClasses = ['font-class']
+
+    properties = {
+        // loading2 | loading
+        name: {
+            type: String,
+        },
+        // string | string[]
+        color: {
+            type: null,
+            observer: function(color) {
+                this.setData({
+                colors: this.fixColor(),
+                isStr: typeof color === 'string',
+                });
+            }
+        },
+        size: {
+            type: Number,
+            value: 18,
+            observer: function(size) {
+                this.setData({
+                svgSize: size,
+                });
+            },
+        },
+    }
+    data = {
+        colors: '#fff',
+        svgSize: 18,
+        quot: '"',
+        isStr: true,
+    }
+
+    fixColor() {
+      var color = this.data.color;
+      var hex2rgb = this.hex2rgb;
+
+      if (typeof color === 'string') {
+        return color.indexOf('#') === 0 ? hex2rgb(color) : color;
+      }
+
+      return color.map(function (item) {
+        return item.indexOf('#') === 0 ? hex2rgb(item) : item;
+      });
+    }
+
+    hex2rgb(hex) {
+      var rgb = [];
+
+      hex = hex.substr(1);
+
+      if (hex.length === 3) {
+        hex = hex.replace(/(.)/g, '$1$1');
+      }
+
+      hex.replace(/../g, function(color) {
+        rgb.push(parseInt(color, 0x10));
+        return color;
+      });
+
+      return 'rgb(' + rgb.join(',') + ')';
+    }
+}
+</script>
+<config lang="json">
+{
+    "component": true,
+    "usingComponents": {}
+}
+</config>
+<template>
+    <view class="font-class" style="width: {{svgSize}}px; height: {{svgSize}}px;">
+        <view wx:if="{{name === 'back'}}" style="background-image: url({{quot}}data:image/svg+xml, %3Csvg viewBox='0 0 1024 1024' xmlns='http://www.w3.org/2000/svg' width='{{svgSize}}px' height='{{svgSize}}px'%3E%3Cpath d='M0 0h1021.5v1021.5H0z' fill='{{(isStr ? colors : colors[0]) || 'rgb(255,255,255)'}}' fill-opacity='.01' /%3E%3Cpath d='M400.2333333 510.7l317.5 316.6c8.3 8.3 8.3 21.8 0 30.1l-30 30.1c-8.3 8.3-21.8 8.3-30.1 0L312.9333333 543.9c-18.4-18.4-18.3-48.1 0-66.3l344.7-343.7c8.3-8.3 21.8-8.3 30.1 0l30 30.1c8.3 8.3 8.3 21.8 0 30.1L400.2333333 510.7z' fill='{{(isStr ? colors : colors[1]) || 'rgb(0,0,0)'}}' /%3E%3C/svg%3E{{quot}}); width: {{svgSize}}px; height: {{svgSize}}px; " class="icon" />
+
+        <view wx:if="{{name === 'home'}}" style="background-image: url({{quot}}data:image/svg+xml, %3Csvg viewBox='0 0 1117 1024' xmlns='http://www.w3.org/2000/svg' width='{{svgSize}}px' height='{{svgSize}}px'%3E%3Cpath d='M977.66666666 480.00000002c9.6 0 19.2-3.2 25.6-12.8 12.8-12.8 9.6-35.2-3.2-44.8l-377.6-310.4c-35.2-25.6-86.4-25.6-118.4 0l-377.6 307.2c-12.8 9.6-16 32-3.2 44.8s32 16 44.8 3.2l374.40000001-300.8c9.6-6.4 28.8-6.4 38.39999998 0l377.60000001 307.2c6.4 6.4 12.8 6.4 19.2 6.4zM257.66666665 928.00000002l208.00000001 0c19.2 0 32-12.8 32-32l0-150.4c0-22.4 38.4-44.8 67.2-44.8s64 19.19999999 64 44.8l0 150.4c0 19.2 12.8 32 32 32l201.60000001 0c48 0 83.2-35.2 83.2-80l0-304c0-19.2-12.8-32-32.00000001-32s-32 12.8-32 32l0 304c0 9.6-6.4 16-19.2 16l-172.8 0 0-118.4c0-64.00000001-67.2-108.8-128-108.80000001s-131.2 44.8-131.2 108.80000001l0 118.4-176 0c-9.6 0-16 0-16-19.2l0-300.8c0-19.2-12.8-32-32-32s-32 12.8-32.00000001 32l1e-8 304.00000001c3.2 48 35.2 80 83.19999999 79.99999999z' stroke='{{(isStr ? colors : colors[0]) || 'rgb(0,0,0)'}}' stroke-width='25' fill='{{(isStr ? colors : colors[0]) || 'rgb(0,0,0)'}}' /%3E%3C/svg%3E{{quot}}); width: {{svgSize}}px; height: {{svgSize}}px; " class="icon" />
+
+        <view wx:if="{{name === 'search'}}" style="background-image: url({{quot}}data:image/svg+xml, %3Csvg viewBox='0 0 1024 1024' xmlns='http://www.w3.org/2000/svg' width='{{svgSize}}px' height='{{svgSize}}px'%3E%3Cpath d='M460.35246786 794.43116408c-187.04625604 0-338.68973874-151.64348348-338.68973952-338.7090321C121.66272834 268.67587672 273.30621181 117.03239323 460.35246786 117.03239323c187.06554863 0 338.70903211 151.64348348 338.70903209 338.68973875 0 187.06554863-151.64348348 338.70903211-338.70903209 338.7090321z m0-77.17225607c144.44717017 0 261.53677603-117.08960587 261.53677602-261.53677603 0-144.42787757-117.10889845-261.51748267-261.53677602-261.51748267-144.42787757 0-261.51748267 117.08960587-261.51748344 261.51748267 0 144.44717017 117.08960587 261.53677603 261.51748344 261.53677603z' fill='{{(isStr ? colors : colors[0]) || 'rgb(187,189,192)'}}' /%3E%3Cpath d='M600.18407732 683.11060588l60.62618753-60.6261875 212.21894092 212.21894093-60.62618752 60.62618751-212.21894093-212.21894094Z' fill='{{(isStr ? colors : colors[1]) || 'rgb(187,189,192)'}}' /%3E%3C/svg%3E{{quot}}); width: {{svgSize}}px; height: {{svgSize}}px; " class="icon" />
+
+        <view wx:if="{{name === 'loading'}}" style="background-image: url({{quot}}data:image/svg+xml, %3Csvg viewBox='0 0 1024 1024' xmlns='http://www.w3.org/2000/svg' width='{{svgSize}}px' height='{{svgSize}}px'%3E%3Cpath d='M512 1024c283.569231 0 512-228.430769 512-512S795.569231 0 512 0 0 228.430769 0 512s228.430769 512 512 512z m0-78.769231C271.753846 945.230769 78.769231 752.246154 78.769231 512S271.753846 78.769231 512 78.769231s433.230769 192.984615 433.230769 433.230769-192.984615 433.230769-433.230769 433.230769z' fill='{{(isStr ? colors : colors[0]) || 'rgb(225, 225, 225)'}}' /%3E%3Cpath d='M878.276923 153.6C779.815385 55.138462 649.846154 0 512 0c-23.630769 0-39.384615 15.753846-39.384615 39.384615s15.753846 39.384615 39.384615 39.384616c118.153846 0 228.430769 47.261538 307.2 129.969231 15.753846 15.753846 39.384615 15.753846 55.138462 0 15.753846-15.753846 15.753846-39.384615 3.938461-55.138462z' fill='{{(isStr ? colors : colors[1]) || 'rgb(67, 122, 207)'}}' /%3E%3C/svg%3E{{quot}}); width: {{svgSize}}px; height: {{svgSize}}px; " class="icon" />
+    </view>
+</template>
+
+<style lang="sass">
+    .icon {
+        background-repeat: no-repeat;
+    }
+</style>

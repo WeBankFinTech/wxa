@@ -1,0 +1,630 @@
+<script>
+export default class Index{
+    options = {
+        multipleSlots: true,
+        addGlobalClass: true,
+    }
+    properties = {
+        extClass: {
+            type: String,
+            value: '',
+        },
+        background: {
+            type: String,
+            value: undefined,
+        },
+        color: {
+            type: String,
+            value: 'rgba(0, 0, 0, 1)',
+        },
+        title: {
+            type: String,
+            value: '',
+        },
+        searchText: {
+            type: String,
+            value: '点我搜索',
+        },
+        showSearch: {
+            type: Boolean,
+            value: false,
+        },
+        searchIconSize: {
+            type: Number,
+            value: 20,
+        },
+        searchTextColor: {
+            type: String,
+            value: '#fff',
+        },
+        showBack: {
+            type: Boolean,
+            value: false,
+        },
+        showHome: {
+            type: Boolean,
+            value: false,
+        },
+        homePath: {
+            type: String,
+            value: '/pages/index',
+        },
+        homeOpenType: {
+            type: String,
+            value: 'switchTab',
+        },
+        iconSize: {
+            type: Number,
+            value: 18,
+        },
+        theme: {
+            type: String,
+            value: 'black',
+        },
+        delta: {
+            type: Number,
+            value: 1,
+        },
+    }
+    observers = {
+        showBack(v) {
+            setTimeout(() => {
+                this.setData({
+                    // 页面栈数<2, v为true，也不会显示返回按钮
+                    back: v && this.pageCount < 2 ? !1 : v,
+                });
+
+                this.setStyle();
+            }, 50);
+        },
+        showHome(v) {
+            setTimeout(() => {
+                this.setData({
+                    home: v,
+                });
+
+                this.setStyle();
+            }, 50);
+        },
+        showSearch: function(v) {
+            setTimeout(function() {
+                this.setData({
+                searchBar: v,
+                });
+        
+                this.setStyle();
+            }.bind(this), 50);
+        },
+    }
+    created() {
+        this.app = getApp();
+        this.getSystemInfo();
+    }
+    attached() {
+        this.pages = getCurrentPages() || [];
+        this.pageCount = this.pages.length;
+        this.cp = this.pages[this.pageCount - 1] || {};
+        this.cp.navBar = this;
+
+        const h = this.cp && `${this.cp.route}.html`;
+        this.window = __wxConfig && __wxConfig.page && __wxConfig.page[h] && __wxConfig.page[h].window ? __wxConfig.page[h].window : {};
+        this.window = Object.assign(__wxConfig.global.window, this.window);
+        this.setStyle(); // 设置样式
+    }
+
+    setStyle() {
+        const {
+            statusBarHeight,
+            navBarHeight,
+            capsulePosition,
+            navBarExtendHeight,
+            ios,
+            windowWidth,
+        } = this.app.globalSystemInfo;
+        let {
+            back, home, title, searchBar,
+        } = this.data;
+        const rightDistance = windowWidth - capsulePosition.right; // 胶囊按钮右侧到屏幕右侧的边距
+        const leftWidth = windowWidth - capsulePosition.left; // 胶囊按钮左侧到屏幕右侧的边距
+
+        const theme = this.window.navigationBarTextStyle || 'black';
+        const background = this.data.background || this.window.navigationBarBackgroundColor || '#fff';
+
+        title = title || this.window.navigationBarTitleText || (this.app.globalData ? this.app.globalData.appName : '');
+        const navigationbarinnerStyle = [
+            `color: ${this.data.color}`,
+            `background: ${background}`,
+            `height:${navBarHeight + navBarExtendHeight}px`,
+            `padding-top:${statusBarHeight}px`,
+            `padding-right:${leftWidth}px`,
+            `padding-bottom:${navBarExtendHeight}px`,
+        ].join(';');
+        let navTitleWidth = ''; let navBarLeft = ''; let
+            navBarSubLeft = '';
+        if (back && home) {
+            navBarLeft = [
+                `width:${capsulePosition.width}px`,
+                `height:${capsulePosition.height}px`,
+            ].join(';');
+            navBarSubLeft = [
+                `width:${capsulePosition.width}px`,
+                `height:${capsulePosition.height}px`,
+                `margin-left:${rightDistance}px`,
+            ].join(';');
+            navTitleWidth = `width:calc( 100vw - ${(capsulePosition.width + rightDistance) * 2}px )`;
+        } else if (!back && !home) {
+            navBarLeft = [
+                `width:${searchBar ? 0 : capsulePosition.width}px`,
+                `margin-left:${rightDistance - 5}px`,
+            ].join(';');
+            navBarSubLeft = [
+                'width:0',
+            ].join(';');
+            navTitleWidth = `width:calc( 100vw - ${(capsulePosition.width + rightDistance) * 2}px )`;
+        } else if ((!back && home) || (back && !home)) {
+            navBarLeft = [
+                `width:${searchBar ? capsulePosition.height + rightDistance : capsulePosition.width}px`,
+                `height:${capsulePosition.height}px`,
+            ].join(';');
+            navBarSubLeft = [
+                `width:${capsulePosition.height}px`,
+                `height:${capsulePosition.height}px`,
+                `margin-left:${rightDistance}px`,
+            ].join(';');
+            navTitleWidth = `width:calc( 100vw - ${searchBar ? capsulePosition.height + capsulePosition.width + rightDistance * 2 : (capsulePosition.width + rightDistance) * 2}px )`;
+        } else {
+            navBarLeft = ['width:auto', 'margin-left:0px'].join(';');
+        }
+
+        this.setData({
+            theme,
+            title,
+            background,
+            navigationbarinnerStyle,
+            navBarLeft,
+            navBarSubLeft,
+            navBarHeight,
+            capsulePosition,
+            navBarExtendHeight,
+            navTitleWidth,
+            ios,
+        });
+    }
+    tap(e) {
+        console.log(e);
+    }
+    // 返回事件
+    back() {
+        const t = this;
+        if (!this.data.back) return;
+        if (this.cp.onBeforeBack && wx.getStorageSync('showBackModal')) {
+            const ret = this.cp.onBeforeBack();
+            if (!ret || !ret.then) console.error(`function onBeforeBack must return wx.showModal at /${this.cp.route}.js`);
+            ret && ret.then && ret.then((res) => {
+                if (res.navBack) {
+                    const entryPagePath = (__wxConfig.entryPagePath.replace(/\.html$/, '') || __wxConfig.pages[0]);
+                    this.pageCount > 1 ? wx.navigateBack({delta: 1}) : this.cp.route != entryPagePath && wx.navigateTo({
+                        url: `/${entryPagePath}`,
+                    });
+                }
+            });
+        } else {
+            wx.navigateBack({delta: 1});
+        }
+    }
+    home() {
+        if (!this.data.home) return;
+        if (this.cp.onBeforeBack && wx.getStorageSync('showBackModal')) {
+            const ret = this.cp.onBeforeBack();
+            if (!ret || !ret.then) console.error(`function onBeforeBack must return wx.showModal at /${this.cp.route}.js`);
+            ret && ret.then && ret.then((res) => {
+                res.navBack && this.goHome();
+            });
+        } else {
+            this.goHome();
+        }
+    }
+    goHome() {
+        let {homePath, homeOpenType} = this.data;
+        const opt = {
+            fail(res) {
+                if (res.errMsg.indexOf('no-tabBar') > 0) {
+                    wx.redirectTo({url: homePath});
+                } else if (res.errMsg.indexOf('a tabbar page') > 0) {
+                    console.log('switchTab', oopt, [homePath]);
+                    wx.switchTab({url: homePath});
+                } else {
+                    wx.showToast({
+                        title: res.errMsg,
+                        icon: 'none',
+                    });
+                }
+            },
+        };
+        homePath = homePath || '/pages/index';
+        homeOpenType = homeOpenType || 'switchTab';
+        opt.url = homePath;
+        if (homeOpenType == 'switchTab') {
+            wx.switchTab(opt);
+        } else if (homeOpenType == 'navigateTo') {
+            wx.navigateTo(opt);
+        } else if (homeOpenType == 'reLaunch') {
+            wx.reLaunch(opt);
+        } else {
+            wx.redirectTo(opt);
+        }
+    }
+    getSystemInfo() {
+        if (this.app.globalSystemInfo && !this.app.globalSystemInfo.ios) {
+            return this.app.globalSystemInfo;
+        }
+        const systemInfo = wx.getSystemInfoSync();
+        const ios = !!(systemInfo.system.toLowerCase().search('ios') + 1);
+        let rect;
+        try {
+            rect = wx.getMenuButtonBoundingClientRect ? wx.getMenuButtonBoundingClientRect() : null;
+            if (rect === null) {
+                throw 'getMenuButtonBoundingClientRect error';
+            }
+            // 取值为0的情况  有可能width不为0 top为0的情况
+            if (!rect.width || !rect.top || !rect.left || !rect.height) {
+                throw 'getMenuButtonBoundingClientRect error';
+            }
+        } catch (error) {
+            let gap = ''; // 胶囊按钮上下间距 使导航内容居中
+            let width = 96; // 胶囊的宽度
+            if (systemInfo.platform === 'android') {
+                gap = 8;
+                width = 96;
+            } else if (systemInfo.platform === 'devtools') {
+                if (ios) {
+                    gap = 5.5; // 开发工具中ios手机
+                } else {
+                    gap = 7.5; // 开发工具中android和其他手机
+                }
+            } else {
+                gap = 4;
+                width = 88;
+            }
+            if (!systemInfo.statusBarHeight) {
+                // 开启wifi的情况下修复statusBarHeight值获取不到
+                systemInfo.statusBarHeight = systemInfo.screenHeight - systemInfo.windowHeight - 20;
+            }
+            rect = {
+                // 获取不到胶囊信息就自定义重置一个
+                bottom: systemInfo.statusBarHeight + gap + 32,
+                height: 32,
+                left: systemInfo.windowWidth - width - 10,
+                right: systemInfo.windowWidth - 10,
+                top: systemInfo.statusBarHeight + gap,
+                width,
+            };
+            console.log('error', error);
+            console.log('rect', rect);
+        }
+
+        let navBarHeight = '';
+        if (!systemInfo.statusBarHeight) {
+            systemInfo.statusBarHeight = systemInfo.screenHeight - systemInfo.windowHeight - 20;
+            navBarHeight = (function() {
+                const gap = rect.top - systemInfo.statusBarHeight;
+                return 2 * gap + rect.height;
+            }());
+
+            systemInfo.statusBarHeight = 0;
+            systemInfo.navBarExtendHeight = 0; // 下方扩展4像素高度 防止下方边距太小
+        } else {
+            navBarHeight = (function() {
+                const gap = rect.top - systemInfo.statusBarHeight;
+                return systemInfo.statusBarHeight + 2 * gap + rect.height;
+            }());
+            if (ios) {
+                systemInfo.navBarExtendHeight = 4; // 下方扩展4像素高度 防止下方边距太小
+            } else {
+                systemInfo.navBarExtendHeight = 0;
+            }
+        }
+        systemInfo.navBarHeight = navBarHeight; // 导航栏高度不包括statusBarHeight
+        systemInfo.capsulePosition = rect; // 右上角胶囊按钮信息bottom: 58 height: 32 left: 317 right: 404 top: 26 width: 87 目前发现在大多机型都是固定值 为防止不一样所以会使用动态值来计算nav元素大小
+        systemInfo.ios = ios; // 是否ios
+
+        this.app.globalSystemInfo = systemInfo; // 将信息保存到全局变量中,后边再用就不用重新异步获取了
+
+        // console.log('systemInfo', systemInfo);
+        return systemInfo;
+    }
+   
+}
+</script>
+<config lang="json">
+{
+    "component": true,
+    "usingComponents": {
+      "iconfont": "../../wxa-e2eTest/simulateBack/iconfont"
+    }
+}
+</config>
+<template>
+<view class="cst-nav-bar {{extClass}}" style="background: {{background}};height: {{navBarHeight+ navBarExtendHeight}}px;">
+    <view class="cst-nav-bar__placeholder {{ios ? 'ios' : 'android'}} bg-gradual-blue" style="padding-top: {{navBarHeight+ navBarExtendHeight}}px;visibility: hidden;"></view>
+    <view class="cst-nav-bar__inner {{ios ? 'ios' : 'android'}}" style="{{navigationbarinnerStyle}}{{displayStyle}}">
+        <view class="cst-nav-bar__left" style="{{navBarLeft}}">
+          <view wx:if="{{home || back}}" style="{{navBarSubLeft}}">
+            <block wx:if="{{(back&&!home) || (!back&&home)}}">
+                <view class="cst-nav-bar__button-one {{theme}}">
+                  <block wx:if="{{back&&!home}}">
+                      <view bindtap="back" class="cst-nav-bar__button {{theme}}" style="width:{{iconSize}}px">
+                        <iconfont name="back" color="{{color}}" size="{{iconSize}}" class="cst-text" />
+                      </view>
+                  </block>
+                  <block wx:if="{{!back&&home}}">
+                      <view bindtap="home" class="cst-nav-bar__button {{theme}}" style="width:{{iconSize}}px">
+                        <iconfont name="home" color="{{color}}" size="{{iconSize}}" class="cst-text" />
+                      </view>
+                  </block>
+                </view>
+            </block>
+            <block wx:elif="{{back&&home}}">
+                <view class="cst-nav-bar__buttons {{ios ? 'ios' : 'android'}} {{theme}}" wx:if="{{home}}">
+                    <view bindtap="back" class="cst-nav-bar__button">
+                        <iconfont name="back" color="{{color}}" size="{{iconSize}}" class="cst-text" />
+                    </view>
+                    <view bindtap="home" class="cst-nav-bar__button">
+                        <iconfont name="home" color="{{color}}" size="{{iconSize}}" class="cst-text" />
+                    </view>
+                </view>
+            </block>
+            <block wx:else>
+                <slot name="left"></slot>
+            </block>
+          </view>
+        </view>
+        <view class="cst-nav-bar__center {{searchBar?'search':''}}" style="{{searchBar?'':navTitleWidth}}">
+            <view wx:if="{{searchBar}}" class='cst-nav-bar-search' style="height:{{capsulePosition.height}}px;"  bindtap="search">
+                <iconfont name="search" size="{{searchIconSize}}" color="{{searchTextColor}}" />
+                <view class='cst-nav-bar-search__input' style="color:{{searchTextColor}}">{{searchText}}</view>
+            </view>
+            <block wx:elif="{{title || loading}}">
+              <view wx:if="{{loading}}" class="cst-nav-bar__loading">
+                <iconfont name="loading" size="{{iconSize}}" font-class="icon-loading" color="{{['#fff']}}" class="cst-text cst-loading" />
+              </view>
+              <view wx:if="{{title}}" class="cst-nav-bar__title-item">
+                <text class='cst-nav-bar__center-title {{theme}}'>{{title}}</text>
+              </view>
+            </block>
+        </view>
+        <view class='cst-nav-bar__right'>
+            <slot name="right"></slot>
+        </view>
+    </view>
+</view>
+</template>
+
+<style lang="sass">
+.icon-loading {
+  animation: rotate 0.8s linear infinite;
+}
+
+@keyframes rotate {
+  100% {
+    transform: rotate(1turn);
+    transform-origin:center center;
+  }
+}
+
+.bg-gradual-red {
+  background-image: linear-gradient(45deg, #f43f3b, #ec008c);
+  color: #fff;
+}
+
+.bg-gradual-orange {
+  background-image: linear-gradient(45deg, #ff9700, #ed1c24);
+  color: #fff;
+}
+
+.bg-gradual-green {
+  background-image: linear-gradient(45deg, #39b54a, #8dc63f);
+  color: #fff;
+}
+
+.bg-gradual-purple {
+  background-image: linear-gradient(45deg, #9000ff, #5e00ff);
+  color: #fff;
+}
+
+.bg-gradual-pink {
+  background-image: linear-gradient(45deg, #ec008c, #6739b6);
+  color: #fff;
+}
+
+.bg-gradual-blue {
+  background-image: linear-gradient(45deg, #0081ff, #1cbbb4);
+  color: #fff;
+}
+
+
+
+._:root {
+  --height: 44px; /* 4*2+32 */
+  --right: 97px; /* 10+87 */
+  --navBarExtendHeight: 4px;
+  box-sizing: border-box;
+}
+.cst-nav-bar .ios {
+  --height: 44px; /* 4*2+32 */
+  --right: 97px; /* 10+87 */
+  --navBarExtendHeight: 4px;
+  box-sizing: border-box;
+}
+.cst-nav-bar .android {
+  --height: 48px; /* 8*2+32 */
+  --right: 96px; /* 10+87 */
+  --navBarExtendHeight: 4px;
+  box-sizing: border-box;
+}
+.cst-nav-bar .devtools {
+  --height: 42px; /* 5*2+32 */
+  --right: 88px; /* 10+87 */
+  --navBarExtendHeight: 4px;
+  box-sizing: border-box;
+}
+.cst-nav-bar__inner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 5001;
+  height: var(--height);
+  display: flex;
+  align-items: center;
+  padding-right: var(--right);
+  width: 100%;
+  padding-bottom: var(--navBarExtendHeight);
+}
+.cst-nav-bar__inner .cst-nav-bar__left {
+  position: relative;
+  width: var(--right);
+  height: 32px;
+  /*  padding-left: 10px; */
+  display: flex;
+  align-items: center;
+}
+.cst-nav-bar__buttons,.cst-nav-bar__button-one{
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content:center;
+  position: relative;
+  border-radius: 1000rpx;
+  background: rgba(0, 0, 0, 0.15);
+}
+.cst-nav-bar__button-one.black,.cst-nav-bar__buttons.black {
+  background: rgba(255,255,255,0.5);
+}
+/* .cst-nav-bar__buttons.android {
+  border: 1rpx solid rgba(234, 234, 234, 0.6);
+} */
+.cst-nav-bar__buttons::before {
+  content: " ";
+  width: 1rpx;
+  height: 110%;
+  position: absolute;
+  top: 22.5%;
+  left: 0;
+  right: 0;
+  margin: auto;
+  transform: scale(0.5);
+  transform-origin: 0 0;
+  pointer-events: none;
+  box-sizing: border-box;
+  opacity: 0.3;
+}
+.cst-nav-bar__button-one::after,.cst-nav-bar__buttons::after {
+  content: " ";
+  width: 200%;
+  height: 200%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: inherit;
+  transform: scale(0.5);
+  transform-origin: 0 0;
+  pointer-events: none;
+  box-sizing: border-box;
+  opacity: 0.5;
+}
+.cst-nav-bar__buttons::before,.cst-nav-bar__buttons::after,.cst-nav-bar__button-one::after {
+  border: 1rpx solid #fff;
+}
+.cst-nav-bar__buttons.black::before,.cst-nav-bar__buttons.black::after,.cst-nav-bar__button-one.black::after {
+  border: 1rpx solid #999
+}
+/* .cst-nav-bar__buttons.android::after {
+  background: rgba(234, 234, 234, 0.6);
+} */
+.cst-nav-bar__button {
+  width: 50%;
+  height: 100%;
+  display: flex;
+  /* background-repeat: no-repeat;
+  background-position: center center;
+  background-size: 1em 2em; */
+}
+/* .cst-nav-bar__buttons .black{
+  background: rgba(0, 0, 0, 0.15);
+} */
+
+.cst-text {
+  display: flex;
+  flex: 1;
+  margin: auto !important;
+  text-align: center;
+  font-size: 17px;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-weight: bold;
+}
+
+.black .cst-text{
+  color: black;
+}
+
+
+
+.cst-nav-bar__inner .cst-nav-bar__left .cst-nav-bar__btn_goback:active,
+.cst-nav-bar__inner .cst-nav-bar__left .cst-nav-bar__btn_gohome:active {
+  opacity: 0.5;
+}
+.cst-nav-bar__inner .cst-nav-bar__center {
+  position: relative;
+  justify-content: center;
+  align-items: center;
+  margin-left: 5px;
+  margin-right: 5px;
+  display: flex;
+  height: 32px;
+}
+.cst-nav-bar__inner .cst-nav-bar__title-item {
+  position: relative;
+  text-align: center;
+  margin-left: 5px;
+  margin-right: 5px;
+  font-size: 17px;
+  cursor: none;
+  pointer-events: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.cst-nav-bar__inner .search.cst-nav-bar__center {
+  width: 100%;
+}
+.cst-nav-bar__center-title{
+  color: white;
+}
+.cst-nav-bar__center-title.black{
+  color: black;
+}
+.cst-nav-bar__inner .cst-nav-bar__center .cst-nav-bar__center-title {
+  
+}
+.cst-nav-bar__inner .cst-nav-bar__loading {
+  font-size: 0;
+}
+.cst-nav-bar__inner .cst-nav-bar__loading .cst-loading {
+  margin-left: 0;
+}
+.cst-nav-bar__inner .cst-nav-bar__right {
+
+}
+.mr-10{
+  margin-right: 10px;
+}
+.cst-nav-bar__placeholder {
+  height: var(--height);
+  /* background: #f8f8f8; */
+  position: relative;
+  z-index: 50;
+}
+</style>
