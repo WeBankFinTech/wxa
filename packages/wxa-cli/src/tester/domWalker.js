@@ -48,38 +48,39 @@ class XMLManager {
         if ( !this.scheduler.cmdOptions.record && Object.keys(attributes).includes('catchtap')) { // 非录制，且Catchtap
             delete element.attribs[`catchtap`];
             element.attribs[`bindtap`] = `{{tester.simulationCatchTap}}`;
-            return;
+        } else {
+            let events = Object.keys(attributes).filter((attr)=>/bind/.test(attr) || attr === 'catchtap');
+            let eventMap = '';
+            if (events.length) {
+                events.forEach((attr)=>{
+                    if (attr === 'catchtap') { // 增加 Catchtap
+                        eventMap += `|catchtap:${attributes[attr]}`;
+                        // element.attribs[`data-fun`] = `tester.simulationCatchTap`;
+                        element.attribs[`catchtap`] = `$$e2e_catchtap`;
+                        return;
+                    } 
+                    let [, $1] = /bind(?::)?([\w]*)/g.exec(attr);
+                    if (!!~this.supportEvents.indexOf($1)) {
+                        eventMap += `|${$1}:${attributes[attr]}`;
+                        element.attribs[`bind${$1}`] = `$$e2e_${$1}`;
+                    }
+                });
+            }
+            let openType = Object.keys(attributes).some((attr)=>attr === 'open-type');
+            let bindtap = Object.keys(attributes).some((attr)=>attr === 'bindtap');
+            if (openType && !bindtap) {
+                element.attribs[`bindtap`] = `$$e2e_tap`;
+            }
+            // navigator标签劫持
+            if (element.name === 'navigator') {
+                element.attribs['bindtap'] = `$$e2e_tap`;
+            }
+            if (eventMap) {
+                eventMap = eventMap.replace(/^\|/, '');
+                element.attribs['data-_wxaTestEventMap'] = eventMap;
+            }
         }
-        let events = Object.keys(attributes).filter((attr)=>/bind/.test(attr) || attr === 'catchtap');
-        let eventMap = '';
-        if (events.length) {
-            events.forEach((attr)=>{
-                if (attr === 'catchtap') { // 增加 Catchtap
-                    eventMap += `|catchtap:${attributes[attr]}`;
-                    // element.attribs[`data-fun`] = `tester.simulationCatchTap`;
-                    element.attribs[`catchtap`] = `$$e2e_catchtap`;
-                    return;
-                } 
-                let [, $1] = /bind(?::)?([\w]*)/g.exec(attr);
-                if (!!~this.supportEvents.indexOf($1)) {
-                    eventMap += `|${$1}:${attributes[attr]}`;
-                    element.attribs[`bind${$1}`] = `$$e2e_${$1}`;
-                }
-            });
-        }
-        let openType = Object.keys(attributes).some((attr)=>attr === 'open-type');
-        let bindtap = Object.keys(attributes).some((attr)=>attr === 'bindtap');
-        if (openType && !bindtap) {
-            element.attribs[`bindtap`] = `$$e2e_tap`;
-        }
-        // navigator标签劫持
-        if (element.name === 'navigator') {
-            element.attribs['bindtap'] = `$$e2e_tap`;
-        }
-        if (eventMap) {
-            eventMap = eventMap.replace(/^\|/, '');
-            element.attribs['data-_wxaTestEventMap'] = eventMap;
-        }
+        
         // generate unique id for tag.
         // pagePath + hash(parentNode + prevNode) + optional(class/id)
         let pagePath = path.relative(this.scheduler.wxaConfigs.context, path.dirname(this.mdl.src) + path.sep + path.basename(this.mdl.src, path.extname(this.mdl.src)));

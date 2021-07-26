@@ -109,7 +109,6 @@ for (let j = 0; j < testCaseNameArr.length; j++) {
         page = await miniProgram.reLaunch(`/${startPage}`);
         let element;
         await page.waitFor(3000);
-        console.log('test case 10 record.length : ', record.length);
         for (let i = 0; i < record.length; i++) {
             let recordItem = record[i];
             let recordAction = recordItem.action;
@@ -134,14 +133,11 @@ for (let j = 0; j < testCaseNameArr.length; j++) {
                 }
                 await sleep(1000);
             }
-            console.log('test case 12');
             // 这里要区分下，如果是switchtab跳转页面，是没有elementid的
             if (recordAction.id) {
                 let idPath = recordAction.id.split('-');
                 await page.waitFor(`.${idPath[0]}`);
-                console.log('idpath : begin first element ');
                 element = await page.$(`.${idPath[0]}`)
-                console.log('idpath : end first element ', element);
                 for (let j = 1; j < idPath.length; j++) {
                     element = await element.$(`.${idPath[j]}`)
                 }
