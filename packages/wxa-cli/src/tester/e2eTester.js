@@ -19,6 +19,7 @@ const E2E_TEST_COMPONENT = 'wxa-e2e-record-btn';
 const E2E_BACK_COMPONENT = 'wxa-e2e-test-back';
 const E2E_TEST_URL = '/record';
 const outRange = ['pages/index', 'pages/home', 'pages/find', 'pages/discount'];
+const LIB_VERSION = '2.17.0';
 
 class TesterScheduler extends Schedule {
     async $parse(dep) {
@@ -77,6 +78,10 @@ class TesterScheduler extends Schedule {
             // cover new childNodes
             dep.childNodes = new Map(children);
 
+            if (dep.category === 'Entry' && dep.kind === 'json') { // 自动配置小程序配置
+                this.tryAutoSetConfig(dep);
+            }
+
             if (dep.category === 'Page' && dep.kind === 'json' ) { // 为所有的组件设置Nav样式，它会影响到自定义返回按钮
                 try {
                     // console.log(dep.pagePath);
@@ -121,6 +126,17 @@ class TesterScheduler extends Schedule {
             throw e;
         }
     }
+
+    tryAutoSetConfig(mdl) {
+        if (!~mdl.src.indexOf('project.config.json')) return;
+        const code = JSON5.parse(mdl.code);
+        code.setting.urlCheck = false;
+        code.libVersion = LIB_VERSION;
+        console.log('set libVersion: ', code.libVersion);
+        console.log('set urlCheck: ', code.setting.urlCheck);
+        mdl.code = JSON.stringify(code);
+    }
+
     tryWrapCatchTapWxs(dep) { // 为CatchTap方法页面添加wxs方法
         let injectCode = `
         <wxs module="tester">
