@@ -350,7 +350,6 @@ class Builder {
 
             this.progress.clean();
         } catch (e) {
-            debugger;
             logger.error(e);
             this.progress.draw('\n');
         }

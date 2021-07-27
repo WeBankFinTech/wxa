@@ -148,14 +148,6 @@ for (let j = 0; j < testCaseNameArr.length; j++) {
                 await sleep(3000)
             }
 
-            // 这个元素不存在，跳过到下一个Action
-            if (element === null) {
-                screenCount++;
-                console.log(`action ${screenCount} element not found, idpath: ${recordAction.id || ''}`);
-                await page.waitFor(300);
-                continue;
-            }
-
             let diff = screenshotDiff;
             if (record[i-1] && typeof record[i-1].screenshotDiff !== 'undefined') {
                 diff = screenshotDiff;
@@ -166,9 +158,19 @@ for (let j = 0; j < testCaseNameArr.length; j++) {
                 diff,
                 baseScreenshot
             })
+
             if (customExpect && i !== 0 && record[i - 1].customExpect && typeof record[i - 1].customExpect === 'function') {
                 record[i - 1].customExpect();
             }
+
+            // 非SwitchTab事件并且元素不存在，跳过到下一个Action
+            if (!~['switchTab'].indexOf(recordAction.event) && element === null) {
+                screenCount++;
+                console.log(`action ${screenCount} element not found, idpath: ${recordAction.id || ''}`);
+                await page.waitFor(300);
+                continue;
+            }
+
             if (!!~['catchtap'].indexOf(recordAction.event)) {
                 await element.tap();
             } else if (!!~['tap', 'longpress'].indexOf(recordAction.event)) {

@@ -132,7 +132,7 @@ class TesterScheduler extends Schedule {
         const code = JSON5.parse(mdl.code);
         code.setting.urlCheck = false;
         code.libVersion = LIB_VERSION;
-        console.log('set libVersion: ', code.libVersion);
+        console.log('\nset libVersion: ', code.libVersion);
         console.log('set urlCheck: ', code.setting.urlCheck);
         mdl.code = JSON.stringify(code);
     }
