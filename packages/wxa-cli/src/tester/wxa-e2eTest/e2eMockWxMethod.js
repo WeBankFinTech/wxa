@@ -43,6 +43,51 @@ let mockWxMethodConfig = [
             return `request__e2e__\${${key.join('}__e2e__${')}}`;
         })(),
     },
+    {
+        name: 'chooseImage',
+        recordStringify(config) {
+            console.log(getKey.call(this, [
+                config.tempFilePaths, Object.keys(config.tempFiles || {}).join(','),
+            ]));
+            return getKey.call(this, [
+                config.tempFilePaths, Object.keys(config.tempFiles || {}).join(','),
+            ]);
+        },
+        tpl: (() => {
+            let key = ['config.tempFilePaths  || ""', 'Object.keys(config.tempFiles || {}).join(",")  || ""'];
+            return `chooseImage__e2e__\${${key.join('}__e2e__${')}}`;
+        })(),
+    },
+    {
+        name: 'takePhoto',
+        recordStringify(config) {
+            console.log(getKey.call(this, [
+                config.tempImagePath, 
+            ]));
+            return getKey.call(this, [
+                config.tempImagePath,
+            ]);
+        },
+        tpl: (() => {
+            let key = ['config.tempImagePath  || ""'];
+            return `takePhoto__e2e__\${${key.join('}__e2e__${')}}`;
+        })(),
+    },
+    {
+        name: 'uploadFile',
+        recordStringify(config) {
+            console.log(getKey.call(this, [
+                config.url, config.filePath, config.name, Object.keys(config.header || {}).join(','), Object.keys(config.formData || {}).join(','),
+            ]));
+            return getKey.call(this, [
+                config.url.split('?')[0], config.filePath, config.name, Object.keys(config.header || {}).join(','), Object.keys(config.formData || {}).join(','),
+            ]);
+        },
+        tpl: (() => {
+            let key = ['(config.url && config.url.split("?")[0])  || ""', 'config.filePath  || ""', 'config.name  || ""', 'Object.keys(config.header || {}).join(",")  || ""', 'Object.keys(config.formData || {}).join(",")  || ""'];
+            return `request__e2e__\${${key.join('}__e2e__${')}}`;
+        })(),
+    },
 ];
 module.exports = {
     mock: function({state}) {

@@ -15,6 +15,7 @@ let mockApi = <%- mockApi %>;
 let base = <%- base %>;
 let customExpect = <%- customExpect%>
 const sleep = t => new Promise(resolve => setTimeout(resolve, t));
+const STATIC_IMG = 'https://tctp.test.webankcdn.net/pmbank-caas/e6902e951e9f7d122ca93383ded67ff3/6db588029c90bb361648928e6175a5d1/f/id-upload/id-upload';
 
 
 expect.extend({
@@ -77,7 +78,29 @@ for (let j = 0; j < testCaseNameArr.length; j++) {
         let screenCount = 0;
         // mock接口
         let apiMockMap = require(path.join(testDir, testName, `./api.json`));
-        // for (let i = 0; i < mockWxMethodConfig.length; i++) {
+        const mockKeys = Object.keys(apiMockMap).join('-');
+        if (mockKeys.includes('chooseImage') || mockKeys.includes('takePhoto') ) {
+            for (let [k, v] of Object.entries(apiMockMap)) {
+                if (k.includes('chooseImage')) {
+                    const name = v[0].tempFilePaths[0];
+                    console.log('filename: ', name);
+                    let fileObj = await miniProgram.callWxMethod('downloadFile', {
+                        url: STATIC_IMG
+                    });
+                    apiMockMap[k][0].tempFilePaths[0] = fileObj.tempFilePath
+                    console.log('fileobj: ', fileObj);
+                } else if (k.includes('takePhoto')) {
+                    const name = v[0].tempImagePath;
+                    console.log('filename: ', name);
+                    let fileObj = await miniProgram.callWxMethod('downloadFile', {
+                        url: STATIC_IMG
+                    });
+                    apiMockMap[k][0].tempImagePath = fileObj.tempFilePath
+                    console.log('fileobj: ', fileObj);
+                }
+            }
+        }
+
         <% mockWxMethodConfig.forEach(function(mockItem){ %>
             <% if(mockItem.name !== 'request' || mockApi) {%>
         await miniProgram.mockWxMethod(
@@ -87,7 +110,7 @@ for (let j = 0; j < testCaseNameArr.length; j++) {
                 if (apiMockMap[mapKey] && apiMockMap[mapKey].length > 0) {
                     console.log(mapKey, 'mock success')
                     <% if(mockItem.name === 'request') {%>
-                    return apiMockMap[mapKey].shift();
+                        return apiMockMap[mapKey].shift();
                     <% } else {%>
                         return apiMockMap[mapKey][0];
                     <% }%>
