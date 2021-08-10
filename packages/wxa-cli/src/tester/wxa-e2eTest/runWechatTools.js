@@ -13,8 +13,9 @@ export default async function(cmd, wxaConfigs) {
     };
     let {cliPath} = cmd;
     let wechatwebdevtools = wxaConfigs.wechatwebdevtools;
-    if (!wechatwebdevtools || wechatwebdevtools === '/Applications/wechatwebdevtools.app') {
-        console.log('find wechatWebDevTools......');
+    // window才查路径
+    if (process.platform === 'win32' && (!wechatwebdevtools || wechatwebdevtools === '/Applications/wechatwebdevtools.app')) {
+        console.log('find wechatWebDevTools......', os.platform());
         wechatwebdevtools = await FindWechatPath.start();
         console.log('wechatwebdevtools: ', wechatwebdevtools);
     }

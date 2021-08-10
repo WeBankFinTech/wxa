@@ -1,9 +1,9 @@
-/* 
+/*
 Windows 环境下去主动查找微信开发者工具安装目录
 uct8086 2021-07-08
 */
 const fs = require('fs');
-const os = require('os'); 
+const os = require('os');
 const sys_readfile = require('util').promisify(fs.readFile);
 const path = require('path');
 const CONFIG_PATH = '微信web开发者工具';
@@ -14,7 +14,10 @@ class FindWechatPath {
     static async start() {
         // 只查Windows平台
         const platform = os.platform();
-        if (!platform.includes('win')) return console.log('Non-Windows system, skip');
+        if (platform !== 'win32') {
+            console.log('Non-Windows system, skip');
+            return;
+        }
         // 有缓存文件就直接读取
         const exists = await fs.existsSync(`${__dirname}/wechat.cfg`);
         if (exists) return await sys_readfile(`${__dirname}/wechat.cfg`, 'utf-8');
@@ -27,7 +30,7 @@ class FindWechatPath {
                 let isDir = await this.checkFile(currentPath);
                 if (isDir) {
                     tempPath = currentPath;
-                    break label;  
+                    break label;
                 }
             }
         }
@@ -55,7 +58,7 @@ class FindWechatPath {
         if (deep >= 4) { // 最深不超过4层
             console.log(dirName);
             return 'begin';
-        } 
+        }
         let filePath = path.resolve(`${dirName}`);
         return new Promise((resolve) => {
             fs.readdir(filePath, async (err, files) => {
