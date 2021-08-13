@@ -15,8 +15,10 @@ export default async function(cmd, wxaConfigs) {
     let wechatwebdevtools = wxaConfigs.wechatwebdevtools;
     // window才查路径
     if (process.platform === 'win32' && (!wechatwebdevtools || wechatwebdevtools === '/Applications/wechatwebdevtools.app')) {
-        console.log('find wechatWebDevTools......', os.platform());
+        console.log('find wechatWebDevTools......', process.platform);
+        cmd.elog && cmd.elog.info('find wechatWebDevTools......', process.platform);
         wechatwebdevtools = await FindWechatPath.start();
+        cmd.elog && cmd.elog.info('wechatwebdevtools: ', wechatwebdevtools);
         console.log('wechatwebdevtools: ', wechatwebdevtools);
     }
     
@@ -28,12 +30,14 @@ export default async function(cmd, wxaConfigs) {
         writeFile(path.join(testDir, '.cache', 'start.test.js'), recordString);
     } catch (err) {
         console.log(err);
+        cmd.elog && cmd.elog.error('write file start.test.js fail. ', err);
         process.exit(-1);
     }
     try {
         exec(`node ${path.join(testDir, '.cache', 'start.test.js').split(path.sep).join('/')}`, {
             stdio: 'inherit'
         });
+        cmd.elog && cmd.elog.info(`wechat tools started`);
         console.log(`wechat tools started`);
     } catch (err) {
         process.exit(-1);

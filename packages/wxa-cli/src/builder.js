@@ -276,6 +276,7 @@ class Builder {
     async run(cmd) {
         process.title = this.name;
         logger.info('Building', `Project: ${this.name} `+'AT: '+new Date().toLocaleString());
+        cmd.elog && cmd.elog.info('Building', `Project: ${this.name} `+'AT: '+new Date().toLocaleString());
         await this.hooks.run.promise(this);
 
         // do dependencies analysis.
@@ -301,8 +302,10 @@ class Builder {
 
             debug('Project Pages', this.scheduler.$pageArray);
             wxaPerformance.show();
+            cmd.elog && cmd.elog.info('Done', 'AT: '+new Date().toLocaleString());
             logger.log('Done', 'AT: '+new Date().toLocaleString());
         } catch (e) {
+            cmd.elog && cmd.elog.error('编译失败', {error: e});
             error('编译失败', {error: e});
         }
     }
@@ -351,6 +354,7 @@ class Builder {
             this.progress.clean();
         } catch (e) {
             logger.error(e);
+            cmdOptions.elog && cmdOptions.elog.error(e);
             this.progress.draw('\n');
         }
     }
@@ -408,6 +412,7 @@ class Builder {
             if (isFile(mdl.src)) {
                 this.scheduler.addEntryPoint(mdl);
             } else {
+                cmd.elog && cmd.elog.error(`入口文件不存在 ${mdl.src}`);
                 throw new Error(`入口文件不存在 ${mdl.src}`);
             }
         });

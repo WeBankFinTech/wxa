@@ -92,6 +92,7 @@ class TesterScheduler extends Schedule {
                     }
                 } catch (e) {
                     logger.warn('wrap navigationStyle fail', e);
+                    this.cmdOptions.elog && this.cmdOptions.elog.warn('wrap navigationStyle fail', e);
                 }
             }
             if (dep.kind === 'xml') {
@@ -132,6 +133,8 @@ class TesterScheduler extends Schedule {
         const code = JSON5.parse(mdl.code);
         code.setting.urlCheck = false;
         code.libVersion = LIB_VERSION;
+        this.cmdOptions.elog && this.cmdOptions.elog.info('\nset libVersion: ', code.libVersion);
+        this.cmdOptions.elog && this.cmdOptions.elog.info('set urlCheck: ', code.setting.urlCheck);
         console.log('\nset libVersion: ', code.libVersion);
         console.log('set urlCheck: ', code.setting.urlCheck);
         mdl.code = JSON.stringify(code);
@@ -187,6 +190,7 @@ class TesterScheduler extends Schedule {
             mdl.code = JSON.stringify(appConfigs);
         } catch (e) {
             logger.warn('wrap global test component fail', e);
+            this.cmdOptions.elog && this.cmdOptions.elog.warn('wrap global test component fail', e);
         }
     }
 
@@ -209,6 +213,7 @@ class TesterBuilder extends Builder {
             await this.init(cmd);
         } catch (e) {
             logger.error('挂载失败', e);
+            cmd.elog && cmd.elog.error('挂载失败', e);
         }
         await this.hooks.beforeRun.promise(this);
 
@@ -227,12 +232,14 @@ class TesterBuilder extends Builder {
             await this.handleEntry(cmd);
         } catch (error) {
             logger.error('编译入口参数有误', error);
+            cmd.elog && cmd.elog.error('编译入口参数有误', error);
             throw error;
         }
 
         await this.run(cmd);
 
         logger.log('Tester E2E', `compile done. ${cmd.record ? 'Enabled' : 'Disabled'} record`);
+        cmd.elog && cmd.elog.info('Tester E2E', `compile done. ${cmd.record ? 'Enabled' : 'Disabled'} record`);
         // console.log('E2ETester work done', cmd.record);
 
         // 要等wxa编译完不然会报错
@@ -252,8 +259,15 @@ class TesterBuilder extends Builder {
         let server = new Server({port}, logger);
         server.post(E2E_TEST_URL, async (data)=>{
             logger.info('Recieved Data: ', data);
-            if (!this.validFileName(data.name)) return logger.error('用例名不合法');
-            if (!data.record) return logger.error('用例数据不能为空');
+            cmdOptions.elog && cmdOptions.elog.info('Recieved Data: ', data);
+            if (!this.validFileName(data.name)) {
+                cmdOptions.elog && cmdOptions.elog.error('用例名不合法');
+                return logger.error('用例名不合法');
+            }
+            if (!data.record) {
+                cmdOptions.elog && cmdOptions.elog.error('用例数据不能为空');
+                return logger.error('用例数据不能为空');
+            }
             // generate the record and save to project
             let clipath = {
                 darwin: '/Contents/MacOS/cli',
@@ -273,6 +287,7 @@ class TesterBuilder extends Builder {
                 writeFile(apiRecordOutputPath, JSON.stringify(data.apiRecord, null, 4));
             } catch (e) {
                 logger.error('生成测试案例失败', e);
+                cmdOptions.elog && cmdOptions.elog.error('生成测试案例失败', e);
             }
         });
 
@@ -293,6 +308,7 @@ export default class E2ETester {
 
     async build() {
         console.log('e2e tester start');
+        this.cmdOptions.elog.info('e2e tester start');
         let testerBuilder = new TesterBuilder(this.wxaConfigs, );
         
         await testerBuilder.build(this.cmdOptions);

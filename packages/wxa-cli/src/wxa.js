@@ -14,6 +14,8 @@ import {WXA_PROJECT_NAME} from './const/wxaConfigs';
 import {isEmpty} from './utils';
 import logger from './helpers/logger';
 
+import ExposeInterface from './exposeInterface';
+
 const version = require('../package.json').version;
 
 let showSlogan = () => {
@@ -131,4 +133,8 @@ commander
     });
 
 commander.parse(process.argv);
+
+module.exports = {
+    ExposeInterface,
+};
 

@@ -21,6 +21,7 @@ export default async function(cmd, wxaConfigs) {
     let stat = fs.lstatSync(testDir);
     // 不存在测试用例目录
     if (!stat.isDirectory()) {
+        cmd.elog && cmd.elog.Error(`${testDir}非文件目录，请用--out-dir传入测试用例目录地址`);
         throw new Error(`${testDir}非文件目录，请用--out-dir传入测试用例目录地址`);
     }
     if (typeof cmd.test === 'string') {
@@ -46,8 +47,10 @@ export default async function(cmd, wxaConfigs) {
     let {cliPath} = cmd;
     let wechatwebdevtools = wxaConfigs.wechatwebdevtools;
     if (process.platform === 'win32' && (!wechatwebdevtools || wechatwebdevtools === '/Applications/wechatwebdevtools.app')) {
+        cmd.elog && cmd.elog.info('find wechatWebDevTools......');
         console.log('find wechatWebDevTools......');
         wechatwebdevtools = await FindWechatPath.start();
+        cmd.elog && cmd.elog.info('wechatwebdevtools: ', wechatwebdevtools);
         console.log('wechatwebdevtools: ', wechatwebdevtools);
     }
     let cli = cliPath || path.join(wechatwebdevtools, clipath[process.platform]);
@@ -86,6 +89,7 @@ export default async function(cmd, wxaConfigs) {
         writeFile(path.join(testDir, '.cache', 'index.test.js'), recordString);
     } catch (err) {
         console.log(err);
+        cmd.elog && cmd.elog.Error(err);
         process.exit(-1);
     }
 
@@ -95,6 +99,7 @@ export default async function(cmd, wxaConfigs) {
             stdio: 'inherit',
         });
     } catch (err) {
+        cmd.elog && cmd.elog.Error(`run index.test.js error`, err);
     }
     // 处理jest结果，方便网页文档读取
     let jestResJson = JSON.parse(readFile(jestResPath));
@@ -130,6 +135,7 @@ export default async function(cmd, wxaConfigs) {
     // 复制文档目录
     shelljs.cp(`-R`, path.join(__dirname, '../../../src/tester/wxa-e2eTest/staticWeb/staticFile'), path.join(testDir, '.doc', 'static'));
     // 使用指定浏览器打开
+    cmd.elog && cmd.elog.info(`生成测试报告：${docPath}`);
     console.log(`生成测试报告：${docPath}`);
     await open(docPath, {app: {
         name: open.apps.chrome,

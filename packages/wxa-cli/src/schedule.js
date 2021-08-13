@@ -110,9 +110,10 @@ class Schedule {
     async doDPA() {
         if (!this.$depPending.length) {
             logger.error('找不到可编译的入口文件');
+            this.cmdOptions.elog && this.cmdOptions.elog.error('找不到可编译的入口文件');
             throw new Error('找不到可编译的入口文件');
         }
-
+        this.cmdOptions.elog && this.cmdOptions.elog.info('DPA started');
         debug('depPending %o', this.$depPending);
         debug('DPA started');
 

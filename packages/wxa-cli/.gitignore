@@ -5,3 +5,4 @@ npm-debug.log.*
 lib-dist
 .cache
 wechat.cfg
+project.cfg

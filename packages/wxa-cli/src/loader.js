@@ -78,23 +78,27 @@ class CompilerLoader {
                 // still no find, then use npm manager try to install it.
                 if (!isDone) {
                     console.error(err);
+                    cmdOptions.elog && cmdOptions.elog.error('未安装的编译器：'+compilerName);
                     logger.error('未安装的编译器：'+compilerName);
+                    cmdOptions.elog && cmdOptions.elog.info('Install', `尝试安装${compilerName}中`);
                     logger.info('Install', `尝试安装${compilerName}中`);
 
                     return this.npmManager.install(compilerName).then((succ)=>{
                         logger.info('Success', `安装${compilerName}成功`);
-
+                        cmdOptions.elog && cmdOptions.elog.info('Success', `安装${compilerName}成功`);
                         try {
                             let main = findNpmModule(compilerName, this.modulePath);
                             Loader = require(main).default;
                         } catch (e) {
                             logger.error('找不到编译器，请手动安装依赖！');
+                            cmdOptions.elog && cmdOptions.elog.error('找不到编译器，请手动安装依赖！');
                             process.exit(0);
                         }
 
                         return {Loader, uri, loader, cmdOptions};
                     }, (fail)=>{
                         logger.error(`安装编译器 ${compilerName} 失败，请尝试手动安装依赖(npm i -D ${compilerName})`, fail);
+                        cmdOptions.elog && cmdOptions.elog.error(`安装编译器 ${compilerName} 失败，请尝试手动安装依赖(npm i -D ${compilerName})`, fail);
                     });
                 }
             }
@@ -114,7 +118,10 @@ class CompilerLoader {
                     // console.log(instance);
                     let test = loader.test || instance.test;
 
-                    if (test == null) throw new Error('wxa.config.js配置有误，请指定use.loader.test', JSON.stringify(loader));
+                    if (test == null) {
+                        cmdOptions.elog && cmdOptions.elog.error('wxa.config.js配置有误，请指定use.loader.test', JSON.stringify(loader));
+                        throw new Error('wxa.config.js配置有误，请指定use.loader.test', JSON.stringify(loader));
+                    }
 
                     this.loaders.push({
                         test, loader: instance, options, cmdOptions,
@@ -122,6 +129,7 @@ class CompilerLoader {
                 } catch (e) {
                     debug('挂载compiler %s 失败原因：%O', uri, e);
                     logger.error(`挂载compiler ${uri} 错误, 请检查依赖是否有正确安装`, e);
+                    cmdOptions.elog && cmdOptions.elog.error(`挂载compiler ${uri} 错误, 请检查依赖是否有正确安装`, e);
                 }
             });
         });
