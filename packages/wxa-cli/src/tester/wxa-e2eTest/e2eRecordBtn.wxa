@@ -3,6 +3,7 @@
         <button class="e2e-startRecord" style="top: {{top}}px; left: {{left}}px;" data-e2ebtn="true" catchtap="tap" bindtouchstart="touchstart" catchtouchmove="touchmove">{{btnText}}</button>
         <view class="e2e-mask" wx:if="{{showInput}}">
             <view class="e2e-input">
+                <input bindinput="bindInput" value="{{filePath}}" placeholder="测试用例存放目录用“/”分隔" />
                 <input bindinput="bindInput" value="{{fileName}}" placeholder="未命名测试用例" />
                 <view class="e2e-btnGroup">
                     <button catchtap="closeInput">取消</button>
@@ -28,6 +29,7 @@ class e2eBtn {
         diffY: 0,
         btnText: '',
         fileName: '',
+        filePath: '',
         showInput: false,
         recordMode: false
     }
@@ -57,6 +59,7 @@ class e2eBtn {
         try {
             let result = fetch('http://127.0.0.1:9421/record', {
                 name: this.data.fileName,
+                filePath: this.data.filePath,
                 record: this.$$e2e_state.record,
                 apiRecord: apiRecordObj
             }, {}, 'post');

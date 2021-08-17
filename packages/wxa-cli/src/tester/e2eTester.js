@@ -133,7 +133,7 @@ class TesterScheduler extends Schedule {
         const code = JSON5.parse(mdl.code);
         code.setting.urlCheck = false;
         code.libVersion = LIB_VERSION;
-        this.cmdOptions.elog && this.cmdOptions.elog.info('\nset libVersion: ', code.libVersion);
+        this.cmdOptions.elog && this.cmdOptions.elog.info('set libVersion: ', code.libVersion);
         this.cmdOptions.elog && this.cmdOptions.elog.info('set urlCheck: ', code.setting.urlCheck);
         console.log('\nset libVersion: ', code.libVersion);
         console.log('set urlCheck: ', code.setting.urlCheck);
@@ -268,6 +268,11 @@ class TesterBuilder extends Builder {
                 cmdOptions.elog && cmdOptions.elog.error('用例数据不能为空');
                 return logger.error('用例数据不能为空');
             }
+            if (!data.filePath) {
+                cmdOptions.elog && cmdOptions.elog.error('目录路径不能为空');
+                return logger.error('目录路径不能为空');
+            }
+
             // generate the record and save to project
             let clipath = {
                 darwin: '/Contents/MacOS/cli',
@@ -278,7 +283,7 @@ class TesterBuilder extends Builder {
 
             try {
                 // let recordString = await e2eRecord2js(data.record, {cliPath: cli, name: data.name});
-                let outputPathBase = path.join(this.current, cmdOptions.outDir, data.name);
+                let outputPathBase = path.join(this.current, cmdOptions.outDir, data.filePath, data.name);
                 let e2eRecordOutputPath = `${outputPathBase}/record.js`;
                 let apiRecordOutputPath = `${outputPathBase}/api.json`;
                 // save file;

@@ -21,7 +21,7 @@ export default async function(cmd, wxaConfigs) {
     let stat = fs.lstatSync(testDir);
     // 不存在测试用例目录
     if (!stat.isDirectory()) {
-        cmd.elog && cmd.elog.Error(`${testDir}非文件目录，请用--out-dir传入测试用例目录地址`);
+        cmd.elog && cmd.elog.error(`${testDir}非文件目录，请用--out-dir传入测试用例目录地址`);
         throw new Error(`${testDir}非文件目录，请用--out-dir传入测试用例目录地址`);
     }
     if (typeof cmd.test === 'string') {
@@ -89,7 +89,7 @@ export default async function(cmd, wxaConfigs) {
         writeFile(path.join(testDir, '.cache', 'index.test.js'), recordString);
     } catch (err) {
         console.log(err);
-        cmd.elog && cmd.elog.Error(err);
+        cmd.elog && cmd.elog.error(err);
         process.exit(-1);
     }
 
@@ -97,50 +97,55 @@ export default async function(cmd, wxaConfigs) {
     try {
         execSync(`npx jest ${path.join(testDir, '.cache', 'index.test.js').split(path.sep).join('/')} --outputFile=${jestResPath} --json`, {
             stdio: 'inherit',
+        }, function(err) {
+            cmd.elog && cmd.elog.error(`run index.test.js error`, err);
+            cmd.elog && cmd.elog.info(`test finished.`);
         });
     } catch (err) {
-        cmd.elog && cmd.elog.Error(`run index.test.js error`, err);
+        cmd.elog && cmd.elog.error(`run index.test.js error`, err);
     }
-    // 处理jest结果，方便网页文档读取
-    let jestResJson = JSON.parse(readFile(jestResPath));
-    writeFile(jestResPath, `var jest_result = ${JSON.stringify(jestResJson)}`);
 
-    if (cmd.pyDiff && !cmd.base && !cmd.record) {
-        pyDiff(screenshotPath, testCaseNameArr);
-    }
-    let testCase = [];
-    testCaseNameArr.forEach((item) => {
-        let baseDir = path.join(testDir, item, 'base_screenshot');
-        let currentDiffDir = path.join(testDir, '.replay_result', screenshotPath, item, 'screenshot', 'diff');
-        let files = fs.readdirSync(baseDir);
-        let diffIndex = [];
-        if (!cmd.base && !cmd.record) {
-            let diffFiles = fs.readdirSync(currentDiffDir);
-            diffFiles.forEach((diffFileItem) => {
-                diffIndex.push(diffFileItem.split('.')[0]);
-            });
+    if (!cmd.elog) { // 有客户端日志对象，就不需要网页测试报告
+        // 处理jest结果，方便网页文档读取
+        let jestResJson = JSON.parse(readFile(jestResPath));
+        writeFile(jestResPath, `var jest_result = ${JSON.stringify(jestResJson)}`);
+
+        if (cmd.pyDiff && !cmd.base && !cmd.record) {
+            pyDiff(screenshotPath, testCaseNameArr);
         }
-        testCase.push({
-            name: item,
-            totalScreenCount: files.length,
-            diffIndex,
+        let testCase = [];
+        testCaseNameArr.forEach((item) => {
+            let baseDir = path.join(testDir, item, 'base_screenshot');
+            let currentDiffDir = path.join(testDir, '.replay_result', screenshotPath, item, 'screenshot', 'diff');
+            let files = fs.readdirSync(baseDir);
+            let diffIndex = [];
+            if (!cmd.base && !cmd.record) {
+                let diffFiles = fs.readdirSync(currentDiffDir);
+                diffFiles.forEach((diffFileItem) => {
+                    diffIndex.push(diffFileItem.split('.')[0]);
+                });
+            }
+            testCase.push({
+                name: item,
+                totalScreenCount: files.length,
+                diffIndex,
+            });
         });
-    });
-    let staticWebString = await e2eStaticWeb2js({
-        time: screenshotPath,
-        testCase: JSON.stringify(testCase),
-    });
-    let docPath = path.join(testDir, '.doc', `${screenshotPath}.html`);
-    writeFile(docPath, staticWebString);
-    // 复制文档目录
-    shelljs.cp(`-R`, path.join(__dirname, '../../../src/tester/wxa-e2eTest/staticWeb/staticFile'), path.join(testDir, '.doc', 'static'));
-    // 使用指定浏览器打开
-    cmd.elog && cmd.elog.info(`生成测试报告：${docPath}`);
-    console.log(`生成测试报告：${docPath}`);
-    await open(docPath, {app: {
-        name: open.apps.chrome,
-    }});
-
+        let staticWebString = await e2eStaticWeb2js({
+            time: screenshotPath,
+            testCase: JSON.stringify(testCase),
+        });
+        let docPath = path.join(testDir, '.doc', `${screenshotPath}.html`);
+        writeFile(docPath, staticWebString);
+        // 复制文档目录
+        shelljs.cp(`-R`, path.join(__dirname, '../../../src/tester/wxa-e2eTest/staticWeb/staticFile'), path.join(testDir, '.doc', 'static'));
+        // 使用指定浏览器打开
+        cmd.elog && cmd.elog.info(`生成测试报告：${docPath}`);
+        console.log(`生成测试报告：${docPath}`);
+        await open(docPath, {app: {
+            name: open.apps.chrome,
+        }});
+    }
     setTimeout(() => {
         process.exit(0);
     }, 5000);
