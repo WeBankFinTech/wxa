@@ -256,7 +256,7 @@ class TesterBuilder extends Builder {
         if (cmdOptions.record) { // -r启动微信开发者工具
             runWechatTools(cmdOptions, this.wxaConfigs);
         }
-        let server = new Server({port}, logger);
+        let server = new Server({port}, logger, cmdOptions.elog);
         server.post(E2E_TEST_URL, async (data)=>{
             logger.info('Recieved Data: ', data);
             cmdOptions.elog && cmdOptions.elog.info('Recieved Data: ', data);
@@ -272,7 +272,13 @@ class TesterBuilder extends Builder {
                 cmdOptions.elog && cmdOptions.elog.error('目录路径不能为空');
                 return logger.error('目录路径不能为空');
             }
-
+            // 恢复原始路径
+            let arr = data.filePath.split('/');
+            arr = arr.map((item) => {
+                if (item === '') return item;
+                return `___${item}`;
+            });
+            const originPath = arr.join('/');
             // generate the record and save to project
             let clipath = {
                 darwin: '/Contents/MacOS/cli',
@@ -283,7 +289,7 @@ class TesterBuilder extends Builder {
 
             try {
                 // let recordString = await e2eRecord2js(data.record, {cliPath: cli, name: data.name});
-                let outputPathBase = path.join(this.current, cmdOptions.outDir, data.filePath, data.name);
+                let outputPathBase = path.join(this.current, cmdOptions.outDir, originPath, data.name);
                 let e2eRecordOutputPath = `${outputPathBase}/record.js`;
                 let apiRecordOutputPath = `${outputPathBase}/api.json`;
                 // save file;

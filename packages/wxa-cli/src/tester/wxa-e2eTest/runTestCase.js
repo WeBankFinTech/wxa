@@ -61,7 +61,7 @@ export default async function(cmd, wxaConfigs) {
         screenshotPath = 'base_screenshot';
     } else {
         let timeStamp = formatDate(+new Date());
-        screenshotPath = timeStamp.replace(' ', '_').replace(/:/g, '.');
+        screenshotPath = timeStamp.replace(' ', '').replace(/:/g, '.').replace('-', '');
     }
     try {
         let screenshotDiff = cmd.screenshotDiff;

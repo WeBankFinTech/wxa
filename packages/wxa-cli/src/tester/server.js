@@ -2,10 +2,11 @@ import http from 'http';
 import url from 'url';
 
 export default class Server {
-    constructor({port}, logger) {
+    constructor({port}, logger, elog) {
         this.port = port;
         this.postQueue = new Map;
         this.logger = logger;
+        this.elog = elog;
     }
 
     post(url, callback) {
@@ -36,6 +37,7 @@ export default class Server {
                     response.end(JSON.stringify({code: 0, msg: '处理成功'}));
                 } catch (e) {
                     this.logger.error(e);
+                    this.elog && this.elog.error(e);
                     response.writeHead(200, {'content-Type': 'application/json'});
                     response.end(JSON.stringify({code: -1, msg: 'json数据有误'}));
                 }
@@ -43,7 +45,8 @@ export default class Server {
         });
 
         this.$server.listen(this.port, '127.0.0.1', ()=>{
-            this.logger.info('server start listenning: ' + '127.0.0.1:' + this.port);
+            this.elog && this.elog.info('wxa side server start listenning: ' + '127.0.0.1:' + this.port);
+            this.logger.info('wxa side server start listenning: ' + '127.0.0.1:' + this.port);
         });
     }
 }

@@ -54,7 +54,8 @@ for (let j = 0; j < testCaseNameArr.length; j++) {
     let testName = testCaseNameArr[j];
     test(testName, async () => {
         console.log('test case begin');
-        let screenshotDir = path.join(testDir, '.replay_result', screenshotDirname, testName, 'screenshot');
+        let replayName = testName.replace('___', '').replace('/', '-') + screenshotDirname
+        let screenshotDir = path.join(testDir, '.replay_result', replayName, 'screenshot');
         let baseScreenshot = path.join(testDir, testName, 'base_screenshot');
         if (base) {
             screenshotDir = baseScreenshot;
@@ -275,12 +276,19 @@ function imageDiff(actualImage, expectImage, diffPath) {
 }
 // 递归创建目录 同步方法
 function mkdirsSync(dirname) {
-    if (fs.existsSync(dirname)) {
-      return true;
-    } else {
-      if (mkdirsSync(path.dirname(dirname))) {
-        fs.mkdirSync(dirname);
+    try{
+        fs.mkdirSync(dirname, {recursive: true});
         return true;
-      }
+    } catch (e) {
+        console.log(e);
+        return false;
     }
+    // if (fs.existsSync(dirname)) {
+    //   return true;
+    // } else {
+    //   if (mkdirsSync(path.dirname(dirname))) {
+    //     fs.mkdirSync(dirname);
+    //     return true;
+    //   }
+    // }
 }
