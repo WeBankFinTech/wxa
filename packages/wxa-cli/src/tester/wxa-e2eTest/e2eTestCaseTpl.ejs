@@ -54,8 +54,8 @@ for (let j = 0; j < testCaseNameArr.length; j++) {
     let testName = testCaseNameArr[j];
     test(testName, async () => {
         console.log('test case begin');
-        let replayName = testName.replace('___', '').replace('/', '-') + screenshotDirname
-        let screenshotDir = path.join(testDir, '.replay_result', replayName, 'screenshot');
+        let replayName = testName.replace(/___/g, '').replace(/\//g, '-');
+        let screenshotDir = path.join(testDir, '.replay_result', screenshotDirname, replayName,  'screenshot');
         let baseScreenshot = path.join(testDir, testName, 'base_screenshot');
         if (base) {
             screenshotDir = baseScreenshot;

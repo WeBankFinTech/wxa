@@ -61,7 +61,7 @@ export default async function(cmd, wxaConfigs) {
         screenshotPath = 'base_screenshot';
     } else {
         let timeStamp = formatDate(+new Date());
-        screenshotPath = timeStamp.replace(' ', '').replace(/:/g, '.').replace('-', '');
+        screenshotPath = timeStamp.replace(' ', '').replace(/:/g, '.').replace(/\-/g, '');
     }
     try {
         let screenshotDiff = cmd.screenshotDiff;
@@ -93,13 +93,16 @@ export default async function(cmd, wxaConfigs) {
         process.exit(-1);
     }
 
-    let jestResPath = path.join(testDir, '.replay_result', screenshotPath, 'jest_result.js');
+    // 没有路径就去创建。
+    const parentPath = path.join(testDir, '.replay_result', screenshotPath);
+    const exists = await fs.existsSync(parentPath);
+    if (!exists) { 
+        fs.mkdirSync(parentPath, {recursive: true});
+    }
+    let jestResPath = path.join(testDir, '.replay_result', screenshotPath, 'jest_result.json');
     try {
         execSync(`npx jest ${path.join(testDir, '.cache', 'index.test.js').split(path.sep).join('/')} --outputFile=${jestResPath} --json`, {
             stdio: 'inherit',
-        }, function(err) {
-            cmd.elog && cmd.elog.error(`run index.test.js error`, err);
-            cmd.elog && cmd.elog.info(`test finished.`);
         });
     } catch (err) {
         cmd.elog && cmd.elog.error(`run index.test.js error`, err);
