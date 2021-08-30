@@ -85,9 +85,12 @@ class XMLManager {
         // pagePath + hash(parentNode + prevNode) + optional(class/id)
         let pagePath = path.relative(this.scheduler.wxaConfigs.context, path.dirname(this.mdl.src) + path.sep + path.basename(this.mdl.src, path.extname(this.mdl.src)));
 
-        let ele = this.getParentAndPrevNode(element);
-        let eleString = new Coder().decodeTemplate(domSerializer(ele, {xmlMode: true}));
-        let hash= getHashWithString(eleString);
+        // let ele = this.getParentAndPrevNode(element);
+        // let eleString = new Coder().decodeTemplate(domSerializer(ele, {xmlMode: true}));
+        // let hash= getHashWithString(eleString);
+
+        let uniqueTag = this.generateUniqueTag(element);
+        let hash = getHashWithString(uniqueTag);
 
         let {isIeration, indexVariable} = this.findSelfOrAncestorIterationDirective(element);
 
@@ -114,6 +117,48 @@ class XMLManager {
         };
     }
 
+    getElementIndex(element) {
+        let index = 0;
+        let prev = element.prev;
+
+        while (prev) {
+            if (prev.type === 'tag') {
+                index++;
+            }
+            prev = prev.prev;
+        }
+
+        return index;
+    }
+
+    generateUniqueTag(element) {
+        let parent = element.parent;
+        let parentUniqueId = '';
+    
+        if (parent) {
+            parentUniqueId = parent.attribs['data-_wxaTestUniqueId'];
+        }
+    
+        let index = this.getElementIndex(element);
+    
+        function getName() {
+            return element.name || '';
+        }
+    
+        // 父节点的 _wxaTestUniqueId + tagName + element 在父节点下的索引
+        if (parentUniqueId) {
+            return parentUniqueId + getName() + index;
+        }
+    
+        // 节点属性 + tagName + 索引
+        if (element.attribs && Object.keys(element.attribs).length) {
+            return JSON.stringify(element.attribs) + getName() + index;
+        }
+    
+        // 随机数 + tagName + 索引
+        return Math.floor(Math.random() * 100000).toString(16) + getName() + index;
+    }
+    
     getParentAndPrevNode(element) {
         // 1. 找到所有父级和同级位置靠前的节点
         // 2. 清理掉所有后续节点及父级节点的后续节点
