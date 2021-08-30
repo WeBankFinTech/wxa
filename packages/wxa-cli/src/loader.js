@@ -61,6 +61,7 @@ class CompilerLoader {
                     isDone = true;
                 } catch (e) {
                     err = e;
+                    cmdOptions.elog && cmdOptions.elog.error(`findNpmModule error: ${e && e.message || ''}`);
                 }
 
                 // try to find loader from cli's node_modules;
@@ -72,6 +73,7 @@ class CompilerLoader {
                         isDone = true;
                     } catch (e) {
                         debug('load cli\'s loader fail %O', e);
+                        cmdOptions.elog && cmdOptions.elog.error(`cli findNpmModule error: ${e && e.message || ''}`);
                     }
                 }
 

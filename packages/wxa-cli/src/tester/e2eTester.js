@@ -132,7 +132,7 @@ class TesterScheduler extends Schedule {
         if (!~mdl.src.indexOf('project.config.json')) return;
         const code = JSON5.parse(mdl.code);
         code.setting.urlCheck = false;
-        code.libVersion = LIB_VERSION;
+        code.libVersion = this.cmdOptions.libVersion || LIB_VERSION;
         this.cmdOptions.elog && this.cmdOptions.elog.info('set libVersion: ', code.libVersion);
         this.cmdOptions.elog && this.cmdOptions.elog.info('set urlCheck: ', code.setting.urlCheck);
         console.log('\nset libVersion: ', code.libVersion);

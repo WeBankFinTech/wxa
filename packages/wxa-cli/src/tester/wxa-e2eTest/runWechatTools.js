@@ -11,8 +11,11 @@ export default async function(cmd, wxaConfigs) {
         darwin: '/Contents/MacOS/cli',
         win32: `/cli.bat`,
     };
-    let {cliPath} = cmd;
-    let wechatwebdevtools = wxaConfigs.wechatwebdevtools;
+    let {
+        cliPath,
+        basePath,
+      } = cmd;
+      let wechatwebdevtools = basePath || wxaConfigs.wechatwebdevtools;
     // window才查路径
     if (process.platform === 'win32' && (!wechatwebdevtools || wechatwebdevtools === '/Applications/wechatwebdevtools.app')) {
         console.log('find wechatWebDevTools......', process.platform);
@@ -35,7 +38,7 @@ export default async function(cmd, wxaConfigs) {
     }
     try {
         exec(`node ${path.join(testDir, '.cache', 'start.test.js').split(path.sep).join('/')}`, {
-            stdio: 'inherit'
+            stdio: 'inherit',
         });
         cmd.elog && cmd.elog.info(`wechat tools started`);
         console.log(`wechat tools started`);

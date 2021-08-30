@@ -44,8 +44,11 @@ export default async function(cmd, wxaConfigs) {
         darwin: '/Contents/MacOS/cli',
         win32: `/cli.bat`,
     };
-    let {cliPath} = cmd;
-    let wechatwebdevtools = wxaConfigs.wechatwebdevtools;
+    let {
+        cliPath,
+        basePath,
+      } = cmd;
+      let wechatwebdevtools = basePath || wxaConfigs.wechatwebdevtools;
     if (process.platform === 'win32' && (!wechatwebdevtools || wechatwebdevtools === '/Applications/wechatwebdevtools.app')) {
         cmd.elog && cmd.elog.info('find wechatWebDevTools......');
         console.log('find wechatWebDevTools......');
