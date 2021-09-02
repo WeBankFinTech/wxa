@@ -88,13 +88,7 @@ class ExposeInterface {
 
     async setPath(path) { // 设置参数
         try {
-            let content = {};
-            const exists = await fs.existsSync(`${__dirname}/${CFG_FILE}`);
-            if (exists) {
-                content = await sysReadfile(`${__dirname}/${CFG_FILE}`, 'utf-8');
-                content = JSON.parse(content);
-            }
-            content.projPath = path;
+            let content = {projPath: path};
             await fs.writeFileSync(`${__dirname}/${CFG_FILE}`, JSON.stringify(content));
             return {code: 1};
         } catch (err) {

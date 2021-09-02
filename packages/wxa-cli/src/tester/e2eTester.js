@@ -319,7 +319,7 @@ export default class E2ETester {
 
     async build() {
         console.log('e2e tester start');
-        this.cmdOptions.elog.info('e2e tester start');
+        this.cmdOptions.elog && this.cmdOptions.elog.info('e2e tester start');
         let testerBuilder = new TesterBuilder(this.wxaConfigs, );
         
         await testerBuilder.build(this.cmdOptions);
