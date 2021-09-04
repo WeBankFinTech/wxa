@@ -59,12 +59,6 @@ function execute(command) {
         console.log(stdout);
         console.error(stderr);
     });
-    cp.stdout.on('data', (msg) => {
-        console.log(msg);
-    });
-    cp.stderr.on('data', (err) => {
-        console.error(err);
-    });
     cp.on('close', (code) => {
         console.log(code);
     });
