@@ -171,15 +171,29 @@ wxa2 build --watch --project=PartnerA,PartnerB
 命令行调用微信开发者工具
 
 ``` sh
-  用法: wxa2 build [options]
+  用法: wxa2 cli [options] [command]
 
-  编译项目
+  调用微信开发者工具
 
-  选项:
+  options:
     --configs-path <configsPath> wxa.configs.js文件路径，默认项目根目录
-    -a, --action <action>    指定操作, open, login, preview, upload
-    -p, --project <project>  指定需要编译的项目，默认是default， * 表示编译所有项目
-    -h, --help               output usage information
+    -p, --project <project...>  指定需要编译的项目，默认是default， * 表示编译所有项目
+    -h, --help               display help for command
+  
+  command:
+    login                         登录
+    preview                       预览
+    autoPreview                   自动预览
+    open                          打开项目
+    close                         关闭项目
+    quit                          关闭开发者工具
+    resetFileUtils                重置文件监听
+    upload [options]              上传
+    auto [options]                开启小程序自动化功能
+    buildNpm [options]            触发 npm 构建
+    cache [options]               清除缓存
+    cloud [options]               微信开发者工具云开发操作
+    help [command]                display help for command
 ```
 
 ### 项目配置文件
@@ -191,24 +205,179 @@ wxa2 build --watch --project=PartnerA,PartnerB
 在命令行中打印登录二维码。后续预览、上传操作需要提前登录。
 
 ``` bash
-wxa2 cli -a login
+wxa2 cli login
 ```
 
 ### 预览
 上传代码到开发版，并在命令行中打印预览二维码。
 
 ``` bash
-wxa2 cli -a preview
+wxa2 cli preview
+```
+
+### 自动预览
+上传代码到开发版，并在命令行中打印预览二维码。
+
+``` bash
+wxa2 cli autoPreview
+```
+
+### 启动工具
+打开对应项目，自动编译刷新，并且自动打开模拟器和调试器
+
+``` bash
+wxa2 cli open
+```
+
+### 关闭项目窗口
+关闭项目窗口
+
+``` bash
+wxa2 cli close
+```
+
+### 关闭工具
+关闭工具
+
+``` bash
+wxa2 cli quit
+```
+
+### 重建文件监听
+重置工具项目的内部文件缓存，重新监听项目文件
+
+``` bash
+wxa2 cli resetFileUtils
 ```
 
 ### 上传代码
 上传代码到`mp`后台，:warning:小程序测试号无法上传代码。
 
 ``` bash
-# 上传默认项目
-wxa2 cli -a upload
-# 一次性上传多个三方项目
-wxa2 cli -a upload -p *
+wxa2 cli upload [options]
+Options:
+  --upload-version [version]  上传时的版本号
+  -d, --desc [desc]           上传时的备注
+```
+
+### 自动化
+开启自动化
+
+``` bash
+wxa2 cli auto [options]
+
+Options:
+  --auto-port [port]       自动化监听端口
+  --auto-account [openid]  自动化openid
+```
+
+### 构建 npm
+触发 npm 构建。
+
+``` bash
+wxa2 cli buildNpm [options]
+
+Options:
+  --compile-type [compileType]  指定编译类型 (choices: "miniprogram", "plugin") 用于指定走 miniprogramRoot 还是 pluginRoot，优先级比 project.config.json 中的高
+```
+
+### 清除缓存
+清除缓存
+
+``` bash
+wxa2 cli cache [options]
+
+Options:
+  --clean <clean>  清除的缓存类型 (choices: "storage", "file", "compile", "auth", "network", "session", "all")
+```
+### cloud
+云开发
+```bash
+wxa2 cli cloud [options] [command]
+
+Options:
+  --appid, [appid]         appid
+  --ext-appid, [extAppid]  第三方appid
+
+Commands:
+  envList
+  funcList [options]
+  funcInfo [options]
+  deploy [options]
+  incDeploy [options]
+  download [options]
+```
+
+#### 查看云环境列表
+查看云环境列表
+``` bash
+wxa2 cli cloud envList
+```
+
+#### 查看云函数列表
+查看云函数列表
+``` bash
+wxa2 cli cloud funcList [options]
+
+Options:
+  --env [env]  云环境id
+```
+
+#### 查看云函数信息
+查看云函数信息
+``` bash
+wxa2 cli cloud funcInfo [options]
+
+Options:
+  --env [env]        云环境id
+  --names [name...]  云函数名
+```
+
+#### 上传云函数
+上传云函数
+``` bash
+wxa2 cli cloud deploy [options]
+
+Options:
+  --env [env]           云环境id
+  --names [name...]     云函数名称,如果使用不要提供appid或ext-appid
+  --paths [paths...]    需要部署的云函数目录路径
+  --remote-npm-install  云端安装依赖，指定选项后 node_modules 将不会上传
+```
+
+#### 上传云函数
+上传云函数
+``` bash
+wxa2 cli cloud deploy [options]
+
+Options:
+  --env [env]           云环境id
+  --names [name...]     云函数名称,如果使用不要提供appid或ext-appid
+  --paths [paths...]    需要部署的云函数目录路径
+  --remote-npm-install  云端安装依赖，指定选项后 node_modules 将不会上传
+```
+
+#### 增量上传云函数
+增量上传云函数
+``` bash
+wxa2 cli cloud incDeploy [options]
+
+Options:
+  --env [env]    云环境id
+  --name [name]  云函数名称，不能跟paths一起使用
+  --path [path]  需要部署的云函数目录路径，不能跟name一起使用
+  --file [file]  需要增量更新的相对文件/目录路径，路径必须是相对云函数目录的路径
+```
+
+#### 下载云函数
+下载云函数
+``` bash
+wxa2 cli cloud download [options]
+
+Options:
+  --env [env]    云环境id
+  --name [name]  云函数名
+  --path [path]  下载后存放的位置
 ```
 
 ::: tip ext.json
