@@ -11,6 +11,7 @@ import {DirectiveBroker} from '../directive/directiveBroker';
 import crypto from 'crypto';
 import debugPKG from 'debug';
 import path from 'path';
+import net from 'net';
 import runTestCase from './wxa-e2eTest/runTestcase.js';
 import runWechatTools from './wxa-e2eTest/runWechatTools.js';
 import JSON5 from 'json5';
@@ -20,6 +21,22 @@ const E2E_BACK_COMPONENT = 'wxa-e2e-test-back';
 const E2E_TEST_URL = '/record';
 const outRange = ['pages/index', 'pages/home', 'pages/find', 'pages/discount'];
 const LIB_VERSION = '2.17.0';
+
+ 
+function portUsed(port) {
+    return new Promise((resolve)=>{
+        let server = net.createServer().listen(port);
+        server.on('listening', function() {
+            server.close();
+            resolve(port);
+        });
+        server.on('error', function(err) {
+            if (err.code == 'EADDRINUSE') {
+                resolve(err);
+            }
+        });             
+    });
+}
 
 class TesterScheduler extends Schedule {
     async $parse(dep) {
@@ -256,6 +273,8 @@ class TesterBuilder extends Builder {
         if (cmdOptions.record) { // -r启动微信开发者工具
             runWechatTools(cmdOptions, this.wxaConfigs);
         }
+        let res = await portUsed(port);
+        if (res instanceof Error) return;
         let server = new Server({port}, logger, cmdOptions.elog);
         server.post(E2E_TEST_URL, async (data)=>{
             logger.info('Recieved Data: ', data);
