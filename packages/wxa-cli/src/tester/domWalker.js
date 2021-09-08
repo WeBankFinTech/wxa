@@ -6,6 +6,7 @@ import path from 'path';
 import domSerializer from 'dom-serializer';
 import {getHashWithString} from '../utils.js';
 import _ from 'lodash';
+import {generateElementUniqueFlag} from './generateElementUniqueFlag';
 
 let debug = debugPKG('WXA:E2ETesterDOMWalker');
 
@@ -17,9 +18,20 @@ class XMLManager {
     }
 
     parse(xml) {
+        this.setUniqueId(xml);
         xml.forEach((element)=>this.walkXML(element));
 
         this.mdl.code = new Coder().decodeTemplate(domSerializer(xml, {xmlMode: true}));
+    }
+
+    setUniqueId(xml) {
+        let pagePath = path.relative(this.scheduler.wxaConfigs.context, path.dirname(this.mdl.src) + path.sep + path.basename(this.mdl.src, path.extname(this.mdl.src)));
+        generateElementUniqueFlag(xml, {
+            // 不要传 $$e2e
+            indexPrefix: 'e2e_index',
+            flagKey: '_wxaTestUniqueId',
+            filePath: pagePath,
+        });
     }
 
     walkXML(xml) {
@@ -81,25 +93,26 @@ class XMLManager {
             }
         }
         
-        // generate unique id for tag.
-        // pagePath + hash(parentNode + prevNode) + optional(class/id)
-        let pagePath = path.relative(this.scheduler.wxaConfigs.context, path.dirname(this.mdl.src) + path.sep + path.basename(this.mdl.src, path.extname(this.mdl.src)));
+        // let pagePath = path.relative(this.scheduler.wxaConfigs.context, path.dirname(this.mdl.src) + path.sep + path.basename(this.mdl.src, path.extname(this.mdl.src)));
 
         // let ele = this.getParentAndPrevNode(element);
         // let eleString = new Coder().decodeTemplate(domSerializer(ele, {xmlMode: true}));
         // let hash= getHashWithString(eleString);
 
-        let uniqueTag = this.generateUniqueTag(element);
-        let hash = getHashWithString(uniqueTag);
+        // let {isIeration, indexVariable} = this.findSelfOrAncestorIterationDirective(element);
 
-        let {isIeration, indexVariable} = this.findSelfOrAncestorIterationDirective(element);
+        // let keyElement = [pagePath, hash, element.attribs.id];
+        // if (isIeration) {
+        //     keyElement.push(`_{{${indexVariable}}}`);
+        // }
 
-        let keyElement = [pagePath, hash, element.attribs.id];
-        if (isIeration) {
-            keyElement.push(`_{{${indexVariable}}}`);
-        }
+        // let id = this.assembleUniqueId(keyElement);
+        // element.attribs['data-_wxaTestUniqueId'] = id;
+        // element.attribs['class'] = this.dropSpace((element.attribs['class'] || '') + ' '+ id);
 
-        let id = this.assembleUniqueId(keyElement);
+        // generate unique id for tag.
+        let id = element.attribs['data-_wxaTestUniqueId'];
+        id = '_' + getHashWithString(id);
         element.attribs['data-_wxaTestUniqueId'] = id;
         element.attribs['class'] = this.dropSpace((element.attribs['class'] || '') + ' '+ id);
     }
