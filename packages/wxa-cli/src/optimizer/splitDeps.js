@@ -188,10 +188,10 @@ export default class SplitDeps {
             deps.forEach((dep) => {
                 let reference = Array.from(dep.reference);
                 let ext = path.extname(dep.src);
-                // 将组件的四个文件作为一个依赖整体
                 if (reference.length === 1 && reference[0][1].isAbstract) {
                     let src = this.removePathExt(dep.src);
 
+                    // 先取缓存
                     let depInfo = normalizedDeps[src];
                     if (depInfo) {
                         subPackageInfo[src] = depInfo;
@@ -203,8 +203,11 @@ export default class SplitDeps {
                     set.add(dep);
                     subPackageInfo[src] = depInfo;
                 } else if (['.wxss', '.json', '.wxml', '.js'].includes(ext)) {
+                    // 将组件的四个文件作为一个依赖整体
+
                     let src = this.removePathExt(dep.src);
 
+                    // 先取缓存
                     let depInfo = normalizedDeps[src];
                     if (depInfo) {
                         subPackageInfo[src] = depInfo;
@@ -221,6 +224,7 @@ export default class SplitDeps {
                 } else {
                     let src = dep.src;
 
+                    // 先取缓存
                     let depInfo = normalizedDeps[src];
                     if (depInfo) {
                         subPackageInfo[src] = depInfo;
@@ -296,6 +300,7 @@ export default class SplitDeps {
                     }
                     dep.$t = true;
 
+                    // 跳过被主包引用的子依赖
                     if (!dep.isSplit) {
                         return;
                     }
@@ -707,15 +712,16 @@ export default class SplitDeps {
     }
 
     changePatnInCode(node, oldPath, newPath, depOldPath, depNewPath) {
-        let originResolvedPath = './' + this.getResolved(oldPath, depOldPath);
-        let newResolvedPath = './' + this.getResolved(newPath, depNewPath);
+        let noPrefixOriginResolvedPath = this.getResolved(oldPath, depOldPath);
+        let noPrefixNewResolvedPath = this.getResolved(newPath, depNewPath);
 
         if (node.kind === 'json') {
-            originResolvedPath =
-                './' + this.getPathWithoutExtension(originResolvedPath);
-            newResolvedPath =
-                './' + this.getPathWithoutExtension(newResolvedPath);
+            noPrefixOriginResolvedPath = this.getPathWithoutExtension(noPrefixOriginResolvedPath);
+            noPrefixNewResolvedPath = this.getPathWithoutExtension(noPrefixNewResolvedPath);
         }
+
+        let originResolvedPath = './' + noPrefixOriginResolvedPath;
+        let newResolvedPath = './' + noPrefixNewResolvedPath;
 
         // 在默认输出下，一个节点只会输出一个文件
         // 但这里一个节点会输出多个文件，多个文件不同目录
@@ -727,6 +733,12 @@ export default class SplitDeps {
         code = code.replace(
             getRegExp('["\']' + originResolvedPath + '["\']', 'gm'),
             '"' + newResolvedPath + '"'
+        );
+
+        // wxs 引用的文件，并不是以 ./ 开头
+        code = code.replace(
+            getRegExp('["\']' + noPrefixOriginResolvedPath + '["\']', 'gm'),
+            '"' + noPrefixNewResolvedPath + '"'
         );
         codes.set(newPath, code);
         node.codes = codes;
