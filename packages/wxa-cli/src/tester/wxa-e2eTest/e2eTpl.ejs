@@ -7,6 +7,6 @@ let miniProgram;
 (async function run() {
         miniProgram = await automator.launch({
             cliPath: '<%= cliPath %>',
-            projectPath: path.resolve(process.cwd(), './dist/'),
+            projectPath: '<%= projectPath %>',
         });
 })();

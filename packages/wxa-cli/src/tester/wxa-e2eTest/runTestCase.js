@@ -1,7 +1,7 @@
 import {formatDate, writeFile, readFile} from '../../utils';
 import path from 'path';
 import fs from 'fs';
-import {e2eRecord2js, e2eStaticWeb2js} from './e2eTestCase2js.js';
+import {e2eRecord2js, e2eStaticWeb2js, findBrewNodeBin, checkServer} from './e2eTestCase2js.js';
 import {exec, execSync} from 'child_process';
 import e2eMockWxMethod from './e2eMockWxMethod';
 import {diff as pyDiff} from '../imageSimilarity/index.js';
@@ -77,7 +77,9 @@ export default async function(cmd, wxaConfigs) {
         } else if (screenshotDiff === 'false') {
             screenshotDiff = false;
         }
-
+        const started = await checkServer('wechatdevtools');
+        let projPath = path.join(process.cwd(), '/dist');
+        projPath = projPath.replace(/\\/g, '/');
         let recordString = await e2eRecord2js({
             cliPath: cli.split(path.sep).join('/'),
             testCaseNameArr: JSON.stringify(testCaseNameArr),
@@ -88,6 +90,8 @@ export default async function(cmd, wxaConfigs) {
             mockApi: cmd.mock,
             customExpect: !!cmd.customExpect,
             mockWxMethodConfig: e2eMockWxMethod.config,
+            projectPath: projPath,
+            wechatToolStarted: started,
         });
         writeFile(path.join(testDir, '.cache', 'index.test.js'), recordString);
     } catch (err) {
@@ -104,9 +108,21 @@ export default async function(cmd, wxaConfigs) {
     }
     let jestResPath = path.join(testDir, '.replay_result', screenshotPath, 'jest_result.json');
     try {
-        execSync(`npx jest ${path.join(testDir, '.cache', 'index.test.js').split(path.sep).join('/')} --outputFile=${jestResPath} --json`, {
-            stdio: 'inherit',
-        });
+        if (process.platform !== 'win32') {
+            let npxCmd = await findBrewNodeBin('npx');
+            console.log('npx path : ', npxCmd);
+            let option = {
+                env: {
+                    PATH: process.env.PATH + ':/usr/local/lib/node_modules/node/bin:/usr/local/opt/node/bin:' + npxCmd,
+                },
+                stdio: 'inherit',
+            };
+            execSync(`${npxCmd} jest ${path.join(testDir, '.cache', 'index.test.js').split(path.sep).join('/')} --outputFile=${jestResPath} --json`, option);
+        } else {
+            execSync(`npx jest ${path.join(testDir, '.cache', 'index.test.js').split(path.sep).join('/')} --outputFile=${jestResPath} --json`, {
+                stdio: 'inherit',
+            });
+        }
     } catch (err) {
         cmd.elog && cmd.elog.error(`run index.test.js error`, err);
     }

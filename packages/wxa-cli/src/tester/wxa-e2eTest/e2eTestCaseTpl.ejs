@@ -16,7 +16,7 @@ let base = <%- base %>;
 let customExpect = <%- customExpect%>
 const sleep = t => new Promise(resolve => setTimeout(resolve, t));
 const STATIC_IMG = 'https://tctp.test.webankcdn.net/pmbank-caas/e6902e951e9f7d122ca93383ded67ff3/6db588029c90bb361648928e6175a5d1/f/id-upload/id-upload';
-
+const wechatToolStarted = <%- wechatToolStarted %>
 
 expect.extend({
     toBeEmpty(diffDir, testName) {
@@ -36,14 +36,19 @@ expect.extend({
 });
 
 beforeAll(async () => {
-    jest.setTimeout(300000);
-    miniProgram = await automator.launch({
-        cliPath: '<%= cliPath %>',
-        projectPath: path.resolve(process.cwd(), './dist/')
-    });
-
+    jest.setTimeout(40000);
+    if (wechatToolStarted) {
+        miniProgram = await automator.connect({
+            wsEndpoint: 'ws://localhost:9420'
+        })
+    } else {
+        miniProgram = await automator.launch({
+            cliPath: '<%= cliPath %>',
+            projectPath: '<%= projectPath %>'
+        });
+    }
     page = await miniProgram.currentPage();
-}, 300000);
+}, 40000);
 
 afterAll(async () => {
     if (miniProgram) await miniProgram.close();
