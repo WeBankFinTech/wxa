@@ -1,8 +1,8 @@
 import {formatDate, writeFile, readFile} from '../../utils';
 import path from 'path';
 import fs from 'fs';
-import {e2eRecord2js, e2eStaticWeb2js, findBrewNodeBin, checkServer} from './e2eTestCase2js.js';
-import {exec, execSync} from 'child_process';
+import {e2eRecord2js, e2eStaticWeb2js, findBrewNodeBin, portUsed} from './e2eTestCase2js.js';
+import {exec} from 'child_process';
 import e2eMockWxMethod from './e2eMockWxMethod';
 import {diff as pyDiff} from '../imageSimilarity/index.js';
 import open from 'open';
@@ -77,7 +77,7 @@ export default async function(cmd, wxaConfigs) {
         } else if (screenshotDiff === 'false') {
             screenshotDiff = false;
         }
-        const started = await checkServer('wechatdevtools');
+        const started = await portUsed(9420);
         let projPath = path.join(process.cwd(), '/dist');
         projPath = projPath.replace(/\\/g, '/');
         let recordString = await e2eRecord2js({
@@ -117,10 +117,14 @@ export default async function(cmd, wxaConfigs) {
                 },
                 stdio: 'inherit',
             };
-            execSync(`${npxCmd} jest ${path.join(testDir, '.cache', 'index.test.js').split(path.sep).join('/')} --outputFile=${jestResPath} --json`, option);
+            exec(`${npxCmd} jest ${path.join(testDir, '.cache', 'index.test.js').split(path.sep).join('/')} --outputFile=${jestResPath} --json --useStderr`, option, function(err, stdout, stderr) {
+                cmd.elog && cmd.elog.error(`run index.test.js return : `, err, stdout, stderr);
+            });
         } else {
-            execSync(`npx jest ${path.join(testDir, '.cache', 'index.test.js').split(path.sep).join('/')} --outputFile=${jestResPath} --json`, {
+            exec(`npx jest ${path.join(testDir, '.cache', 'index.test.js').split(path.sep).join('/')} --outputFile=${jestResPath} --json --useStderr`, {
                 stdio: 'inherit',
+            }, function(err, stdout, stderr) {
+                cmd.elog && cmd.elog.error(`run index.test.js return : `, err, stdout, stderr);
             });
         }
     } catch (err) {
@@ -168,7 +172,4 @@ export default async function(cmd, wxaConfigs) {
             name: open.apps.chrome,
         }});
     }
-    setTimeout(() => {
-        process.exit(0);
-    }, 5000);
 }

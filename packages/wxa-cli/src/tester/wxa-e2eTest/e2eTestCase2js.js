@@ -1,7 +1,7 @@
 const fs = require('fs');
 const ejs = require('ejs');
 const path = require('path');
-const {execSync} = require('child_process');
+const {execSync, spawnSync} = require('child_process');
 
 const e2eRecord2js = (data) => {
     return new Promise((resolve, reject) => {
@@ -78,10 +78,33 @@ async function checkServer(pName) {
     }
     return false;
   }
+
+async function portUsed(port) {
+    const ls = spawnSync('netstat', [`-aon`], {detached: true});
+    const stdout = ls.stdout.toString();
+    // const stdout = iconv.decode(Buffer.from(ls.stdout, "binary"), "GBK");
+    const list = stdout.split('\n');
+    for ( let processMessage of list) {
+        let pms = processMessage.trim().split(/\s+/);
+        if (process.platform === 'win32') {
+            let address = pms[1];
+            if (address && address.includes(`:${port}`)) {
+                console.log(1);
+                return true;
+            }
+        } else { // mac
+            // todo
+        }
+    }
+
+    return false;
+}
+
 module.exports = {
     e2eRecord2js,
     e2eStartTools,
     e2eStaticWeb2js,
     findBrewNodeBin,
     checkServer,
+    portUsed,
 };

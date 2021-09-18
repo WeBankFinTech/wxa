@@ -14,8 +14,8 @@ import path from 'path';
 import net from 'net';
 import runTestCase from './wxa-e2eTest/runTestcase.js';
 import runWechatTools from './wxa-e2eTest/runWechatTools.js';
+import {portUsed} from './wxa-e2eTest/e2eTestCase2js.js';
 import JSON5 from 'json5';
-import {spawnSync} from 'child_process';
 const debug = debugPKG('WXA:E2ETester');
 const E2E_TEST_COMPONENT = 'wxa-e2e-record-btn';
 const E2E_BACK_COMPONENT = 'wxa-e2e-test-back';
@@ -24,27 +24,6 @@ const outRange = ['pages/index', 'pages/home', 'pages/find', 'pages/discount'];
 const LIB_VERSION = '2.17.0';
 
  
-async function portUsed(port) {
-    const ls = spawnSync('netstat', [`-aon`], {detached: true});
-    const stdout = ls.stdout.toString();
-    // const stdout = iconv.decode(Buffer.from(ls.stdout, "binary"), "GBK");
-    const list = stdout.split('\n');
-    for ( let processMessage of list) {
-        let pms = processMessage.trim().split(/\s+/);
-        if (process.platform === 'win32') {
-            let address = pms[1];
-            if (address && address.includes(`:${port}`)) {
-                console.log(1);
-                return true;
-            }
-        } else { // mac
-            // todo
-        }
-    }
-
-    return false;
-}
-
 class TesterScheduler extends Schedule {
     async $parse(dep) {
         if (dep.color === COLOR.COMPILED) return dep;

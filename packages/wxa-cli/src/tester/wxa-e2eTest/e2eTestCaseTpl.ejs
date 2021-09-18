@@ -36,205 +36,208 @@ expect.extend({
 });
 
 beforeAll(async () => {
-    jest.setTimeout(40000);
+    jest.setTimeout(60000);
     if (wechatToolStarted) {
         miniProgram = await automator.connect({
             wsEndpoint: 'ws://localhost:9420'
         })
+        console.log('wechatToolStarted is true')
     } else {
         miniProgram = await automator.launch({
             cliPath: '<%= cliPath %>',
             projectPath: '<%= projectPath %>'
         });
+        console.log('wechatToolStarted is false')
     }
     page = await miniProgram.currentPage();
-}, 40000);
-
-afterAll(async () => {
-    if (miniProgram) await miniProgram.close();
+    
 });
 
-for (let j = 0; j < testCaseNameArr.length; j++) {
-    console.log('test for loop begin');
-    let testName = testCaseNameArr[j];
-    test(testName, async () => {
-        console.log('test case begin');
-        let replayName = testName.replace(/___/g, '').replace(/\//g, '-');
-        let screenshotDir = path.join(testDir, '.replay_result', screenshotDirname, replayName,  'screenshot');
-        let baseScreenshot = path.join(testDir, testName, 'base_screenshot');
-        if (base) {
-            screenshotDir = baseScreenshot;
-        }
-        let diffDir = path.join(screenshotDir, 'diff');
-        if (base) {
+afterAll(async () => {
+    if (miniProgram) await miniProgram.disconnect();
+});
+
+describe('muitest', () => {
+    for (let j = 0; j < testCaseNameArr.length; j++) {
+        console.log('test for loop begin');
+        let testName = testCaseNameArr[j];
+        test(testName, async () => {
+            console.log('test case begin');
+            await sleep(3000);
+            let record = require(path.join(testDir, testName, `./record.js`));
+            let replayName = testName.replace(/___/g, '').replace(/\//g, '-');
+            let screenshotDir = path.join(testDir, '.replay_result', screenshotDirname, replayName,  'screenshot');
+            let baseScreenshot = path.join(testDir, testName, 'base_screenshot');
+            if (base) {
+                screenshotDir = baseScreenshot;
+            }
+            let diffDir = path.join(screenshotDir, 'diff');
+            if (base) {
+                try {
+                    fs.rmdirSync(screenshotDir);
+                } catch (err) {
+                }
+            }
             try {
-                fs.rmdirSync(screenshotDir);
-            } catch (err) {
-            }
-        }
-        try {
-            mkdirsSync(screenshotDir)
-            if (!base) {
-                mkdirsSync(diffDir);
-            }
-        } catch(err) {
-        }
-
-        let record = require(path.join(testDir, testName, `./record.js`));
-        let screenCount = 0;
-        // mock接口
-        let apiMockMap = require(path.join(testDir, testName, `./api.json`));
-        const mockKeys = Object.keys(apiMockMap).join('-');
-        if (mockKeys.includes('chooseImage') || mockKeys.includes('takePhoto') ) {
-            for (let [k, v] of Object.entries(apiMockMap)) {
-                if (k.includes('chooseImage')) {
-                    const name = v[0].tempFilePaths[0];
-                    console.log('filename: ', name);
-                    let fileObj = await miniProgram.callWxMethod('downloadFile', {
-                        url: STATIC_IMG
-                    });
-                    apiMockMap[k][0].tempFilePaths[0] = fileObj.tempFilePath
-                    console.log('fileobj: ', fileObj);
-                } else if (k.includes('takePhoto')) {
-                    const name = v[0].tempImagePath;
-                    console.log('filename: ', name);
-                    let fileObj = await miniProgram.callWxMethod('downloadFile', {
-                        url: STATIC_IMG
-                    });
-                    apiMockMap[k][0].tempImagePath = fileObj.tempFilePath
-                    console.log('fileobj: ', fileObj);
+                mkdirsSync(screenshotDir)
+                if (!base) {
+                    mkdirsSync(diffDir);
                 }
+            } catch(err) {
             }
-        }
 
-        <% mockWxMethodConfig.forEach(function(mockItem){ %>
-            <% if(mockItem.name !== 'request' || mockApi) {%>
-        await miniProgram.mockWxMethod(
-            '<%- mockItem.name %>',
-            function(config, apiMockMap) {
-                let mapKey = `<%- mockItem.tpl %>`
-                if (apiMockMap[mapKey] && apiMockMap[mapKey].length > 0) {
-                    console.log(mapKey, 'mock success')
-                    <% if(mockItem.name === 'request') {%>
-                        return apiMockMap[mapKey].shift();
-                    <% } else {%>
-                        return apiMockMap[mapKey][0];
-                    <% }%>
-                }
-                return new Promise(resolve => {
-                    config.success = res => resolve(res)
-                    config.fail = res => resolve(res)
-                    // origin 指向原始方法
-                    console.log(mapKey, 'no mock')
-                    this.origin(config)
-                })
-            },
-             apiMockMap
-        )
-        <% }}); %>
-
-        // 开始回放+截屏
-        let startPage = record[0].action.page || record[0].action.appStartPage;
-        page = await miniProgram.reLaunch(`/${startPage}`);
-        let element;
-        await page.waitFor(3000);
-        for (let i = 0; i < record.length; i++) {
-            let recordItem = record[i];
-            let recordAction = recordItem.action;
-            let lastRecordAction = record[i - 1] && record[i - 1].action;
-            while (true) {
-                page = await miniProgram.currentPage()
-                if (recordAction.event === 'switchTab') {
-                    await sleep(4000);
-                    break;
-                } else if (page.path === (recordAction.page || recordAction.appStartPage).split('?')[0]) {
-                    if (!lastRecordAction) break;
-                    try {
-                        let lastPagePath = (lastRecordAction.page || lastRecordAction.appStartPage || lastRecordAction.path).split('?')[0]
-                        if (page.path !== lastPagePath) {
-                            // 和上一步的页面path不一致，说明页面切换了，需要等久一点让页面ready
-                            await sleep(6000);
-                        }
-                    } catch(err) {
-                        await sleep(2000);
+            let screenCount = 0;
+            // mock接口
+            let apiMockMap = require(path.join(testDir, testName, `./api.json`));
+            const mockKeys = Object.keys(apiMockMap).join('-');
+            if (mockKeys.includes('chooseImage') || mockKeys.includes('takePhoto') ) {
+                for (let [k, v] of Object.entries(apiMockMap)) {
+                    if (k.includes('chooseImage')) {
+                        const name = v[0].tempFilePaths[0];
+                        console.log('filename: ', name);
+                        let fileObj = await miniProgram.callWxMethod('downloadFile', {
+                            url: STATIC_IMG
+                        });
+                        apiMockMap[k][0].tempFilePaths[0] = fileObj.tempFilePath
+                        console.log('fileobj: ', fileObj);
+                    } else if (k.includes('takePhoto')) {
+                        const name = v[0].tempImagePath;
+                        console.log('filename: ', name);
+                        let fileObj = await miniProgram.callWxMethod('downloadFile', {
+                            url: STATIC_IMG
+                        });
+                        apiMockMap[k][0].tempImagePath = fileObj.tempFilePath
+                        console.log('fileobj: ', fileObj);
                     }
-                    break;
                 }
-                await sleep(1000);
-            }
-            // 这里要区分下，如果是switchtab跳转页面，是没有elementid的
-            if (recordAction.id) {
-                let idPath = recordAction.id.split('-');
-                await page.waitFor(`.${idPath[0]}`);
-                element = await page.$(`.${idPath[0]}`)
-                for (let j = 1; j < idPath.length; j++) {
-                    element = await element.$(`.${idPath[j]}`)
-                }
-                console.log('idpath : final element ', element);
-            } else {
-                console.log('element is null');
-                element = null;
-                await sleep(3000)
             }
 
-            let diff = screenshotDiff;
-            if (record[i-1] && typeof record[i-1].screenshotDiff !== 'undefined') {
-                diff = screenshotDiff;
+            <% mockWxMethodConfig.forEach(function(mockItem){ %>
+                <% if(mockItem.name !== 'request' || mockApi) {%>
+            await miniProgram.mockWxMethod(
+                '<%- mockItem.name %>',
+                function(config, apiMockMap) {
+                    let mapKey = `<%- mockItem.tpl %>`
+                    if (apiMockMap[mapKey] && apiMockMap[mapKey].length > 0) {
+                        console.log(mapKey, 'mock success')
+                        <% if(mockItem.name === 'request') {%>
+                            return apiMockMap[mapKey].shift();
+                        <% } else {%>
+                            return apiMockMap[mapKey][0];
+                        <% }%>
+                    }
+                    return new Promise(resolve => {
+                        config.success = res => resolve(res)
+                        config.fail = res => resolve(res)
+                        // origin 指向原始方法
+                        console.log(mapKey, 'no mock')
+                        this.origin(config)
+                    })
+                },
+                apiMockMap
+            )
+            <% }}); %>
+
+            // 开始回放+截屏
+            let element;
+            for (let i = 0; i < record.length; i++) {
+                let recordItem = record[i];
+                let recordAction = recordItem.action;
+                let lastRecordAction = record[i - 1] && record[i - 1].action;
+                while (true) {
+                    page = await miniProgram.currentPage()
+                    if (recordAction.event === 'switchTab') {
+                        await sleep(4000);
+                        break;
+                    } else if (page.path === (recordAction.page || recordAction.appStartPage).split('?')[0]) {
+                        if (!lastRecordAction) break;
+                        try {
+                            let lastPagePath = (lastRecordAction.page || lastRecordAction.appStartPage || lastRecordAction.path).split('?')[0]
+                            if (page.path !== lastPagePath) {
+                                // 和上一步的页面path不一致，说明页面切换了，需要等久一点让页面ready
+                                await sleep(6000);
+                            }
+                        } catch(err) {
+                            await sleep(2000);
+                        }
+                        break;
+                    }
+                    await sleep(1000);
+                }
+                // 这里要区分下，如果是switchtab跳转页面，是没有elementid的
+                if (recordAction.id) {
+                    let idPath = recordAction.id.split('-');
+                    await page.waitFor(`.${idPath[0]}`);
+                    element = await page.$(`.${idPath[0]}`)
+                    for (let j = 1; j < idPath.length; j++) {
+                        element = await element.$(`.${idPath[j]}`)
+                    }
+                    // console.log('idpath : final element ', element);
+                } else {
+                    console.log('element is null');
+                    element = null;
+                    await sleep(3000)
+                }
+
+                console.log(`record the ${i} action .`)
+
+                if (customExpect && i !== 0 && record[i - 1].customExpect && typeof record[i - 1].customExpect === 'function') {
+                    record[i - 1].customExpect();
+                }
+
+                // 非SwitchTab事件并且元素不存在，跳过到下一个Action
+                if (!~['switchTab'].indexOf(recordAction.event) && element === null) {
+                    screenCount++;
+                    console.log(`action ${i} element not found, idpath: ${recordAction.id || ''}`);
+                    await page.waitFor(300);
+                    continue;
+                }
+                let diff = screenshotDiff;
+                if (record[i-1] && typeof record[i-1].screenshotDiff !== 'undefined') {
+                    diff = screenshotDiff;
+                }
+                let same = await screenShot({
+                    screenshotDir,
+                    screenCount: screenCount++,
+                    diff,
+                    baseScreenshot
+                })
+                if (!!~['catchtap'].indexOf(recordAction.event)) {
+                    await element.tap();
+                } else if (!!~['tap', 'longpress'].indexOf(recordAction.event)) {
+                    await element[recordAction.event]();
+                } else if (!!~['input'].indexOf(recordAction.event)) {
+                    await element[recordAction.event](recordAction.detail.value);
+                } else if (!!~['switchTab'].indexOf(recordAction.event)) {
+                    if (recordAction.path[0] !== '/') {
+                        recordAction.path = '/' + recordAction.path;
+                    }
+                    await miniProgram.switchTab(recordAction.path)
+                } else if (!!~['touchstart', 'touchmove', 'touchend'].indexOf(recordAction.event)) {
+                    await element[recordAction.event]({
+                        touches: recordAction.touches,
+                        changedTouches: recordAction.changedTouches
+                    });
+                } else {
+                    await element.trigger(recordAction.event, recordAction.detail);
+                }
+                await page.waitFor(300)
             }
+            // await miniprogram.restoreWxMethod('request');
+            await sleep(5000)
             let same = await screenShot({
                 screenshotDir,
-                screenCount: screenCount++,
-                diff,
+                screenCount: screenCount,
+                diff: screenshotDiff || record[record.length - 1].sceeenshotDiff,
                 baseScreenshot
             })
-
-            if (customExpect && i !== 0 && record[i - 1].customExpect && typeof record[i - 1].customExpect === 'function') {
-                record[i - 1].customExpect();
+            // 无diff图片，则比对通过
+            if (!base) {
+                expect(diffDir).toBeEmpty(testName);
             }
-
-            // 非SwitchTab事件并且元素不存在，跳过到下一个Action
-            if (!~['switchTab'].indexOf(recordAction.event) && element === null) {
-                screenCount++;
-                console.log(`action ${screenCount} element not found, idpath: ${recordAction.id || ''}`);
-                await page.waitFor(300);
-                continue;
-            }
-
-            if (!!~['catchtap'].indexOf(recordAction.event)) {
-                await element.tap();
-            } else if (!!~['tap', 'longpress'].indexOf(recordAction.event)) {
-                await element[recordAction.event]();
-            } else if (!!~['input'].indexOf(recordAction.event)) {
-                await element[recordAction.event](recordAction.detail.value);
-            } else if (!!~['switchTab'].indexOf(recordAction.event)) {
-                if (recordAction.path[0] !== '/') {
-                    recordAction.path = '/' + recordAction.path;
-                }
-                await miniProgram.switchTab(recordAction.path)
-            } else if (!!~['touchstart', 'touchmove', 'touchend'].indexOf(recordAction.event)) {
-                await element[recordAction.event]({
-                    touches: recordAction.touches,
-                    changedTouches: recordAction.changedTouches
-                });
-            } else {
-                await element.trigger(recordAction.event, recordAction.detail);
-            }
-            await page.waitFor(300)
-        }
-        // await miniprogram.restoreWxMethod('request');
-        await sleep(5000)
-        let same = await screenShot({
-            screenshotDir,
-            screenCount: screenCount,
-            diff: screenshotDiff || record[record.length - 1].sceeenshotDiff,
-            baseScreenshot
         })
-        // 无diff图片，则比对通过
-        if (!base) {
-            expect(diffDir).toBeEmpty(testName);
-        }
-    })
-}
+    }
+})
 
 async function screenShot({screenshotDir, screenCount, diff, baseScreenshot}) {
     let actualImagePath = path.join(screenshotDir, `${screenCount}.png`);
