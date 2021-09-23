@@ -20,7 +20,11 @@ class FindWechatPath {
         }
         // 有缓存文件就直接读取
         const exists = await fs.existsSync(`${__dirname}/wechat.cfg`);
-        if (exists) return await sys_readfile(`${__dirname}/wechat.cfg`, 'utf-8');
+        if (exists) {
+            const oldPath = await sys_readfile(`${__dirname}/wechat.cfg`, 'utf-8');
+            let isDir = await this.checkFile(oldPath);
+            if (isDir) return oldPath;
+        }
         let start = new Date().getTime();
         let tempPath = '';
         label:
