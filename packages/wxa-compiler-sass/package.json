@@ -1,6 +1,6 @@
 {
     "name": "@wxa/compiler-sass",
-    "version": "2.2.7",
+    "version": "2.3.0",
     "description": "wxa sass compiler",
     "main": "dist/index.js",
     "scripts": {
