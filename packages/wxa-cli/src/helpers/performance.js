@@ -1,4 +1,6 @@
+import path from 'path';
 import {performance, PerformanceObserver} from 'perf_hooks';
+import {writeFile} from '../utils';
 import {Logger} from './logger';
 
 export default class Performance {
@@ -28,9 +30,23 @@ export default class Performance {
     }
 
     show() {
-        this.entries.forEach(({name, duration})=>{
+        let log = [];
+        this.entries.forEach(({name, duration, details})=>{
             this.logger.log('Performance', `${name} ${duration}`);
+
+            // duration > 300 && 
+            log.push([name, duration, details]);
         });
+
+        try {
+            this.IS_WORKING && writeFile(path.join(this.current, '.wxa', 'performance.json'), JSON.stringify(log, void 0, 2));
+            wxaPerformance.clear();
+        } catch (__) {}
+        return log;
+    }
+
+    clear() {
+        this.entries.clear();
     }
 
     destory() {
@@ -39,3 +55,5 @@ export default class Performance {
         this.logger = null;
     }
 }
+
+export const wxaPerformance = new Performance();

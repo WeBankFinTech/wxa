@@ -1,11 +1,63 @@
 import path from 'path';
-import PathParser from '../helpers/pathParser';
+import fs from 'fs';
+import PathParser, { isIgnoreFile } from '../helpers/pathParser';
 import {getDistPath, isFile, readFile, isDir} from '../utils';
 import findRoot from 'find-root';
 import resolveAlias from '../helpers/alias';
 import debugPKG from 'debug';
 
 let debug = debugPKG('WXA:DependencyResolver');
+
+const checkFileExist = (filepath, extensions) => {
+    // full path or default phase
+    let ret = {};
+    ret.isFile = isFile(filepath);
+
+    if (!ret.isFile) {
+        ret.ext = extensions.find((ext)=>isFile(path.normalize(filepath+ext)));
+        ret.isFile = !!ret.ext;
+    }
+    return ret;
+}
+
+const recursizePackageJSON = (prefixPath, tailPath, extensions) => {
+    const fields = ['browser', 'main'];
+    let currentDirPackageJSON = path.join(prefixPath, 'package.json');
+    if (isFile(currentDirPackageJSON)) {
+        let pkg = require(currentDirPackageJSON);
+        let field = fields.find((item) => pkg[item]);
+
+        let webDistPath =  path.join(prefixPath, pkg[field] || '', tailPath);
+        let miniprogramDist = pkg['miniprogram'] || 'miniprogram_dist';
+        let mp = path.join(prefixPath, miniprogramDist);
+        if (fs.existsSync(mp)) {
+            // 符合小程序规范的 npm 包，优选选择
+            let miniprogramDistPath = path.join(prefixPath, miniprogramDist, tailPath);
+            let {isFile, ext} = checkFileExist(miniprogramDistPath, extensions);
+            if (ext) miniprogramDistPath += ext;
+            return isFile ? miniprogramDistPath : webDistPath;
+        } else {
+            return webDistPath;
+        }
+    } else {
+        let tail = ( tailPath === '' ? tailPath : (path.sep + tailPath) );
+        if (prefixPath === '/') {
+            // 找不到对应的依赖
+            return prefixPath + tail;
+        }
+
+        return recursizePackageJSON(
+            path.dirname(prefixPath), 
+            path.basename(prefixPath) + tail, 
+            extensions
+        );
+    }
+}
+
+const findOutNPMResolvedSource = (rawSourcePath, extensions = ['.wxml', '.wxss', '.js', '.json', '/index.js']) => {
+    if (checkFileExist(rawSourcePath, extensions).isFile) return rawSourcePath;
+    else return recursizePackageJSON(rawSourcePath, '', extensions);
+}
 
 class DependencyResolver {
     constructor(resolve, meta) {
@@ -42,6 +94,7 @@ class DependencyResolver {
                 if (ext == null) throw new Error('找不到文件 '+lib);
             } else if (isDir(source) && isFile(source+path.sep+'index.js')) ext = path.sep+'index.js';
             else {
+                debugger;
                 throw new Error('找不到文件 '+lib);
             }
         } else {
@@ -69,12 +122,12 @@ class DependencyResolver {
         // 优先使用依赖的 browser 版本
         if (pkg.browser && typeof pkg.browser === 'string') {
             main = pkg.browser;
-        }
+        } 
 
         return isFile(path.join(source, main)) ? path.sep+main : null;
     }
 
-    $resolve(lib, mdl) {
+    $resolve(lib, mdl, {recursizeFindPackage = true, extensions} = {}) {
         let opath = path.parse(mdl.meta.source);
 
         let source = '';
@@ -82,14 +135,22 @@ class DependencyResolver {
         // resolve alias;
         if (this.resolve.alias && !mdl.isNodeModule) lib = resolveAlias(lib, this.resolve.alias, mdl.meta.source);
 
-        let pret = new PathParser().parse(lib);
+        let pret = new PathParser(this.resolve).parse(lib);
 
-        debug('%s path pret %o', lib, pret);
+        debug('%s path ret %o', lib, pret);
 
         if (pret.isRelative || pret.isAPPAbsolute) {
             source = pret.isAPPAbsolute ? path.join(this.meta.context, lib) : path.join(opath.dir, lib);
         } else if (pret.isNodeModule) {
             source = path.join(this.modulesPath, lib);
+            if (recursizeFindPackage) source = findOutNPMResolvedSource(source, extensions);
+            
+            if (!isFile(source)) {
+                // 小程序中允许 abc.wxml 这种相对路径写法
+                let relativePath = path.join(opath.dir, lib);
+                source = isFile(relativePath) ? relativePath : source;
+            }
+
             ext = '';
         } else if (pret.isWXALib) {
             // polyfill from wxa cli.
@@ -109,7 +170,7 @@ class DependencyResolver {
     getOutputPath(source, pret, mdl) {
         if (pret.isRelative || pret.isAPPAbsolute || pret.isNodeModule || pret.isWXALib) {
             return this.getDistPath(source, mdl);
-        } else if (pret.isPlugin || pret.isURI) {
+        } else if (isIgnoreFile(pret)) {
             // url module
             return null;
         } else {

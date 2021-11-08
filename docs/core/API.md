@@ -646,6 +646,8 @@ class UserInfo {
 
 ::: tip 提示
 使用`Router`提供的路由方法跳转，可以享受wxa提供的预加载特性，具体请查看生命周期`beforeRouteEnter`文档。
+
+路由跳转使用option内的`params`属性，可以直接传递对象作为参数，无需使用url拼接或者eventChannel
 :::
 
 #### get( )
@@ -666,7 +668,7 @@ let stack = this.$router.getAll();
 
 获取当前路由栈，相当于调用了小程序的`getCurrentPages()`。
 
-#### push( path )
+#### push( path, options )
 - **参数**
     - **path**: `String` 页面路由路径，相对路径或绝对路径
 - **用例**: 
@@ -686,7 +688,7 @@ try {
 
 跳转到新路由页面，入栈路由。
 
-#### replace( path )
+#### replace( path, options )
 - **参数**
     - **path**: `String`
 - **用例**: 
@@ -700,7 +702,7 @@ try {
 
 关闭所有页面栈中的页面，重新打开指定页面。
 
-#### switch( path )
+#### switch( path, options )
 - **参数**
     - **path**: `String`
 - **用例**: 
@@ -731,6 +733,26 @@ try {
 ```xml 
 <navigator target="miniProgram" open-type="exit">关闭小程序</navigator>
 ```
+
+#### options.params
+直接参数传递，更方便的页面间通信方式。无需使用url拼接与编码，无需使用eventChannel进行页面间通信
+- **用例**: 
+
+```js
+// from.wxa 直接跳转
+this.$router.push('/pages/target', {
+    params: { 
+        obj: {}
+        list: [1, 2, 3]
+    }
+});
+
+// target.wxa 跳转后在onLoad内可直接获取params
+onLoad(query, params) {
+    console.log(params.list) // [1,2,3]
+}
+```
+
 :::
 
 

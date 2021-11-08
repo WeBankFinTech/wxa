@@ -1,4 +1,4 @@
-import {readFile, applyPlugins, isFile, getHash, promiseSerial} from './utils';
+import {readFile, applyPlugins, isFile, getHash, promiseSerial, writeFile} from './utils';
 import path from 'path';
 import fs from 'fs';
 import chokidar from 'chokidar';
@@ -17,6 +17,7 @@ import root from './const/root';
 import ProgressTextBar from './helpers/progressTextBar';
 import color from './const/color';
 import {DirectiveBroker} from './directive/directiveBroker';
+import {wxaPerformance} from './helpers/performance';
 
 let debug = debugPKG('WXA:Builder');
 class Builder {
@@ -67,6 +68,10 @@ class Builder {
         // mount loader
         this.loader = new CompilerLoader(this.wxaConfigs, this.current);
         return this.loader.mount(this.wxaConfigs.use, cmd);
+    }
+
+    cleanup() {
+        this.loader.clean();
     }
 
     filterModule(indexedMap) {
@@ -266,6 +271,7 @@ class Builder {
         await this.run(cmd);
 
         if (cmd.watch) this.watch(cmd);
+        else this.cleanup();
     }
 
     async run(cmd) {
@@ -274,23 +280,28 @@ class Builder {
         await this.hooks.run.promise(this);
 
         // do dependencies analysis.
+        wxaPerformance.markStart('wxa_dep_analysis');
         await this.scheduler.doDPA();
+        wxaPerformance.clear();
+        wxaPerformance.markEnd('wxa_dep_analysis');
         await this.directiveBroker.run();
 
-        this.scheduler.perf.show();
+        // this.scheduler.perf.show();
 
         try {
             // beforeDone.
             await this.hooks.beforeDone.promise(this.scheduler);
 
+            wxaPerformance.markStart('wxa_op_gen');
             debug('schedule dependencies Tree is %O', this.scheduler.$indexOfModule);
             await this.optimizeAndGenerate(this.scheduler.$indexOfModule, this.scheduler.appConfigs, cmd);
+            wxaPerformance.markStart('wxa_op_gen');
 
             // done.
             await this.hooks.done.promise(this.scheduler);
 
             debug('Project Pages', this.scheduler.$pageArray);
-
+            wxaPerformance.show();
             logger.log('Done', 'AT: '+new Date().toLocaleString());
         } catch (e) {
             error('编译失败', {error: e});
@@ -303,29 +314,40 @@ class Builder {
      * optiming and generating is parallel.
      *
      * @param {Array<Object>} indexedMap
+     * @param {Object} appConfigs
      * @param {Object} cmdOptions cmd options
+     * @param {Array<Object>} fullModuleMap
      */
-    async optimizeAndGenerate(indexedMap, appConfigs, cmdOptions) {
+    async optimizeAndGenerate(indexedMap, appConfigs, cmdOptions, fullModuleMap) {
+        if (fullModuleMap == null) fullModuleMap = this.scheduler.$indexOfModule;
         try {
+            wxaPerformance.markStart('wxa_optimize_code');
             // module optimize, dependencies merge, minor.
+            wxaPerformance.markStart('wxa_optimize_code-init');
             let optimizer = new Optimizer({
                 cwd: this.current,
                 wxaConfigs: this.wxaConfigs,
                 cmdOptions: cmdOptions,
                 appConfigs: appConfigs,
             });
+            wxaPerformance.markEnd('wxa_optimize_code-init');
+            
             applyPlugins(this.scheduler.wxaConfigs.plugins, optimizer);
-
-            await optimizer.run(indexedMap);
+            
+            await optimizer.run(indexedMap, appConfigs, fullModuleMap);
+            wxaPerformance.markEnd('wxa_optimize_code');
 
             // write module to dest, dependencies copy.
+            wxaPerformance.markStart('wxa_generate_code');
             let generator = new Generator(this.current, this.scheduler.meta, this.wxaConfigs, cmdOptions);
             let generateTasks = [];
             indexedMap.forEach((mdl)=>{
                 generateTasks.push(generator.do(mdl));
             });
-
+            
             await Promise.all(generateTasks);
+
+            wxaPerformance.markEnd('wxa_generate_code');
 
             this.progress.clean();
         } catch (e) {

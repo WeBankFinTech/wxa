@@ -2,138 +2,99 @@ import path from 'path';
 import fs from 'fs';
 import {exec} from 'child_process';
 import logger from './helpers/logger';
-import inquirer from 'inquirer';
 import debugPKG from 'debug';
-
 const debug = debugPKG('WXA:Toolcli');
 
-class Toolcli {
-    constructor(wxaConfigs) {
-        this.cwd = process.cwd();
-        this.wxaConfigs = wxaConfigs;
+const Commands = {
+    'login': {},
+    'preview': {options: ['project']},
+    'autoPreview': {cmd: 'auto-preview', options: ['project']},
+    'upload': {options: ['project', 'version', 'desc']},
+    'npm': {options: ['project', 'compile-type']},
+    'auto': {options: ['project', ['autoPort', 'auto-port'], ['autoAccount', 'auto-account']]},
+    'open': {options: ['project']},
+    'close': {options: ['project']},
+    'resetFileUtils': {cmd: 'reset-fileutils', options: ['project']},
+    'buildNpm': {cmd: 'build-npm', options: ['project']},
+    'cache': {options: ['project', 'clean']},
+    'envList': {options: ['project', 'appid', ['extAppid', 'ext-appid']]},
+    'funcInfo': {options: ['project', 'appid', ['extAppid', 'ext-appid'], 'env', 'names']},
+    'deploy': {options: ['project', 'appid', ['extAppid,ext-appid'], 'env', 'names', 'paths', ['remoteNpmInstall', 'remote-npm-install']]},
+    'incDeploy': {options: ['project', 'appid', ['extAppid', 'ext-appid'], 'path', 'file']},
+    'download': {options: ['project', 'appid', ['extAppid', 'ext-appid'], 'name', 'path']},
+};
 
-        this.appPath = this.wxaConfigs.wechatwebdevtools || '/Applications/wechatwebdevtools.app';
-        // console.log(process.platform);
-        // /Applications/wechatwebdevtools.app/Contents/Resources/app.nw/bin/cli
-        if (['darwin', 'win32'].indexOf(process.platform) >-1) {
-            let clipath = {
-                darwin: '/Contents/Resources/app.nw/bin/cli',
-                win32: '/cli.bat',
-            };
-            let darwinV2 = '/Contents/MacOS/cli';
-            this.cliPath = clipath[process.platform];
-            // V2 改版之后路径变更
-            // TODO: 支持新版本的命令行调用
-            if (!fs.existsSync(path.normalize(`"${this.appPath}${this.cliPath}"`))) {
-                this.cliPath = darwinV2;
-            }
-        } else {
-            throw new Error('微信开发者工具不支持的系统类型');
-        }
-
-        this.cli = path.normalize(`"${this.appPath}${this.cliPath}"`);
-    }
-
-    async run(cmd, data) {
-        debug('start cli %O', cmd);
-        this.$run(this.wxaConfigs.output.path, cmd, data);
-    }
-
-    $run(projectPath, cmd, data) {
-        let {action} = cmd;
-
-        switch (action) {
-            case 'open': {
-                this.open(cmd).catch((e)=>logger.error(e));
-                break;
-            }
-            case 'login': {
-                this.login().catch((e)=>logger.error(e));
-                break;
-            }
-            case 'preview': {
-                this.preview(projectPath, cmd).catch((e)=>logger.error(e));
-                break;
-            }
-            case 'upload': {
-                this.upload(projectPath, cmd, data).catch((e)=>logger.error(e));
-                break;
-            }
-            default: logger.warn('无效的命令');
-        }
-    }
-
-    execute(command) {
-        debug('command to execute %s', command);
-        return new Promise((resolve, reject)=>{
-            let cp = exec(command, (err, stout, stderr)=>{
-                if (err) {
-                    reject(err);
-                }
-                resolve(stout);
-            });
-            cp.stdout.on('data', (msg)=>{
-                console.log(msg);
-            });
-            cp.stderr.on('data', (err)=>{
-                console.log(err);
-            });
-            cp.on('close', (code)=>{
-                console.log(code);
-            });
-        });
-    }
-
-    open(projectPath, cmd) {
-        return this.execute(`${this.cli} -o ${projectPath}`);
-    }
-
-    login(cmd) {
-        return this.execute(`${this.cli} -l`);
-    }
-
-    preview(projectPath, cmd) {
-        return this.execute(`${this.cli} -p ${projectPath}`);
-    }
-
-    upload(projectPath, cmd, data) {
-        return this.execute(`${this.cli} -u ${data.options.version}@${projectPath} --upload-desc '${data.options.desc}'`);
-    }
+export function toolHandler(config, name, options) {
+    let cli = getCliPath(config.wechatwebdevtools);
+    processOptions(options);
+    let cmd = buildCmd(cli, name, options);
+    debug('start cli %O', cmd);
+    execute(cmd);
 }
-
-export default Toolcli;
-
-let question = async ()=>await inquirer.prompt([
-    {
-        type: 'input',
-        name: 'version',
-        message: '小程序版本号',
-        default: require(path.join(process.cwd(), 'package.json')).version || '1.0.0',
-    },
-    {
-        type: 'input',
-        name: 'desc',
-        message: '版本描述',
-        default: '版本描述',
-    },
-]);
-
-export async function spawnDevToolCli(configs, cmdOptions) {
-    let answer;
-    if (cmdOptions.action === 'upload') answer = await question();
-
-    let projects = cmdOptions.project;
-
-    for (let name of projects) {
-        let projectConfigs = configs.find((item) => item.name === name);
-
-        if (!projectConfigs) {
-            logger.error(`找不到${name}的项目配置文件，请检查wxa.config.js中的三方配置`);
-            break;
+function getCliPath(root) {
+    let toolPath;
+    let appPath = root;
+    if (process.platform == 'win32') {
+        if (!appPath) {
+            throw new Error('未找到开发者工具');
         }
-
-        let cli = new Toolcli(projectConfigs);
-
-        cli.run(cmdOptions, {options: answer});
+        toolPath = path.join(appPath, 'cli.bat');
+    } else if (process.platform == 'darwin') {
+        toolPath = path.join(
+            appPath || '/Applications/wechatwebdevtools.app',
+            '/Contents/MacOS/cli'
+        );
+    } else {
+        throw new Error('微信开发者工具不支持的系统类型');
     }
+    if (!fs.existsSync(toolPath)) {
+        throw new Error('未找到开发者工具');
+    }
+    return `"${toolPath}"`;
+}
+function execute(command) {
+    debug('command to execute %s', command);
+    let cp = exec(command, (err, stdout, stderr) => {
+        logger.error(err);
+        console.log(stdout);
+        console.error(stderr);
+    });
+    cp.on('close', (code) => {
+        console.log(code);
+    });
+}
+function getName(name) {
+    return Commands[name].cmd?Commands[name].cmd:name;
+}
+function buildOptions(arr) {
+    return arr
+        .filter((v) => v.length==2 && v[1]!==undefined)
+        .map((v)=>{
+            if (typeof v[1] == 'boolean') {
+                return `--${v[0]}`;
+            }
+            return `--${v[0]} ${v[1]}`;
+            })
+        .join(' ');
+}
+function buildCmd(cli, name, options) {
+    return `${cli} ${getName(name)} ${buildOptions(mappingOptions(name, options))}`;
+}
+function mappingOptions(name, options) {
+    let mapping = Commands[name].options||[];
+    return mapping.map((m)=>
+        typeof m == 'string'
+        ?[m, options[m]]
+        :[m[1], options[m[0]]]
+    );
+}
+function removeIfExist(base, a, b) {
+    if (base[b]) delete base[a];
+}
+function processOptions(options) {
+    removeIfExist(options, 'project', 'extAppid');
+    removeIfExist(options, 'project', 'appid');
+    Object.keys(options).forEach((k)=>{
+        if (Array.isArray( options[k])) options[k] = options[k].join(' ');
+    });
 }

@@ -1,0 +1,34 @@
+{
+  "name": "@wxa/compiler-less",
+  "version": "2.2.9",
+  "description": "wxa.js less language compiler",
+  "keywords": [
+    "less",
+    "wxa",
+    "miniprogram"
+  ],
+  "author": "Genuifx <genuifx@gmail.com>",
+  "homepage": "https://webank.gitee.io/wxa/",
+  "license": "MIT",
+  "main": "lib/index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wxajs/wxa.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/wxajs/wxa/issues"
+  },
+  "dependencies": {
+    "less": "^3.12.2"
+  }
+}

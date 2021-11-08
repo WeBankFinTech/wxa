@@ -6,6 +6,7 @@ import SplitDeps from './splitDeps';
 import types from '../const/types';
 import {stuffEmptyAttributs} from './stuffEmptyAttributes';
 import transformPixelsToRpx from './pxtorpx';
+import {wxaPerformance} from '../helpers/performance';
 
 let debug = debugPKG('WXA:Optimizer');
 
@@ -23,9 +24,10 @@ export default class Optimizer {
         this.splitDeps = new SplitDeps({appConfigs, wxaConfigs, cwd, cmdOptions});
     }
 
-    async run(indexedMap, appConfigs) {
+    async run(indexedMap, appConfigs, fullMap) {
+        wxaPerformance.markStart('wxa_optimize_code-plugin');
+        
         let optimizeTasks = [];
-
         indexedMap.forEach((dep)=>{
             let task = async ()=>{
                 await this.do(dep, appConfigs, indexedMap);
@@ -33,11 +35,16 @@ export default class Optimizer {
 
             optimizeTasks.push(task());
         });
-
+        
         await Promise.all(optimizeTasks);
 
+        wxaPerformance.markEnd('wxa_optimize_code-plugin');
 
-        if (!this.cmdOptions.watch) this.splitDeps.run(indexedMap);
+        // Once start optimize，we need track all the project's map.
+        // This job is fast at Watch-mode, because the previously split task already finished.
+        wxaPerformance.markStart('wxa_split_npm_deps');
+        this.splitDeps.run(fullMap);
+        wxaPerformance.markEnd('wxa_split_npm_deps');
     }
 
     async do(dep, indexedMap) {

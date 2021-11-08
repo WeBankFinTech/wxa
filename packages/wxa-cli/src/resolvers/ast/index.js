@@ -6,8 +6,15 @@ import DependencyResolver from '../../helpers/dependencyResolver';
 import debugPKG from 'debug';
 import logger from '../../helpers/logger';
 import {generateCodeFromAST} from '../../compilers/script';
+import {wxaPerformance} from '../../helpers/performance';
 
 let debug = debugPKG('WXA:ASTManager');
+
+const isStaticSource = (filepath) => {
+    let ext = path.extname(filepath);
+
+    return ~['png', 'jpg', 'jpeg', 'webp', 'eot', 'woff', 'woff2', 'ttf', 'file', 'gif', 'webm', 'mp3', 'mp4'].indexOf(ext.replace(/^\./, ''));
+};
 
 export default class ASTManager {
     constructor(resolve, meta, wxaConfigs) {
@@ -79,6 +86,8 @@ export default class ASTManager {
             t.exportAllDeclaration.name,
             t.exportNamedDeclaration.name].join('|');
 
+        wxaPerformance.markStart('wxa_dep_analysis-dep-parse-ast-travel ' + mdl.src);
+
         traverse(mdl.ast, {
             [importStatement]: (path) => {
                 let dep;
@@ -95,6 +104,7 @@ export default class ASTManager {
                 ) {
                     let firstParam = path.node.arguments[0];
                     // debug(firstParam);
+                    
                     if ( t.isStringLiteral(firstParam) ) {
                         debug('callExpression %s', dep);
                         dep = firstParam.value;
@@ -124,6 +134,7 @@ export default class ASTManager {
                 try {
                     let dr = new DependencyResolver(self.resolve, self.meta);
 
+                    // if (~dep.indexOf('miniprogram-sm-crypto')) debugger;
                     let {source, pret, lib} = dr.resolveDep(dep, mdl, {needFindExt: true});
                     let outputPath = dr.getOutputPath(source, pret, mdl);
                     let resolved = dr.getResolved(lib, outputPath, mdl);
@@ -136,6 +147,12 @@ export default class ASTManager {
                             source, outputPath, resolved,
                         },
                     });
+                    
+                    // Allow use import to add static file to project
+                    if (isStaticSource(source)) {
+                        path.remove();
+                        return;
+                    }
 
                     switch (typeOfPath) {
                         case StringLiteralRequire:
@@ -178,13 +195,18 @@ export default class ASTManager {
             },
         });
 
+        wxaPerformance.markEnd('wxa_dep_analysis-dep-parse-ast-travel ' + mdl.src);
         debug('dependencies libs %O', libs);
-
+        
+        wxaPerformance.markStart('wxa_dep_analysis-dep-parse-ast-scan ' + mdl.src);
         let wxaSourceLibs = this.scanComments(mdl.ast.comments, mdl);
-
+        wxaPerformance.markEnd('wxa_dep_analysis-dep-parse-ast-scan ' + mdl.src);
+        
         libs = libs.concat(wxaSourceLibs);
         // generate module code.
+        wxaPerformance.markStart('wxa_dep_analysis-dep-parse-ast-gen ' + mdl.src);
         let {code, map} = this.generate(mdl);
+        wxaPerformance.markEnd('wxa_dep_analysis-dep-parse-ast-gen ' + mdl.src);
         mdl.code = code;
         // mdl.sourceMap = map;
         delete mdl.ast;
