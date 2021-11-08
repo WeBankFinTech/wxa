@@ -28,6 +28,9 @@
   "bugs": {
     "url": "https://github.com/wxajs/wxa/issues"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "less": "^3.12.2"
   }
