@@ -1,7 +1,7 @@
 import sass from 'sass';
 import path from 'path';
 import fs from 'fs';
-import Fiber from 'fibers';
+// import Fiber from 'fibers';
 import debugPKG from 'debug'
 
 let debug = debugPKG('WXA:SASS-Loader')
@@ -60,22 +60,23 @@ class SassCompiler {
                 ...configs,
                 data,
                 file: filepath,
-                filber: Fiber,
+                // filber: Fiber,
                 // includePaths: [filepath],
-                importer(url, prev, done) {
-                    // debugger;
-                    let file = path.resolve(path.dirname(prev), url);
-                    let ext = path.extname('url')
+                // importer(url, prev, done) {
+                //     // debugger;
+                //     let file = path.resolve(path.dirname(prev), url);
+                //     let ext = path.extname('url')
 
-                    if (ext === '.wxss') {
-                        done({
-                            contents: fs.readFileSync(file)
-                        })
-                    } 
+                //     if (ext === '.wxss') {
+                //         done({
+                //             contents: fs.readFileSync(file)
+                //         })
+                //     } 
 
-                    return file;
-                }
+                //     return file;
+                // }
             })
+            debugger;
             return resolve(ret);
         })
     }
