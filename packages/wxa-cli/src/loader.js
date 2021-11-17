@@ -110,6 +110,7 @@ class CompilerLoader {
                     const defaultConfigs = /babel/.test(uri) ? defaultBabelConfigs : {};
 
                     let options = loader.options || defaultConfigs;
+                    options.sourceMap = this.wxaConfigs.sourceMap;
                     let instance = new Loader(this.current, options);
                     // console.log(instance);
                     let test = loader.test || instance.test;
@@ -147,7 +148,7 @@ class CompilerLoader {
 
                     // Todo: Multi loader with one string
                     mdl.code = code;
-                    mdl.sourceMap = rest.sourceMap;
+                    mdl.sourceMap = rest.sourceMap || mdl.sourceMap;
                     mdl.restResource = rest;
                 } catch (e) {
                     debug('parse Error %O', e);

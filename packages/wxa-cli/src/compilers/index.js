@@ -83,7 +83,7 @@ export default class Compiler {
                 // only allow babel-ast
                 mdl.ast = rest.ast;
 
-                children = children.concat(this.$$parseAST(mdl));
+                children = children.concat(await this.$$parseAST(mdl));
                 break;
             }
 
@@ -179,9 +179,9 @@ export default class Compiler {
         });
     }
 
-    $$parseAST(mdl) {
+    async $$parseAST(mdl) {
         wxaPerformance.markStart('wxa_dep_analysis-dep-parse-ast ' + mdl.src);
-        let deps = new ASTManager(this.resolve||{}, this.meta, this.$scheduer.wxaConfigs).parse(mdl);
+        let deps = await (new ASTManager(this.resolve||{}, this.meta, this.$scheduer.wxaConfigs).parse(mdl));
         wxaPerformance.markEnd('wxa_dep_analysis-dep-parse-ast ' + mdl.src);
 
         // analysis deps;
