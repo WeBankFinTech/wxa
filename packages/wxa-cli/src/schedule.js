@@ -45,6 +45,22 @@ class Schedule {
         this.logger = logger;
         this.mode = 'compile';
         this.wxaConfigs = {}; // wxa.config.js
+        this.cmdOptions = {}; // cmd options
+
+        let cmdOptions = {};
+        Object.defineProperty(this, 'cmdOptions', {
+             get() {
+                 return cmdOptions;
+             },
+             set(options) {
+                 cmdOptions = options;
+
+                 this.meta = {
+                     ...this.meta,
+                     needSourceMap: cmdOptions.sourceMap || this.meta.needSourceMap,
+                 };
+             },
+        });
 
         let wxaConfigs;
         Object.defineProperty(this, 'wxaConfigs', {
@@ -62,7 +78,7 @@ class Schedule {
                     wxaExt: wxaConfigs.resolve.wxaExt,
                     context: wxaConfigs.context,
                     output: wxaConfigs.output,
-                    needSourceMap: wxaConfigs.sourceMap,
+                    needSourceMap: wxaConfigs.sourceMap || this.meta.needSourceMap,
                 };
             },
         });
@@ -81,9 +97,6 @@ class Schedule {
 
         // load from path/to/project/src/app.json
         this.appConfigs = {};
-
-        // cmd options
-        this.cmdOptions = {};
 
         // performance mark
         this.perf = new Preformance();

@@ -110,7 +110,7 @@ class CompilerLoader {
                     const defaultConfigs = /babel/.test(uri) ? defaultBabelConfigs : {};
 
                     let options = loader.options || defaultConfigs;
-                    options.sourceMap = this.wxaConfigs.sourceMap;
+                    options.sourceMap = cmdOptions.sourceMap || this.wxaConfigs.sourceMap;
                     let instance = new Loader(this.current, options);
                     // console.log(instance);
                     let test = loader.test || instance.test;

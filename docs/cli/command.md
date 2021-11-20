@@ -56,6 +56,7 @@ wxa2 create [options]
     --configs-path <configsPath> wxa.configs.js文件路径，默认项目根目录
     -w, --watch              监听文件改动
     -N, --no-cache           不使用缓存
+    --source-map             生成sourceMap并输出
     -p, --project <project>  指定需要编译的项目，默认是default， * 表示编译所有项目
     --no-progress            不展示文件进度
     --verbose                展示多余的信息
