@@ -1,5 +1,5 @@
 import path from 'path';
-import {readFile, error, isFile, isEmpty} from '../utils';
+import {readFile, error, isFile, isEmpty, generateSourceMap} from '../utils';
 import Coder from '../helpers/coder';
 import logger from '../helpers/logger';
 import DependencyResolver from '../helpers/dependencyResolver';
@@ -45,7 +45,7 @@ let markSpecialEmptyAttr = (dom) => {
             markSpecialEmptyAttr(ele.children);
         }
     });
-}
+};
 export default class WxaCompiler {
     constructor(resolve, meta) {
         this.resolve = resolve;
@@ -64,6 +64,8 @@ export default class WxaCompiler {
         let xml;
 
         let content = code || readFile(filepath);
+
+        let originContent = content;
 
         if (content == null) {
             error('打开文件失败:'+filepath);
@@ -153,6 +155,22 @@ export default class WxaCompiler {
             }
             return ret;
         }, {});
+
+        if (this.meta.needSourceMap) {
+            if (wxaDefinition[SCRIPT_TAG]) {
+                let definition = wxaDefinition[SCRIPT_TAG];
+                let filename = path.basename(filepath);
+                
+                let sourceRoot = path.dirname(definition.src);
+                definition.sourceMap = generateSourceMap(
+                    filename,
+                    originContent,
+                    definition.code,
+                    sourceRoot
+                );
+                definition.sourceFileName = filename;
+            }
+        }
 
         return wxaDefinition;
     }

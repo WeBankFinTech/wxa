@@ -7,6 +7,7 @@ import debugPKG from 'debug';
 import logger from '../../helpers/logger';
 import {generateCodeFromAST} from '../../compilers/script';
 import {wxaPerformance} from '../../helpers/performance';
+import {mergeSourceMap} from '../../utils';
 
 let debug = debugPKG('WXA:ASTManager');
 
@@ -74,7 +75,7 @@ export default class ASTManager {
     }
 
     // traverse the entire AST,
-    parse(mdl) {
+    async parse(mdl) {
         debug('parse start');
         if (mdl.ast == null) return [];
 
@@ -208,8 +209,12 @@ export default class ASTManager {
         let {code, map} = this.generate(mdl);
         wxaPerformance.markEnd('wxa_dep_analysis-dep-parse-ast-gen ' + mdl.src);
         mdl.code = code;
-        // mdl.sourceMap = map;
         delete mdl.ast;
+        
+        if (this.meta.needSourceMap && map) {
+            mdl.sourceMap = await mergeSourceMap(mdl.sourceMap, map);
+        }
+
         return libs;
     }
     /**
@@ -255,6 +260,14 @@ export default class ASTManager {
     generate(mdl) {
         debug('generate start');
         if (mdl.ast == null) return;
-        return generateCodeFromAST(mdl.ast, {}, mdl);
+
+        let options = {};
+        if (this.meta.needSourceMap) {
+            options ={
+                sourceMaps: true,
+                sourceFileName: mdl.sourceFileName || path.basename(mdl.src),
+            };
+        }
+        return generateCodeFromAST(mdl.ast, options, mdl);
     }
 }

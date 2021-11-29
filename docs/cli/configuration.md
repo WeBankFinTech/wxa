@@ -25,6 +25,7 @@ module.exports = {
     output: {
         path: path.resolve(this.cwd, 'dist'),
     },
+    sourceMap: true,
     use: [
         {
             test: /\.js$/,
@@ -110,6 +111,12 @@ module.exports = {
 - **用法**:
 
 指定输出文件夹。
+
+## sourceMap
+- **类型**: `Boolean`
+- **用法**:
+
+是否生成 `sourceMap` 。
 
 ## use 
 - **类型**: `Array`
