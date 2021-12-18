@@ -1,3 +1,4 @@
+const PATH = require('path');
 exports.InjectCompileTimePlugin = class InjectCompileTimePlugin {
     constructor(comps = []) {
       this.comps = comps;
@@ -18,8 +19,7 @@ exports.InjectCompileTimePlugin = class InjectCompileTimePlugin {
           this.comps.forEach(({ path, name }) => {
             config.usingComponents[`wxa_inject_${name}`] = path;
           });
-          config.usingComponents.wxa_inject_wrapper =
-            "../node_modules/@wxa/plugin-global-component-inject/wrapper";
+          config.usingComponents.wxa_inject_wrapper = PATH.join(__dirname, 'wrapper');
           mdl.content = JSON.stringify(config, null, 4);
         }
         if (mdl.category === "Page" && mdl.type === "wxml") {
@@ -29,17 +29,6 @@ exports.InjectCompileTimePlugin = class InjectCompileTimePlugin {
           });
           mdl.content = `<wxa_inject_wrapper>${topBuf}</wxa_inject_wrapper>${mdl.content}`;
         }
-        // if (mdl.type== 'json'){
-        //     const config = JSON.parse(mdl.content);
-        //     config.usingComponents.
-        // }
-        // if (
-        //     mdl.meta &&
-        //     this.configs.test.test(mdl.meta.source)
-        // ) {
-        //     debug('Plugin replace started %O', mdl.src)
-        //     this.run(mdl);
-        // }
       });
     }
   };
