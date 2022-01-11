@@ -203,6 +203,7 @@ class Builder {
             mdl.color = color.CHANGED;
             mdl.content = void(0);
             mdl.code = void(0);
+            mdl.sourceMap = void(0);
 
             let changedDeps;
             try {
