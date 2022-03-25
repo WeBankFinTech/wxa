@@ -1,0 +1,17 @@
+{
+  "name": "@wxa/plugin-global-component-inject",
+  "version": "2.2.0",
+  "description": "global component inject",
+  "main": "index.js",
+  "scripts": {},
+  "keywords": [
+    "wxa"
+  ],
+  "repository": "https://github.com/wxajs/wxa.git",
+  "homepage": "https://wxajs.github.io/wxa/",
+  "author": "iveswen",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  }
+}
