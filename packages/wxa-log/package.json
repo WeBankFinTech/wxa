@@ -1,6 +1,6 @@
 {
   "name": "@wxa/log",
-  "version": "2.2.19",
+  "version": "2.3.1",
   "description": "集合小程序实时日志上报以及普通console",
   "main": "src/index.js",
   "scripts": {

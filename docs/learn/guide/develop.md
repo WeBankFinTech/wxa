@@ -113,7 +113,7 @@ export default class Index {
 ```
 
 ::: tip 提示
-@App为Main类自动挂载了`Storage`，`Eventbus`, `Wxapi`, `Router`, `Fetch`以及`Utils`函数
+@App为Index类自动挂载了`Storage`，`Eventbus`, `Wxapi`, `Router`, `Fetch`以及`Utils`函数
 
 `@wxa/core`为每个页面实例注入了[`$go`](/core/feature.html#go-event)方法，解决微信跳转延迟的引发的多次跳转问题，在重构阶段可以快速开发页面。
 :::

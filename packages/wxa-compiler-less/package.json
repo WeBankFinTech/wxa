@@ -1,6 +1,6 @@
 {
   "name": "@wxa/compiler-less",
-  "version": "2.2.9",
+  "version": "2.3.1",
   "description": "wxa.js less language compiler",
   "keywords": [
     "less",
@@ -27,6 +27,9 @@
   },
   "bugs": {
     "url": "https://github.com/wxajs/wxa/issues"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "dependencies": {
     "less": "^3.12.2"
