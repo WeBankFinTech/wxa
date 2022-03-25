@@ -53,30 +53,24 @@ class SassCompiler {
     }
 
     render(data, filepath, configs) {
-        // console.log('/n')
-        // console.log(filepath, configs)
         return new Promise((resolve, reject)=>{
             let ret = sass.renderSync({
                 ...configs,
                 data,
                 file: filepath,
-                // filber: Fiber,
-                // includePaths: [filepath],
-                // importer(url, prev, done) {
-                //     // debugger;
-                //     let file = path.resolve(path.dirname(prev), url);
-                //     let ext = path.extname('url')
+                importer(url, prev) {
+                    let file = path.resolve(path.dirname(prev), url);
+                    let ext = path.extname(url)
 
-                //     if (ext === '.wxss') {
-                //         done({
-                //             contents: fs.readFileSync(file)
-                //         })
-                //     } 
+                    if (ext === '.wxss') {
+                        return {
+                            contents: fs.readFileSync(file, 'utf8')
+                        }
+                    } 
 
-                //     return file;
-                // }
+                    return {file};
+                }
             })
-            debugger;
             return resolve(ret);
         })
     }
