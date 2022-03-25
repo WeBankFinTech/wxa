@@ -343,6 +343,7 @@ class Schedule {
             ) {
                 indexedModule.content = child.content;
                 indexedModule.hash = child.hash;
+                indexedModule.sourceMap = child.sourceMap;
                 indexedModule.color = COLOR.CHANGED;
             }
 

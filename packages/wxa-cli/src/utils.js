@@ -206,13 +206,8 @@ export async function updateSourceMap(oldMap, source = '', generated = '') {
     if (!oldMap) {
         return oldMap;
     }
-    let sourceRoot = oldMap.sourceRoot;
-    let file = oldMap.file;
     let oldMapConsumer = await new SourceMapConsumer(oldMap);
-    let newMapGenerator = new SourceMapGenerator({
-        file,
-        sourceRoot,
-    });
+    let newMapGenerator = new SourceMapGenerator();
     let offset =
         generated
                 .split(source)
@@ -290,8 +285,6 @@ export async function mergeSourceMap(oldMap, newMap) {
         }
     });
 
-    mergedMapGenerator.sourceRoot = oldMap.sourceRoot;
-    mergedMapGenerator.file = oldMap.file;
     oldMapConsumer.destroy();
     newMapConsumer.destroy();
 
