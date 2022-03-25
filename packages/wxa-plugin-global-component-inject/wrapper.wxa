@@ -1,0 +1,22 @@
+<script>
+import { WRAPPER_INSTANCES } from "./index.js";
+Component({
+  lifetimes: {
+    attached: function() {
+      const page = this.selectOwnerComponent();
+      WRAPPER_INSTANCES.set(page.getPageId(), page);
+      console.log("wrapper attached", page);
+    }
+  }
+});
+</script>   
+
+<config>
+{
+    "component": true
+}
+</config>
+
+<template>
+  <slot></slot>
+</template>
