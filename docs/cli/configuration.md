@@ -153,6 +153,13 @@ module.exports = {
 ### optimization.allowEmptyAttributes
 是否允许空属性，默认 `true`，不要改动该配置，除非你清楚自己要做什么:warning:。
 
+## treeShake
+
+- **类型**: `Boolean` default: `false`
+- **用法**:
+
+是否开启 `tree-shake` 。只有为 `true` 且非 `watch` 模式下 `tree-shake` 才会生效。
+
 ## plugins
 
 目前支持的插件有：
