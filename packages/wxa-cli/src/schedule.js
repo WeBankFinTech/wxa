@@ -126,7 +126,7 @@ class Schedule {
         while (this.$depPending.length) {
             let dep = this.$depPending.shift();
 
-            if (!this.cmdOptions.watch && dep.src.endsWith('.js')) {
+            if (this.wxaConfigs.treeShake && !this.cmdOptions.watch && dep.src.endsWith('.js')) {
                 this.$depJsPending.push(dep);
             } else {
                 tasks.push(this.$parse(dep));
@@ -139,7 +139,7 @@ class Schedule {
 
         if (this.$depPending.length === 0) {
             // dependencies resolve complete
-            if (!this.cmdOptions.watch) {
+            if (this.wxaConfigs.treeShake && !this.cmdOptions.watch) {
                 let sub = await this.$dojsDPA();
                 return succ.concat(sub);
             }
