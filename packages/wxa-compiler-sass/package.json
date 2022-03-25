@@ -29,7 +29,7 @@
         "debug": "^4.0.1"
     },
     "dependencies": {
-        "node-sass": "^4.14.1"
+        "sass": "^1.43.4"
     },
     "publishConfig": {
         "access": "public"

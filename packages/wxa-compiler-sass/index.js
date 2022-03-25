@@ -1,5 +1,7 @@
-import sass from 'node-sass';
+import sass from 'sass';
 import path from 'path';
+import fs from 'fs';
+// import Fiber from 'fibers';
 import debugPKG from 'debug'
 
 let debug = debugPKG('WXA:SASS-Loader')
@@ -37,7 +39,6 @@ class SassCompiler {
             configs.sourceMap = cmdOptions.sourceMap;
             configs.sourceMapEmbed = true;
         }
-
         let ret = await this.render(mdl.content || null, mdl.meta.source, configs);
         
         mdl.code = ret.css.toString();
@@ -53,15 +54,24 @@ class SassCompiler {
 
     render(data, filepath, configs) {
         return new Promise((resolve, reject)=>{
-            sass.render({
+            let ret = sass.renderSync({
                 ...configs,
                 data,
-                file: filepath
-            }, (err, ret)=>{
-                if(err) return reject(err);
+                file: filepath,
+                importer(url, prev) {
+                    let file = path.resolve(path.dirname(prev), url);
+                    let ext = path.extname(url)
 
-                return resolve(ret);
+                    if (ext === '.wxss') {
+                        return {
+                            contents: fs.readFileSync(file, 'utf8')
+                        }
+                    } 
+
+                    return {file};
+                }
             })
+            return resolve(ret);
         })
     }
 }
