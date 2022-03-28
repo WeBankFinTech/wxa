@@ -46,6 +46,7 @@ export default class DefaultWxaConfigs {
                 allowEmptyAttributes: true,
                 transformPxToRpx: false,
             },
+            treeShake: false,
         };
     }
 }

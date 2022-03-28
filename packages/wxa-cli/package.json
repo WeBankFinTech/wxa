@@ -69,7 +69,8 @@
     "shelljs": "^0.8.3",
     "tapable": "^1.0.0",
     "valid-url": "^1.0.9",
-    "source-map": "^0.7.3"
+    "source-map": "^0.7.3",
+    "lodash": "^4.17.21"
   },
   "publishConfig": {
     "access": "public"
