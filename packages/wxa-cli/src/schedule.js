@@ -5,7 +5,7 @@ import globby from 'globby';
 import debugPKG from 'debug';
 import {SyncHook} from 'tapable';
 
-import {readFile, isFile, getHash, getHashWithString, copy} from './utils';
+import {readFile, isFile, getHash, getHashWithString, updateSourceMap} from './utils';
 import bar from './helpers/progressBar';
 import {logger, error} from './helpers/logger';
 import COLOR from './const/color';
@@ -45,6 +45,22 @@ class Schedule {
         this.logger = logger;
         this.mode = 'compile';
         this.wxaConfigs = {}; // wxa.config.js
+        this.cmdOptions = {}; // cmd options
+
+        let cmdOptions = {};
+        Object.defineProperty(this, 'cmdOptions', {
+             get() {
+                 return cmdOptions;
+             },
+             set(options) {
+                 cmdOptions = options;
+
+                 this.meta = {
+                     ...this.meta,
+                     needSourceMap: cmdOptions.sourceMap || this.meta.needSourceMap,
+                 };
+             },
+        });
 
         let wxaConfigs;
         Object.defineProperty(this, 'wxaConfigs', {
@@ -62,6 +78,7 @@ class Schedule {
                     wxaExt: wxaConfigs.resolve.wxaExt,
                     context: wxaConfigs.context,
                     output: wxaConfigs.output,
+                    needSourceMap: wxaConfigs.sourceMap || this.meta.needSourceMap,
                 };
             },
         });
@@ -80,9 +97,6 @@ class Schedule {
 
         // load from path/to/project/src/app.json
         this.appConfigs = {};
-
-        // cmd options
-        this.cmdOptions = {};
 
         // performance mark
         this.perf = new Preformance();
@@ -165,8 +179,8 @@ class Schedule {
             // this.perf.markEnd(relativeSrc);
 
             // try to wrap wxa every app and page
-            this.tryWrapWXA(dep);
-            this.tryAddPolyfill(dep);
+            await this.tryWrapWXA(dep);
+            await this.tryAddPolyfill(dep);
 
             // Todo: conside if cache is necessary here.
             // debug('dep to process %O', dep);
@@ -329,6 +343,7 @@ class Schedule {
             ) {
                 indexedModule.content = child.content;
                 indexedModule.hash = child.hash;
+                indexedModule.sourceMap = child.sourceMap;
                 indexedModule.color = COLOR.CHANGED;
             }
 
@@ -353,20 +368,28 @@ class Schedule {
         return child;
     }
 
-    tryWrapWXA(mdl) {
+    async tryWrapWXA(mdl) {
         if (
             ~['app', 'component', 'page'].indexOf(mdl.category ? mdl.category.toLowerCase() : '') &&
             mdl.meta && path.extname(mdl.meta.source) === '.js' &&
             (/exports\.default/gm.test(mdl.code) || /exports\[["']default["']/gm.test(mdl.code)) &&
             !/wrapWxa\(exports/gm.test(mdl.code)
         ) {
-            mdl.code = wrapWxa(mdl.code, mdl.category, mdl.pagePath);
+            let newCode = wrapWxa(mdl.code, mdl.category, mdl.pagePath);
+
+            if (this.meta.needSourceMap) {
+                mdl.sourceMap = await updateSourceMap(mdl.sourceMap, mdl.code, newCode);
+            }
+
+            mdl.code = newCode;
             debug('wrap dependencies %O', simplify(mdl));
         }
     }
 
-    tryAddPolyfill(mdl) {
+    async tryAddPolyfill(mdl) {
         if (!this.wxaConfigs.polyfill) return;
+
+        let originCode = mdl.code;
 
         const polyfill = new Map([
             ['regenerator-runtime/runtime', {
@@ -407,6 +430,10 @@ class Schedule {
         polyfill.forEach((preset, name)=>{
             if (this.wxaConfigs.polyfill[name] && preset.test(mdl)) preset.wrap(mdl);
         });
+
+        if (this.meta.needSourceMap) {
+            mdl.sourceMap = await updateSourceMap(mdl.sourceMap, originCode, mdl.code);
+        }
     }
 
     addPageEntryPoint() {

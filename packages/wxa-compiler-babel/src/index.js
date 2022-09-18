@@ -73,6 +73,7 @@ class BabelLoader {
             ...configs.farmOptions, 
         }
         this.babelWorker = workerFarm(farmOptions, require.resolve('./babel-compile'));
+        this.configs.sourceMap = configs.sourceMap
         // process ignore to compat babel6
         if (
             typeof this.configs.ignore === 'string' || 
@@ -137,14 +138,20 @@ class BabelLoader {
         if(this.checkIgnore(opath, configs.ignore) || code === '') {
             return Promise.resolve({code});
         } else {
+            let options = {
+                ...configs, 
+                filename: src,
+            }
+
+            if(mdl.sourceMap){
+                options.inputSourceMap = mdl.sourceMap
+            }
+
             let ret = await amazingCache({
                 source: code || readFile(src),
-                options: {
-                    ...configs, 
-                    filename: src
-                },
+                options,
                 transform: ()=>{
-                    let param = {type, code, src, options: {...configs, filename: src}};
+                    let param = {type, code, src, options};
                     return this.enableConcurrent ? this.workerTransform(param) : this.transform(param);
                 }
             }, cmdOptions.cache);
