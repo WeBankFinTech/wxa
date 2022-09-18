@@ -1,6 +1,6 @@
 {
   "name": "@wxa/watch",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "description": "watch plugin for wxa",
   "main": "dist/index.js",
   "scripts": {
@@ -17,7 +17,7 @@
   "repository": "https://github.com/wxajs/wxa.git",
   "homepage": "https://wxajs.github.io/wxa/",
   "dependencies": {
-    "@wxa/core": "^2.4.0",
+    "@wxa/core": "^2.4.1",
     "melanke-watchjs": "^1.4.3"
   },
   "devDependencies": {
