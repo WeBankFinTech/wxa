@@ -1,6 +1,6 @@
 {
   "name": "@wxa/plugin-dist-clean",
-  "version": "2.3.1",
+  "version": "2.4.1",
   "description": "clean plugin for wxa",
   "main": "index.js",
   "scripts": {
