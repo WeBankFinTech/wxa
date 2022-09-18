@@ -6,12 +6,12 @@
   "keywords": [
     "postcss"
   ],
-  "repository": "https://github.com/wxajs/wxa.git",
-  "homepage": "https://wxajs.github.io/wxa/",
+  "repository": "https://github.com/WeBankFinTech/wxa.git",
+  "homepage": "https://webank.gitee.io/wxa/",
   "author": "iveswen",
   "license": "MIT",
   "dependencies": {
-    "postcss": "^6.0.22"
+    "postcss": "^8.0.9"
   },
   "publishConfig": {
     "access": "public"

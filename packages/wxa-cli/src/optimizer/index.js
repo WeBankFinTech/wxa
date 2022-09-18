@@ -26,7 +26,7 @@ export default class Optimizer {
 
     async run(indexedMap, appConfigs, fullMap) {
         wxaPerformance.markStart('wxa_optimize_code-plugin');
-        
+
         let optimizeTasks = [];
         indexedMap.forEach((dep)=>{
             let task = async ()=>{
@@ -35,7 +35,7 @@ export default class Optimizer {
 
             optimizeTasks.push(task());
         });
-        
+
         await Promise.all(optimizeTasks);
 
         wxaPerformance.markEnd('wxa_optimize_code-plugin');
