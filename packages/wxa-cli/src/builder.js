@@ -120,29 +120,29 @@ class Builder {
                 debug('WATCH file changed %s', filepath);
                 let mdl = this.scheduler.$indexOfModule.get(filepath);
 
+                // maybe outer dependencies.
+                let defer = [];
+
+                let addTask = (mdl)=>{
+                    defer.push(async ()=>{
+                        try {
+                            this.scheduler.$depPending.push(mdl);
+                            // 2019-08-20 childNodes will auto mark in scheduler
+                            // if (mdl.childNodes && mdl.childNodes.size) this.walkChildNodesTreeAndMark(mdl);
+                            mdl.color = color.CHANGED;
+
+                            await this.hooks.rebuildModule.promise(this.scheduler, mdl);
+
+                            let changedDeps = await this.scheduler.$doDPA();
+                            let map = new Map(changedDeps.map((mdl)=>[mdl.src, mdl]));
+                            await this.optimizeAndGenerate(map, this.scheduler.appConfigs, cmd);
+                        } catch (e) {
+                            error('编译失败', {error: e});
+                        }
+                    });
+                };
+
                 if (mdl == null) {
-                    // maybe outer dependencies.
-                    let defer = [];
-
-                    let addTask = (mdl)=>{
-                        defer.push(async ()=>{
-                            try {
-                                this.scheduler.$depPending.push(mdl);
-                                // 2019-08-20 childNodes will auto mark in scheduler
-                                // if (mdl.childNodes && mdl.childNodes.size) this.walkChildNodesTreeAndMark(mdl);
-                                mdl.color = color.CHANGED;
-
-                                await this.hooks.rebuildModule.promise(this.scheduler, mdl);
-
-                                let changedDeps = await this.scheduler.$doDPA();
-                                let map = new Map(changedDeps.map((mdl)=>[mdl.src, mdl]));
-                                await this.optimizeAndGenerate(map, this.scheduler.appConfigs, cmd);
-                            } catch (e) {
-                                error('编译失败', {error: e});
-                            }
-                        });
-                    };
-
                     this.scheduler.$indexOfModule.forEach((mdl)=>{
                         if (!mdl.outerDependencies || !mdl.outerDependencies.size || !mdl.outerDependencies.has(filepath)) return;
 
@@ -196,7 +196,7 @@ class Builder {
         if (!mdl.isFile) {
             let hash = getHash(filepath);
             isChange = mdl.hash !== hash;
-            debug('OLD HASH %s, NEW HASH %s', mdl.hash, hash);
+            if (cmd.verbose) console.debug('OLD HASH %s, NEW HASH %s', mdl.hash, hash);
         }
 
         if (isChange) {
@@ -208,6 +208,16 @@ class Builder {
             let changedDeps;
             try {
                 this.scheduler.$depPending.push(mdl);
+                if (mdl.outerDependencies && mdl.outerDependencies.size) {
+                    mdl.outerDependencies.forEach((filepath) => {
+                        let tar = this.scheduler.$indexOfModule.get(filepath);
+                        if(tar)  {
+                            tar.color = color.CHANGED;
+                            this.scheduler.$depPending.push(tar);
+                        }
+                    })
+
+                }
                 // 2019-08-20 childNodes will auto mark in scheduler
                 // if (mdl.childNodes && mdl.childNodes.size) this.walkChildNodesTreeAndMark(mdl);
 
@@ -332,9 +342,9 @@ class Builder {
                 appConfigs: appConfigs,
             });
             wxaPerformance.markEnd('wxa_optimize_code-init');
-            
+
             applyPlugins(this.scheduler.wxaConfigs.plugins, optimizer);
-            
+
             await optimizer.run(indexedMap, appConfigs, fullModuleMap);
             wxaPerformance.markEnd('wxa_optimize_code');
 
@@ -345,7 +355,7 @@ class Builder {
             indexedMap.forEach((mdl)=>{
                 generateTasks.push(generator.do(mdl));
             });
-            
+
             await Promise.all(generateTasks);
 
             wxaPerformance.markEnd('wxa_generate_code');
