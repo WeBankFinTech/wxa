@@ -1,6 +1,6 @@
 {
   "name": "@wxa/plugin-replace",
-  "version": "2.3.1",
+  "version": "2.4.1",
   "description": "replace string",
   "main": "index.js",
   "scripts": {},
