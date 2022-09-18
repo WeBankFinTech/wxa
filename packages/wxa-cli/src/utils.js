@@ -4,6 +4,7 @@ import path from 'path';
 import mkdirp from 'mkdirp';
 import cache from './fs-cache';
 import crypto from 'crypto';
+import {SourceMapGenerator, SourceMapConsumer} from 'source-map';
 
 let current = process.cwd();
 let pkg = require('../package.json');
@@ -94,7 +95,7 @@ export function copy(from, to) {
             if (err) return reject(err);
 
             resolve();
-        })
+        });
     });
 }
 
@@ -165,4 +166,127 @@ export function removeClass(classStr, destClass) {
     let classSet = getClassSet(classStr);
     classSet.delete(destClass);
     return Array.from(classSet);
+}
+
+const splitRE = /\r?\n/g;
+const emptyRE = /^(?:\/\/)?\s*$/;
+export function generateSourceMap(filename, source, generated, sourceRoot, pad) {
+    const map = new SourceMapGenerator({
+        file: filename.replace(/\\/g, '/'),
+        sourceRoot: sourceRoot.replace(/\\/g, '/'),
+    });
+    let offset = 0;
+    if (!pad) {
+        offset =
+            source
+                .split(generated)
+                .shift()
+                .split(splitRE).length - 1;
+    }
+    map.setSourceContent(filename, source);
+    generated.split(splitRE).forEach((line, index) => {
+        if (!emptyRE.test(line)) {
+            map.addMapping({
+                source: filename,
+                original: {
+                    line: index + 1 + offset,
+                    column: 0,
+                },
+                generated: {
+                    line: index + 1,
+                    column: 0,
+                },
+            });
+        }
+    });
+    return JSON.parse(map.toString());
+}
+
+export async function updateSourceMap(oldMap, source = '', generated = '') {
+    if (!oldMap) {
+        return oldMap;
+    }
+    let oldMapConsumer = await new SourceMapConsumer(oldMap);
+    let newMapGenerator = new SourceMapGenerator();
+    let offset =
+        generated
+                .split(source)
+                .shift()
+                .split(splitRE).length - 1;
+
+    oldMapConsumer.eachMapping(function(m) {
+        if (m.originalLine == null) return;
+        
+        newMapGenerator.addMapping({
+            original: {
+                line: m.originalLine,
+                column: m.originalColumn,
+            },
+            generated: {
+                line: m.generatedLine + offset,
+                column: m.generatedColumn + offset,
+            },
+            source: m.source,
+            name: m.name,
+        });
+    });
+
+    oldMapConsumer.sources.forEach(function(sourceFile) {
+        let sourceContent = oldMapConsumer.sourceContentFor(sourceFile);
+        if (sourceContent != null) {
+            newMapGenerator.setSourceContent(sourceFile, sourceContent);
+        }
+    });
+
+    oldMapConsumer.destroy();
+    return JSON.parse(newMapGenerator.toString());
+}
+
+
+export async function mergeSourceMap(oldMap, newMap) {
+    if (!oldMap) return newMap;
+    if (!newMap) return oldMap;
+
+    let oldMapConsumer = await new SourceMapConsumer(oldMap);
+    let newMapConsumer = await new SourceMapConsumer(newMap);
+    let mergedMapGenerator =new SourceMapGenerator();
+
+    // iterate on new map and overwrite original position of new map with one of old map
+    newMapConsumer.eachMapping(function(m) {
+        // pass when `originalLine` is null.
+        // It occurs in case that the node does not have origin in original code.
+        if (m.originalLine == null) return;
+
+        let origPosInOldMap = oldMapConsumer.originalPositionFor({
+            line: m.originalLine,
+            column: m.originalColumn,
+        });
+
+        if (origPosInOldMap.source == null) return;
+
+        mergedMapGenerator.addMapping({
+            original: {
+                line: origPosInOldMap.line,
+                column: origPosInOldMap.column,
+            },
+            generated: {
+                line: m.generatedLine,
+                column: m.generatedColumn,
+            },
+            source: origPosInOldMap.source,
+            name: origPosInOldMap.name,
+        });
+    });
+
+    oldMapConsumer.sources.forEach(function(sourceFile) {
+        let sourceContent = oldMapConsumer.sourceContentFor(sourceFile);
+        if (sourceContent != null) {
+            mergedMapGenerator.setSourceContent(sourceFile, sourceContent);
+        }
+    });
+
+    oldMapConsumer.destroy();
+    newMapConsumer.destroy();
+
+    return JSON.parse(mergedMapGenerator.toString());
 }

@@ -31,10 +31,12 @@ export default class DefaultWxaConfigs {
                     test: /\.js$/,
                     name: 'babel',
                 },
-                {
-                    test: /\.sass|\.scss/,
-                    name: 'sass',
-                },
+                // sass is no longer default compiler in wxa project
+                // use postcss to transpiler your css file
+                // {
+                //     test: /\.sass|\.scss/,
+                //     name: 'sass',
+                // },
             ],
             optimization: {
                 splitDeps: {

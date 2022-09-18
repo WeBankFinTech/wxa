@@ -46,7 +46,6 @@
     "@babel/traverse": "~7.9.6",
     "@babel/types": "~7.9.6",
     "@wxa/compiler-babel": "latest",
-    "@wxa/compiler-sass": "latest",
     "chalk": "^2.3.0",
     "chokidar": "^3.3.1",
     "commander": "^8.1.0",
@@ -69,7 +68,8 @@
     "promise.prototype.finally": "^3.1.0",
     "shelljs": "^0.8.3",
     "tapable": "^1.0.0",
-    "valid-url": "^1.0.9"
+    "valid-url": "^1.0.9",
+    "source-map": "^0.7.3"
   },
   "publishConfig": {
     "access": "public"
