@@ -297,9 +297,7 @@ class Schedule {
     findOrAddDependency(dep, mdl) {
         // if a dependency is from remote, or dynamic path, or base64 format, then we ignore it.
         // cause we needn't process this kind of resource.
-        if (
-            isIgnoreFile(dep.pret)
-        ) return null;
+        if (isIgnoreFile(dep.pret)) return null;
 
         debug('Find Dependencies started %O', simplify(dep));
 
@@ -508,7 +506,7 @@ class Schedule {
 
             debug('page %s %s', wxaPage, page);
             let dr = new DependencyResolver(this.wxaConfigs.resolve, this.meta);
-            
+
             if (/.+(png|jpg|jpeg|webp|eot|woff|woff2|ttf|file')$/.test(page)) {
                 let src = path.join(this.meta.context, page);
                 try {
