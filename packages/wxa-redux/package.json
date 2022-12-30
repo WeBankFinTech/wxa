@@ -27,7 +27,7 @@
     "dependencies": {
         "@wxa/core": "latest",
         "deep-object-diff": "^1.1.0",
-        "flat": "^4.1.0",
+        "flat": "^5.0.1",
         "redux": "^3.7.2",
         "shallowequal": "^1.1.0"
     },
