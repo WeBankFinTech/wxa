@@ -1,6 +1,6 @@
 {
   "name": "@wxa/mobx",
-  "version": "2.4.1",
+  "version": "2.4.2",
   "description": "mobx plugin for wxa",
   "main": "dist/index.js",
   "scripts": {
