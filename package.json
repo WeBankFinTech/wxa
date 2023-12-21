@@ -33,11 +33,6 @@
 		"vuepress-plugin-sitemap": "^2.3.1",
 		"watchpack": "^1.6.1"
 	},
-	"husky": {
-		"hooks": {
-			"pre-commit": "npm test"
-		}
-	},
 	"scripts": {
 		"publish-next": "lerna publish --dist-tag=next --canary --preid rc",
 		"commit": "git-cz",
