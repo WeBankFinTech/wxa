@@ -6,7 +6,7 @@ import convert from './convert';
 import {getConfigs} from './getConfigs';
 import {WXA_PROJECT_NAME} from './const/wxaConfigs';
 import {isEmpty} from './utils';
-import {toolHandler} from './toolCli';
+import {toolHandler} from './toolcli';
 
 const version = require('../package.json').version;
 
