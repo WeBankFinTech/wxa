@@ -1,6 +1,6 @@
 {
   "name": "@wxa/plugin-tag-modify",
-  "version": "2.4.2",
+  "version": "2.5.1",
   "description": "batched modify tags",
   "main": "index.js",
   "scripts": {},
