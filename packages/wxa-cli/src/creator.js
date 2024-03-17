@@ -4,7 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import shell from 'shelljs';
 import https from 'https';
-import inquirer from 'inquirer';
+// import inquirer from 'inquirer';
 
 let remoteMap = new Map([
     ['github', 'https://github.com/wxajs'],
@@ -61,10 +61,10 @@ class Creator {
         try {
             // 先尝试从github、gitee远程拉取模版配置json，并询问项目名+模板类型
             let configs = await this.getRemoteConfigs();
-            options = await inquirer.prompt(getQA(JSON.parse(configs), this.cmdOptions.projectName));
+            options = await ((await import("inquirer")).default).prompt(getQA(JSON.parse(configs), this.cmdOptions.projectName));
         } catch (err) {
             // getRemoteConfigs失败后，先询问项目名，clone git模版仓库，拿到模版再配置询问模版类型
-                options = await inquirer.prompt(getQAProjectName(this.cmdOptions.projectName));
+                options = await ((await import("inquirer")).default).prompt(getQAProjectName(this.cmdOptions.projectName));
         }
         options.projectName = options.projectName || this.cmdOptions.projectName;
         this.create(options);

@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import {unlinkSync, statSync} from 'fs';
 import path from 'path';
-import globby from 'globby';
+// import {globbySync} from 'globby';
 import debugPKG from 'debug';
 import {SyncHook} from 'tapable';
 
@@ -21,6 +21,7 @@ import {isIgnoreFile} from './helpers/pathParser';
 
 let debug = debugPKG('WXA:Schedule');
 
+let globbySync;
 class Schedule {
     constructor(loader) {
         this.current = process.cwd();
@@ -212,6 +213,8 @@ class Schedule {
 
             // if module is app.json, then add Page entry points.
             if (dep.meta && dep.meta.source === this.APP_CONFIG_PATH) {
+                if (!globbySync) globbySync = (await import('globby')).globbySync;
+
                 let oldPages = new Map(this.$pageArray.entries());
                 let newPages = this.addPageEntryPoint();
                 newPages = new Map(newPages.map((page)=>[page.src, page]));
@@ -508,7 +511,7 @@ class Schedule {
 
             debug('page %s %s', wxaPage, page);
             let dr = new DependencyResolver(this.wxaConfigs.resolve, this.meta);
-            
+
             if (/.+(png|jpg|jpeg|webp|eot|woff|woff2|ttf|file')$/.test(page)) {
                 let src = path.join(this.meta.context, page);
                 try {
@@ -548,7 +551,7 @@ class Schedule {
                     logger.error(e);
                 }
             } else {
-                let sections = globby.sync(path.join(this.meta.context, page+'.*'));
+                let sections = globbySync(path.join(this.meta.context, page+'.*'));
 
                 sections.forEach((section)=>{
                     if (isFile(section)) {

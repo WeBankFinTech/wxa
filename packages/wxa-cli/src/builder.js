@@ -2,7 +2,7 @@ import {readFile, applyPlugins, isFile, getHash, promiseSerial, writeFile} from 
 import path from 'path';
 import fs from 'fs';
 import chokidar from 'chokidar';
-import globby from 'globby';
+// import {globby} from 'globby';
 import debugPKG from 'debug';
 
 import Schedule from './schedule';
@@ -332,9 +332,9 @@ class Builder {
                 appConfigs: appConfigs,
             });
             wxaPerformance.markEnd('wxa_optimize_code-init');
-            
+
             applyPlugins(this.scheduler.wxaConfigs.plugins, optimizer);
-            
+
             await optimizer.run(indexedMap, appConfigs, fullModuleMap);
             wxaPerformance.markEnd('wxa_optimize_code');
 
@@ -345,7 +345,7 @@ class Builder {
             indexedMap.forEach((mdl)=>{
                 generateTasks.push(generator.do(mdl));
             });
-            
+
             await Promise.all(generateTasks);
 
             wxaPerformance.markEnd('wxa_generate_code');
@@ -376,7 +376,7 @@ class Builder {
         entry = this.hooks.entryOption.call(entry) || entry;
         // debug('entry after hooks %O', entry);
 
-        entry = await globby(entry);
+        entry = await (await import('globby')).globby(entry);
         entry = entry.map((item)=>item.replace(/\//g, path.sep));
         debug('entry after globby %O', entry);
 

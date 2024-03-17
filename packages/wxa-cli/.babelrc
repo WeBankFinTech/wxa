@@ -4,8 +4,9 @@
             "@babel/preset-env",
             {
                 "targets": {
-                    "node": "8"
-                }
+                    "node": "14"
+                },
+                "exclude": ["proposal-dynamic-import"]
             }
         ]
     ],
